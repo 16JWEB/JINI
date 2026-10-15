@@ -372,6 +372,66 @@ science|ˈsaɪəns|과학
 history|ˈhɪstəri|역사
 art|ɑːrt|예술
 energy|ˈenərdʒi|에너지
+accident|ˈæksədənt|사고
+activity|ækˈtɪvəti|활동
+actor|ˈæktər|배우
+address|ˈædres|주소
+advertisement|ˌædvərˈtaɪzmənt|광고
+advice|ədˈvaɪs|조언
+airport|ˈerˌpɔːrt|공항
+album|ˈælbəm|앨범
+author|ˈɔːθər|작가
+background|ˈbækɡraʊnd|배경
+building|ˈbɪldɪŋ|건물
+business|ˈbɪznəs|사업
+capital|ˈkæpɪtəl|수도, 자본
+career|kəˈrɪr|직업, 경력
+century|ˈsentʃəri|세기
+character|ˈkærəktər|성격, 등장인물
+college|ˈkɑːlɪdʒ|대학
+concert|ˈkɑːnsərt|음악회
+customer|ˈkʌstəmər|손님, 고객
+deadline|ˈdedlaɪn|마감일
+department|dɪˈpɑːrtmənt|부서
+direction|dəˈrekʃən|방향
+discussion|dɪˈskʌʃən|토론
+distance|ˈdɪstəns|거리
+driver|ˈdraɪvər|운전자
+entrance|ˈentrəns|입구
+event|ɪˈvent|행사
+exercise|ˈeksərsaɪz|운동, 연습
+factory|ˈfæktəri|공장
+flight|flaɪt|비행
+guest|ɡest|손님
+guide|ɡaɪd|안내자, 안내서
+habit|ˈhæbɪt|습관
+information|ˌɪnfərˈmeɪʃən|정보
+machine|məˈʃiːn|기계
+meal|miːl|식사
+neighbor|ˈneɪbər|이웃
+news|nuːz|뉴스
+novel|ˈnɑːvəl|소설
+passenger|ˈpæsəndʒər|승객
+permission|pərˈmɪʃən|허락
+postcard|ˈpoʊstkɑːrd|엽서
+product|ˈprɑːdʌkt|제품
+program|ˈproʊɡræm|프로그램
+project|ˈprɑːdʒekt|과제, 프로젝트
+report|rɪˈpɔːrt|보고서
+skill|skɪl|기술, 능력
+sport|spɔːrt|운동, 스포츠
+traffic|ˈtræfɪk|교통
+village|ˈvɪlɪdʒ|마을
+website|ˈwebsaɪt|웹사이트
+invention|ɪnˈvenʃən|발명품
+journey|ˈdʒɝːni|여정
+map|mæp|지도
+appointment|əˈpɔɪntmənt|약속
+atmosphere|ˈætməsfɪr|분위기
+basket|ˈbæskɪt|바구니
+bicycle|ˈbaɪsɪkəl|자전거
+bridge|brɪdʒ|다리
+custom|ˈkʌstəm|관습
 `,
       verb: `
 ask|æsk|묻다
@@ -420,6 +480,55 @@ wish|wɪʃ|바라다, 소원하다
 borrow|ˈbɑːroʊ|빌리다
 return|rɪˈtɝːn|돌려주다, 돌아오다
 share|ʃer|나누다, 공유하다
+add|æd|더하다
+advise|ədˈvaɪz|조언하다
+announce|əˈnaʊns|발표하다
+apologize|əˈpɑːlədʒaɪz|사과하다
+apply|əˈplaɪ|신청하다, 적용하다
+behave|bɪˈheɪv|행동하다
+complain|kəmˈpleɪn|불평하다
+complete|kəmˈpliːt|완료하다
+continue|kənˈtɪnjuː|계속하다
+control|kənˈtroʊl|통제하다
+divide|dɪˈvaɪd|나누다
+enter|ˈentər|들어가다
+escape|ɪˈskeɪp|탈출하다
+expect|ɪkˈspekt|기대하다
+fail|feɪl|실패하다
+fill|fɪl|채우다
+guess|ɡes|추측하다
+happen|ˈhæpən|일어나다
+introduce|ˌɪntrəˈduːs|소개하다
+miss|mɪs|놓치다, 그리워하다
+prepare|prɪˈper|준비하다
+promise|ˈprɑːmɪs|약속하다
+reach|riːtʃ|도달하다
+receive|rɪˈsiːv|받다
+refuse|rɪˈfjuːz|거절하다
+repeat|rɪˈpiːt|반복하다
+reply|rɪˈplaɪ|대답하다
+search|sɝːtʃ|찾다, 검색하다
+seem|siːm|~인 것 같다
+thank|θæŋk|감사하다
+translate|trænsˈleɪt|번역하다
+waste|weɪst|낭비하다
+wonder|ˈwʌndər|궁금해하다
+belong|bɪˈlɔːŋ|속하다
+collect|kəˈlekt|모으다
+deliver|dɪˈlɪvər|배달하다
+handle|ˈhændəl|다루다
+lead|liːd|이끌다
+print|prɪnt|인쇄하다
+raise|reɪz|올리다, 기르다
+pack|pæk|짐을 싸다
+remind|rɪˈmaɪnd|상기시키다
+fold|foʊld|접다
+calculate|ˈkælkjəleɪt|계산하다
+celebrate|ˈseləbreɪt|축하하다
+cancel|ˈkænsəl|취소하다
+decorate|ˈdekəreɪt|장식하다
+disagree|ˌdɪsəˈɡriː|동의하지 않다
+download|ˌdaʊnˈloʊd|내려받다
 `,
       adjective: `
 afraid|əˈfreɪd|두려워하는
@@ -456,6 +565,57 @@ possible|ˈpɑːsəbəl|가능한
 simple|ˈsɪmpəl|간단한
 terrible|ˈterəbəl|끔찍한
 thirsty|ˈθɝːsti|목마른
+absent|ˈæbsənt|결석한
+active|ˈæktɪv|활동적인
+alive|əˈlaɪv|살아 있는
+alone|əˈloʊn|혼자 있는
+amazing|əˈmeɪzɪŋ|놀라운
+awful|ˈɔːfəl|끔찍한
+blind|blaɪnd|눈이 먼
+bored|bɔːrd|지루해하는
+boring|ˈbɔːrɪŋ|지루한
+cheerful|ˈtʃɪrfəl|쾌활한
+clear|klɪr|분명한, 맑은
+clever|ˈklevər|영리한
+cloudy|ˈklaʊdi|흐린
+dead|ded|죽은
+deep|diːp|깊은
+gentle|ˈdʒentəl|상냥한
+glad|ɡlæd|기쁜
+gray|ɡreɪ|회색의
+green|ɡriːn|초록색의
+helpful|ˈhelpfəl|도움이 되는
+honest|ˈɑːnɪst|정직한
+huge|hjuːdʒ|거대한
+independent|ˌɪndɪˈpendənt|독립적인
+lovely|ˈlʌvli|사랑스러운
+mad|mæd|화난
+narrow|ˈnæroʊ|좁은
+nervous|ˈnɝːvəs|긴장한
+pleased|pliːzd|기쁜, 만족한
+proud|praʊd|자랑스러워하는
+rainy|ˈreɪni|비가 오는
+real|riːl|진짜의
+responsible|rɪˈspɑːnsəbəl|책임감 있는
+round|raʊnd|둥근
+silent|ˈsaɪlənt|조용한
+smooth|smuːð|매끄러운
+social|ˈsoʊʃəl|사회적인
+sorry|ˈsɑːri|미안한
+straight|streɪt|곧은
+sure|ʃʊr|확신하는
+tiny|ˈtaɪni|아주 작은
+upset|ʌpˈset|속상한
+wet|wet|젖은
+wise|waɪz|현명한
+yellow|ˈjeloʊ|노란색의
+curious|ˈkjʊriəs|궁금해하는
+foreign|ˈfɔːrən|외국의
+pleasant|ˈplezənt|기분 좋은
+strange|streɪndʒ|이상한
+shy|ʃaɪ|수줍은
+wild|waɪld|야생의
+minor|ˈmaɪnər|작은, 중요하지 않은
 `,
     },
     고등: {
@@ -510,6 +670,76 @@ standard|ˈstændərd|기준
 treatment|ˈtriːtmənt|치료, 대우
 wealth|welθ|부
 feature|ˈfiːtʃər|특징
+agriculture|ˈæɡrɪkʌltʃər|농업
+analysis|əˈnæləsɪs|분석
+approach|əˈproʊtʃ|접근, 접근법
+area|ˈeriə|지역, 분야
+aspect|ˈæspekt|측면
+authority|əˈθɔːrəti|권한, 당국
+category|ˈkætəɡɔːri|범주
+climate|ˈklaɪmət|기후
+conflict|ˈkɑːnflɪkt|갈등
+context|ˈkɑːntekst|맥락
+contract|ˈkɑːntrækt|계약
+contribution|ˌkɑːntrɪˈbjuːʃən|기여
+debate|dɪˈbeɪt|토론
+demand|dɪˈmænd|요구, 수요
+design|dɪˈzaɪn|설계, 디자인
+detail|ˈdiːteɪl|세부 사항
+diversity|daɪˈvɝːsəti|다양성
+document|ˈdɑːkjumənt|문서
+drama|ˈdrɑːmə|극, 드라마
+duty|ˈduːti|의무
+effort|ˈefərt|노력
+element|ˈeləmənt|요소
+evidence|ˈevədəns|증거
+exchange|ɪksˈtʃeɪndʒ|교환
+expense|ɪkˈspens|비용
+expert|ˈekspɝːt|전문가
+factor|ˈfæktər|요인
+failure|ˈfeɪljər|실패
+fashion|ˈfæʃən|유행, 패션
+finance|ˈfaɪnæns|재정
+focus|ˈfoʊkəs|초점
+foundation|faʊnˈdeɪʃən|기초, 재단
+function|ˈfʌŋkʃən|기능
+goal|ɡoʊl|목표
+growth|ɡroʊθ|성장
+impact|ˈɪmpækt|영향
+importance|ɪmˈpɔːrtəns|중요성
+impression|ɪmˈpreʃən|인상
+independence|ˌɪndɪˈpendəns|독립
+issue|ˈɪʃuː|문제, 쟁점
+item|ˈaɪtəm|항목
+limit|ˈlɪmɪt|한계
+majority|məˈdʒɔːrəti|대다수
+management|ˈmænɪdʒmənt|관리
+mission|ˈmɪʃən|임무
+mistake|mɪˈsteɪk|실수
+movement|ˈmuːvmənt|움직임, 운동
+nature|ˈneɪtʃər|자연, 본성
+object|ˈɑːbdʒekt|물체, 대상
+occasion|əˈkeɪʒən|경우, 행사
+policy|ˈpɑːləsi|정책
+principle|ˈprɪnsəpəl|원칙
+process|ˈprɑːses|과정
+progress|ˈprɑːɡres|진전, 발전
+property|ˈprɑːpərti|재산, 특성
+range|reɪndʒ|범위
+region|ˈriːdʒən|지역
+regulation|ˌreɡjuˈleɪʃən|규정
+security|sɪˈkjʊrəti|안전, 보안
+source|sɔːrs|출처, 근원
+structure|ˈstrʌktʃər|구조
+survey|ˈsɝːveɪ|설문 조사
+task|tæsk|과제
+theory|ˈθɪri|이론
+threat|θret|위협
+topic|ˈtɑːpɪk|주제
+view|vjuː|견해, 관점
+award|əˈwɔːrd|상
+belief|bɪˈliːf|믿음
+benefit|ˈbenəfɪt|이점, 혜택
 `,
       verb: `
 achieve|əˈtʃiːv|성취하다
@@ -552,6 +782,70 @@ argue|ˈɑːrɡjuː|논쟁하다
 attend|əˈtend|참석하다
 communicate|kəˈmjuːnəkeɪt|의사소통하다
 contribute|kənˈtrɪbjuːt|기여하다
+analyze|ˈænəlaɪz|분석하다
+assess|əˈses|평가하다
+assume|əˈsuːm|가정하다
+claim|kleɪm|주장하다
+clarify|ˈklerəfaɪ|명확하게 하다
+conduct|kənˈdʌkt|수행하다
+confirm|kənˈfɝːm|확인하다
+connect|kəˈnekt|연결하다
+consist|kənˈsɪst|이루어져 있다
+convince|kənˈvɪns|확신시키다
+demonstrate|ˈdemənstreɪt|입증하다
+determine|dɪˈtɝːmɪn|결정하다
+distinguish|dɪˈstɪŋɡwɪʃ|구별하다
+distribute|dɪˈstrɪbjuːt|분배하다
+emphasize|ˈemfəsaɪz|강조하다
+enable|ɪˈneɪbəl|가능하게 하다
+ensure|ɪnˈʃʊr|보장하다
+evaluate|ɪˈvæljueɪt|평가하다
+examine|ɪɡˈzæmɪn|조사하다
+expand|ɪkˈspænd|확장하다
+explore|ɪkˈsplɔːr|탐구하다
+express|ɪkˈspres|표현하다
+extend|ɪkˈstend|늘리다, 연장하다
+gain|ɡeɪn|얻다
+identify|aɪˈdentəfaɪ|확인하다, 식별하다
+indicate|ˈɪndəkeɪt|나타내다
+interpret|ɪnˈtɝːprɪt|해석하다
+maintain|meɪnˈteɪn|유지하다
+obtain|əbˈteɪn|얻다
+perform|pərˈfɔːrm|수행하다
+persuade|pərˈsweɪd|설득하다
+prevent|prɪˈvent|막다, 예방하다
+publish|ˈpʌblɪʃ|출판하다
+recognize|ˈrekəɡnaɪz|알아보다, 인정하다
+recommend|ˌrekəˈmend|추천하다
+reflect|rɪˈflekt|반영하다, 숙고하다
+reject|rɪˈdʒekt|거절하다
+release|rɪˈliːs|발표하다, 풀어 주다
+represent|ˌreprɪˈzent|나타내다, 대표하다
+reveal|rɪˈviːl|드러내다
+select|sɪˈlekt|선택하다
+separate|ˈsepəreɪt|분리하다
+strengthen|ˈstreŋθən|강화하다
+struggle|ˈstrʌɡəl|애쓰다, 고군분투하다
+target|ˈtɑːrɡɪt|목표로 삼다
+transform|trænsˈfɔːrm|변화시키다
+vary|ˈveri|달라지다
+advance|ədˈvæns|진전시키다
+attract|əˈtrækt|끌어들이다
+combine|kəmˈbaɪn|결합하다
+depend|dɪˈpend|의존하다
+estimate|ˈestəmeɪt|추정하다
+generate|ˈdʒenəreɪt|생성하다
+ignore|ɪɡˈnɔːr|무시하다
+imply|ɪmˈplaɪ|암시하다
+occur|əˈkɝːr|발생하다
+participate|pɑːrˈtɪsəpeɪt|참여하다
+pursue|pərˈsuː|추구하다
+recover|rɪˈkʌvər|회복하다
+refer|rɪˈfɝːr|언급하다, 참고하다
+relate|rɪˈleɪt|관련시키다
+replace|rɪˈpleɪs|대체하다
+request|rɪˈkwest|요청하다
+retain|rɪˈteɪn|유지하다, 보유하다
 `,
       adjective: `
 aware|əˈwer|알고 있는
@@ -584,7 +878,53 @@ specific|spəˈsɪfɪk|구체적인
 successful|səkˈsesfəl|성공한
 traditional|trəˈdɪʃənəl|전통적인
 valuable|ˈvæljuəbəl|가치 있는
-`
+accurate|ˈækjərət|정확한
+additional|əˈdɪʃənəl|추가의
+appropriate|əˈproʊpriət|적절한
+beneficial|ˌbenəˈfɪʃəl|유익한
+broad|brɔːd|넓은
+capable|ˈkeɪpəbəl|유능한, 할 수 있는
+chief|tʃiːf|주요한
+civil|ˈsɪvəl|시민의
+commercial|kəˈmɝːʃəl|상업의
+competitive|kəmˈpetətɪv|경쟁력 있는
+considerable|kənˈsɪdərəbəl|상당한
+constant|ˈkɑːnstənt|끊임없는
+cultural|ˈkʌltʃərəl|문화의
+deliberate|dɪˈlɪbərət|의도적인
+dependent|dɪˈpendənt|의존하는
+direct|dəˈrekt|직접적인
+distinct|dɪˈstɪŋkt|뚜렷이 다른
+domestic|dəˈmestɪk|국내의, 가정의
+dramatic|drəˈmætɪk|극적인
+educational|ˌedʒəˈkeɪʃənəl|교육의
+efficient|ɪˈfɪʃənt|효율적인
+enormous|ɪˈnɔːrməs|거대한
+financial|faɪˈnænʃəl|재정의
+former|ˈfɔːrmər|이전의
+formal|ˈfɔːrməl|공식적인
+frequent|ˈfriːkwənt|빈번한
+fundamental|ˌfʌndəˈmentəl|기본적인
+initial|ɪˈnɪʃəl|초기의
+limited|ˈlɪmɪtɪd|제한된
+overall|ˌoʊvərˈɔːl|전반적인
+particular|pərˈtɪkjələr|특정한
+political|pəˈlɪtɪkəl|정치의
+professional|prəˈfeʃənəl|전문적인
+proper|ˈprɑːpər|적절한
+relevant|ˈreləvənt|관련 있는
+reliable|rɪˈlaɪəbəl|믿을 만한
+remarkable|rɪˈmɑːrkəbəl|주목할 만한
+significant|sɪɡˈnɪfɪkənt|중요한
+slight|slaɪt|약간의
+sufficient|səˈfɪʃənt|충분한
+technical|ˈteknɪkəl|기술적인
+temporary|ˈtempəreri|일시적인
+theoretical|ˌθiːəˈretɪkəl|이론적인
+unique|juˈniːk|독특한
+urban|ˈɝːbən|도시의
+widespread|ˈwaɪdspred|널리 퍼진
+`,
     }
   };
 
@@ -851,6 +1191,72 @@ valuable|ˈvæljuəbəl|가치 있는
     "오늘 {meaning}에 관해 이야기했습니다.",
     "{obj} 찾을 수 있나요?"
   ];
+  const levelNounKoreanTemplates = {
+    중등: [
+      "수업에서 {meaning}에 대해 배웠습니다.",
+      "{meaning}에 관한 새로운 사실을 찾았습니다.",
+      "방과 후에 {meaning}에 대해 토론했습니다.",
+      "{meaning}에 대한 짧은 보고서를 썼습니다.",
+      "우리 반은 {meaning}에 대한 생각을 나눴습니다.",
+      "여행 중에 {obj} 보았습니다.",
+      "{meaning}에 대해 설명해 줄 수 있나요?",
+      "책에서 {meaning}의 예를 찾았습니다."
+    ],
+    고등: [
+      "사회에서 {meaning}{subj} 어떤 역할을 하는지 연구했습니다.",
+      "보고서는 {meaning}{subj} 일상에 미치는 영향을 다룹니다.",
+      "그녀의 글은 {obj} 관련 개념과 비교합니다.",
+      "기사는 {meaning}에 대한 새로운 관점을 제시합니다.",
+      "{meaning}{subj} 공동체에 미치는 영향을 논의했습니다.",
+      "그의 연구는 {meaning}의 역사를 살펴봅니다.",
+      "발표자는 {meaning}{subj} 여전히 중요한 이유를 설명했습니다.",
+      "{obj} 이해하려면 맥락을 주의 깊게 살펴야 합니다."
+    ]
+  };
+  const levelVerbKoreanTemplates = {
+    중등: [
+      "{gerund}는 방법을 수업 후에 연습했습니다.",
+      "그녀는 더 주의해서 {infinitive}를 배웠습니다.",
+      "어떻게 {gerund}는지 설명해 줄 수 있나요?",
+      "점심 전에 {infinitive}로 결정했습니다.",
+      "도움 없이 {infinitive}를 시도했습니다.",
+      "경기 중에 그들이 {gerund} 것을 보았습니다.",
+      "수업에서 언제 {gerund}는지 배웠습니다.",
+      "그 팀은 {gerund} 새로운 방법을 찾았습니다."
+    ],
+    고등: [
+      "상황이 바뀌면 신중하게 {necessity} 합니다.",
+      "시간을 낭비하지 않고 {gerund}는 방법을 설명했습니다.",
+      "가능한 선택지를 검토한 뒤 {infinitive}로 결정했습니다.",
+      "예기치 못한 문제가 있었지만 {gerund} 데 성공했습니다.",
+      "효율적으로 {gerund} 더 나은 방법을 발견했습니다.",
+      "모두 준비되면 {infinitive}기로 합의했습니다.",
+      "불필요한 문제를 피하려면 신중하게 {necessity} 합니다.",
+      "잘 {infinitive} 위해서는 인내심과 계획이 필요합니다."
+    ]
+  };
+  const levelAdjectiveKoreanTemplates = {
+    중등: [
+      "수업 이야기에서 '{word}'를 사용했습니다.",
+      "'{word}'가 무슨 뜻인지 설명할 수 있나요?",
+      "그녀는 장면을 묘사할 때 '{word}'를 골랐습니다.",
+      "글에 '{word}'라는 단어가 나옵니다.",
+      "그는 '{word}'를 다른 형용사와 비교했습니다.",
+      "직접 만든 문장에 '{word}'를 사용해 보세요.",
+      "선생님은 '{word}'의 뜻을 설명해 보라고 하셨습니다.",
+      "'{word}'를 어떻게 쓰는지 함께 이야기했습니다."
+    ],
+    고등: [
+      "글쓴이는 독자의 인상을 만들기 위해 '{word}'를 사용합니다.",
+      "이 형용사는 인물의 달라지는 기분을 설명합니다.",
+      "글은 선명한 이미지를 만들기 위해 '{word}'를 사용합니다.",
+      "'{word}'와 더 정확한 표현을 비교해 보세요.",
+      "글쓴이는 주장을 뒷받침하려고 '{word}'를 골랐습니다.",
+      "문맥에 따라 '{word}'의 의미가 달라질 수 있습니다.",
+      "이 기사는 특정한 맥락에서 '{word}'를 사용합니다.",
+      "이 문장에서 '{word}'가 효과적인 이유를 설명하세요."
+    ]
+  };
 
   function koreanParticle(value) {
     const last = String(value).trim().replace(/[.!?'"”’)\]]+$/g, "").slice(-1);
@@ -1456,14 +1862,16 @@ valuable|The experience was valuable because it taught us how to work as a team.
           exampleKo = nounExampleTranslations[fields[0]];
           if (!exampleKo) {
             const meaning = fields[2].split(",")[0].trim();
-            exampleKo = nounKoreanTemplates[exampleIndex % nounKoreanTemplates.length]
+            const templates = levelNounKoreanTemplates[level] || nounKoreanTemplates;
+            exampleKo = templates[exampleIndex % templates.length]
               .replace(/\{obj\}/g, meaning + koreanParticle(meaning))
               .replace(/\{subj\}/g, meaning + koreanSubjectParticle(meaning))
               .replace(/\{meaning\}/g, meaning);
           }
         } else if (partOfSpeech === "verb") {
           const forms = verbForms(fields[2]);
-          exampleKo = verbExampleTranslations[fields[0]] || verbKoreanTemplates[exampleIndex % verbKoreanTemplates.length]
+          const templates = levelVerbKoreanTemplates[level] || verbKoreanTemplates;
+          exampleKo = verbExampleTranslations[fields[0]] || templates[exampleIndex % templates.length]
             .replace(/\{infinitive\}/g, forms.infinitive)
             .replace(/\{future\}/g, forms.future)
             .replace(/\{gerund\}/g, forms.gerund)
@@ -1471,7 +1879,8 @@ valuable|The experience was valuable because it taught us how to work as a team.
             .replace(/\{promise\}/g, forms.promise);
         } else {
           const meaning = fields[2].split(",")[0].trim();
-          exampleKo = adjectiveKoreanTemplates[exampleIndex % adjectiveKoreanTemplates.length]
+          const templates = levelAdjectiveKoreanTemplates[level] || adjectiveKoreanTemplates;
+          exampleKo = templates[exampleIndex % templates.length]
             .replace(/\{word\}/g, fields[0])
             .replace(/\{meaning\}/g, meaning);
         }
