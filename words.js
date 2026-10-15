@@ -1258,6 +1258,12 @@ widespread|ˈwaɪdspred|널리 퍼진
     ]
   };
 
+  function primaryMeaning(meaning) {
+    return String(meaning).split(/[;,]/)[0]
+      .replace(/\s*\((?:명사|동사|형용사|부사|전치사|접속사)\)/g, "")
+      .trim();
+  }
+
   function koreanParticle(value) {
     const last = String(value).trim().replace(/[.!?'"”’)\]]+$/g, "").slice(-1);
     const code = last.charCodeAt(0);
@@ -1273,7 +1279,7 @@ widespread|ˈwaɪdspred|널리 퍼진
   }
 
   function verbForms(meaning) {
-    const verb = String(meaning).split(",")[0].replace(/\s*\([^)]*\)/g, "").trim();
+    const verb = primaryMeaning(meaning).replace(/\s*\([^)]*\)/g, "").trim();
     const stem = verb.endsWith("다") ? verb.slice(0, -1) : verb;
     const last = stem.slice(-1);
     const code = last.charCodeAt(0);
@@ -1333,6 +1339,7 @@ widespread|ˈwaɪdspred|널리 퍼진
   const alternateExampleTranslations = {
     "Apple makes computers and phones.": "애플은 컴퓨터와 휴대전화를 만듭니다.",
     "We booked a table for six.": "여섯 명 자리를 예약했습니다.",
+    "We clean our classroom after art class.": "미술 수업이 끝나면 교실을 청소합니다.",
     "The boat rested on the riverbed.": "배가 강바닥에 놓여 있었습니다.",
     "Passengers boarded the train at noon.": "승객들은 정오에 기차에 탔습니다.",
     "The two athletes boxed for three rounds.": "두 선수는 3라운드 동안 권투 경기를 했습니다.",
@@ -1846,6 +1853,15 @@ valuable|The experience was valuable because it taught us how to work as a team.
     });
   });
 
+  const extraVocabulary = window.JINI_EXTRA_VOCABULARY || {};
+  Object.keys(extraVocabulary).forEach(function (level) {
+    Object.keys(extraVocabulary[level]).forEach(function (partOfSpeech) {
+      if (!raw[level]) throw new Error("Unknown vocabulary level: " + level);
+      if (!examples[partOfSpeech]) throw new Error("Unknown part of speech: " + partOfSpeech);
+      raw[level][partOfSpeech] = (raw[level][partOfSpeech] || "") + "\n" + extraVocabulary[level][partOfSpeech];
+    });
+  });
+
   const result = [];
   let exampleIndex = 0;
   Object.keys(raw).forEach(function (level) {
@@ -1861,7 +1877,7 @@ valuable|The experience was valuable because it taught us how to work as a team.
         } else if (partOfSpeech === "noun") {
           exampleKo = nounExampleTranslations[fields[0]];
           if (!exampleKo) {
-            const meaning = fields[2].split(",")[0].trim();
+            const meaning = primaryMeaning(fields[2]);
             const templates = levelNounKoreanTemplates[level] || nounKoreanTemplates;
             exampleKo = templates[exampleIndex % templates.length]
               .replace(/\{obj\}/g, meaning + koreanParticle(meaning))
@@ -1878,7 +1894,7 @@ valuable|The experience was valuable because it taught us how to work as a team.
             .replace(/\{necessity\}/g, forms.necessity)
             .replace(/\{promise\}/g, forms.promise);
         } else {
-          const meaning = fields[2].split(",")[0].trim();
+          const meaning = primaryMeaning(fields[2]);
           const templates = levelAdjectiveKoreanTemplates[level] || adjectiveKoreanTemplates;
           exampleKo = templates[exampleIndex % templates.length]
             .replace(/\{word\}/g, fields[0])
@@ -1900,6 +1916,7 @@ valuable|The experience was valuable because it taught us how to work as a team.
   const alternateSenses = {
     apple: [{ meaning: "애플(회사명)", example: "Apple makes computers and phones." }],
     book: [{ meaning: "예약하다 (동사)", example: "We booked a table for six." }],
+    clean: [{ meaning: "청소하다 (동사)", example: "We clean our classroom after art class." }],
     bed: [{ meaning: "바닥, 하상", example: "The boat rested on the riverbed." }],
     board: [{ meaning: "탑승하다 (동사)", example: "Passengers boarded the train at noon." }],
     box: [{ meaning: "권투하다 (동사)", example: "The two athletes boxed for three rounds." }],
