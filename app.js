@@ -765,19 +765,19 @@
     }
     speech.cancel();
     const token = ++verbSpeechToken;
-    let index = 0;
+    let index = -1;
     function speakNext() {
       if (token !== verbSpeechToken) return;
-      const isMeaning = index >= forms.length;
+      if (index >= forms.length) {
+        if (onComplete) onComplete();
+        return;
+      }
+      const isMeaning = index === -1;
       const utterance = new SpeechSynthesisUtterance(isMeaning ? meaning : forms[index]);
       utterance.lang = isMeaning ? "ko-KR" : "en-US";
       utterance.rate = 0.88;
       utterance.onend = function () {
         if (token !== verbSpeechToken) return;
-        if (isMeaning) {
-          if (onComplete) onComplete();
-          return;
-        }
         index += 1;
         speakNext();
       };
