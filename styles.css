@@ -122,6 +122,7 @@ h1 span { color: #6857df; }
 .star-two { top: 155px; right: 245px; font-size: 24px; }
 .sound-bubble { position: absolute; top: 130px; right: 57px; width: 39px; height: 39px; display: grid; place-items: center; border: 1px solid #e7e3ff; border-radius: 50%; background: white; color: var(--purple); font-size: 18px; box-shadow: 0 4px 13px #5647ac12; }
 .home-section { min-height: min(68vh, 620px); display: grid; place-items: center; }
+.home-section[hidden] { display: none; }
 .home-start-button { min-height: 42px; padding: 0 17px; border: 0; border-radius: 9px; background: var(--purple); color: white; cursor: pointer; font-size: 13px; font-weight: 700; box-shadow: 0 5px 12px #6958e82e; transition: transform .16s ease, background .16s ease; }
 .home-start-button:hover { transform: translateY(-2px); background: #5947d5; }
 .stat-card { min-height: 82px; display: flex; align-items: center; gap: 12px; padding: 15px 17px; border: 1px solid #eff0f5; border-radius: 12px; background: white; }
