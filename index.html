@@ -18,12 +18,14 @@
         <span>JINI<span class="brand-dot">.</span></span>
       </a>
 
+      <nav class="home-nav" aria-label="기본 메뉴">
+        <button class="nav-item active" data-page="home">
+          <span class="nav-icon">⌂</span><span>홈</span>
+        </button>
+      </nav>
       <div class="menu-label">AI 영어공부</div>
       <nav class="main-nav" aria-label="학습 메뉴">
         <div class="nav-submenu" role="group" aria-label="AI 영어공부 하위 메뉴">
-          <button class="nav-item active" data-page="home">
-            <span class="nav-icon">⌂</span><span>홈</span>
-          </button>
           <button class="nav-item" data-page="vocabulary">
             <span class="nav-icon">▦</span><span>필수 단어</span><span class="nav-count" id="nav-total-count">2400</span>
           </button>
@@ -54,39 +56,7 @@
       </header>
 
       <section class="home-section" id="home-section">
-        <div class="welcome">
-          <div class="welcome-copy">
-            <span class="eyebrow"><span class="sparkle">✦</span> WELCOME TO JINI</span>
-            <h1>오늘도 한 걸음,<br><span>영어 공부</span> 시작해요</h1>
-            <p>필수 단어부터 듣기와 동사 변화까지,<br>나에게 맞는 방법으로 차근차근 배워 보세요.</p>
-            <button class="home-start-button" id="start-learning" type="button" data-page="vocabulary">
-              영어공부 시작하기 <span aria-hidden="true">→</span>
-            </button>
-          </div>
-          <div class="welcome-art" aria-hidden="true">
-            <div class="art-orbit orbit-one"></div><div class="art-orbit orbit-two"></div>
-            <div class="book"><div class="book-page"><span class="book-word">Hello!</span><span class="book-line"></span><span class="book-line short"></span><span class="book-wave">♫</span></div><div class="book-cover"></div></div>
-            <span class="art-star star-one">✦</span><span class="art-star star-two">✧</span>
-            <span class="sound-bubble">♪</span>
-          </div>
-        </div>
-        <div class="home-stats">
-          <button class="home-feature" type="button" data-page="vocabulary">
-            <span class="home-feature-icon purple">▦</span>
-            <span><strong>필수 단어</strong><small><b id="home-word-count">2,400</b>개 단어 익히기</small></span>
-            <span class="home-feature-arrow" aria-hidden="true">→</span>
-          </button>
-          <button class="home-feature" type="button" data-page="player">
-            <span class="home-feature-icon green">♫</span>
-            <span><strong>단어 재생</strong><small>듣고 따라 말하기</small></span>
-            <span class="home-feature-arrow" aria-hidden="true">→</span>
-          </button>
-          <button class="home-feature" type="button" data-page="verb-forms">
-            <span class="home-feature-icon orange">↻</span>
-            <span><strong>동사 변화</strong><small>뜻과 변화형 익히기</small></span>
-            <span class="home-feature-arrow" aria-hidden="true">→</span>
-          </button>
-        </div>
+        <button class="home-start-button" id="start-learning" type="button" data-page="vocabulary">영어공부</button>
       </section>
 
       <section class="vocabulary-section" hidden>

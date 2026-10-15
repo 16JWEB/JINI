@@ -910,7 +910,6 @@
     high: words.filter(function (item) { return item.level === "고등"; }).length
   };
   document.getElementById("nav-total-count").textContent = counts.all;
-  document.getElementById("home-word-count").textContent = counts.all.toLocaleString("ko-KR");
   document.getElementById("count-all").textContent = counts.all;
   document.getElementById("count-elementary").textContent = counts.elementary;
   document.getElementById("count-middle").textContent = counts.middle;
