@@ -25,6 +25,7 @@
   let playerWords = [];
   let playerIndex = 0;
   let playbackState = "stopped";
+  let pendingPlaybackCallback = null;
   let playbackToken = 0;
   let verbSpeechToken = 0;
   let advanceTimer;
@@ -215,7 +216,12 @@
     utterance.lang = language || "en-US";
     utterance.rate = 0.88;
     utterance.onend = function () {
-      if (token === playbackToken && playbackState === "playing") onEnd();
+      if (token !== playbackToken) return;
+      if (playbackState === "paused") {
+        pendingPlaybackCallback = onEnd;
+      } else if (playbackState === "playing") {
+        onEnd();
+      }
     };
     utterance.onerror = function (event) {
       if (token !== playbackToken || event.error === "canceled" || event.error === "interrupted") return;
@@ -400,6 +406,7 @@
 
   function stopPlayback(message) {
     playbackToken += 1;
+    pendingPlaybackCallback = null;
     window.clearTimeout(advanceTimer);
     if (speech) speech.cancel();
     playbackState = "stopped";
@@ -440,15 +447,21 @@
   }
 
   function finishPlayerItem(token) {
-    advanceTimer = window.setTimeout(function () {
-      if (token !== playbackToken || playbackState !== "playing") return;
+    const advance = function () {
+      advanceTimer = null;
+      if (token !== playbackToken || playbackState === "stopped") return;
+      if (playbackState === "paused") {
+        pendingPlaybackCallback = advance;
+        return;
+      }
       if (playerIndex + 1 >= playerWords.length) {
         stopPlayback("학습 단어를 모두 재생했어요.");
         return;
       }
       playerIndex += 1;
       playCurrentItem();
-    }, 500);
+    };
+    advanceTimer = window.setTimeout(advance, 500);
   }
 
   function playExampleAt(item, exampleIndex, token) {
@@ -475,9 +488,15 @@
       playbackState = "paused";
       setPlaybackStatus("일시정지했어요. 이어 듣기를 누르면 계속 재생합니다.");
     } else if (playbackState === "paused") {
-      speech.resume();
       playbackState = "playing";
       setPlaybackStatus("재생을 이어가고 있어요.");
+      if (pendingPlaybackCallback) {
+        const onEnd = pendingPlaybackCallback;
+        pendingPlaybackCallback = null;
+        onEnd();
+      } else {
+        speech.resume();
+      }
     } else {
       if (playerIndex >= playerWords.length) playerIndex = 0;
       playbackState = "playing";
@@ -666,10 +685,10 @@
         }
       });
       [
+        ["뜻", row[4]],
         ["현재형", row[1]],
         ["과거형", row[2]],
-        ["과거분사", row[3]],
-        ["뜻", row[4]]
+        ["과거분사", row[3]]
       ].forEach(function (cell) {
         const td = document.createElement("td");
         td.dataset.label = cell[0];
@@ -727,7 +746,8 @@
     }
     const row = verbAutoRows[verbAutoIndex];
     document.getElementById("verb-auto-status").textContent =
-      (verbAutoIndex + 1) + " / " + verbAutoRows.length + " · " + row[0];
+      "자동 재생 중 · " + (verbAutoIndex + 1) + "/" + verbAutoRows.length +
+      " · " + row[0] + " (" + row[4] + ")";
     speech.cancel();
     playVerbForms(getSpokenVerbForms(row), row[4], function () {
       if (!verbAutoPlaying) return;

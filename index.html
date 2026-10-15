@@ -18,17 +18,19 @@
         <span>JINI<span class="brand-dot">.</span></span>
       </a>
 
-      <div class="menu-label">학습 메뉴</div>
+      <div class="menu-label">AI 영어공부</div>
       <nav class="main-nav" aria-label="학습 메뉴">
-        <button class="nav-item active" data-page="vocabulary">
-          <span class="nav-icon">▦</span><span>필수 단어</span><span class="nav-count" id="nav-total-count">2400</span>
-        </button>
-        <button class="nav-item" data-page="player">
-          <span class="nav-icon">♫</span><span>단어 재생</span>
-        </button>
-        <button class="nav-item" data-page="verb-forms">
-          <span class="nav-icon">↻</span><span>동사 변화</span>
-        </button>
+        <div class="nav-submenu" role="group" aria-label="AI 영어공부 하위 메뉴">
+          <button class="nav-item active" data-page="vocabulary">
+            <span class="nav-icon">▦</span><span>필수 단어</span><span class="nav-count" id="nav-total-count">2400</span>
+          </button>
+          <button class="nav-item" data-page="player">
+            <span class="nav-icon">♫</span><span>단어 재생</span>
+          </button>
+          <button class="nav-item" data-page="verb-forms">
+            <span class="nav-icon">↻</span><span>동사 변화</span>
+          </button>
+        </div>
       </nav>
 
       <div class="sidebar-note">
@@ -130,7 +132,7 @@
         <div class="player-heading">
           <span class="eyebrow section-eyebrow">VERB FORMS</span>
           <h1 class="page-title">동사 변화표</h1>
-          <p>현재형·과거형·과거분사를 비교해 보세요. 동사 행을 누르면 세 형태의 발음을 차례로 들려드려요.</p>
+          <p>뜻과 현재형·과거형·과거분사를 비교해 보세요. 동사 행을 누르면 변화형과 뜻을 차례로 들려드려요.</p>
         </div>
         <div class="verb-auto-toolbar">
           <button class="bookmark-button" id="auto-play-verbs" type="button" aria-pressed="false">▶ 동사 변화 자동 재생</button>
@@ -148,10 +150,10 @@
           <table class="verb-table">
             <thead>
               <tr>
+                <th scope="col">뜻</th>
                 <th scope="col">현재형</th>
                 <th scope="col">과거형</th>
                 <th scope="col">과거분사</th>
-                <th scope="col">뜻</th>
               </tr>
             </thead>
             <tbody id="verb-table-body"></tbody>
