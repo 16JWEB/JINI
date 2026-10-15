@@ -920,6 +920,7 @@
   });
   function showAndroidTtsFallback() {
     if (window.location.hash === "#android-tts-settings-unavailable") {
+      setPage("ko-language-packs");
       showToast("설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환 > 음성 데이터 설치에서 베트남어를 선택하세요.");
     }
   }
