@@ -443,14 +443,14 @@
       const spokenForms = presentForms.concat(pastForms, participleForms);
       if (row[0] === "read") spokenForms.splice(presentForms.length, pastForms.length + participleForms.length, "red", "red");
       tr.tabIndex = 0;
-      tr.setAttribute("aria-label", row[0] + " 동사 변화 발음 듣기");
+      tr.setAttribute("aria-label", row[0] + " 동사 변화와 뜻 발음 듣기");
       tr.addEventListener("click", function () {
-        playVerbForms(spokenForms);
+        playVerbForms(spokenForms, row[4]);
       });
       tr.addEventListener("keydown", function (event) {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          playVerbForms(spokenForms);
+          playVerbForms(spokenForms, row[4]);
         }
       });
       [
@@ -470,7 +470,7 @@
     verbEmpty.hidden = filtered.length > 0;
   }
 
-  function playVerbForms(forms) {
+  function playVerbForms(forms, meaning) {
     if (!speech || typeof SpeechSynthesisUtterance === "undefined") {
       showToast("이 브라우저에서는 음성 재생을 지원하지 않아요.");
       return;
@@ -479,19 +479,21 @@
     const token = ++verbSpeechToken;
     let index = 0;
     function speakNext() {
-      if (token !== verbSpeechToken || index >= forms.length) return;
-      const utterance = new SpeechSynthesisUtterance(forms[index]);
-      utterance.lang = "en-US";
+      if (token !== verbSpeechToken) return;
+      const isMeaning = index >= forms.length;
+      const utterance = new SpeechSynthesisUtterance(isMeaning ? meaning : forms[index]);
+      utterance.lang = isMeaning ? "ko-KR" : "en-US";
       utterance.rate = 0.88;
       utterance.onend = function () {
         if (token !== verbSpeechToken) return;
+        if (isMeaning) return;
         index += 1;
         speakNext();
       };
       utterance.onerror = function (event) {
         if (token !== verbSpeechToken || event.error === "canceled" || event.error === "interrupted") return;
         verbSpeechToken += 1;
-        showToast("동사 발음을 재생하지 못했어요. 다시 눌러 주세요.");
+        showToast(isMeaning ? "동사 뜻을 재생하지 못했어요." : "동사 발음을 재생하지 못했어요. 다시 눌러 주세요.");
       };
       speech.speak(utterance);
     }
