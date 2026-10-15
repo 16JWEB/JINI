@@ -1440,51 +1440,6 @@ valuable|The experience was valuable because it taught us how to work as a team.
     });
   });
 
-  function shortenExample(example, level) {
-    const sentence = String(example).trim();
-    const maxWords = level === "초등" ? 9 : level === "중등" ? 11 : 13;
-    let shortened = sentence;
-    function isCompleteClause(clause) {
-      const ending = clause.split(/\s+/).pop().replace(/[.!?,;:]+$/, "").toLowerCase();
-      return !/^(a|an|the|of|to|in|on|at|with|for|from|by|during|after|before|through|around|near|under|over|between|into|beside|behind|across|and|but|because|when|while|although|though|unless|until|since|as|that|which|who|what|where|why|how|is|are|was|were|be|been|being|has|have|had|do|does|did|can|could|will|would|should|must|may|might)$/.test(ending) &&
-        !/\b(how|what|when|where|why|who)\s+\w+$/.test(clause);
-    }
-    // Keep long examples at a complete clause or phrase boundary.
-    const clauseBoundary = /,\s*(?:so|but|and|while|because|when|although|except)\b|\s+(?:because|when|while|although|though|unless|until|since|after|before|as|that|which|who)\b|\s+and\s+|\s+so\s+(?=(?:I|we|they|he|she|it|you|the|my|our|his|her|drivers|everyone|someone)\b)/gi;
-    const phraseBoundary = /\s+(?:in|on|at|with|for|from|to|about|of|during|after|before|through|around|near|under|over|between|by|outside|into|beside|behind|across)\s+/gi;
-    while (shortened.split(/\s+/).length > maxWords) {
-      let boundary;
-      let cutAt = -1;
-      clauseBoundary.lastIndex = 0;
-      while ((boundary = clauseBoundary.exec(shortened)) !== null) {
-        const firstClause = shortened.slice(0, boundary.index).trim();
-        if (firstClause.split(/\s+/).length >= 4 && isCompleteClause(firstClause)) {
-          cutAt = boundary.index;
-          break;
-        }
-      }
-      if (cutAt < 0) {
-        let match;
-        phraseBoundary.lastIndex = 0;
-        while ((match = phraseBoundary.exec(shortened)) !== null) {
-          const firstClause = shortened.slice(0, match.index).trim();
-          const words = firstClause.split(/\s+/);
-          const lastWord = words[words.length - 1].toLowerCase();
-          const isTo = match[0].trim().toLowerCase() === "to";
-          const isInfinitive = isTo && /^(how|want|need|like|hope|plan|try|decide|learn|love|would|able)$/.test(lastWord);
-          const minimumWords = match[0].trim().toLowerCase() === "of" ? 6 : 4;
-          if (!isInfinitive && words.length >= minimumWords && isCompleteClause(firstClause)) {
-            cutAt = match.index;
-            break;
-          }
-        }
-      }
-      if (cutAt < 0) break;
-      shortened = shortened.slice(0, cutAt).trim().replace(/[,:;]+$/, "") + ".";
-    }
-    return shortened;
-  }
-
   const result = [];
   let exampleIndex = 0;
   Object.keys(raw).forEach(function (level) {
@@ -1493,7 +1448,7 @@ valuable|The experience was valuable because it taught us how to work as a team.
         const fields = line.trim().split("|");
         if (fields.length !== 3) return;
         const curatedExample = curatedExamples.get(fields[0]);
-        const example = shortenExample(curatedExample ? curatedExample.example : examples[partOfSpeech](fields[0], exampleIndex, level), level);
+        const example = curatedExample ? curatedExample.example : examples[partOfSpeech](fields[0], exampleIndex, level);
         let exampleKo;
         if (curatedExample) {
           exampleKo = curatedExample.exampleKo;
@@ -1617,7 +1572,7 @@ valuable|The experience was valuable because it taught us how to work as a team.
     item.otherSenses = (alternateSenses[item.word] || []).map(function (sense) {
       return {
         meaning: sense.meaning,
-        example: shortenExample(sense.example, item.level),
+        example: sense.example,
         exampleKo: alternateExampleTranslations[sense.example] || "“" + sense.meaning + "”라는 뜻으로 쓰인 예문입니다."
       };
     });
