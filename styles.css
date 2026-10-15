@@ -211,7 +211,7 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
 .language-packs-section[hidden] { display: none; }
 .language-packs-section { padding: 1px 0 20px; }
 .language-pack-action { margin: 0 0 20px; padding: 18px; border: 1px solid #e9e6fb; border-radius: 12px; background: #fbfaff; }
-.language-pack-action .home-start-button { min-height: 40px; }
+.language-pack-action .home-start-button { min-height: 40px; display: inline-flex; align-items: center; text-decoration: none; }
 .language-pack-action > p, .language-pack-note { margin: 10px 0 0; color: #85879a; font-size: 11px; line-height: 1.7; }
 .language-pack-guide { display: grid; gap: 14px; }
 .language-pack-card { padding: 20px; border: 1px solid #eff0f5; border-radius: 12px; background: white; }

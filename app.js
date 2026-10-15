@@ -905,23 +905,18 @@
   document.querySelectorAll("[data-page]").forEach(function (button) {
     button.addEventListener("click", function () { setPage(button.dataset.page); });
   });
-  document.getElementById("open-android-tts-settings").addEventListener("click", function () {
+  document.getElementById("open-android-tts-settings").addEventListener("click", function (event) {
     if (!/Android/i.test(window.navigator.userAgent)) {
+      event.preventDefault();
       showToast("이 버튼은 Android에서만 설정 메뉴를 열 수 있어요. 아래 설치 방법을 확인해 주세요.");
       return;
     }
     const fallbackUrl = window.location.href.split("#")[0] + "#android-tts-settings-unavailable";
-    const fallbackMessage = "설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환 > 음성 데이터 설치에서 베트남어를 선택하세요.";
-    const fallbackIntent = "intent:#Intent;action=android.settings.TTS_SETTINGS;" +
-      "package=com.android.settings;S.browser_fallback_url=" +
+    const fallbackIntent = "intent:#Intent;action=android.speech.tts.engine.INSTALL_TTS_DATA;" +
+      "package=com.google.android.tts;" +
+      "S.browser_fallback_url=" +
       encodeURIComponent(fallbackUrl) + ";end";
-    showToast("설정이 열리지 않으면 " + fallbackMessage);
-    window.setTimeout(function () {
-      if (document.visibilityState === "visible") {
-        showToast(fallbackMessage);
-      }
-    }, 1500);
-    window.location.href = fallbackIntent;
+    event.currentTarget.href = fallbackIntent;
   });
   function showAndroidTtsFallback() {
     if (window.location.hash === "#android-tts-settings-unavailable") {
