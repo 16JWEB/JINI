@@ -1094,4 +1094,10 @@
   renderWords();
   renderVerbForms();
   updatePlayerCard();
+  window.history.pushState({ jiniHome: true }, "", window.location.href);
+  window.addEventListener("popstate", function () {
+    if (currentPageView === "home") return;
+    setPage("home");
+    window.history.pushState({ jiniHome: true }, "", window.location.href);
+  });
 }());
