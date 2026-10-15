@@ -28,6 +28,13 @@
   let playbackToken = 0;
   let verbSpeechToken = 0;
   let advanceTimer;
+  let verbAutoTimer;
+  let verbAutoPlaying = false;
+  let verbAutoRows = [];
+  let verbAutoIndex = 0;
+  let playerMode = "word-meaning-example";
+  let bookmarks = { vocabulary: [], player: [] };
+  const BOOKMARK_STORAGE_KEY = "jini-learning-bookmarks";
 
   const levelNames = { all: "필수 단어", 초등: "초등 필수", 중등: "중등 필수", 고등: "고등 필수" };
   const verbForms = [
@@ -172,9 +179,40 @@
     toastTimer = window.setTimeout(function () { toast.classList.remove("visible"); }, 2800);
   }
 
-  function createUtterance(text, onEnd, onError, token) {
+  function loadBookmarks() {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(BOOKMARK_STORAGE_KEY) || "{}");
+      const levels = ["all", "초등", "중등", "고등"];
+      return {
+        vocabulary: Array.isArray(saved.vocabulary) ? saved.vocabulary.filter(function (bookmark) {
+          return bookmark && levels.includes(bookmark.level) &&
+            Number.isInteger(bookmark.page) && bookmark.page > 0 && typeof bookmark.query === "string";
+        }) : [],
+        player: Array.isArray(saved.player) ? saved.player.filter(function (bookmark) {
+          return bookmark && ["초등", "중등", "고등"].includes(bookmark.level) &&
+            Number.isInteger(bookmark.index) && bookmark.index >= 0 &&
+            Number.isInteger(bookmark.page) && bookmark.page > 0 && typeof bookmark.word === "string";
+        }) : []
+      };
+    } catch (error) {
+      showToast("책갈피를 불러오지 못했어요.");
+      return { vocabulary: [], player: [] };
+    }
+  }
+
+  function saveBookmarks() {
+    try {
+      window.localStorage.setItem(BOOKMARK_STORAGE_KEY, JSON.stringify(bookmarks));
+      return true;
+    } catch (error) {
+      showToast("책갈피를 저장하지 못했어요.");
+      return false;
+    }
+  }
+
+  function createUtterance(text, onEnd, onError, token, language) {
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
+    utterance.lang = language || "en-US";
     utterance.rate = 0.88;
     utterance.onend = function () {
       if (token === playbackToken && playbackState === "playing") onEnd();
@@ -188,6 +226,142 @@
 
   function setPlaybackStatus(message) {
     document.getElementById("player-status").textContent = message;
+  }
+
+  function updateVocabularyBookmarkControls() {
+    const query = search.value.trim();
+    const saved = bookmarks.vocabulary.some(function (bookmark) {
+      return bookmark.level === activeLevel && bookmark.page === currentPage && bookmark.query === query;
+    });
+    const button = document.getElementById("bookmark-current-page");
+    button.textContent = saved ? "★ 페이지 책갈피 저장됨" : "☆ 이 페이지 책갈피";
+    button.classList.toggle("selected", saved);
+  }
+
+  function renderBookmarkLists() {
+    const vocabularyList = document.getElementById("vocabulary-bookmarks");
+    vocabularyList.replaceChildren();
+    bookmarks.vocabulary.forEach(function (bookmark, index) {
+      const label = (bookmark.level === "all" ? "전체" : bookmark.level) + " · " + bookmark.page + "페이지" +
+        (bookmark.query ? " · " + bookmark.query : "");
+      const entry = document.createElement("span");
+      entry.className = "bookmark-entry";
+      const button = document.createElement("button");
+      button.className = "bookmark-link";
+      button.type = "button";
+      button.textContent = label;
+      button.title = label + "로 이동";
+      button.addEventListener("click", function () {
+        activeLevel = bookmark.level;
+        currentPage = bookmark.page;
+        search.value = bookmark.query;
+        document.querySelectorAll(".filter-chip").forEach(function (chip) {
+          chip.classList.toggle("selected", chip.dataset.level === activeLevel);
+        });
+        renderWords();
+        document.querySelector(".vocabulary-section").scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      const remove = document.createElement("button");
+      remove.className = "bookmark-remove";
+      remove.type = "button";
+      remove.textContent = "×";
+      remove.setAttribute("aria-label", label + " 책갈피 삭제");
+      remove.addEventListener("click", function () {
+        bookmarks.vocabulary.splice(index, 1);
+        saveBookmarks();
+        renderBookmarkLists();
+      });
+      entry.append(button, remove);
+      vocabularyList.appendChild(entry);
+    });
+
+    const playerList = document.getElementById("player-bookmarks");
+    playerList.replaceChildren();
+    bookmarks.player.forEach(function (bookmark, index) {
+      const entry = document.createElement("span");
+      entry.className = "bookmark-entry";
+      const button = document.createElement("button");
+      const label = bookmark.level + " · " + bookmark.page + "페이지 · " + bookmark.word;
+      button.className = "bookmark-link";
+      button.type = "button";
+      button.textContent = label;
+      button.title = label + "로 이동";
+      button.addEventListener("click", function () {
+        setPlayerLevel(bookmark.level);
+        const bookmarkedIndex = playerWords.findIndex(function (item) { return item.word === bookmark.word; });
+        playerIndex = bookmarkedIndex >= 0 ? bookmarkedIndex : Math.min(bookmark.index, playerWords.length - 1);
+        updatePlayerCard();
+        setPlaybackStatus("책갈피한 단어로 이동했어요. 재생을 누르면 들을 수 있어요.");
+        document.getElementById("player-card").scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      const remove = document.createElement("button");
+      remove.className = "bookmark-remove";
+      remove.type = "button";
+      remove.textContent = "×";
+      remove.setAttribute("aria-label", label + " 책갈피 삭제");
+      remove.addEventListener("click", function () {
+        bookmarks.player.splice(index, 1);
+        saveBookmarks();
+        renderBookmarkLists();
+      });
+      entry.append(button, remove);
+      playerList.appendChild(entry);
+    });
+    updateVocabularyBookmarkControls();
+    updatePlayerBookmarkControl();
+  }
+
+  function updatePlayerBookmarkControl() {
+    const item = playerWords[playerIndex];
+    const button = document.getElementById("bookmark-current-word");
+    if (!item) {
+      button.textContent = "☆ 이 단어 책갈피";
+      button.classList.remove("selected");
+      return;
+    }
+    const saved = bookmarks.player.some(function (bookmark) {
+      return bookmark.level === playerLevel && bookmark.word === item.word;
+    });
+    button.textContent = saved ? "★ 단어 책갈피 저장됨" : "☆ 이 단어 책갈피";
+    button.classList.toggle("selected", saved);
+  }
+
+  function toggleVocabularyBookmark() {
+    const query = search.value.trim();
+    const index = bookmarks.vocabulary.findIndex(function (bookmark) {
+      return bookmark.level === activeLevel && bookmark.page === currentPage && bookmark.query === query;
+    });
+    if (index >= 0) {
+      bookmarks.vocabulary.splice(index, 1);
+    } else {
+      bookmarks.vocabulary.unshift({ level: activeLevel, page: currentPage, query: query });
+    }
+    if (saveBookmarks()) {
+      renderBookmarkLists();
+      showToast(index >= 0 ? "페이지 책갈피를 삭제했어요." : "현재 페이지를 책갈피에 저장했어요.");
+    }
+  }
+
+  function togglePlayerBookmark() {
+    const item = playerWords[playerIndex];
+    if (!item) return;
+    const index = bookmarks.player.findIndex(function (bookmark) {
+      return bookmark.level === playerLevel && bookmark.word === item.word;
+    });
+    if (index >= 0) {
+      bookmarks.player.splice(index, 1);
+    } else {
+      bookmarks.player.unshift({
+        level: playerLevel,
+        index: playerIndex,
+        page: Math.floor(playerIndex / PAGE_SIZE) + 1,
+        word: item.word
+      });
+    }
+    if (saveBookmarks()) {
+      renderBookmarkLists();
+      showToast(index >= 0 ? "단어 책갈피를 삭제했어요." : "현재 단어를 책갈피에 저장했어요.");
+    }
   }
 
   function updatePlayerCard() {
@@ -210,6 +384,7 @@
       (playerIndex + 1) + " / " + playerWords.length + " 단어";
     document.getElementById("player-progress-bar").style.width =
       ((playerIndex + 1) / playerWords.length * 100) + "%";
+    updatePlayerBookmarkControl();
   }
 
   function updatePlaybackButton() {
@@ -249,12 +424,31 @@
       return;
     }
     const token = ++playbackToken;
-    setPlaybackStatus("단어 발음을 재생하고 있어요.");
+    setPlaybackStatus("단어를 재생하고 있어요.");
     updatePlayerCard();
     speech.cancel();
     createUtterance(item.word, function () {
-      playExampleAt(item, 0, token);
+      setPlaybackStatus("뜻을 재생하고 있어요.");
+      createUtterance(item.meaning, function () {
+        if (playerMode === "word-meaning-example") {
+          playExampleAt(item, 0, token);
+        } else {
+          finishPlayerItem(token);
+        }
+      }, playbackError, token, "ko-KR");
     }, playbackError, token);
+  }
+
+  function finishPlayerItem(token) {
+    advanceTimer = window.setTimeout(function () {
+      if (token !== playbackToken || playbackState !== "playing") return;
+      if (playerIndex + 1 >= playerWords.length) {
+        stopPlayback("학습 단어를 모두 재생했어요.");
+        return;
+      }
+      playerIndex += 1;
+      playCurrentItem();
+    }, 500);
   }
 
   function playExampleAt(item, exampleIndex, token) {
@@ -262,15 +456,7 @@
       return sense.example;
     }));
     if (exampleIndex >= examplesForItem.length) {
-      advanceTimer = window.setTimeout(function () {
-        if (token !== playbackToken || playbackState !== "playing") return;
-        if (playerIndex + 1 >= playerWords.length) {
-          stopPlayback("학습 단어를 모두 재생했어요.");
-          return;
-        }
-        playerIndex += 1;
-        playCurrentItem();
-      }, 500);
+      finishPlayerItem(token);
       return;
     }
     setPlaybackStatus(exampleIndex === 0 ? "예문을 재생하고 있어요." : "다른 뜻의 예문을 재생하고 있어요.");
@@ -301,6 +487,7 @@
   }
 
   function movePlayer(offset) {
+    if (!playerWords.length) return;
     const wasPlaying = playbackState === "playing";
     stopPlayback();
     playerIndex = Math.min(Math.max(0, playerIndex + offset), playerWords.length - 1);
@@ -310,6 +497,19 @@
       playbackState = "playing";
       playCurrentItem();
     }
+  }
+
+  function setPlayerMode(mode) {
+    if (mode !== "word-meaning" && mode !== "word-meaning-example") return;
+    if (playbackState !== "stopped") {
+      stopPlayback("재생 내용을 변경했어요.");
+    }
+    playerMode = mode;
+    document.querySelectorAll(".player-mode-button").forEach(function (button) {
+      button.classList.toggle("selected", button.dataset.playerMode === mode);
+      button.setAttribute("aria-pressed", button.dataset.playerMode === mode ? "true" : "false");
+    });
+    setPlaybackStatus(mode === "word-meaning" ? "단어와 뜻만 재생합니다." : "단어, 뜻, 예문을 재생합니다.");
   }
 
   function makeCard(item) {
@@ -427,29 +627,41 @@
     emptyState.hidden = filtered.length > 0;
     list.hidden = filtered.length === 0;
     renderPagination(pageCount);
+    updateVocabularyBookmarkControls();
+  }
+
+  function getFilteredVerbForms() {
+    const query = verbSearch.value.trim().toLocaleLowerCase("ko");
+    return verbForms.filter(function (row) {
+      return row.join(" ").toLocaleLowerCase("ko").includes(query);
+    }).sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; });
+  }
+
+  function getSpokenVerbForms(row) {
+    const presentForms = row[1].split("/").map(function (form) { return form.trim(); });
+    const pastForms = row[2].split("/").map(function (form) { return form.trim(); });
+    const participleForms = row[3].split("/").map(function (form) { return form.trim(); });
+    const spokenForms = presentForms.concat(pastForms, participleForms);
+    if (row[0] === "read") spokenForms.splice(presentForms.length, pastForms.length + participleForms.length, "red", "red");
+    return spokenForms;
   }
 
   function renderVerbForms() {
-    const query = verbSearch.value.trim().toLocaleLowerCase("ko");
-    const filtered = verbForms.filter(function (row) {
-      return row.join(" ").toLocaleLowerCase("ko").includes(query);
-    }).sort(function (a, b) { return a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0; });
+    const filtered = getFilteredVerbForms();
     verbTableBody.replaceChildren();
     filtered.forEach(function (row) {
       const tr = document.createElement("tr");
-      const presentForms = row[1].split("/").map(function (form) { return form.trim(); });
-      const pastForms = row[2].split("/").map(function (form) { return form.trim(); });
-      const participleForms = row[3].split("/").map(function (form) { return form.trim(); });
-      const spokenForms = presentForms.concat(pastForms, participleForms);
-      if (row[0] === "read") spokenForms.splice(presentForms.length, pastForms.length + participleForms.length, "red", "red");
+      const spokenForms = getSpokenVerbForms(row);
       tr.tabIndex = 0;
       tr.setAttribute("aria-label", row[0] + " 동사 변화와 뜻 발음 듣기");
       tr.addEventListener("click", function () {
+        stopVerbAuto(false);
         playVerbForms(spokenForms, row[4]);
       });
       tr.addEventListener("keydown", function (event) {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
+          stopVerbAuto(false);
           playVerbForms(spokenForms, row[4]);
         }
       });
@@ -470,7 +682,63 @@
     verbEmpty.hidden = filtered.length > 0;
   }
 
-  function playVerbForms(forms, meaning) {
+  function updateVerbAutoButton() {
+    const button = document.getElementById("auto-play-verbs");
+    button.textContent = verbAutoPlaying ? "■ 자동 재생 멈추기" : "▶ 동사 변화 자동 재생";
+    button.setAttribute("aria-pressed", verbAutoPlaying ? "true" : "false");
+  }
+
+  function stopVerbAuto(cancelSpeech) {
+    verbAutoPlaying = false;
+    verbAutoRows = [];
+    window.clearTimeout(verbAutoTimer);
+    verbSpeechToken += 1;
+    if (cancelSpeech && speech) speech.cancel();
+    updateVerbAutoButton();
+    document.getElementById("verb-auto-status").textContent = "";
+  }
+
+  function startVerbAuto() {
+    if (verbAutoPlaying) {
+      stopVerbAuto(true);
+      return;
+    }
+    if (!speech || typeof SpeechSynthesisUtterance === "undefined") {
+      showToast("이 브라우저에서는 음성 재생을 지원하지 않아요.");
+      return;
+    }
+    verbAutoRows = getFilteredVerbForms();
+    if (!verbAutoRows.length) {
+      showToast("자동 재생할 동사가 없어요.");
+      return;
+    }
+    verbAutoPlaying = true;
+    verbAutoIndex = 0;
+    updateVerbAutoButton();
+    playNextAutoVerb();
+  }
+
+  function playNextAutoVerb() {
+    if (!verbAutoPlaying) return;
+    if (verbAutoIndex >= verbAutoRows.length) {
+      stopVerbAuto(false);
+      document.getElementById("verb-auto-status").textContent = "검색된 동사를 모두 재생했어요.";
+      return;
+    }
+    const row = verbAutoRows[verbAutoIndex];
+    document.getElementById("verb-auto-status").textContent =
+      (verbAutoIndex + 1) + " / " + verbAutoRows.length + " · " + row[0];
+    speech.cancel();
+    playVerbForms(getSpokenVerbForms(row), row[4], function () {
+      if (!verbAutoPlaying) return;
+      verbAutoIndex += 1;
+      verbAutoTimer = window.setTimeout(playNextAutoVerb, 450);
+    }, function () {
+      stopVerbAuto(false);
+    });
+  }
+
+  function playVerbForms(forms, meaning, onComplete, onError) {
     if (!speech || typeof SpeechSynthesisUtterance === "undefined") {
       showToast("이 브라우저에서는 음성 재생을 지원하지 않아요.");
       return;
@@ -486,7 +754,10 @@
       utterance.rate = 0.88;
       utterance.onend = function () {
         if (token !== verbSpeechToken) return;
-        if (isMeaning) return;
+        if (isMeaning) {
+          if (onComplete) onComplete();
+          return;
+        }
         index += 1;
         speakNext();
       };
@@ -494,6 +765,7 @@
         if (token !== verbSpeechToken || event.error === "canceled" || event.error === "interrupted") return;
         verbSpeechToken += 1;
         showToast(isMeaning ? "동사 뜻을 재생하지 못했어요." : "동사 발음을 재생하지 못했어요. 다시 눌러 주세요.");
+        if (onError) onError();
       };
       speech.speak(utterance);
     }
@@ -512,7 +784,7 @@
   function setPage(page) {
     if (page === currentPageView) return;
     stopPlayback("재생을 멈췄어요.");
-    verbSpeechToken += 1;
+    stopVerbAuto(true);
     if (speech) speech.cancel();
     currentPageView = page;
     const showingVocabulary = page === "vocabulary";
@@ -559,7 +831,17 @@
     button.addEventListener("click", function () { setPlayerLevel(button.dataset.playerLevel); });
   });
   search.addEventListener("input", function () { currentPage = 1; renderWords(); });
-  verbSearch.addEventListener("input", renderVerbForms);
+  verbSearch.addEventListener("input", function () {
+    if (verbAutoPlaying) stopVerbAuto(true);
+    renderVerbForms();
+  });
+  document.getElementById("bookmark-current-page").addEventListener("click", toggleVocabularyBookmark);
+  document.getElementById("bookmark-current-word").addEventListener("click", togglePlayerBookmark);
+  document.querySelectorAll(".player-mode-button").forEach(function (button) {
+    button.addEventListener("click", function () { setPlayerMode(button.dataset.playerMode); });
+    button.setAttribute("aria-pressed", button.dataset.playerMode === playerMode ? "true" : "false");
+  });
+  document.getElementById("auto-play-verbs").addEventListener("click", startVerbAuto);
   document.getElementById("toggle-playback").addEventListener("click", togglePlayback);
   document.getElementById("previous-word").addEventListener("click", function () { movePlayer(-1); });
   document.getElementById("next-word").addEventListener("click", function () { movePlayer(1); });
@@ -599,6 +881,9 @@
   document.getElementById("player-count-middle").textContent = counts.middle + "개";
   document.getElementById("player-count-high").textContent = counts.high + "개";
   playerWords = words.filter(function (item) { return item.level === playerLevel; });
+  bookmarks = loadBookmarks();
+  renderBookmarkLists();
+  updateVerbAutoButton();
   renderWords();
   renderVerbForms();
   updatePlayerCard();

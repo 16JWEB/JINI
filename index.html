@@ -61,6 +61,11 @@
           </label>
         </div>
 
+        <div class="bookmark-toolbar" aria-label="단어장 책갈피">
+          <button class="bookmark-button" id="bookmark-current-page" type="button">☆ 이 페이지 책갈피</button>
+          <div class="bookmark-list" id="vocabulary-bookmarks" aria-live="polite"></div>
+        </div>
+
         <div class="filter-row">
           <div class="filters" aria-label="단어 수준 필터">
             <button class="filter-chip selected" data-level="all">전체 <span class="chip-count" id="count-all">2400</span></button>
@@ -82,12 +87,21 @@
         <div class="player-heading">
           <span class="eyebrow section-eyebrow">LISTEN &amp; LEARN</span>
           <h1 class="page-title">단어 재생</h1>
-          <p>학년을 선택하고 재생을 누르면 단어와 예문을 차례로 들려드려요.</p>
+          <p>학년과 재생 내용을 선택하고 시작해 보세요.</p>
+        </div>
+        <div class="bookmark-toolbar player-bookmark-toolbar" aria-label="단어 재생 책갈피">
+          <button class="bookmark-button" id="bookmark-current-word" type="button">☆ 이 단어 책갈피</button>
+          <div class="bookmark-list" id="player-bookmarks" aria-live="polite"></div>
         </div>
         <div class="player-levels" role="group" aria-label="재생할 단어 수준 선택">
           <button class="player-level selected" data-player-level="초등">초등 <span id="player-count-elementary">800개</span></button>
           <button class="player-level" data-player-level="중등">중등 <span id="player-count-middle">800개</span></button>
           <button class="player-level" data-player-level="고등">고등 <span id="player-count-high">800개</span></button>
+        </div>
+        <div class="player-mode-options" role="group" aria-label="단어 재생 내용 선택">
+          <span>재생 내용</span>
+          <button class="player-mode-button" data-player-mode="word-meaning" type="button">단어 + 뜻</button>
+          <button class="player-mode-button selected" data-player-mode="word-meaning-example" type="button">단어 + 뜻 + 예문</button>
         </div>
         <div class="player-card" id="player-card">
           <div class="player-card-top">
@@ -117,6 +131,10 @@
           <span class="eyebrow section-eyebrow">VERB FORMS</span>
           <h1 class="page-title">동사 변화표</h1>
           <p>현재형·과거형·과거분사를 비교해 보세요. 동사 행을 누르면 세 형태의 발음을 차례로 들려드려요.</p>
+        </div>
+        <div class="verb-auto-toolbar">
+          <button class="bookmark-button" id="auto-play-verbs" type="button" aria-pressed="false">▶ 동사 변화 자동 재생</button>
+          <span id="verb-auto-status" aria-live="polite"></span>
         </div>
         <label class="search-box verb-search">
           <span aria-hidden="true">⌕</span>
