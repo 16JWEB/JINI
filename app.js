@@ -446,6 +446,7 @@
     if (!playerWords.length) return;
     const item = playerWords[playerIndex];
     const expressionPlayer = currentPageView === "ko-expression-player";
+    document.getElementById("player-item-select").value = String(playerIndex);
     document.getElementById("player-level-label").textContent = item.level;
     document.getElementById("player-word").textContent = item.word;
     const vietnamesePronunciationDisplay = document.getElementById("player-vietnamese-pronunciation");
@@ -1021,6 +1022,7 @@
     document.getElementById("open-language-packs").hidden = !koreanStudy;
     document.getElementById("previous-word").setAttribute("aria-label", playingExpressions ? "이전 표현" : "이전 단어");
     document.getElementById("next-word").setAttribute("aria-label", playingExpressions ? "다음 표현" : "다음 단어");
+    document.getElementById("player-item-select").setAttribute("aria-label", playingExpressions ? "번호로 표현 이동" : "번호로 단어 이동");
     document.querySelector(".player-mode-button[data-player-mode='word-meaning']").textContent =
       koreanStudy ? "한국어 + 베트남어 뜻" : "단어 + 뜻";
     document.querySelector(".player-mode-button[data-player-mode='word-meaning-example']").textContent =
@@ -1033,8 +1035,8 @@
       playerWords = playingExpressions ? koreanExpressions : koreanStudy ? koreanWords :
         words.filter(function (item) { return item.level === playerLevel; });
       playerIndex = 0;
+      renderPlayerItemOptions();
       updatePlayerCard();
-      document.getElementById("player-progress").textContent = playerWords.length + (playingExpressions ? "개 표현" : "개 단어");
       setPlaybackStatus(playingExpressions ? "재생을 누르면 한국어 표현을 들을 수 있어요." :
         koreanStudy ? "재생을 누르면 한국어 단어를 들을 수 있어요." : "학년을 고르고 재생을 시작해 보세요.");
     }
@@ -1047,14 +1049,26 @@
     playerLevel = level;
     playerWords = words.filter(function (item) { return item.level === playerLevel; });
     playerIndex = 0;
+    renderPlayerItemOptions();
     document.querySelectorAll(".player-level").forEach(function (button) {
       button.classList.toggle("selected", button.dataset.playerLevel === level);
     });
     breadcrumbLevel.textContent = playerLevel + " 단어 재생";
     updatePlayerCard();
-    document.getElementById("player-progress").textContent = playerWords.length + "개 단어";
     setPlaybackStatus("재생을 누르면 " + playerLevel + " 단어를 처음부터 들려드려요.");
     updatePlaybackButton();
+  }
+
+  function renderPlayerItemOptions() {
+    const select = document.getElementById("player-item-select");
+    select.replaceChildren();
+    playerWords.forEach(function (item, index) {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = (index + 1) + ". " + item.word;
+      select.appendChild(option);
+    });
+    select.disabled = playerWords.length === 0;
   }
 
   document.querySelectorAll("[data-page]").forEach(function (button) {
@@ -1104,6 +1118,23 @@
   document.getElementById("toggle-playback").addEventListener("click", togglePlayback);
   document.getElementById("previous-word").addEventListener("click", function () { movePlayer(-1); });
   document.getElementById("next-word").addEventListener("click", function () { movePlayer(1); });
+  document.getElementById("player-item-select").addEventListener("change", function (event) {
+    const nextIndex = Number(event.currentTarget.value);
+    if (!Number.isInteger(nextIndex) || nextIndex < 0 || nextIndex >= playerWords.length) return;
+    const wasPlaying = playbackState === "playing";
+    stopPlayback();
+    playerIndex = nextIndex;
+    updatePlayerCard();
+    if (wasPlaying) {
+      playbackState = "playing";
+      playCurrentItem();
+    } else {
+      const label = currentPageView === "ko-expression-player" ? "표현" : "단어";
+      const particle = currentPageView === "ko-expression-player" ? "을" : "를";
+      setPlaybackStatus("선택한 " + label + particle + " 들으려면 재생을 누르세요.");
+    }
+    updatePlaybackButton();
+  });
   document.addEventListener("keydown", function (event) {
     if (event.key === "/" && document.activeElement !== search && !event.ctrlKey && !event.metaKey && !event.altKey &&
         (currentPageView === "vocabulary" || currentPageView === "ko-vocabulary")) {
