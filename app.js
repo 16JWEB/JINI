@@ -18,7 +18,7 @@
   const verbEmpty = document.getElementById("verb-empty");
   let activeLevel = "all";
   let currentPage = 1;
-  let currentPageView = "vocabulary";
+  let currentPageView = "home";
   let toastTimer;
   let activeButton = null;
   let playerLevel = "초등";
@@ -653,7 +653,7 @@
       list.appendChild(makeCard(item));
     });
     resultCount.textContent = filtered.length + "개 단어";
-    breadcrumbLevel.textContent = levelNames[activeLevel];
+    if (currentPageView === "vocabulary") breadcrumbLevel.textContent = levelNames[activeLevel];
     emptyState.hidden = filtered.length > 0;
     list.hidden = filtered.length === 0;
     renderPagination(pageCount);
@@ -816,16 +816,20 @@
     stopVerbAuto(true);
     if (speech) speech.cancel();
     currentPageView = page;
+    const showingHome = page === "home";
     const showingVocabulary = page === "vocabulary";
     const showingPlayer = page === "player";
+    document.getElementById("home-section").hidden = !showingHome;
     document.querySelector(".vocabulary-section").hidden = !showingVocabulary;
     playerSection.hidden = !showingPlayer;
     verbFormsSection.hidden = page !== "verb-forms";
-    document.querySelectorAll(".nav-item[data-page]").forEach(function (button) {
+    document.querySelector(".page-footer").hidden = showingHome;
+    document.querySelectorAll("[data-page]").forEach(function (button) {
       button.classList.toggle("active", button.dataset.page === page);
     });
-    document.getElementById("breadcrumb-section").textContent = showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
-    breadcrumbLevel.textContent = showingVocabulary ? levelNames[activeLevel] : page === "player" ? playerLevel + " 단어 재생" : "동사 변화";
+    document.getElementById("breadcrumb-section").textContent = showingHome ? "홈" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
+    document.getElementById("breadcrumb-divider").hidden = showingHome;
+    breadcrumbLevel.textContent = showingHome ? "" : showingVocabulary ? levelNames[activeLevel] : page === "player" ? playerLevel + " 단어 재생" : "동사 변화";
     if (showingPlayer) {
       playerWords = words.filter(function (item) { return item.level === playerLevel; });
       playerIndex = 0;
@@ -850,8 +854,12 @@
     updatePlaybackButton();
   }
 
-  document.querySelectorAll(".nav-item[data-page]").forEach(function (button) {
+  document.querySelectorAll("[data-page]").forEach(function (button) {
     button.addEventListener("click", function () { setPage(button.dataset.page); });
+  });
+  document.querySelector(".brand").addEventListener("click", function (event) {
+    event.preventDefault();
+    setPage("home");
   });
   document.querySelectorAll(".filter-chip").forEach(function (button) {
     button.addEventListener("click", function () { setLevel(button.dataset.level); });
@@ -902,6 +910,7 @@
     high: words.filter(function (item) { return item.level === "고등"; }).length
   };
   document.getElementById("nav-total-count").textContent = counts.all;
+  document.getElementById("home-word-count").textContent = counts.all.toLocaleString("ko-KR");
   document.getElementById("count-all").textContent = counts.all;
   document.getElementById("count-elementary").textContent = counts.elementary;
   document.getElementById("count-middle").textContent = counts.middle;
