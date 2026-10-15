@@ -74,6 +74,97 @@ park|pɑːrk|공원
 city|ˈsɪti|도시
 garden|ˈɡɑːrdən|정원
 street|striːt|거리
+aunt|ænt|이모, 고모, 숙모
+uncle|ˈʌŋkəl|삼촌, 외삼촌
+cousin|ˈkʌzən|사촌
+baby|ˈbeɪbi|아기
+child|tʃaɪld|아이
+man|mæn|남자
+woman|ˈwʊmən|여자
+parent|ˈperənt|부모
+son|sʌn|아들
+daughter|ˈdɔːtər|딸
+shirt|ʃɝːt|셔츠
+pants|pænts|바지
+dress|dres|원피스
+skirt|skɝːt|치마
+coat|koʊt|코트
+jacket|ˈdʒækɪt|재킷
+shoe|ʃuː|신발
+sock|sɑːk|양말
+hat|hæt|모자
+cap|kæp|야구 모자
+scarf|skɑːrf|목도리
+glove|ɡlʌv|장갑
+belt|belt|벨트
+pocket|ˈpɑːkɪt|주머니
+uniform|ˈjuːnəfɔːrm|교복, 제복
+classroom|ˈklæsruːm|교실
+desk|desk|책상
+notebook|ˈnoʊtbʊk|공책
+pencil|ˈpensəl|연필
+pen|pen|펜
+eraser|ɪˈreɪsər|지우개
+ruler|ˈruːlər|자
+paper|ˈpeɪpər|종이
+lesson|ˈlesən|수업
+homework|ˈhoʊmwɝːk|숙제
+test|test|시험
+subject|ˈsʌbdʒɪkt|과목
+lunch|lʌntʃ|점심
+sandwich|ˈsændwɪtʃ|샌드위치
+breakfast|ˈbrekfəst|아침 식사
+dinner|ˈdɪnər|저녁 식사
+snack|snæk|간식
+fruit|fruːt|과일
+banana|bəˈnænə|바나나
+orange|ˈɔːrɪndʒ|오렌지
+grape|ɡreɪp|포도
+lemon|ˈlemən|레몬
+peach|piːtʃ|복숭아
+pear|per|배
+strawberry|ˈstrɔːberi|딸기
+vegetable|ˈvedʒtəbəl|채소
+potato|pəˈteɪtoʊ|감자
+tomato|təˈmeɪtoʊ|토마토
+carrot|ˈkærət|당근
+onion|ˈʌnjən|양파
+corn|kɔːrn|옥수수
+bean|biːn|콩
+cheese|tʃiːz|치즈
+butter|ˈbʌtər|버터
+soup|suːp|수프
+salad|ˈsæləd|샐러드
+cake|keɪk|케이크
+cookie|ˈkʊki|쿠키
+candy|ˈkændi|사탕
+chocolate|ˈtʃɔːklət|초콜릿
+juice|dʒuːs|주스
+tea|tiː|차
+coffee|ˈkɔːfi|커피
+sugar|ˈʃʊɡər|설탕
+salt|sɔːlt|소금
+meat|miːt|고기
+chicken|ˈtʃɪkɪn|닭고기
+rabbit|ˈræbɪt|토끼
+mouse|maʊs|생쥐
+duck|dʌk|오리
+sheep|ʃiːp|양
+cow|kaʊ|소
+pig|pɪɡ|돼지
+goat|ɡoʊt|염소
+bear|ber|곰
+lion|ˈlaɪən|사자
+tiger|ˈtaɪɡər|호랑이
+monkey|ˈmʌŋki|원숭이
+elephant|ˈeləfənt|코끼리
+frog|frɔːɡ|개구리
+turtle|ˈtɝːtəl|거북이
+snake|sneɪk|뱀
+bee|biː|벌
+butterfly|ˈbʌtərflaɪ|나비
+kitchen|ˈkɪtʃən|부엌
+bathroom|ˈbæθruːm|욕실
 `,
       verb: `
 be|biː|이다, 있다
@@ -116,6 +207,46 @@ buy|baɪ|사다
 find|faɪnd|찾다
 live|lɪv|살다
 call|kɔːl|부르다, 전화하다
+cook|kʊk|요리하다
+wash|wɑːʃ|씻다
+brush|brʌʃ|솔질하다
+smile|smaɪl|미소 짓다
+laugh|læf|웃다
+cry|kraɪ|울다
+dance|dæns|춤추다
+sing|sɪŋ|노래하다
+jump|dʒʌmp|뛰다
+swim|swɪm|수영하다
+fly|flaɪ|날다
+catch|kætʃ|잡다
+throw|θroʊ|던지다
+kick|kɪk|차다
+pull|pʊl|당기다
+push|pʊʃ|밀다
+cut|kʌt|자르다
+paint|peɪnt|칠하다, 그림을 그리다
+fix|fɪks|고치다
+bake|beɪk|굽다
+boil|bɔɪl|끓이다
+pick|pɪk|고르다, 따다
+feed|fiːd|먹이를 주다
+use|juːz|사용하다
+ride|raɪd|타다
+turn|tɝːn|돌다, 돌리다
+stop|stɑːp|멈추다
+wave|weɪv|손을 흔들다
+point|pɔɪnt|가리키다
+touch|tʌtʃ|만지다
+count|kaʊnt|세다
+check|tʃek|확인하다
+cross|krɔːs|건너다
+rest|rest|쉬다
+hurry|ˈhɝːi|서두르다
+smell|smel|냄새를 맡다
+taste|teɪst|맛보다
+save|seɪv|구하다, 아끼다
+drop|drɑːp|떨어뜨리다
+shout|ʃaʊt|외치다
 `,
       adjective: `
 good|ɡʊd|좋은
@@ -148,6 +279,35 @@ strong|strɔːŋ|강한
 weak|wiːk|약한
 hungry|ˈhʌŋɡri|배고픈
 tired|ˈtaɪərd|피곤한
+tall|tɔːl|키가 큰
+low|loʊ|낮은
+large|lɑːrdʒ|큰
+little|ˈlɪtəl|작은
+full|fʊl|가득 찬
+empty|ˈempti|빈
+sleepy|ˈsliːpi|졸린
+sick|sɪk|아픈
+ill|ɪl|아픈
+brave|breɪv|용감한
+noisy|ˈnɔɪzi|시끄러운
+dark|dɑːrk|어두운
+light|laɪt|밝은
+soft|sɔːft|부드러운
+loud|laʊd|시끄러운
+sweet|swiːt|달콤한
+sour|ˈsaʊər|신
+salty|ˈsɔːlti|짠
+spicy|ˈspaɪsi|매운
+fresh|freʃ|신선한
+delicious|dɪˈlɪʃəs|맛있는
+favorite|ˈfeɪvərɪt|가장 좋아하는
+next|nekst|다음의
+last|læst|마지막의, 지난
+early|ˈɝːli|이른
+late|leɪt|늦은
+right|raɪt|맞는, 오른쪽의
+wrong|rɔːŋ|틀린
+messy|ˈmesi|어질러진
 `
     },
     중등: {
@@ -501,33 +661,39 @@ valuable|ˈvæljuəbəl|가치 있는
     street: "Look both ways before crossing the street."
   };
   const examples = {
-    noun: function (word, index) {
+    noun: function (word, index, level) {
       if (nounExamples[word]) return nounExamples[word];
-      const templates = [
-        "We talked about the " + word + " during class.",
-        "I read an interesting story about the " + word + ".",
-        "The guide helped us learn more about the " + word + ".",
-        "Have you ever seen the " + word + " in real life?",
-        "Her project explores the role of the " + word + " in our community.",
-        "We found new information about the " + word + " online.",
-        "Understanding the " + word + " takes time and practice.",
-        "The students shared their ideas about the " + word + " at lunch.",
-        "My family had a long conversation about the " + word + " last night.",
-        "This book explains why the " + word + " matters.",
-        "The class made a poster about the " + word + " for the school fair.",
-        "Many people have questions about the " + word + ".",
-        "Our teacher gave us an example of the " + word + ".",
-        "The article describes how the " + word + " can affect daily life.",
-        "I learned something surprising about the " + word + " this morning.",
-        "They collected useful facts about the " + word + " for their report.",
-        "We watched a short video that mentioned the " + word + ".",
-        "She wants to know more about the " + word + " before the test.",
-        "The museum has a special display about the " + word + ".",
-        "Let's compare what we know about the " + word + " with the facts."
+      const templates = level === "초등" ? [
+        "Can you see the " + word + "?",
+        "I found the " + word + " today.",
+        "Let's learn about the " + word + ".",
+        "We talked about the " + word + ".",
+        "Tell me about the " + word + ".",
+        "I read about the " + word + " in class.",
+        "Have you seen the " + word + "?",
+        "Can you find the " + word + "?"
+      ] : level === "중등" ? [
+        "We learned about the " + word + " in class.",
+        "She found new facts about the " + word + ".",
+        "They discussed the " + word + " after school.",
+        "He wrote a short report about the " + word + ".",
+        "Our class shared ideas about the " + word + ".",
+        "We saw the " + word + " during our trip.",
+        "Can you explain the " + word + " to me?",
+        "The book gives an example of the " + word + "."
+      ] : [
+        "Researchers examined the role of the " + word + " in society.",
+        "The report considers the impact of the " + word + " on daily life.",
+        "Her essay compares the " + word + " with a related idea.",
+        "The article presents a new perspective on the " + word + ".",
+        "We discussed how the " + word + " affects our community.",
+        "His research explores the history of the " + word + ".",
+        "The speaker explained why the " + word + " remains important.",
+        "Understanding the " + word + " requires careful attention to context."
       ];
       return templates[index % templates.length];
     },
-    verb: function (word, index) {
+    verb: function (word, index, level) {
       const commonExamples = {
         be: "I want to be a good student.",
         have: "I have enough time.",
@@ -539,52 +705,64 @@ valuable|ˈvæljuəbəl|가치 있는
         know: "I know the answer."
       };
       if (commonExamples[word]) return commonExamples[word];
-      const templates = [
-        "We plan to " + word + " together after class.",
-        "It takes practice to " + word + " well.",
-        "I hope to " + word + " with you again soon.",
-        "She decided to " + word + " before dinner.",
-        "They learned how to " + word + " safely.",
-        "Do you have time to " + word + " today?",
-        "Our goal is to " + word + " better next time.",
-        "He wants to " + word + " on his own.",
-        "The team needs to " + word + " before the game.",
-        "My friends and I like to " + word + " on weekends.",
-        "Would you like to " + word + " after class?",
-        "The coach showed us how to " + word + " carefully.",
-        "Everyone can " + word + " in a different way.",
-        "She will " + word + " as soon as she gets home.",
-        "We tried to " + word + " without making a sound.",
-        "Why did they " + word + " so early this morning?",
-        "He promised to " + word + " when he had more time.",
-        "I was surprised to " + word + " during the trip.",
-        "The class practiced how to " + word + " more clearly.",
-        "They hope to " + word + " again next year."
+      const templates = level === "초등" ? [
+        "I can " + word + " well.",
+        "Let's " + word + " together.",
+        "Can you " + word + " today?",
+        "Please " + word + " with me.",
+        "We " + word + " after school.",
+        "She likes to " + word + ".",
+        "Try to " + word + " again.",
+        "Do you want to " + word + "?"
+      ] : level === "중등" ? [
+        "We practiced how to " + word + " after class.",
+        "She learned to " + word + " more carefully.",
+        "Can you explain how to " + word + "?",
+        "They decided to " + word + " before lunch.",
+        "He tried to " + word + " without help.",
+        "We watched them " + word + " during the game.",
+        "I learned when to " + word + " in class.",
+        "The team found a new way to " + word + "."
+      ] : [
+        "Students should " + word + " carefully when conditions change.",
+        "She explained how to " + word + " without wasting time.",
+        "We chose to " + word + " after reviewing the available options.",
+        "He managed to " + word + " despite several unexpected problems.",
+        "They discovered a better way to " + word + " efficiently.",
+        "The group agreed to " + word + " once everyone was ready.",
+        "Please " + word + " with care to avoid unnecessary problems.",
+        "Learning to " + word + " well requires patience and careful planning."
       ];
       return templates[index % templates.length];
     },
-    adjective: function (word, index) {
-      const templates = [
-        "The adjective '" + word + "' describes the main character in the story.",
-        "Can you use '" + word + "' to describe this picture?",
-        "We learned the adjective '" + word + "' during today's lesson.",
-        "She wrote '" + word + "' in her vocabulary notebook.",
-        "The teacher asked us to explain the word '" + word + "'.",
-        "I found the adjective '" + word + "' in the second paragraph.",
-        "Use '" + word + "' to complete the sentence.",
-        "He practiced using '" + word + "' in a short sentence.",
-        "The word '" + word + "' appears several times in this story.",
-        "Our class made a sentence with the adjective '" + word + "'.",
-        "She looked up the meaning of '" + word + "' after class.",
-        "Can you find a picture that shows the meaning of '" + word + "'?",
-        "I used '" + word + "' to describe how the character felt.",
-        "The adjective '" + word + "' can make your description clearer.",
-        "We compared '" + word + "' with another adjective.",
-        "He underlined '" + word + "' in the reading passage.",
-        "Try saying '" + word + "' aloud and then use it in a sentence.",
-        "The student chose '" + word + "' from the word list.",
-        "We discussed when to use the adjective '" + word + "'.",
-        "She learned a new way to use '" + word + "' in context."
+    adjective: function (word, index, level) {
+      const templates = level === "초등" ? [
+        "We learned '" + word + "' today.",
+        "Can you say '" + word + "'?",
+        "Use '" + word + "' in a sentence.",
+        "She wrote '" + word + "' down.",
+        "Let's practice '" + word + "' today.",
+        "He chose '" + word + "' for his story.",
+        "Try '" + word + "' in this sentence.",
+        "Do you know '" + word + "'?"
+      ] : level === "중등" ? [
+        "We used '" + word + "' in our class story.",
+        "Can you explain what '" + word + "' means?",
+        "She chose '" + word + "' to describe the scene.",
+        "The word '" + word + "' appears in the passage.",
+        "He compared '" + word + "' with another adjective.",
+        "Try using '" + word + "' in your own sentence.",
+        "Our teacher asked us to define '" + word + "'.",
+        "They discussed how to use '" + word + "'."
+      ] : [
+        "The author uses '" + word + "' to shape the reader's impression.",
+        "This adjective helps explain the character's changing mood.",
+        "The passage uses '" + word + "' to create a clear image.",
+        "Compare '" + word + "' with a more precise description.",
+        "The writer chose '" + word + "' to strengthen the argument.",
+        "Context can change how readers understand '" + word + "'.",
+        "The article uses '" + word + "' in a specific context.",
+        "Explain why '" + word + "' is effective in this sentence."
       ];
       return templates[index % templates.length];
     }
@@ -664,26 +842,14 @@ valuable|ˈvæljuəbəl|가치 있는
   };
 
   const nounKoreanTemplates = [
-    "수업 시간에 {meaning}에 관해 이야기했습니다.",
-    "{meaning}에 관한 흥미로운 이야기를 읽었습니다.",
-    "{meaning}에 대해 더 배울 수 있도록 안내해 주셨습니다.",
-    "{obj} 실제로 본 적 있나요?",
-    "우리 공동체에서 {subj} 어떤 역할을 하는지 조사합니다.",
-    "{meaning}에 관한 새로운 정보를 찾았습니다.",
-    "{obj} 이해하려면 시간과 연습이 필요합니다.",
-    "{meaning}에 대한 생각을 점심시간에 나눴습니다.",
-    "어젯밤 가족과 {meaning}에 관해 오랫동안 이야기했습니다.",
-    "왜 {subj} 중요한지 이 책에서 설명합니다.",
-    "학교 행사에 전시할 {meaning} 포스터를 만들었습니다.",
-    "{meaning}에 대해 궁금한 점이 많습니다.",
-    "선생님께서 {meaning}의 예를 들어 주셨습니다.",
-    "{subj} 일상생활에 미치는 영향을 설명합니다.",
-    "오늘 아침 {meaning}에 관한 놀라운 사실을 배웠습니다.",
-    "보고서에 쓸 {meaning}에 관한 유용한 정보를 모았습니다.",
-    "{meaning}이(가) 언급된 짧은 영상을 봤습니다.",
-    "시험 전에 {meaning}에 대해 더 알고 싶어 합니다.",
-    "박물관에 {obj} 소개하는 특별 전시가 있습니다.",
-    "{meaning}에 관해 아는 내용을 사실과 비교해 봅시다."
+    "오늘 수업에서 {meaning}에 대해 배웠습니다.",
+    "오늘 {obj} 보았습니다.",
+    "{meaning}에 대해 말해 주세요.",
+    "수업에서 {meaning}에 관한 글을 읽었습니다.",
+    "{obj} 본 적 있나요?",
+    "{meaning}에 대해 글을 썼습니다.",
+    "오늘 {meaning}에 관해 이야기했습니다.",
+    "{obj} 찾을 수 있나요?"
   ];
 
   function koreanParticle(value) {
@@ -726,26 +892,14 @@ valuable|ˈvæljuəbəl|가치 있는
   }
 
   const verbKoreanTemplates = [
-    "수업 후에 함께 {infinitive}로 했습니다.",
-    "{infinitive} 위해서는 연습이 필요합니다.",
-    "다음에 함께 {infinitive}기를 바랍니다.",
-    "그녀는 저녁 전에 {infinitive}로 결정했습니다.",
-    "그들은 안전하게 {gerund} 방법을 배웠습니다.",
-    "오늘 {infinitive} 위해 시간이 있나요?",
-    "다음에는 {gerund} 능력을 키우는 것이 우리의 목표입니다.",
-    "그는 혼자 {infinitive}를 원합니다.",
-    "경기 전에 팀은 {necessity} 합니다.",
-    "친구들과 주말마다 {infinitive}기를 좋아합니다.",
-    "수업 후에 {infinitive}를 원하시나요?",
-    "코치는 조심스럽게 {gerund} 방법을 보여 주었습니다.",
-    "사람마다 {gerund} 방법은 다를 수 있습니다.",
-    "그녀는 집에 도착하자마자 {infinitive}로 할 것입니다.",
-    "우리는 소리 내지 않고 {future} 했습니다.",
-    "오늘 아침 왜 그렇게 일찍 {infinitive}로 했나요?",
-    "그는 시간이 더 생기면 {promise} 약속했습니다.",
-    "여행 중에 {gerund} 것을 보고 놀랐습니다.",
-    "수업 시간에 {gerund} 방법을 더 분명하게 연습했습니다.",
-    "그들은 내년에 다시 {infinitive}를 바랍니다."
+    "{infinitive}를 좋아합니다.",
+    "함께 {infinitive}를 원합니다.",
+    "지금 {infinitive}가 가능한가요?",
+    "오늘 {future} 합니다.",
+    "그녀는 {infinitive}를 원합니다.",
+    "그들은 {necessity} 합니다.",
+    "그는 다시 {infinitive}를 원합니다.",
+    "함께 {infinitive}를 좋아합니다."
   ];
 
   const verbExampleTranslations = {
@@ -760,26 +914,14 @@ valuable|ˈvæljuəbəl|가치 있는
   };
 
   const adjectiveKoreanTemplates = [
-    "이야기의 주인공을 묘사할 때 '{word}'라는 형용사를 씁니다.",
-    "이 그림을 '{word}'라는 단어로 묘사할 수 있나요?",
-    "오늘 수업에서 '{word}'라는 형용사를 배웠습니다.",
-    "그녀는 단어장에 '{word}'를 적었습니다.",
-    "선생님은 '{word}'라는 단어의 뜻을 설명해 보라고 하셨습니다.",
-    "두 번째 문단에서 '{word}'라는 형용사를 찾았습니다.",
-    "빈칸을 채울 때 '{word}'라는 단어를 사용하세요.",
-    "그는 짧은 문장에서 '{word}'를 사용하는 연습을 했습니다.",
-    "이 이야기에는 '{word}'라는 단어가 여러 번 나옵니다.",
-    "우리 반은 '{word}'라는 형용사를 넣어 문장을 만들었습니다.",
-    "그녀는 수업 후에 '{word}'의 뜻을 찾아보았습니다.",
-    "'{word}'의 뜻을 보여 주는 그림을 찾을 수 있나요?",
-    "이야기 속 인물의 감정을 묘사할 때 '{word}'를 사용했습니다.",
-    "'{word}'라는 형용사를 사용하면 묘사를 더 분명하게 할 수 있습니다.",
-    "'{word}'라는 단어와 다른 형용사를 비교해 보았습니다.",
-    "그는 글에서 '{word}'에 밑줄을 그었습니다.",
-    "'{word}'를 소리 내어 말한 다음 문장에 넣어 보세요.",
-    "학생은 단어 목록에서 '{word}'를 골랐습니다.",
-    "'{word}'라는 형용사를 언제 쓰는지 함께 이야기했습니다.",
-    "그녀는 문맥에 맞게 '{word}'를 쓰는 새로운 방법을 배웠습니다."
+    "오늘 '{word}'를 배웠습니다.",
+    "'{word}'라고 말할 수 있나요?",
+    "문장에 '{word}'를 써 보세요.",
+    "그녀는 '{word}'를 적었습니다.",
+    "오늘 '{word}'를 연습합시다.",
+    "그는 이야기에서 '{word}'를 골랐습니다.",
+    "이 문장에 '{word}'를 써 보세요.",
+    "'{word}'를 알고 있나요?"
   ];
 
   const alternateExampleTranslations = {
@@ -1298,6 +1440,51 @@ valuable|The experience was valuable because it taught us how to work as a team.
     });
   });
 
+  function shortenExample(example, level) {
+    const sentence = String(example).trim();
+    const maxWords = level === "초등" ? 9 : level === "중등" ? 11 : 13;
+    let shortened = sentence;
+    function isCompleteClause(clause) {
+      const ending = clause.split(/\s+/).pop().replace(/[.!?,;:]+$/, "").toLowerCase();
+      return !/^(a|an|the|of|to|in|on|at|with|for|from|by|during|after|before|through|around|near|under|over|between|into|beside|behind|across|and|but|because|when|while|although|though|unless|until|since|as|that|which|who|what|where|why|how|is|are|was|were|be|been|being|has|have|had|do|does|did|can|could|will|would|should|must|may|might)$/.test(ending) &&
+        !/\b(how|what|when|where|why|who)\s+\w+$/.test(clause);
+    }
+    // Keep long examples at a complete clause or phrase boundary.
+    const clauseBoundary = /,\s*(?:so|but|and|while|because|when|although|except)\b|\s+(?:because|when|while|although|though|unless|until|since|after|before|as|that|which|who)\b|\s+and\s+|\s+so\s+(?=(?:I|we|they|he|she|it|you|the|my|our|his|her|drivers|everyone|someone)\b)/gi;
+    const phraseBoundary = /\s+(?:in|on|at|with|for|from|to|about|of|during|after|before|through|around|near|under|over|between|by|outside|into|beside|behind|across)\s+/gi;
+    while (shortened.split(/\s+/).length > maxWords) {
+      let boundary;
+      let cutAt = -1;
+      clauseBoundary.lastIndex = 0;
+      while ((boundary = clauseBoundary.exec(shortened)) !== null) {
+        const firstClause = shortened.slice(0, boundary.index).trim();
+        if (firstClause.split(/\s+/).length >= 4 && isCompleteClause(firstClause)) {
+          cutAt = boundary.index;
+          break;
+        }
+      }
+      if (cutAt < 0) {
+        let match;
+        phraseBoundary.lastIndex = 0;
+        while ((match = phraseBoundary.exec(shortened)) !== null) {
+          const firstClause = shortened.slice(0, match.index).trim();
+          const words = firstClause.split(/\s+/);
+          const lastWord = words[words.length - 1].toLowerCase();
+          const isTo = match[0].trim().toLowerCase() === "to";
+          const isInfinitive = isTo && /^(how|want|need|like|hope|plan|try|decide|learn|love|would|able)$/.test(lastWord);
+          const minimumWords = match[0].trim().toLowerCase() === "of" ? 6 : 4;
+          if (!isInfinitive && words.length >= minimumWords && isCompleteClause(firstClause)) {
+            cutAt = match.index;
+            break;
+          }
+        }
+      }
+      if (cutAt < 0) break;
+      shortened = shortened.slice(0, cutAt).trim().replace(/[,:;]+$/, "") + ".";
+    }
+    return shortened;
+  }
+
   const result = [];
   let exampleIndex = 0;
   Object.keys(raw).forEach(function (level) {
@@ -1306,7 +1493,7 @@ valuable|The experience was valuable because it taught us how to work as a team.
         const fields = line.trim().split("|");
         if (fields.length !== 3) return;
         const curatedExample = curatedExamples.get(fields[0]);
-        const example = curatedExample ? curatedExample.example : examples[partOfSpeech](fields[0], exampleIndex);
+        const example = shortenExample(curatedExample ? curatedExample.example : examples[partOfSpeech](fields[0], exampleIndex, level), level);
         let exampleKo;
         if (curatedExample) {
           exampleKo = curatedExample.exampleKo;
@@ -1430,7 +1617,7 @@ valuable|The experience was valuable because it taught us how to work as a team.
     item.otherSenses = (alternateSenses[item.word] || []).map(function (sense) {
       return {
         meaning: sense.meaning,
-        example: sense.example,
+        example: shortenExample(sense.example, item.level),
         exampleKo: alternateExampleTranslations[sense.example] || "“" + sense.meaning + "”라는 뜻으로 쓰인 예문입니다."
       };
     });
