@@ -221,6 +221,35 @@
     }
   }
 
+  function vietnamesePronunciation(koreanText) {
+    const initials = ["", "k", "n", "t", "t", "l", "m", "b", "p", "s", "x", "", "ch", "ch", "ch", "kh", "th", "ph", "h"];
+    const vowels = ["a", "e", "ya", "ye", "ơ", "e", "yơ", "ye", "ô", "oa", "oe", "uê", "yô", "u", "uơ", "uê", "ui", "yu", "ư", "ưi", "i"];
+    const finals = ["", "k", "k", "k", "n", "n", "n", "t", "l", "k", "m", "l", "l", "l", "p", "l", "m", "p", "p", "t", "t", "ng", "t", "t", "k", "t", "p", "t"];
+    const linkedInitials = { 1: 0, 2: 1, 3: 0, 4: 2, 5: 2, 6: 2, 7: 3, 8: 5, 9: 0, 10: 6, 11: 5, 12: 5, 13: 5, 14: 5, 15: 5, 16: 6, 17: 7, 18: 7, 19: 9, 20: 10, 21: 11, 22: 12, 23: 14, 24: 15, 25: 16, 26: 17, 27: 18 };
+    const syllables = Array.from(String(koreanText || "")).map(function (character) {
+      const code = character.charCodeAt(0) - 0xac00;
+      if (code < 0 || code > 11171) return { character: character };
+      return { initial: Math.floor(code / 588), vowel: Math.floor((code % 588) / 28), final: code % 28 };
+    });
+    for (let index = 0; index < syllables.length - 1; index += 1) {
+      const current = syllables[index];
+      const next = syllables[index + 1];
+      if (current.initial === undefined || next.initial === undefined || !current.final) continue;
+      if (next.initial === 11 && linkedInitials[current.final] !== undefined) {
+        next.initial = linkedInitials[current.final];
+        current.final = 0;
+      } else if ([2, 6].includes(next.initial)) {
+        if ([1, 2, 3, 9, 24].includes(current.final)) current.final = 21;
+        else if ([7, 19, 20, 22, 23, 25, 27].includes(current.final)) current.final = 4;
+        else if ([17, 18, 26].includes(current.final)) current.final = 16;
+      }
+    }
+    return syllables.map(function (syllable) {
+      if (syllable.character !== undefined) return syllable.character;
+      return initials[syllable.initial] + vowels[syllable.vowel] + finals[syllable.final];
+    }).join(" ").replace(/\s+([?!.,])/g, "$1");
+  }
+
   function createSpeechUtterance(text, language) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language || "en-US";
@@ -419,8 +448,14 @@
     const expressionPlayer = currentPageView === "ko-expression-player";
     document.getElementById("player-level-label").textContent = item.level;
     document.getElementById("player-word").textContent = item.word;
-    document.getElementById("player-ipa").textContent =
-      currentStudy === "korean" ? "로마자 · " + item.ipa : item.ipa;
+    const vietnamesePronunciationDisplay = document.getElementById("player-vietnamese-pronunciation");
+    vietnamesePronunciationDisplay.hidden = currentStudy !== "korean";
+    if (currentStudy === "korean") {
+      vietnamesePronunciationDisplay.textContent = "베트남어식(근사) · " + vietnamesePronunciation(item.word);
+      document.getElementById("player-ipa").textContent = "로마자 · " + item.ipa;
+    } else {
+      document.getElementById("player-ipa").textContent = item.ipa;
+    }
     document.getElementById("player-meaning").textContent = item.meaning;
     document.getElementById("player-example").textContent = item.example;
     document.getElementById("player-example-translation").textContent = item.exampleKo;
@@ -572,8 +607,12 @@
       '<div class="word-primary">' +
         '<span class="word-level ' + levelClass + '">' + escapeHtml(item.level) + '</span>' +
         '<strong class="word-title">' + escapeHtml(item.word) + '</strong>' +
-        '<span class="word-ipa">' +
-          (currentStudy === "korean" ? "로마자 · " : "") + escapeHtml(item.ipa) + '</span>' +
+        '<div class="word-pronunciation">' +
+          (currentStudy === "korean" ? '<span class="word-pronunciation-vi">베트남어식(근사) · ' +
+            escapeHtml(vietnamesePronunciation(item.word)) + '</span>' : "") +
+          '<span class="word-ipa">' + (currentStudy === "korean" ? "로마자 · " : "") +
+            escapeHtml(item.ipa) + '</span>' +
+        '</div>' +
       '</div>' +
       '<div class="word-meaning"><span class="word-meaning-label">' +
         (currentStudy === "korean" ? "베트남어 뜻" : "뜻") + '</span>' + escapeHtml(item.meaning) +
