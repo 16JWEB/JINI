@@ -2,8 +2,12 @@
   "use strict";
 
   const PAGE_SIZE = 10;
+  const PAGE_JUMP = 10;
   const words = window.WORDS || [];
   const koreanWords = window.KOREAN_WORDS || [];
+  const koreanExpressions = (window.KOREAN_EXPRESSIONS || []).map(function (item) {
+    return Object.assign({ level: "일상 표현" }, item);
+  });
   const list = document.getElementById("word-list");
   const search = document.getElementById("search-input");
   const pagination = document.getElementById("pagination");
@@ -24,6 +28,7 @@
   let currentPageView = "";
   let toastTimer;
   let activeButton = null;
+  let cardSpeechToken = 0;
   let playerLevel = "초등";
   let playerWords = [];
   let playerIndex = 0;
@@ -571,7 +576,7 @@
         }).join("") +
       '</div>' +
       '<button class="play-button" type="button" aria-label="' + escapeHtml(item.word) + " " +
-        (currentStudy === "korean" ? "한국어" : "영어") + ' 발음 듣기">' +
+        (currentStudy === "korean" ? "한국어 단어와 베트남어 뜻" : "영어 단어와 한국어 뜻") + ' 듣기">' +
         '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 2.7c0-.7.8-1.1 1.4-.7l8.2 5.1a1 1 0 0 1 0 1.7l-8.2 5.1a.9.9 0 0 1-1.4-.8V2.7Z"/></svg>' +
       '</button>';
     const button = card.querySelector(".play-button");
@@ -584,16 +589,45 @@
       if (activeButton) activeButton.classList.remove("playing");
       activeButton = button;
       button.classList.add("playing");
-      const extraExamples = (item.otherSenses || []).map(function (sense) { return sense.example; });
-      const utterance = createSpeechUtterance(
-        [item.word, item.example].concat(extraExamples).join(". "),
-        currentStudy === "korean" ? "ko-KR" : "en-US"
-      );
-      utterance.onend = utterance.onerror = function () {
-        button.classList.remove("playing");
-        if (activeButton === button) activeButton = null;
-      };
-      speech.speak(utterance);
+      const token = ++cardSpeechToken;
+      const wordLanguage = currentStudy === "korean" ? "ko-KR" : "en-US";
+      const meaningLanguage = currentStudy === "korean" ? "vi-VN" : "ko-KR";
+      const spokenParts = [
+        { text: item.word, language: wordLanguage },
+        { text: item.meaning, language: meaningLanguage },
+        { text: item.example, language: wordLanguage },
+        { text: item.exampleKo, language: meaningLanguage }
+      ];
+      (item.otherSenses || []).forEach(function (sense) {
+        spokenParts.push(
+          { text: sense.meaning, language: meaningLanguage },
+          { text: sense.example, language: wordLanguage },
+          { text: sense.exampleKo, language: meaningLanguage }
+        );
+      });
+      const validSpokenParts = spokenParts.filter(function (part) { return part.text; });
+      function speakPart(index) {
+        if (token !== cardSpeechToken) return;
+        if (index >= validSpokenParts.length) {
+          button.classList.remove("playing");
+          if (activeButton === button) activeButton = null;
+          return;
+        }
+        const part = validSpokenParts[index];
+        const utterance = createSpeechUtterance(part.text, part.language);
+        utterance.onend = function () { speakPart(index + 1); };
+        utterance.onerror = function (event) {
+          if (token !== cardSpeechToken) return;
+          cardSpeechToken += 1;
+          button.classList.remove("playing");
+          if (activeButton === button) activeButton = null;
+          if (event.error === "canceled" || event.error === "interrupted") return;
+          speech.cancel();
+          showToast("단어와 뜻을 모두 재생하지 못했어요. 다시 눌러 주세요.");
+        };
+        speech.speak(utterance);
+      }
+      speakPart(0);
     });
     return card;
   }
@@ -607,6 +641,33 @@
   function renderPagination(pageCount) {
     pagination.replaceChildren();
     if (pageCount <= 1) return;
+
+    const pageSelect = document.createElement("select");
+    pageSelect.className = "page-select";
+    pageSelect.setAttribute("aria-label", "페이지 선택");
+    for (let page = 1; page <= pageCount; page += 1) {
+      const option = document.createElement("option");
+      option.value = String(page);
+      option.textContent = page + " 페이지";
+      option.selected = page === currentPage;
+      pageSelect.appendChild(option);
+    }
+    pageSelect.addEventListener("change", function () {
+      goToPage(Number(pageSelect.value));
+    });
+    pagination.appendChild(pageSelect);
+
+    function addPageButton(text, label, targetPage, disabled) {
+      const button = document.createElement("button");
+      button.className = "page-button";
+      button.textContent = text;
+      button.setAttribute("aria-label", label);
+      button.disabled = disabled;
+      button.addEventListener("click", function () { goToPage(targetPage); });
+      pagination.appendChild(button);
+    }
+
+    addPageButton("-10", "10페이지 이전", Math.max(1, currentPage - PAGE_JUMP), currentPage === 1);
     const previous = document.createElement("button");
     previous.className = "page-button";
     previous.textContent = "‹";
@@ -635,21 +696,24 @@
     next.disabled = currentPage === pageCount;
     next.addEventListener("click", function () { goToPage(currentPage + 1); });
     pagination.appendChild(next);
+    addPageButton("+10", "10페이지 다음", Math.min(pageCount, currentPage + PAGE_JUMP), currentPage === pageCount);
+    addPageButton("끝 " + pageCount, "마지막 페이지 " + pageCount + "로 이동", pageCount, currentPage === pageCount);
   }
 
   function goToPage(page) {
-    currentPage = page;
+    currentPage = Math.max(1, Math.floor(page));
     renderWords();
     document.querySelector(".vocabulary-section").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function renderWords() {
     const query = search.value.trim().toLocaleLowerCase("ko");
-    const studyWords = currentStudy === "korean" ? koreanWords : words;
+    const expressionStudy = currentPageView === "ko-expressions";
+    const studyWords = expressionStudy ? koreanExpressions : currentStudy === "korean" ? koreanWords : words;
     const filtered = studyWords.filter(function (item) {
       const matchesLevel = currentStudy === "korean" || activeLevel === "all" || item.level === activeLevel;
       const otherMeanings = (item.otherSenses || []).map(function (sense) { return sense.meaning; }).join(" ");
-      const searchable = (item.word + " " + item.meaning + " " + otherMeanings).toLocaleLowerCase("ko");
+      const searchable = (item.word + " " + item.meaning + " " + item.example + " " + item.exampleKo + " " + otherMeanings).toLocaleLowerCase("ko");
       return matchesLevel && searchable.includes(query);
     });
     const pageCount = Math.ceil(filtered.length / PAGE_SIZE);
@@ -659,10 +723,12 @@
     filtered.slice(start, start + PAGE_SIZE).forEach(function (item) {
       list.appendChild(makeCard(item));
     });
-    resultCount.textContent = currentStudy === "korean" ? filtered.length + "개 단어 · 베트남어 뜻" : filtered.length + "개 단어";
+    resultCount.textContent = expressionStudy ? filtered.length + "개 표현 · 베트남어 번역" :
+      currentStudy === "korean" ? filtered.length + "개 단어 · 베트남어 뜻" : filtered.length + "개 단어";
     if (currentPageView === "vocabulary" || currentPageView === "ko-vocabulary") {
       breadcrumbLevel.textContent = currentStudy === "korean" ? "필수 단어" : levelNames[activeLevel];
     }
+    if (expressionStudy) breadcrumbLevel.textContent = "일상생활 표현";
     emptyState.hidden = filtered.length > 0;
     list.hidden = filtered.length === 0;
     renderPagination(pageCount);
@@ -821,6 +887,7 @@
 
   function setPage(page) {
     if (page === currentPageView) return;
+    const leavingExpressions = currentPageView === "ko-expressions";
     stopPlayback("재생을 멈췄어요.");
     stopVerbAuto(true);
     if (speech) speech.cancel();
@@ -835,9 +902,14 @@
         chip.classList.toggle("selected", chip.dataset.level === "all");
       });
     }
+    if (page === "ko-expressions" || leavingExpressions) {
+      currentPage = 1;
+      search.value = "";
+    }
     currentPageView = page;
     const showingHome = page === "home";
-    const showingVocabulary = page === "vocabulary" || page === "ko-vocabulary";
+    const showingExpressions = page === "ko-expressions";
+    const showingVocabulary = page === "vocabulary" || page === "ko-vocabulary" || showingExpressions;
     const showingPlayer = page === "player" || page === "ko-player";
     const showingLanguagePacks = page === "ko-language-packs";
     const koreanStudy = currentStudy === "korean";
@@ -862,9 +934,14 @@
       showingPlayer ? (koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
       showingLanguagePacks ? "언어팩 설치" : "동사 변화";
     document.getElementById("section-title").textContent = "필수 단어";
+    if (showingExpressions) document.getElementById("section-title").textContent = "일상생활 표현";
+    document.querySelector(".bookmark-toolbar").hidden = showingExpressions;
+    search.placeholder = showingExpressions ? "표현 또는 번역 검색" : "단어 또는 뜻 검색";
+    search.setAttribute("aria-label", showingExpressions ? "표현 또는 번역 검색" : "단어 또는 뜻 검색");
     document.getElementById("vocabulary-filters").hidden = koreanStudy;
     document.getElementById("vocabulary-hint").textContent = koreanStudy ?
-      "스피커를 눌러 한국어 발음을 들어 보세요" : "스피커를 눌러 발음을 들어 보세요";
+      (showingExpressions ? "스피커를 눌러 한국어 표현과 베트남어 번역을 들어 보세요" :
+        "스피커를 눌러 한국어 발음을 들어 보세요") : "스피커를 눌러 발음을 들어 보세요";
     document.getElementById("player-levels").hidden = koreanStudy;
     document.getElementById("player-heading-title").textContent = koreanStudy ? "한국어 단어 재생" : "단어 재생";
     document.getElementById("player-heading-description").textContent = koreanStudy ?
@@ -873,7 +950,8 @@
       koreanStudy ? "한국어 + 베트남어 뜻" : "단어 + 뜻";
     document.querySelector(".player-mode-button[data-player-mode='word-meaning-example']").textContent =
       koreanStudy ? "한국어 + 베트남어 뜻 + 예문" : "단어 + 뜻 + 예문";
-    document.querySelector(".page-footer").textContent = koreanStudy ?
+    document.querySelector(".page-footer").textContent = showingExpressions ?
+      "일상생활에서 자주 쓰는 한국어 표현을 베트남어 번역과 함께 익혀 보세요." : koreanStudy ?
       "한국어 단어를 듣고 베트남어 뜻과 함께 익혀 보세요." :
       "단어를 듣고, 예문을 따라 읽으며 나만의 영어를 만들어 보세요.";
     if (showingPlayer) {
@@ -921,7 +999,6 @@
   function showAndroidTtsFallback() {
     if (window.location.hash === "#android-tts-settings-unavailable") {
       setPage("ko-language-packs");
-      showToast("설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환 > 음성 데이터 설치에서 베트남어를 선택하세요.");
     }
   }
   window.addEventListener("hashchange", showAndroidTtsFallback);
@@ -977,6 +1054,7 @@
   };
   document.getElementById("nav-total-count").textContent = counts.all;
   document.getElementById("nav-korean-count").textContent = koreanWords.length;
+  document.getElementById("nav-korean-expression-count").textContent = koreanExpressions.length;
   document.getElementById("count-all").textContent = counts.all;
   document.getElementById("count-elementary").textContent = counts.elementary;
   document.getElementById("count-middle").textContent = counts.middle;

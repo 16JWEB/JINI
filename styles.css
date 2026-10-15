@@ -198,11 +198,13 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
 .empty-state > span { display: block; color: #b6b1de; font-size: 27px; }
 .empty-state strong { display: block; margin-top: 9px; font-size: 14px; }
 .empty-state p { margin: 5px 0 0; color: var(--muted); font-size: 11px; }
-.pagination { display: flex; justify-content: center; gap: 6px; margin: 19px 0 0; }
+.pagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; margin: 19px 0 0; }
 .page-button { min-width: 31px; height: 31px; padding: 0 8px; border: 1px solid #e9eaf1; border-radius: 7px; background: white; color: #7f8194; cursor: pointer; font-size: 11px; }
 .page-button:hover { border-color: #c9c2f7; color: var(--purple); }
 .page-button.current { border-color: var(--purple); background: var(--purple); color: white; }
 .page-button:disabled { cursor: default; opacity: .42; }
+.page-select { width: 100px; height: 31px; padding: 0 7px; border: 1px solid #e9eaf1; border-radius: 7px; background: white; color: #66677c; font: inherit; font-size: 11px; }
+.page-select:focus-visible, .page-button:focus-visible { outline: 2px solid #c9c2f7; outline-offset: 2px; }
 .page-footer { margin-top: 28px; color: #a0a1b0; font-size: 10px; text-align: center; }
 .player-section { padding: 1px 0 15px; }
 .player-heading { margin-bottom: 20px; }
