@@ -904,8 +904,25 @@
       showToast("안드로이드 기기에서 음성 언어팩 설정을 열 수 있어요.");
       return;
     }
-    window.location.href = "intent:#Intent;action=android.settings.TTS_SETTINGS;end";
+    const fallbackUrl = window.location.href.split("#")[0] + "#android-tts-settings-unavailable";
+    const fallbackMessage = "설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환 > 음성 데이터 설치에서 한국어를 선택하세요.";
+    const fallbackIntent = "intent:#Intent;action=android.settings.TTS_SETTINGS;" +
+      "package=com.android.settings;S.browser_fallback_url=" +
+      encodeURIComponent(fallbackUrl) + ";end";
+    showToast("설정이 열리지 않으면 " + fallbackMessage);
+    window.setTimeout(function () {
+      if (document.visibilityState === "visible") {
+        showToast(fallbackMessage);
+      }
+    }, 1500);
+    window.location.href = fallbackIntent;
   });
+  function showAndroidTtsFallback() {
+    if (window.location.hash === "#android-tts-settings-unavailable") {
+      showToast("설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환 > 음성 데이터 설치에서 한국어를 선택하세요.");
+    }
+  }
+  window.addEventListener("hashchange", showAndroidTtsFallback);
   document.querySelector(".brand").addEventListener("click", function (event) {
     event.preventDefault();
     setPage("home");
@@ -973,6 +990,7 @@
   renderBookmarkLists();
   updateVerbAutoButton();
   setPage("home");
+  showAndroidTtsFallback();
   renderWords();
   renderVerbForms();
   updatePlayerCard();
