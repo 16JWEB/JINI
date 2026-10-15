@@ -268,8 +268,11 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
   .brand-mark { width: 29px; height: 29px; border-radius: 9px; font-size: 15px; }
   .menu-label, .sidebar-note, .sidebar-foot { display: none; }
   .main-nav { flex: 1; display: flex; justify-content: flex-end; gap: 3px; }
-  .home-nav { flex: 0 0 auto; margin: 0 4px 0 0; }
-  .home-nav .nav-item { width: auto; flex: 0 0 auto; }
+  .sidebar[data-study="english"] #korean-study-menu,
+  .sidebar[data-study="korean"] #english-study-menu { display: none; }
+  .home-nav { flex: 0 0 auto; margin: 0 6px 0 0; }
+  .home-nav .nav-item { width: auto; min-width: 72px; min-height: 43px; flex: 0 0 auto; justify-content: center; gap: 6px; padding: 9px 11px; font-size: 11px; }
+  .home-nav .nav-icon { font-size: 16px; }
   #korean-study-menu { margin-left: 4px; padding-left: 4px; border-left: 1px solid #eceaf5; }
   .nav-submenu { flex: 1; display: flex; justify-content: flex-end; gap: 3px; margin: 0; padding: 0; border: 0; }
   .nav-item { width: auto; min-width: 0; flex: 1; justify-content: center; gap: 4px; padding: 9px 5px; font-size: 9px; }
@@ -323,5 +326,6 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
   .brand { font-size: 0; }
   .brand-mark { font-size: 15px; }
   .nav-item { flex-direction: column; gap: 2px; }
+  .home-nav .nav-item { flex-direction: row; }
   .filter-chip { padding-right: 9px; padding-left: 9px; }
 }

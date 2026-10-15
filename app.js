@@ -856,6 +856,7 @@
     const showingVocabulary = page === "vocabulary" || page === "ko-vocabulary";
     const showingPlayer = page === "player" || page === "ko-player";
     const koreanStudy = currentStudy === "korean";
+    document.querySelector(".sidebar").dataset.study = currentStudy;
     document.getElementById("home-section").hidden = !showingHome;
     document.querySelector(".vocabulary-section").hidden = !showingVocabulary;
     playerSection.hidden = !showingPlayer;
