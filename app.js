@@ -211,10 +211,23 @@
     }
   }
 
-  function createUtterance(text, onEnd, onError, token, language) {
+  function createSpeechUtterance(text, language) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language || "en-US";
-    utterance.rate = 0.88;
+    utterance.rate = utterance.lang.toLowerCase().startsWith("ko") ? 0.95 : 0.88;
+    const requestedLanguage = utterance.lang.toLowerCase();
+    const languageBase = requestedLanguage.split("-")[0];
+    const voices = speech.getVoices();
+    utterance.voice = voices.find(function (voice) {
+      return voice.lang.toLowerCase() === requestedLanguage;
+    }) || voices.find(function (voice) {
+      return voice.lang.toLowerCase().startsWith(languageBase + "-");
+    }) || null;
+    return utterance;
+  }
+
+  function createUtterance(text, onEnd, onError, token, language) {
+    const utterance = createSpeechUtterance(text, language);
     utterance.onend = function () {
       if (token !== playbackToken) return;
       if (playbackState === "paused") {
@@ -569,9 +582,7 @@
       activeButton = button;
       button.classList.add("playing");
       const extraExamples = (item.otherSenses || []).map(function (sense) { return sense.example; });
-      const utterance = new SpeechSynthesisUtterance([item.word, item.example].concat(extraExamples).join(". "));
-      utterance.lang = "en-US";
-      utterance.rate = 0.88;
+      const utterance = createSpeechUtterance([item.word, item.example].concat(extraExamples).join(". "), "en-US");
       utterance.onend = utterance.onerror = function () {
         button.classList.remove("playing");
         if (activeButton === button) activeButton = null;
@@ -773,9 +784,7 @@
         return;
       }
       const isMeaning = index === -1;
-      const utterance = new SpeechSynthesisUtterance(isMeaning ? meaning : forms[index]);
-      utterance.lang = isMeaning ? "ko-KR" : "en-US";
-      utterance.rate = 0.88;
+      const utterance = createSpeechUtterance(isMeaning ? meaning : forms[index], isMeaning ? "ko-KR" : "en-US");
       utterance.onend = function () {
         if (token !== verbSpeechToken) return;
         index += 1;
