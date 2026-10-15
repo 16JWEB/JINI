@@ -542,17 +542,32 @@
   }
 
   function playExampleAt(item, exampleIndex, token) {
-    const examplesForItem = [item.example].concat((item.otherSenses || []).map(function (sense) {
-      return sense.example;
-    }));
-    if (exampleIndex >= examplesForItem.length) {
+    const exampleLanguage = currentStudy === "korean" ? "ko-KR" : "en-US";
+    const translationLanguage = currentStudy === "korean" ? "vi-VN" : "ko-KR";
+    const examplesForItem = [
+      { text: item.example, language: exampleLanguage, isTranslation: false },
+      { text: item.exampleKo, language: translationLanguage, isTranslation: true }
+    ];
+    (item.otherSenses || []).forEach(function (sense) {
+      examplesForItem.push(
+        { text: sense.example, language: exampleLanguage, isTranslation: false },
+        { text: sense.exampleKo, language: translationLanguage, isTranslation: true }
+      );
+    });
+    const spokenExamples = examplesForItem.filter(function (example) { return example.text; });
+    if (exampleIndex >= spokenExamples.length) {
       finishPlayerItem(token);
       return;
     }
-    setPlaybackStatus(exampleIndex === 0 ? "예문을 재생하고 있어요." : "다른 뜻의 예문을 재생하고 있어요.");
-    createUtterance(examplesForItem[exampleIndex], function () {
+    const example = spokenExamples[exampleIndex];
+    if (example.isTranslation) {
+      setPlaybackStatus(currentStudy === "korean" ? "베트남어 번역을 재생하고 있어요." : "한글 뜻을 재생하고 있어요.");
+    } else {
+      setPlaybackStatus(exampleIndex < 2 ? "예문을 재생하고 있어요." : "다른 뜻의 예문을 재생하고 있어요.");
+    }
+    createUtterance(example.text, function () {
       playExampleAt(item, exampleIndex + 1, token);
-    }, playbackError, token, currentStudy === "korean" ? "ko-KR" : "en-US");
+    }, playbackError, token, example.language);
   }
 
   function togglePlayback() {
