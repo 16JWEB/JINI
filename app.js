@@ -27,7 +27,6 @@
   let playerWords = [];
   let playerIndex = 0;
   let playbackState = "stopped";
-  let pendingPlaybackCallback = null;
   let playbackToken = 0;
   let verbSpeechToken = 0;
   let advanceTimer;
@@ -218,13 +217,18 @@
   function createSpeechUtterance(text, language) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = language || "en-US";
-    utterance.rate = utterance.lang.toLowerCase().startsWith("ko") ? 0.95 : 0.88;
+    utterance.rate = utterance.lang.toLowerCase().startsWith("ko") ? 0.9 : 0.88;
     const requestedLanguage = utterance.lang.toLowerCase();
     const languageBase = requestedLanguage.split("-")[0];
     const voices = speech.getVoices();
-    utterance.voice = voices.find(function (voice) {
+    const matchingVoices = voices.filter(function (voice) {
       return voice.lang.toLowerCase() === requestedLanguage;
-    }) || voices.find(function (voice) {
+    });
+    utterance.voice = matchingVoices.find(function (voice) {
+      return /natural|neural|premium/i.test(voice.name);
+    }) || matchingVoices.find(function (voice) {
+      return voice.default;
+    }) || matchingVoices[0] || voices.find(function (voice) {
       return voice.lang.toLowerCase().startsWith(languageBase + "-");
     }) || null;
     return utterance;
@@ -234,11 +238,7 @@
     const utterance = createSpeechUtterance(text, language);
     utterance.onend = function () {
       if (token !== playbackToken) return;
-      if (playbackState === "paused") {
-        pendingPlaybackCallback = onEnd;
-      } else if (playbackState === "playing") {
-        onEnd();
-      }
+      if (playbackState === "playing") onEnd();
     };
     utterance.onerror = function (event) {
       if (token !== playbackToken || event.error === "canceled" || event.error === "interrupted") return;
@@ -424,18 +424,18 @@
 
   function updatePlaybackButton() {
     const button = document.getElementById("toggle-playback");
+    button.disabled = playbackState === "playing";
     if (playbackState === "playing") {
-      button.innerHTML = "Ⅱ <span>일시정지</span>";
-    } else if (playbackState === "paused") {
-      button.innerHTML = "▶ <span>이어 듣기</span>";
+      button.innerHTML = "♫ <span>재생 중</span>";
+      button.title = "재생을 멈추려면 정지 버튼을 누르세요.";
     } else {
       button.innerHTML = "▶ <span>재생</span>";
+      button.title = "";
     }
   }
 
   function stopPlayback(message) {
     playbackToken += 1;
-    pendingPlaybackCallback = null;
     window.clearTimeout(advanceTimer);
     if (speech) speech.cancel();
     playbackState = "stopped";
@@ -479,10 +479,6 @@
     const advance = function () {
       advanceTimer = null;
       if (token !== playbackToken || playbackState === "stopped") return;
-      if (playbackState === "paused") {
-        pendingPlaybackCallback = advance;
-        return;
-      }
       if (playerIndex + 1 >= playerWords.length) {
         stopPlayback("학습 단어를 모두 재생했어요.");
         return;
@@ -512,25 +508,10 @@
       showToast("이 브라우저에서는 음성 재생을 지원하지 않아요.");
       return;
     }
-    if (playbackState === "playing") {
-      speech.pause();
-      playbackState = "paused";
-      setPlaybackStatus("일시정지했어요. 이어 듣기를 누르면 계속 재생합니다.");
-    } else if (playbackState === "paused") {
-      playbackState = "playing";
-      setPlaybackStatus("재생을 이어가고 있어요.");
-      if (pendingPlaybackCallback) {
-        const onEnd = pendingPlaybackCallback;
-        pendingPlaybackCallback = null;
-        onEnd();
-      } else {
-        speech.resume();
-      }
-    } else {
-      if (playerIndex >= playerWords.length) playerIndex = 0;
-      playbackState = "playing";
-      playCurrentItem();
-    }
+    if (playbackState === "playing") return;
+    if (playerIndex >= playerWords.length) playerIndex = 0;
+    playbackState = "playing";
+    playCurrentItem();
     updatePlaybackButton();
   }
 
