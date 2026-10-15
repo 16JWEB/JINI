@@ -425,10 +425,9 @@
 
   function updatePlaybackButton() {
     const button = document.getElementById("toggle-playback");
-    button.disabled = playbackState === "playing";
     if (playbackState === "playing") {
-      button.innerHTML = "♫ <span>재생 중</span>";
-      button.title = "재생을 멈추려면 정지 버튼을 누르세요.";
+      button.innerHTML = "■ <span>정지</span>";
+      button.title = "재생을 멈춥니다.";
     } else {
       button.innerHTML = "▶ <span>재생</span>";
       button.title = "";
@@ -509,7 +508,10 @@
       showToast("이 브라우저에서는 음성 재생을 지원하지 않아요.");
       return;
     }
-    if (playbackState === "playing") return;
+    if (playbackState === "playing") {
+      stopPlayback("재생을 멈췄어요.");
+      return;
+    }
     if (playerIndex >= playerWords.length) playerIndex = 0;
     playbackState = "playing";
     playCurrentItem();
@@ -952,9 +954,6 @@
   document.getElementById("toggle-playback").addEventListener("click", togglePlayback);
   document.getElementById("previous-word").addEventListener("click", function () { movePlayer(-1); });
   document.getElementById("next-word").addEventListener("click", function () { movePlayer(1); });
-  document.getElementById("stop-playback").addEventListener("click", function () {
-    stopPlayback("재생을 멈췄어요.");
-  });
   document.addEventListener("keydown", function (event) {
     if (event.key === "/" && document.activeElement !== search && !event.ctrlKey && !event.metaKey && !event.altKey &&
         (currentPageView === "vocabulary" || currentPageView === "ko-vocabulary")) {
