@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261015-1742">
+  <link rel="stylesheet" href="styles.css?v=20261015-1748">
 </head>
 <body>
   <div class="app-shell">
@@ -52,7 +52,7 @@
           <button class="nav-item" data-page="ko-player">
             <span class="nav-icon">♫</span><span>단어 재생</span>
           </button>
-          <button class="nav-item" id="korean-language-packs" type="button" title="안드로이드 텍스트 음성 변환 설정 열기">
+          <button class="nav-item" data-page="ko-language-packs" title="음성 언어팩 설치 방법 보기">
             <span class="nav-icon">↓</span><span>언어팩</span>
           </button>
         </div>
@@ -195,16 +195,52 @@
         <p class="verb-note">불규칙 동사는 과거형과 과거분사를 함께 익혀 보세요. 규칙 동사는 보통 동사원형에 <b>-ed</b>를 붙입니다.</p>
       </section>
 
+      <section class="language-packs-section" id="language-packs-section" hidden>
+        <div class="player-heading">
+          <span class="eyebrow section-eyebrow">VOICE LANGUAGE PACKS</span>
+          <h1 class="page-title">베트남어 음성 언어팩 설치</h1>
+          <p>단어 재생에서 베트남어 뜻을 소리 내어 들으려면 기기에 베트남어 음성을 설치해 주세요.</p>
+        </div>
+        <div class="language-pack-action">
+          <button class="home-start-button" id="open-android-tts-settings" type="button">언어팩 설정 메뉴 들어가기</button>
+          <p>Android 기기에서는 텍스트 음성 변환 설정을 엽니다. 기기나 브라우저에 따라 설정 화면으로 이동하지 않을 수 있습니다.</p>
+        </div>
+        <div class="language-pack-guide">
+          <article class="language-pack-card">
+            <span class="eyebrow section-eyebrow">SMARTPHONE · ANDROID</span>
+            <h2>스마트폰에서 베트남어 음성 설치</h2>
+            <ol>
+              <li><strong>설정</strong>에서 <strong>일반 관리</strong> 또는 <strong>접근성</strong>을 엽니다.</li>
+              <li><strong>텍스트 음성 변환</strong> 또는 <strong>글자 읽어주기</strong> 메뉴로 이동합니다.</li>
+              <li>기본 엔진이 <strong>Speech Services by Google</strong>인지 확인하고, 옆의 <strong>설정</strong> 또는 톱니바퀴를 누릅니다.</li>
+              <li><strong>음성 데이터 설치</strong>에서 <strong>베트남어 (Tiếng Việt)</strong>를 찾아 다운로드합니다.</li>
+            </ol>
+            <p class="language-pack-note">기기 제조사와 Android 버전에 따라 메뉴 이름이나 위치가 다를 수 있습니다. 베트남어가 목록에 없으면 음성 엔진을 업데이트한 뒤 다시 확인해 주세요.</p>
+          </article>
+          <article class="language-pack-card">
+            <span class="eyebrow section-eyebrow">WINDOWS</span>
+            <h2>Windows에서 음성 추가</h2>
+            <ol>
+              <li><kbd>Windows 로고 키</kbd> + <kbd>I</kbd>를 눌러 <strong>설정</strong>을 엽니다.</li>
+              <li><strong>시간 및 언어</strong>에서 <strong>음성</strong> 또는 <strong>음성 입력</strong> 메뉴를 엽니다.</li>
+              <li><strong>음성 관리</strong>에서 <strong>음성 추가</strong>를 누릅니다.</li>
+              <li>목록에서 <strong>베트남어 (Tiếng Việt)</strong>가 제공되면 선택해 설치합니다.</li>
+            </ol>
+            <p class="language-pack-note">사용할 수 있는 음성 언어는 Windows 버전과 설치된 음성 기능에 따라 다릅니다. 베트남어가 목록에 표시되지 않으면 해당 Windows 음성 기능에서 지원되지 않을 수 있습니다.</p>
+          </article>
+        </div>
+      </section>
+
       <footer class="page-footer" hidden>단어를 듣고, 예문을 따라 읽으며 나만의 영어를 만들어 보세요.</footer>
     </main>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="words-elementary-extra.js?v=20261015-1742"></script>
-  <script src="words-middle-extra.js?v=20261015-1742"></script>
-  <script src="words-high-extra.js?v=20261015-1742"></script>
-  <script src="words.js?v=20261015-1742"></script>
-  <script src="korean-words.js?v=20261015-1742"></script>
-  <script src="korean-words-extra.js?v=20261015-1742"></script>
-  <script src="app.js?v=20261015-1742"></script>
+  <script src="words-elementary-extra.js?v=20261015-1748"></script>
+  <script src="words-middle-extra.js?v=20261015-1748"></script>
+  <script src="words-high-extra.js?v=20261015-1748"></script>
+  <script src="words.js?v=20261015-1748"></script>
+  <script src="korean-words.js?v=20261015-1748"></script>
+  <script src="korean-words-extra.js?v=20261015-1748"></script>
+  <script src="app.js?v=20261015-1748"></script>
 </body>
 </html>

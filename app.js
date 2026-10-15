@@ -13,6 +13,7 @@
   const toast = document.getElementById("toast");
   const playerSection = document.getElementById("player-section");
   const verbFormsSection = document.getElementById("verb-forms-section");
+  const languagePacksSection = document.getElementById("language-packs-section");
   const verbTableBody = document.getElementById("verb-table-body");
   const verbSearch = document.getElementById("verb-search-input");
   const verbResultCount = document.getElementById("verb-result-count");
@@ -836,12 +837,14 @@
     const showingHome = page === "home";
     const showingVocabulary = page === "vocabulary" || page === "ko-vocabulary";
     const showingPlayer = page === "player" || page === "ko-player";
+    const showingLanguagePacks = page === "ko-language-packs";
     const koreanStudy = currentStudy === "korean";
     document.querySelector(".sidebar").dataset.study = showingHome ? "home" : currentStudy;
     document.getElementById("home-section").hidden = !showingHome;
     document.querySelector(".vocabulary-section").hidden = !showingVocabulary;
     playerSection.hidden = !showingPlayer;
     verbFormsSection.hidden = page !== "verb-forms";
+    languagePacksSection.hidden = !showingLanguagePacks;
     document.querySelector(".page-footer").hidden = showingHome;
     document.querySelectorAll(".nav-item[data-page]").forEach(function (button) {
       button.classList.toggle("active", button.dataset.page === page);
@@ -854,7 +857,8 @@
     document.getElementById("breadcrumb-divider").hidden = showingHome;
     breadcrumbLevel.textContent = showingHome ? "" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
-      showingPlayer ? (koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") : "동사 변화";
+      showingPlayer ? (koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
+      showingLanguagePacks ? "언어팩 설치" : "동사 변화";
     document.getElementById("section-title").textContent = "필수 단어";
     document.getElementById("vocabulary-filters").hidden = koreanStudy;
     document.getElementById("vocabulary-hint").textContent = koreanStudy ?
@@ -899,13 +903,13 @@
   document.querySelectorAll("[data-page]").forEach(function (button) {
     button.addEventListener("click", function () { setPage(button.dataset.page); });
   });
-  document.getElementById("korean-language-packs").addEventListener("click", function () {
+  document.getElementById("open-android-tts-settings").addEventListener("click", function () {
     if (!/Android/i.test(window.navigator.userAgent)) {
-      showToast("안드로이드 기기에서 음성 언어팩 설정을 열 수 있어요.");
+      showToast("이 버튼은 Android에서만 설정 메뉴를 열 수 있어요. 아래 설치 방법을 확인해 주세요.");
       return;
     }
     const fallbackUrl = window.location.href.split("#")[0] + "#android-tts-settings-unavailable";
-    const fallbackMessage = "설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환 > 음성 데이터 설치에서 한국어를 선택하세요.";
+    const fallbackMessage = "설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환 > 음성 데이터 설치에서 베트남어를 선택하세요.";
     const fallbackIntent = "intent:#Intent;action=android.settings.TTS_SETTINGS;" +
       "package=com.android.settings;S.browser_fallback_url=" +
       encodeURIComponent(fallbackUrl) + ";end";
@@ -919,7 +923,7 @@
   });
   function showAndroidTtsFallback() {
     if (window.location.hash === "#android-tts-settings-unavailable") {
-      showToast("설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환 > 음성 데이터 설치에서 한국어를 선택하세요.");
+      showToast("설정 > 일반 관리(또는 접근성) > 텍스트 음성 변환 > 음성 데이터 설치에서 베트남어를 선택하세요.");
     }
   }
   window.addEventListener("hashchange", showAndroidTtsFallback);
