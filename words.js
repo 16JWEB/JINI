@@ -1045,33 +1045,15 @@ widespread|ˈwaɪdspred|널리 퍼진
         know: "I know the answer."
       };
       if (commonExamples[word]) return commonExamples[word];
-      const templates = level === "초등" ? [
-        "I can " + word + " well.",
-        "Let's " + word + " together.",
-        "Can you " + word + " today?",
-        "Please " + word + " with me.",
-        "We " + word + " after school.",
-        "She likes to " + word + ".",
-        "Try to " + word + " again.",
-        "Do you want to " + word + "?"
-      ] : level === "중등" ? [
-        "We practiced how to " + word + " after class.",
-        "She learned to " + word + " more carefully.",
-        "Can you explain how to " + word + "?",
-        "They decided to " + word + " before lunch.",
-        "He tried to " + word + " without help.",
-        "We watched them " + word + " during the game.",
-        "I learned when to " + word + " in class.",
-        "The team found a new way to " + word + "."
-      ] : [
-        "Students should " + word + " carefully when conditions change.",
-        "She explained how to " + word + " without wasting time.",
-        "We chose to " + word + " after reviewing the available options.",
-        "He managed to " + word + " despite several unexpected problems.",
-        "They discovered a better way to " + word + " efficiently.",
-        "The group agreed to " + word + " once everyone was ready.",
-        "Please " + word + " with care to avoid unnecessary problems.",
-        "Learning to " + word + " well requires patience and careful planning."
+      const templates = [
+        "I learned the meaning of the verb '" + word + "' today.",
+        "We practiced the verb '" + word + "' in class.",
+        "Can you use the verb '" + word + "' in a sentence?",
+        "Please write a sentence with the verb '" + word + "'.",
+        "She looked up the meaning of '" + word + "'.",
+        "They are learning how to use '" + word + "'.",
+        "Try using '" + word + "' in your answer.",
+        "Do you know what '" + word + "' means?"
       ];
       return templates[index % templates.length];
     },
@@ -1182,13 +1164,13 @@ widespread|ˈwaɪdspred|널리 퍼진
   };
 
   const nounKoreanTemplates = [
-    "오늘 수업에서 {meaning}에 대해 배웠습니다.",
-    "오늘 {obj} 보았습니다.",
+    "{obj} 볼 수 있나요?",
+    "오늘 {obj} 찾았습니다.",
+    "{meaning}에 대해 함께 배워 봅시다.",
+    "{meaning}에 대해 이야기했습니다.",
     "{meaning}에 대해 말해 주세요.",
-    "수업에서 {meaning}에 관한 글을 읽었습니다.",
+    "수업 시간에 {meaning}에 관한 글을 읽었습니다.",
     "{obj} 본 적 있나요?",
-    "{meaning}에 대해 글을 썼습니다.",
-    "오늘 {meaning}에 관해 이야기했습니다.",
     "{obj} 찾을 수 있나요?"
   ];
   const levelNounKoreanTemplates = {
@@ -1211,28 +1193,6 @@ widespread|ˈwaɪdspred|널리 퍼진
       "그의 연구는 {meaning}의 역사를 살펴봅니다.",
       "발표자는 {meaning}{subj} 여전히 중요한 이유를 설명했습니다.",
       "{obj} 이해하려면 맥락을 주의 깊게 살펴야 합니다."
-    ]
-  };
-  const levelVerbKoreanTemplates = {
-    중등: [
-      "{gerund}는 방법을 수업 후에 연습했습니다.",
-      "그녀는 더 주의해서 {infinitive}를 배웠습니다.",
-      "어떻게 {gerund}는지 설명해 줄 수 있나요?",
-      "점심 전에 {infinitive}로 결정했습니다.",
-      "도움 없이 {infinitive}를 시도했습니다.",
-      "경기 중에 그들이 {gerund} 것을 보았습니다.",
-      "수업에서 언제 {gerund}는지 배웠습니다.",
-      "그 팀은 {gerund} 새로운 방법을 찾았습니다."
-    ],
-    고등: [
-      "상황이 바뀌면 신중하게 {necessity} 합니다.",
-      "시간을 낭비하지 않고 {gerund}는 방법을 설명했습니다.",
-      "가능한 선택지를 검토한 뒤 {infinitive}로 결정했습니다.",
-      "예기치 못한 문제가 있었지만 {gerund} 데 성공했습니다.",
-      "효율적으로 {gerund} 더 나은 방법을 발견했습니다.",
-      "모두 준비되면 {infinitive}기로 합의했습니다.",
-      "불필요한 문제를 피하려면 신중하게 {necessity} 합니다.",
-      "잘 {infinitive} 위해서는 인내심과 계획이 필요합니다."
     ]
   };
   const levelAdjectiveKoreanTemplates = {
@@ -1274,44 +1234,19 @@ widespread|ˈwaɪdspred|널리 퍼진
   function koreanSubjectParticle(value) {
     const last = String(value).trim().replace(/[.!?'"”’)\]]+$/g, "").slice(-1);
     const code = last.charCodeAt(0);
-    if (code < 0xac00 || code > 0xd7a3) return "는";
-    return (code - 0xac00) % 28 === 0 ? "는" : "은";
-  }
-
-  function verbForms(meaning) {
-    const verb = primaryMeaning(meaning).replace(/\s*\([^)]*\)/g, "").trim();
-    const stem = verb.endsWith("다") ? verb.slice(0, -1) : verb;
-    const last = stem.slice(-1);
-    const code = last.charCodeAt(0);
-    const hasFinalConsonant = code >= 0xac00 && code <= 0xd7a3 && (code - 0xac00) % 28 !== 0;
-    let future = stem + (hasFinalConsonant ? "으려고" : "려고");
-    if (stem === "듣" || stem === "걷") future = stem.slice(0, -1) + (stem === "듣" ? "들" : "걸") + "으려고";
-    if (stem === "돕") future = "도우려고";
-    let necessity = stem + (hasFinalConsonant ? "어야" : "야");
-    if (stem.endsWith("하")) necessity = stem.slice(0, -1) + "해야";
-    if (stem === "듣" || stem === "걷") necessity = stem.slice(0, -1) + (stem === "듣" ? "들어야" : "걸어야");
-    if (stem === "돕") necessity = "도와야";
-    let promise = stem + "겠다고";
-    if (stem === "듣" || stem === "걷") promise = stem.slice(0, -1) + (stem === "듣" ? "듣겠다고" : "걷겠다고");
-    if (stem === "돕") promise = "돕겠다고";
-    return {
-      infinitive: stem + "기",
-      future: future,
-      gerund: stem + "는",
-      necessity: necessity,
-      promise: promise
-    };
+    if (code < 0xac00 || code > 0xd7a3) return "가";
+    return (code - 0xac00) % 28 === 0 ? "가" : "이";
   }
 
   const verbKoreanTemplates = [
-    "{infinitive}를 좋아합니다.",
-    "함께 {infinitive}를 원합니다.",
-    "지금 {infinitive}가 가능한가요?",
-    "오늘 {future} 합니다.",
-    "그녀는 {infinitive}를 원합니다.",
-    "그들은 {necessity} 합니다.",
-    "그는 다시 {infinitive}를 원합니다.",
-    "함께 {infinitive}를 좋아합니다."
+    "오늘 '{word}'라는 동사의 뜻을 배웠습니다.",
+    "수업 시간에 '{word}'라는 동사를 연습했습니다.",
+    "문장에서 '{word}'라는 동사를 사용할 수 있나요?",
+    "'{word}'라는 동사를 넣어 문장을 써 보세요.",
+    "그녀는 '{word}'의 뜻을 찾아봤습니다.",
+    "그들은 '{word}'를 어떻게 사용하는지 배우고 있습니다.",
+    "답에 '{word}'를 사용해 보세요.",
+    "'{word}'가 무슨 뜻인지 아나요?"
   ];
 
   const verbExampleTranslations = {
@@ -1885,14 +1820,8 @@ valuable|The experience was valuable because it taught us how to work as a team.
               .replace(/\{meaning\}/g, meaning);
           }
         } else if (partOfSpeech === "verb") {
-          const forms = verbForms(fields[2]);
-          const templates = levelVerbKoreanTemplates[level] || verbKoreanTemplates;
-          exampleKo = verbExampleTranslations[fields[0]] || templates[exampleIndex % templates.length]
-            .replace(/\{infinitive\}/g, forms.infinitive)
-            .replace(/\{future\}/g, forms.future)
-            .replace(/\{gerund\}/g, forms.gerund)
-            .replace(/\{necessity\}/g, forms.necessity)
-            .replace(/\{promise\}/g, forms.promise);
+          exampleKo = verbExampleTranslations[fields[0]] ||
+            verbKoreanTemplates[exampleIndex % verbKoreanTemplates.length].replace(/\{word\}/g, fields[0]);
         } else {
           const meaning = primaryMeaning(fields[2]);
           const templates = levelAdjectiveKoreanTemplates[level] || adjectiveKoreanTemplates;

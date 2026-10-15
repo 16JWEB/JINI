@@ -198,10 +198,11 @@
             ["english", "korean"].includes(bookmark.study || "english");
         }) : [],
         player: Array.isArray(saved.player) ? saved.player.filter(function (bookmark) {
-          return bookmark && ["초등", "중등", "고등", "기초"].includes(bookmark.level) &&
+          return bookmark && ["초등", "중등", "고등", "기초", "일상 표현"].includes(bookmark.level) &&
             Number.isInteger(bookmark.index) && bookmark.index >= 0 &&
             Number.isInteger(bookmark.page) && bookmark.page > 0 && typeof bookmark.word === "string" &&
-            ["english", "korean"].includes(bookmark.study || "english");
+            ["english", "korean"].includes(bookmark.study || "english") &&
+            ["word", "expression"].includes(bookmark.type || "word");
         }) : []
       };
     } catch (error) {
@@ -322,7 +323,7 @@
       button.textContent = label;
       button.title = label + "로 이동";
       button.addEventListener("click", function () {
-        setPage(currentStudy === "korean" ? "ko-player" : "player");
+        setPage(bookmark.type === "expression" ? "ko-expression-player" : currentStudy === "korean" ? "ko-player" : "player");
         if (currentStudy === "english") setPlayerLevel(bookmark.level);
         const bookmarkedIndex = playerWords.findIndex(function (item) { return item.word === bookmark.word; });
         playerIndex = bookmarkedIndex >= 0 ? bookmarkedIndex : Math.min(bookmark.index, playerWords.length - 1);
@@ -350,16 +351,19 @@
   function updatePlayerBookmarkControl() {
     const item = playerWords[playerIndex];
     const button = document.getElementById("bookmark-current-word");
+    const expressionPlayer = currentPageView === "ko-expression-player";
     if (!item) {
-      button.textContent = "☆ 이 단어 책갈피";
+      button.textContent = expressionPlayer ? "☆ 이 표현 책갈피" : "☆ 이 단어 책갈피";
       button.classList.remove("selected");
       return;
     }
     const saved = bookmarks.player.some(function (bookmark) {
       return (bookmark.study || "english") === currentStudy &&
-        bookmark.level === (currentStudy === "korean" ? "기초" : playerLevel) && bookmark.word === item.word;
+        bookmark.level === (expressionPlayer ? "일상 표현" : currentStudy === "korean" ? "기초" : playerLevel) &&
+        (bookmark.type || "word") === (expressionPlayer ? "expression" : "word") && bookmark.word === item.word;
     });
-    button.textContent = saved ? "★ 단어 책갈피 저장됨" : "☆ 이 단어 책갈피";
+    button.textContent = saved ? expressionPlayer ? "★ 표현 책갈피 저장됨" : "★ 단어 책갈피 저장됨" :
+      expressionPlayer ? "☆ 이 표현 책갈피" : "☆ 이 단어 책갈피";
     button.classList.toggle("selected", saved);
   }
 
@@ -383,16 +387,20 @@
   function togglePlayerBookmark() {
     const item = playerWords[playerIndex];
     if (!item) return;
+    const expressionPlayer = currentPageView === "ko-expression-player";
+    const bookmarkLevel = expressionPlayer ? "일상 표현" : currentStudy === "korean" ? "기초" : playerLevel;
+    const bookmarkType = expressionPlayer ? "expression" : "word";
     const index = bookmarks.player.findIndex(function (bookmark) {
       return (bookmark.study || "english") === currentStudy &&
-        bookmark.level === (currentStudy === "korean" ? "기초" : playerLevel) && bookmark.word === item.word;
+        bookmark.level === bookmarkLevel && (bookmark.type || "word") === bookmarkType && bookmark.word === item.word;
     });
     if (index >= 0) {
       bookmarks.player.splice(index, 1);
     } else {
       bookmarks.player.unshift({
         study: currentStudy,
-        level: currentStudy === "korean" ? "기초" : playerLevel,
+        level: bookmarkLevel,
+        type: bookmarkType,
         index: playerIndex,
         page: Math.floor(playerIndex / PAGE_SIZE) + 1,
         word: item.word
@@ -400,13 +408,15 @@
     }
     if (saveBookmarks()) {
       renderBookmarkLists();
-      showToast(index >= 0 ? "단어 책갈피를 삭제했어요." : "현재 단어를 책갈피에 저장했어요.");
+      showToast(index >= 0 ? (expressionPlayer ? "표현 책갈피를 삭제했어요." : "단어 책갈피를 삭제했어요.") :
+        (expressionPlayer ? "현재 표현을 책갈피에 저장했어요." : "현재 단어를 책갈피에 저장했어요."));
     }
   }
 
   function updatePlayerCard() {
     if (!playerWords.length) return;
     const item = playerWords[playerIndex];
+    const expressionPlayer = currentPageView === "ko-expression-player";
     document.getElementById("player-level-label").textContent = item.level;
     document.getElementById("player-word").textContent = item.word;
     document.getElementById("player-ipa").textContent =
@@ -422,7 +432,7 @@
         escapeHtml(sense.example) + '<span class="player-sense-translation">' + escapeHtml(sense.exampleKo) + '</span></div>';
     }).join("");
     document.getElementById("player-progress").textContent =
-      (playerIndex + 1) + " / " + playerWords.length + " 단어";
+      (playerIndex + 1) + " / " + playerWords.length + (expressionPlayer ? " 표현" : " 단어");
     document.getElementById("player-progress-bar").style.width =
       ((playerIndex + 1) / playerWords.length * 100) + "%";
     updatePlayerBookmarkControl();
@@ -460,12 +470,14 @@
       return;
     }
     const item = playerWords[playerIndex];
+    const itemLabel = currentPageView === "ko-expression-player" ? "표현" : "단어";
+    const objectParticle = currentPageView === "ko-expression-player" ? "을" : "를";
     if (!item) {
-      stopPlayback("선택한 학년의 단어가 없어요.");
+      stopPlayback("재생할 " + itemLabel + "가 없어요.");
       return;
     }
     const token = ++playbackToken;
-    setPlaybackStatus("단어를 재생하고 있어요.");
+    setPlaybackStatus(itemLabel + objectParticle + " 재생하고 있어요.");
     updatePlayerCard();
     speech.cancel();
     createUtterance(item.word, function () {
@@ -485,7 +497,7 @@
       advanceTimer = null;
       if (token !== playbackToken || playbackState === "stopped") return;
       if (playerIndex + 1 >= playerWords.length) {
-        stopPlayback("학습 단어를 모두 재생했어요.");
+        stopPlayback("학습 " + (currentPageView === "ko-expression-player" ? "표현을" : "단어를") + " 모두 재생했어요.");
         return;
       }
       playerIndex += 1;
@@ -529,7 +541,10 @@
     stopPlayback();
     playerIndex = Math.min(Math.max(0, playerIndex + offset), playerWords.length - 1);
     updatePlayerCard();
-    setPlaybackStatus(wasPlaying ? "다음 단어를 재생하고 있어요." : "선택한 단어를 들으려면 재생을 누르세요.");
+    const itemLabel = currentPageView === "ko-expression-player" ? "표현" : "단어";
+    const objectParticle = currentPageView === "ko-expression-player" ? "을" : "를";
+    setPlaybackStatus(wasPlaying ? "다음 " + itemLabel + objectParticle + " 재생하고 있어요." :
+      "선택한 " + itemLabel + objectParticle + " 들으려면 재생을 누르세요.");
     if (wasPlaying) {
       playbackState = "playing";
       playCurrentItem();
@@ -887,7 +902,7 @@
 
   function setPage(page) {
     if (page === currentPageView) return;
-    const leavingExpressions = currentPageView === "ko-expressions";
+    const leavingExpressions = currentPageView === "ko-expressions" || currentPageView === "ko-expression-player";
     stopPlayback("재생을 멈췄어요.");
     stopVerbAuto(true);
     if (speech) speech.cancel();
@@ -902,15 +917,16 @@
         chip.classList.toggle("selected", chip.dataset.level === "all");
       });
     }
-    if (page === "ko-expressions" || leavingExpressions) {
+    if (page === "ko-expressions" || page === "ko-expression-player" || leavingExpressions) {
       currentPage = 1;
       search.value = "";
     }
     currentPageView = page;
     const showingHome = page === "home";
     const showingExpressions = page === "ko-expressions";
+    const playingExpressions = page === "ko-expression-player";
     const showingVocabulary = page === "vocabulary" || page === "ko-vocabulary" || showingExpressions;
-    const showingPlayer = page === "player" || page === "ko-player";
+    const showingPlayer = page === "player" || page === "ko-player" || playingExpressions;
     const showingLanguagePacks = page === "ko-language-packs";
     const koreanStudy = currentStudy === "korean";
     document.querySelector(".sidebar").dataset.study = showingHome ? "home" : currentStudy;
@@ -931,7 +947,7 @@
     document.getElementById("breadcrumb-divider").hidden = showingHome;
     breadcrumbLevel.textContent = showingHome ? "" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
-      showingPlayer ? (koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
+      showingPlayer ? (playingExpressions ? "표현 재생" : koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
       showingLanguagePacks ? "언어팩 설치" : "동사 변화";
     document.getElementById("section-title").textContent = "필수 단어";
     if (showingExpressions) document.getElementById("section-title").textContent = "일상생활 표현";
@@ -944,22 +960,29 @@
         "스피커를 눌러 한국어 발음을 들어 보세요") : "스피커를 눌러 발음을 들어 보세요";
     document.getElementById("player-levels").hidden = koreanStudy;
     document.getElementById("player-heading-title").textContent = koreanStudy ? "한국어 단어 재생" : "단어 재생";
-    document.getElementById("player-heading-description").textContent = koreanStudy ?
+    if (playingExpressions) document.getElementById("player-heading-title").textContent = "한국어 표현 재생";
+    document.getElementById("player-heading-description").textContent = playingExpressions ?
+      "일상생활 한국어 표현과 베트남어 뜻, 예문을 함께 익혀 보세요." : koreanStudy ?
       "한국어 단어를 듣고 베트남어 뜻과 함께 익혀 보세요." : "학년과 재생 내용을 선택하고 시작해 보세요.";
+    document.getElementById("open-language-packs").hidden = !koreanStudy;
+    document.getElementById("previous-word").setAttribute("aria-label", playingExpressions ? "이전 표현" : "이전 단어");
+    document.getElementById("next-word").setAttribute("aria-label", playingExpressions ? "다음 표현" : "다음 단어");
     document.querySelector(".player-mode-button[data-player-mode='word-meaning']").textContent =
       koreanStudy ? "한국어 + 베트남어 뜻" : "단어 + 뜻";
     document.querySelector(".player-mode-button[data-player-mode='word-meaning-example']").textContent =
       koreanStudy ? "한국어 + 베트남어 뜻 + 예문" : "단어 + 뜻 + 예문";
-    document.querySelector(".page-footer").textContent = showingExpressions ?
+    document.querySelector(".page-footer").textContent = showingExpressions || playingExpressions ?
       "일상생활에서 자주 쓰는 한국어 표현을 베트남어 번역과 함께 익혀 보세요." : koreanStudy ?
       "한국어 단어를 듣고 베트남어 뜻과 함께 익혀 보세요." :
       "단어를 듣고, 예문을 따라 읽으며 나만의 영어를 만들어 보세요.";
     if (showingPlayer) {
-      playerWords = koreanStudy ? koreanWords : words.filter(function (item) { return item.level === playerLevel; });
+      playerWords = playingExpressions ? koreanExpressions : koreanStudy ? koreanWords :
+        words.filter(function (item) { return item.level === playerLevel; });
       playerIndex = 0;
       updatePlayerCard();
-      document.getElementById("player-progress").textContent = playerWords.length + "개 단어";
-      setPlaybackStatus(koreanStudy ? "재생을 누르면 한국어 단어를 들을 수 있어요." : "학년을 고르고 재생을 시작해 보세요.");
+      document.getElementById("player-progress").textContent = playerWords.length + (playingExpressions ? "개 표현" : "개 단어");
+      setPlaybackStatus(playingExpressions ? "재생을 누르면 한국어 표현을 들을 수 있어요." :
+        koreanStudy ? "재생을 누르면 한국어 단어를 들을 수 있어요." : "학년을 고르고 재생을 시작해 보세요.");
     }
     renderWords();
     renderBookmarkLists();
