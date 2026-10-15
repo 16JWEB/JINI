@@ -918,6 +918,13 @@
   document.querySelectorAll("[data-page]").forEach(function (button) {
     button.addEventListener("click", function () { setPage(button.dataset.page); });
   });
+  document.getElementById("korean-language-packs").addEventListener("click", function () {
+    if (!/Android/i.test(window.navigator.userAgent)) {
+      showToast("안드로이드 기기에서 음성 언어팩 설정을 열 수 있어요.");
+      return;
+    }
+    window.location.href = "intent:#Intent;action=android.settings.TTS_SETTINGS;end";
+  });
   document.querySelector(".brand").addEventListener("click", function (event) {
     event.preventDefault();
     setPage("home");
