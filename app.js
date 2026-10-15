@@ -21,7 +21,6 @@
   let currentPageView = "vocabulary";
   let toastTimer;
   let activeButton = null;
-  let voices = [];
   let playerLevel = "초등";
   let playerWords = [];
   let playerIndex = 0;
@@ -166,10 +165,6 @@
   ];
   const speech = window.speechSynthesis;
 
-  function refreshVoices() {
-    voices = speech ? speech.getVoices() : [];
-  }
-
   function showToast(message) {
     toast.textContent = message;
     toast.classList.add("visible");
@@ -177,23 +172,10 @@
     toastTimer = window.setTimeout(function () { toast.classList.remove("visible"); }, 2800);
   }
 
-  function chooseUsVoice() {
-    const usVoices = voices.filter(function (voice) {
-      return /^en-US$/i.test(voice.lang);
-    });
-    const maleVoice = usVoices.find(function (voice) {
-      return /david|guy|christopher|eric|mark|andrew|brian|jason|matthew|aaron|male/i.test(voice.name);
-    });
-    return maleVoice || usVoices.find(function (voice) { return voice.default; }) || usVoices[0] || null;
-  }
-
   function createUtterance(text, onEnd, onError, token) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-US";
     utterance.rate = 0.88;
-    utterance.pitch = 0.94;
-    const voice = chooseUsVoice();
-    if (voice) utterance.voice = voice;
     utterance.onend = function () {
       if (token === playbackToken && playbackState === "playing") onEnd();
     };
@@ -202,7 +184,6 @@
       onError();
     };
     speech.speak(utterance);
-    return voice;
   }
 
   function setPlaybackStatus(message) {
@@ -271,10 +252,9 @@
     setPlaybackStatus("단어 발음을 재생하고 있어요.");
     updatePlayerCard();
     speech.cancel();
-    const wordVoice = createUtterance(item.word, function () {
+    createUtterance(item.word, function () {
       playExampleAt(item, 0, token);
     }, playbackError, token);
-    if (!wordVoice) showToast("미국식 음성을 찾지 못해 기본 음성으로 재생합니다.");
   }
 
   function playExampleAt(item, exampleIndex, token) {
@@ -373,15 +353,11 @@
       const utterance = new SpeechSynthesisUtterance([item.word, item.example].concat(extraExamples).join(". "));
       utterance.lang = "en-US";
       utterance.rate = 0.88;
-      utterance.pitch = 0.94;
-      const voice = chooseUsVoice();
-      if (voice) utterance.voice = voice;
       utterance.onend = utterance.onerror = function () {
         button.classList.remove("playing");
         if (activeButton === button) activeButton = null;
       };
       speech.speak(utterance);
-      if (!voice) showToast("미국식 음성을 찾지 못해 기본 음성으로 재생합니다.");
     });
     return card;
   }
@@ -507,9 +483,6 @@
       const utterance = new SpeechSynthesisUtterance(forms[index]);
       utterance.lang = "en-US";
       utterance.rate = 0.88;
-      utterance.pitch = 0.94;
-      const voice = chooseUsVoice();
-      if (voice) utterance.voice = voice;
       utterance.onend = function () {
         if (token !== verbSpeechToken) return;
         index += 1;
@@ -523,7 +496,6 @@
       speech.speak(utterance);
     }
     speakNext();
-    if (!chooseUsVoice()) showToast("미국식 음성을 찾지 못해 기본 음성으로 재생합니다.");
   }
 
   function setLevel(level) {
@@ -609,11 +581,6 @@
       }
     }
   });
-
-  if (speech) {
-    refreshVoices();
-    speech.addEventListener("voiceschanged", refreshVoices);
-  }
 
   const counts = {
     all: words.length,
