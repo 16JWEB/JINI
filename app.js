@@ -1138,7 +1138,8 @@
       return;
     }
     verbAutoPlaying = true;
-    verbAutoIndex = 0;
+    const savedIndex = verbAutoRows.findIndex(function (row) { return row[0] === lastAutoVerbWord; });
+    verbAutoIndex = savedIndex >= 0 ? savedIndex : 0;
     updateVerbAutoButton();
     playNextAutoVerb();
   }
