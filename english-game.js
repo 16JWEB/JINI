@@ -114,9 +114,11 @@ function dashboard(){
  '<div class="eg-grid">'+modes.map(m=>'<button type="button" class="eg-mode" data-eg="start" data-mode="'+m[0]+'"><span>'+m[1]+'</span><strong>'+m[2]+'</strong><small>'+m[3]+'</small><b>시작 →</b></button>').join("")+'</div>'+
  '<p class="eg-note">기존 JINI 영어 단어와 검수 예문을 사용해요. 게임 결과는 이 브라우저에 저장됩니다. 미국식·영국식 발음은 설치된 음성 엔진에 따라 다를 수 있어요.</p>';
 }
-function nav(){
+function nav(bottom){
  const p=game.index,n=game.questions.length;
- return '<div class="eg-nav">'+btn("← 게임 목록","home","eg-outline")+'<div class="eg-nav-controls">'+btn("← 이전 문제","previous","eg-outline",p===0?"disabled":"")+
+ return '<div class="eg-nav'+(bottom?' eg-nav-bottom':'')+'" role="navigation" aria-label="'+(bottom?'아래쪽':'위쪽')+' 게임 이동">'+
+ btn("← 게임 목록","home","eg-outline")+'<div class="eg-nav-controls">'+
+ btn("← 이전 문제","previous","eg-outline",p===0?"disabled":"")+
  (p<n?btn(p===n-1?"결과 보기 →":"다음 문제 →","next","eg-outline"):"")+'</div></div>';
 }
 function feedback(q){
@@ -129,7 +131,7 @@ function feedback(q){
 function render(){
  if(!game){dashboard();return;}
  const q=game.questions[game.index];
- if(!q){if(!game.questions.length){root.innerHTML='<div class="eg-card">'+nav()+'<h2>지금 풀 문제가 없어요</h2><p>다른 난이도나 게임을 선택해 보세요.</p></div>';return;}summary();return;}
+ if(!q){if(!game.questions.length){root.innerHTML='<div class="eg-card">'+nav()+'<h2>지금 풀 문제가 없어요</h2><p>다른 난이도나 게임을 선택해 보세요.</p>'+nav(true)+'</div>';return;}summary();return;}
  const mode=modes.find(m=>m[0]===game.mode);
  let html=nav()+'<div class="eg-progress"><span>'+mode[1]+' '+mode[2]+'</span><span>'+(game.index+1)+' / '+game.questions.length+'</span></div>'+
  '<div class="eg-bar"><i style="width:'+(game.index/game.questions.length*100)+'%"></i></div>'+
@@ -165,7 +167,7 @@ function render(){
  }
  html+=feedback(q);
  if(status&&q.kind!=="speak")html+='<p class="eg-status">'+esc(status)+'</p>';
- root.innerHTML='<div class="eg-card">'+html+'</div>';
+ root.innerHTML='<div class="eg-card">'+html+nav(true)+'</div>';
  if(q.kind==="speak")speechStatus();
 }
 function summary(){
@@ -174,7 +176,7 @@ function summary(){
  '<p>정답 또는 말하기 완료: '+game.correct+' / '+game.tries+'</p>'+
  (notDone?'<p>건너뛴 문제 '+notDone+'개는 채점하지 않았어요.</p>':"")+
  '<p>추가 복습 '+game.misses+'개 · 이번 획득 +'+game.earned+' XP</p>'+
- btn("같은 유형 다시 도전","restart","eg-main")+'</div></div>';
+ btn("같은 유형 다시 도전","restart","eg-main")+'</div>'+nav(true)+'</div>';
 }
 function begin(mode){
  if(!modes.some(m=>m[0]===mode))return;
