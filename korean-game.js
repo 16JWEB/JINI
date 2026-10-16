@@ -322,7 +322,7 @@
   }
   function compareSpokenText(actual, expected) {
     function clean(text) {
-      return String(text || "").normalize("NFC").replace(/[^\\p{L}\\p{N}]/gu, "").toLowerCase();
+      return String(text || "").normalize("NFC").replace(/[^\p{L}\p{N}]/gu, "").toLowerCase();
     }
     return clean(actual) === clean(expected);
   }
