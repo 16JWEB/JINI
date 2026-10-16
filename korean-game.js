@@ -137,7 +137,7 @@
     const next = upcomingMode(mode);
     return '<div class="kg-game-nav" role="navigation" aria-label="한글 게임 이동">' +
       button("← 게임 목록", "home", "kg-outline kg-back-button") +
-      button("다음 연습 →", "next-mode", "kg-outline kg-next-button", ' title="' + esc(MODE_NAMES[next]) + '으로 이동" aria-label="다음 연습: ' + esc(MODE_NAMES[next]) + '으로 이동"') +
+      button("다음 연습 →", "next-mode", "kg-outline kg-next-button", ' title="다음 연습: ' + esc(MODE_NAMES[next]) + '" aria-label="다음 연습: ' + esc(MODE_NAMES[next]) + '"') +
       '</div>';
   }
   function scrollGameTop() {
