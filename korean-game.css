@@ -23,7 +23,9 @@
 .kg-game-nav { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #efedf8; }
 .kg-game-nav .kg-btn { min-height: 42px; }
 .kg-game-nav .kg-back-button { background: #fff; }
+.kg-question-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; }
 .kg-game-nav .kg-next-button { background: #f0edff; font-weight: 800; }
+.kg-game-nav .kg-previous-button:disabled { opacity: .42; cursor: default; }
 .kg-finish .kg-game-nav { margin-bottom: 28px; text-align: left; }
 .kg-quiz-top { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #7e8196; }
 .kg-pill { display: inline-block; border-radius: 100px; background: #f0edff; color: #6557de; padding: 8px 12px; font-size: 11px; font-weight: 800; }
@@ -80,7 +82,10 @@
  .kg-mode { min-height: 130px; padding: 17px; }
  .kg-quiz-card { padding: 18px; }
  .kg-game-nav { gap: 7px; margin-bottom: 15px; padding-bottom: 12px; }
- .kg-game-nav .kg-btn { flex: 1 1 auto; min-height: 41px; padding: 9px; font-size: 11px; }
+ .kg-game-nav .kg-btn { min-height: 41px; padding: 9px; font-size: 11px; }
+ .kg-game-nav .kg-back-button { flex: 0 0 100%; text-align: left; }
+ .kg-question-controls { display: flex; width: 100%; margin-left: 0; gap: 8px; }
+ .kg-question-controls .kg-btn { flex: 1; min-width: 0; }
  .kg-choices { grid-template-columns: 1fr; gap: 8px; }
  .kg-choice { min-height: 64px; }
  .kg-question-word { padding: 20px 12px; }
