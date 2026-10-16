@@ -57,8 +57,6 @@
   let progress = load();
   let session = null;
   let gameScreenActive = false;
-  const MODE_ORDER = ["word", "sound", "pron", "dialog", "review"];
-  const MODE_NAMES = { word: "단어 뜻 맞히기", sound: "발음 듣고 맞히기", pron: "발음 따라 말하기", dialog: "실전 회화", review: "약점 복습" };
   let message = "";
   let recorder = null;
   let mediaStream = null;
@@ -125,20 +123,17 @@
   }
   function button(label, action, cls, extras) { return '<button type="button" class="kg-btn ' + (cls || "") + '" data-kg-action="' + action + '"' + (extras || "") + '>' + label + '</button>'; }
   function boxText(title, detail, icon, action) { return '<button type="button" class="kg-mode" data-kg-action="start" data-mode="' + action + '"><span class="kg-mode-icon">' + icon + '</span><strong>' + title + '</strong><small>' + detail + '</small><span class="kg-mode-arrow">시작 →</span></button>'; }
-  function upcomingMode(mode) {
-    const startIndex = MODE_ORDER.indexOf(mode);
-    for (let offset = 1; offset <= MODE_ORDER.length; offset += 1) {
-      const candidate = MODE_ORDER[(Math.max(startIndex, 0) + offset) % MODE_ORDER.length];
-      if (candidate !== "review" || dueItems().some(function (id) { return !!questionById(id); })) return candidate;
-    }
-    return "word";
-  }
-  function gameNavigation(mode) {
-    const next = upcomingMode(mode);
+  function gameNavigation() {
+    const count = session ? session.queue.length : 0;
+    const position = session ? session.pos : 0;
+    const finished = count > 0 && position >= count;
+    const controls = count ? '<div class="kg-question-controls">' +
+      button("← 이전 문제", "previous", "kg-outline kg-previous-button", position === 0 ? " disabled" : "") +
+      (finished ? "" : button(position === count - 1 ? "결과 보기 →" : "다음 문제 →", "next", "kg-outline kg-next-button")) +
+      '</div>' : "";
     return '<div class="kg-game-nav" role="navigation" aria-label="한글 게임 이동">' +
       button("← 게임 목록", "home", "kg-outline kg-back-button") +
-      button("다음 연습 →", "next-mode", "kg-outline kg-next-button", ' title="다음 연습: ' + esc(MODE_NAMES[next]) + '" aria-label="다음 연습: ' + esc(MODE_NAMES[next]) + '"') +
-      '</div>';
+      controls + '</div>';
   }
   function scrollGameTop() {
     if (!section.hidden && section.scrollIntoView) section.scrollIntoView({ block: "start" });
@@ -181,6 +176,8 @@
     const q = session.queue[session.pos];
     if (!q) { summary(); return; }
     normalizeQuestion(q);
+    // Each question retains its own answer when moving backward and forward.
+    session.answer = Number.isInteger(q._answer) ? q._answer : null;
     const fraction = Math.round(session.pos / Math.max(1, session.queue.length) * 100);
     const intro = q.type === "sound" ? '<div class="kg-listen-center"><span class="kg-listen-icon">🎧</span>' + button("▶ 한국어 소리 듣기", "listen", "kg-primary") + '</div>' : '<div class="kg-question-word">' + esc(q.text) + '</div>';
     let content = '<div class="kg-quiz-top"><span class="kg-pill">' + esc(q.label) + (q.scene ? ' · ' + esc(q.scene) : '') + '</span><span>' + (session.pos + 1) + ' / ' + session.queue.length + '</span></div>' +
@@ -190,7 +187,11 @@
         '<div id="kg-recorder-area" class="kg-record-area" aria-live="polite"></div>' +
         '<div class="kg-tip"><b>발음 선생님 TIP</b><p>' + esc(q.note) + '</p><div class="kg-tip-grid"><span>👄 ' + esc(q.mouth) + '</span><span>💨 ' + esc(q.breath) + '</span></div></div>' +
         '<p class="kg-footnote">음성 인식은 말한 글자를 보여줄 뿐, 실제 발음 정확도 점수가 아니에요. 직접 듣고 판단해 주세요.</p>' +
-        '<div class="kg-rating">' + button("😊 잘 발음했어요", "grade", "kg-primary", ' data-grade="yes"') + button("🔁 더 연습할래요", "grade", "kg-outline", ' data-grade="no"') + '</div>';
+        (typeof q._grade === "boolean" ?
+          '<div class="kg-feedback ' + (q._grade ? "kg-good" : "kg-bad") + '"><strong>' +
+          (q._grade ? "잘 발음했다고 기록했어요." : "추가 연습이 필요하다고 기록했어요.") +
+          '</strong><p>이 문제의 평가는 이미 저장됐어요. 이전·다음 문제로 이동할 수 있어요.</p></div>' :
+          '<div class="kg-rating">' + button("😊 잘 발음했어요", "grade", "kg-primary", ' data-grade="yes"') + button("🔁 더 연습할래요", "grade", "kg-outline", ' data-grade="no"') + '</div>');
     } else {
       if (q.type !== "sound") content += '<div class="kg-small-listen">' + button("🔊 한국어 듣기", "listen", "kg-outline") + '</div>';
       content += '<div class="kg-choices">' + q.choices.map(function (option, i) {
@@ -201,21 +202,26 @@
     }
     if (session.answer !== null && q.type !== "pron") {
       content += '<div class="kg-feedback ' + (session.answer === q.correct ? "kg-good" : "kg-bad") + '"><strong>' + (session.answer === q.correct ? '정답이에요! +10 XP' : '오답이에요. 복습 목록에 추가했어요.') + '</strong><p>' + esc(q.note) + '</p>' +
-        (q.type === "sound" ? '<p>들려준 단어: <b>' + esc(q.target) + '</b></p>' : '') + '</div>' + button("다음 문제 →", "next", "kg-primary kg-wide");
+        (q.type === "sound" ? '<p>들려준 단어: <b>' + esc(q.target) + '</b></p>' : '') + '</div>';
     }
     if (message) content += '<p class="kg-status" role="status">' + esc(message) + '</p>';
-    root.innerHTML = '<div class="kg-quiz-card">' + gameNavigation(session.mode) + content + '</div>';
+    root.innerHTML = '<div class="kg-quiz-card">' + gameNavigation() + content + '</div>';
     if (recordedUrl && q.type === "pron") showRecordedArea();
   }
   function summary() {
     stopMedia();
     const n = session.correct;
     const total = session.answered;
-    root.innerHTML = '<div class="kg-finish">' + gameNavigation(session.mode) + '<div class="kg-trophy">🏆</div><h2>게임 완료!</h2><p>정답 또는 자기 평가 성공 <b>' + n + ' / ' + total + '</b></p><p>' + session.missed + '문제는 약점 복습 목록에 저장했어요.</p><p class="kg-success">이번 게임 획득 경험치: +' + session.earned + ' XP</p>' +
-      '<div class="kg-end-actions">' + button("다시 도전", "restart", "kg-primary") + button("다음 연습 →", "next-mode", "kg-outline") + '</div></div>';
+    const skipped = session.queue.filter(function (q) {
+      return q.type === "pron" ? typeof q._grade !== "boolean" : !Number.isInteger(q._answer);
+    }).length;
+    root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<div class="kg-trophy">🏆</div><h2>게임 완료!</h2><p>정답 또는 자기 평가 성공 <b>' + n + ' / ' + total + '</b></p>' +
+      (skipped ? '<p>답하지 않고 넘어간 문제: ' + skipped + '개 (채점 및 오답 기록 제외)</p>' : '') +
+      '<p>' + session.missed + '문제는 약점 복습 목록에 저장했어요.</p><p class="kg-success">이번 게임 획득 경험치: +' + session.earned + ' XP</p>' +
+      '<div class="kg-end-actions">' + button("다시 도전", "restart", "kg-primary") + button("게임 목록", "home", "kg-outline") + '</div></div>';
   }
   function start(mode) {
-    if (!MODE_ORDER.includes(mode)) return;
+    if (!["word", "sound", "pron", "dialog", "review"].includes(mode)) return;
     stopMedia(); message = "";
     if (!gameScreenActive) {
       gameScreenActive = true;
@@ -226,7 +232,9 @@
     }
     const queue = build(mode);
     if (!queue.length) {
-      root.innerHTML = '<div class="kg-finish">' + gameNavigation(mode) + '<h2>' + (mode === "review" ? '지금 복습할 문제가 없어요 🎉' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '새 게임에서 연습한 뒤 다음 복습을 확인해 보세요.' : '학습 데이터를 확인해 주세요.') + '</p>' + button("다음 연습 →", "next-mode", "kg-primary") + '</div>';
+      session = null;
+      root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<h2>' + (mode === "review" ? '지금 복습할 문제가 없어요 🎉' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '새 게임에서 연습한 뒤 다음 복습을 확인해 보세요.' : '학습 데이터를 확인해 주세요.') + '</p>' + '</div>';
+      scrollGameTop();
       return;
     }
     session = { mode: mode, queue: queue, pos: 0, answer: null, correct: 0, answered: 0, missed: 0, earned: 0, retries: new Set() };
@@ -253,15 +261,18 @@
       session.missed += 1;
       if (!q._retry && !session.retries.has(q.id)) {
         session.retries.add(q.id);
-        session.queue.push(Object.assign({}, q, { _retry: true }));
+        // Retry is a new attempt; never inherit the previous choice or self-rating.
+        session.queue.push(Object.assign({}, q, { _retry: true, _answer: undefined, _grade: undefined }));
       }
     }
     save();
   }
   function chosen(idx) {
-    if (!session || session.answer !== null) return;
+    if (!session) return;
     const q = session.queue[session.pos];
-    if (q.type === "pron" || !Number.isInteger(idx) || idx < 0 || idx >= q.choices.length) return;
+    if (!q || Number.isInteger(q._answer) || q.type === "pron" ||
+        !Number.isInteger(idx) || idx < 0 || idx >= q.choices.length) return;
+    q._answer = idx;
     session.answer = idx;
     storeResult(q, idx === q.correct);
     questionView();
@@ -269,17 +280,24 @@
   function finishPron(good) {
     if (!session) return;
     const q = session.queue[session.pos];
-    if (!q || q.type !== "pron") return;
+    if (!q || q.type !== "pron" || typeof q._grade === "boolean") return;
+    q._grade = good;
     storeResult(q, good);
     advance();
   }
-  function advance() {
+  function moveQuestion(delta) {
+    if (!session || !Number.isInteger(delta)) return;
+    const next = session.pos + delta;
+    if (next < 0 || next > session.queue.length || next === session.pos) return;
     stopMedia();
     message = "";
-    if (!session) return;
-    session.pos += 1;
+    session.pos = next;
     session.answer = null;
     questionView();
+    scrollGameTop();
+  }
+  function advance() {
+    moveQuestion(1);
   }
   function speak(text) {
     if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) { message = "이 브라우저는 음성 재생을 지원하지 않아요."; questionView(); return; }
@@ -363,7 +381,7 @@
     if (!b || !root.contains(b)) return;
     const action = b.dataset.kgAction;
     if (action === "home") goToGameList();
-    else if (action === "next-mode") start(upcomingMode(session ? session.mode : "review"));
+    else if (action === "previous") moveQuestion(-1);
     else if (action === "start") start(b.dataset.mode);
     else if (action === "restart" && session) start(session.mode);
     else if (action === "choose") chosen(Number(b.dataset.index));
