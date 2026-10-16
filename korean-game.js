@@ -218,7 +218,7 @@
     root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<div class="kg-trophy">🏆</div><h2>게임 완료!</h2><p>정답 또는 자기 평가 성공 <b>' + n + ' / ' + total + '</b></p>' +
       (skipped ? '<p>답하지 않고 넘어간 문제: ' + skipped + '개 (채점 및 오답 기록 제외)</p>' : '') +
       '<p>' + session.missed + '문제는 약점 복습 목록에 저장했어요.</p><p class="kg-success">이번 게임 획득 경험치: +' + session.earned + ' XP</p>' +
-      '<div class="kg-end-actions">' + button("다시 도전", "restart", "kg-primary") + button("게임 목록", "home", "kg-outline") + '</div></div>';
+      '<div class="kg-end-actions">' + button("다시 도전", "restart", "kg-primary") + '</div></div>';
   }
   function start(mode) {
     if (!["word", "sound", "pron", "dialog", "review"].includes(mode)) return;
