@@ -1,0 +1,324 @@
+(function () {
+  "use strict";
+
+  const root = document.getElementById("korean-game-root");
+  const section = document.getElementById("korean-game-section");
+  if (!root || !section) return;
+
+  const STORE = "jini-korean-games-v1";
+  const DAY = 24 * 60 * 60 * 1000;
+  const GAME_SIZE = 8;
+  const words = (window.KOREAN_WORDS || []).filter(function (item) {
+    return item && item.word && item.meaning && item.word.trim().length >= 2;
+  });
+  const expressions = (window.KOREAN_EXPRESSIONS || []).filter(function (item) {
+    return item && item.word && item.meaning;
+  });
+  const sounds = [
+    { id: "d", set: ["달", "딸", "탈"], note: "ㄷ은 평음, ㄸ은 된소리, ㅌ은 숨을 세게 내보내는 거센소리예요.", mouth: "혀끝을 윗잇몸에 댔다가 떼세요.", airflow: "ㄸ은 단단하게, ㅌ은 숨을 크게" },
+    { id: "b", set: ["발", "빨", "팔"], note: "ㅂ·ㅃ·ㅍ은 입술을 닫았다 떼는 소리예요. ㅍ은 숨이 더 강하게 나와요.", mouth: "두 입술을 붙인 뒤 떼세요.", airflow: "ㅍ에서 숨을 강하게" },
+    { id: "j", set: ["자", "짜", "차"], note: "ㅈ은 평음, ㅉ은 된소리, ㅊ은 거센소리예요.", mouth: "혀 앞부분을 윗잇몸 가까이에 두세요.", airflow: "ㅊ에서 숨을 강하게" },
+    { id: "g", set: ["가", "까", "카"], note: "ㄱ·ㄲ·ㅋ을 비교해 보세요. ㅋ은 거센 숨소리가 두드러져요.", mouth: "혀 뒤쪽을 입천장 뒤에 닿게 하세요.", airflow: "ㅋ에서 숨을 강하게" },
+    { id: "s", set: ["살", "쌀"], note: "ㅅ과 ㅆ의 긴장 차이를 들어 보세요. ㅆ은 혀와 입 주변의 긴장이 더 강해요.", mouth: "혀 앞부분을 윗니 뒤쪽 가까이에 두세요.", airflow: "공기가 좁은 틈으로 지나가게" },
+    { id: "p", set: ["불", "뿔", "풀"], note: "ㅂ·ㅃ·ㅍ을 첫소리에서 비교해 보세요. 받침 ㄹ은 세 단어가 같아요.", mouth: "입술을 모아 닫았다 떼세요.", airflow: "ㅍ은 숨을 많이, ㅃ은 단단하게" },
+    { id: "t", set: ["다", "따", "타"], note: "같은 모음 ㅏ 앞에서 ㄷ·ㄸ·ㅌ의 차이를 들어 보세요.", mouth: "혀끝을 윗잇몸에 붙였다 떼세요.", airflow: "ㅌ은 숨을 세게 내보내기" }
+  ];
+  const dialogues = [
+    { id: "takeout", scene: "카페", line: "드시고 가세요, 포장이세요?", prompt: "가져갈 때 가장 자연스러운 대답은?", choices: ["포장해 주세요.", "여기서 먹을게요.", "아까 먹었어요.", "지금 계산했어요."], correct: 0, note: "포장해 주세요 = Cho tôi mang đi." },
+    { id: "bag", scene: "편의점", line: "봉투 필요하세요?", prompt: "봉투 한 장을 부탁하려면?", choices: ["아니요, 안 샀어요.", "네, 하나 주세요.", "네, 봉투가 작아요.", "하나밖에 없어요."], correct: 1, note: "네, 하나 주세요 = Vâng, cho tôi một cái." },
+    { id: "meet", scene: "직장", line: "내일 오전 열 시에 뵐까요?", prompt: "시간이 괜찮을 때 대답은?", choices: ["어제 뵀어요.", "열 시는 지났어요.", "네, 그때 뵙겠습니다.", "지금 열 시예요."], correct: 2, note: "뵙겠습니다는 만나겠습니다의 공손한 표현이에요." },
+    { id: "heat", scene: "식당", line: "많이 매운데 괜찮으세요?", prompt: "덜 맵게 부탁하려면?", choices: ["매운 게 많아요.", "네, 안 괜찮아요.", "더 맵게 해 주세요.", "조금 덜 맵게 해 주세요."], correct: 3, note: "덜 맵게 = ít cay hơn." },
+    { id: "delay", scene: "친구와 약속", line: "지금 어디야?", prompt: "늦는 상황을 자연스럽게 설명하면?", choices: ["미안, 길이 막혀서 조금 늦을 것 같아.", "지금 어디였어?", "조금 늦었었니?", "길을 잘 막았어."], correct: 0, note: "조금 늦을 것 같아는 곧 늦을 것으로 예상할 때 써요." },
+    { id: "receipt", scene: "상점", line: "영수증 드릴까요?", prompt: "필요하지 않을 때는?", choices: ["영수증이 많네요.", "아니요, 괜찮아요. 감사합니다.", "네, 어제 받았어요.", "아직 쇼핑하지 않았어요."], correct: 1, note: "정중하게 거절할 때 '아니요, 괜찮아요'를 자주 써요." },
+    { id: "hospital", scene: "병원", line: "어디가 불편하세요?", prompt: "목이 아픈 상황이라면?", choices: ["목은 길어요.", "목이 필요해요.", "목이 아프고 열도 조금 나요.", "목을 잘 먹어요."], correct: 2, note: "증상을 말할 때 '목이 아파요', '열이 나요'라고 해요." },
+    { id: "station", scene: "지하철", line: "어디까지 가세요?", prompt: "서울역이 목적지라면?", choices: ["서울역에서 왔어요.", "서울역에 살아요.", "서울역이 있어요.", "서울역까지 가요."], correct: 3, note: "목적지에 '까지'를 붙여 도착 범위를 표현해요." },
+    { id: "time", scene: "일상", line: "오늘 저녁에 시간 있으세요?", prompt: "정중하게 시간이 없다고 하려면?", choices: ["죄송한데 오늘은 약속이 있어요.", "오늘 저녁이에요.", "시간을 잊어버렸어요.", "저녁을 만들었어요."], correct: 0, note: "'죄송한데'로 부드럽게 거절할 수 있어요." },
+    { id: "order", scene: "식당", line: "주문 도와드릴까요?", prompt: "메뉴를 조금 더 보고 싶다면?", choices: ["음식을 돕고 있어요.", "조금만 더 보고 주문할게요.", "메뉴를 봤던 날이에요.", "주문이 저기 있어요."], correct: 1, note: "조금만 더 보고 주문할게요 = Tôi xem thêm một chút rồi gọi món." }
+  ];
+  const pronounce = [
+    { id: "p1", word: "딸", clue: "ㄸ은 공기를 강하게 뿜지 않고 혀끝을 단단하게 떼는 된소리예요.", mouth: "혀끝 → 윗잇몸", breath: "숨을 세게 터뜨리지 않기" },
+    { id: "p2", word: "탈", clue: "ㅌ은 혀끝을 떼며 숨을 세게 내보내는 거센소리예요.", mouth: "혀끝 → 윗잇몸", breath: "손바닥에 바람이 느껴지도록" },
+    { id: "p3", word: "빨리", clue: "ㅃ은 두 입술을 단단히 닫았다 떼는 된소리예요.", mouth: "두 입술을 닫았다 떼기", breath: "숨보다 입술의 긴장에 집중" },
+    { id: "p4", word: "괜찮아요", clue: "자연스럽게 이어 말할 때 [괜차나요]처럼 들려요.", mouth: "차를 말할 때 ㅊ의 숨을 느끼기", breath: "문장 전체를 한 호흡으로" },
+    { id: "p5", word: "같이 가요", clue: "'같이'는 [가치]로 발음해요. ㅌ과 ㅣ가 만나 ㅊ 소리가 돼요.", mouth: "혀 앞부분을 입천장 가까이", breath: "차와 비슷한 ㅊ 소리로" },
+    { id: "p6", word: "한국말", clue: "받침 ㄱ을 발음할 때 뒤에 모음을 덧붙이지 않도록 주의하세요.", mouth: "혀 뒤쪽을 입천장에 닿게", breath: "받침 뒤에 '으'를 넣지 않기" },
+    { id: "p7", word: "학교", clue: "'학'의 받침 ㄱ을 끝내고 '교'로 이어 보세요.", mouth: "혀 뒤쪽의 닿는 위치 의식", breath: "단어의 리듬 유지" },
+    { id: "p8", word: "밥 먹었어요?", clue: "단어별로 끊기보다 질문 억양을 살려 자연스럽게 이어 말해 보세요.", mouth: "ㅂ에서 두 입술을 닫기", breath: "문장 끝 질문 억양 연습" }
+  ];
+
+  function emptyProgress() { return { xp: 0, attempts: 0, correct: 0, items: {} }; }
+  function load() {
+    try {
+      const x = JSON.parse(localStorage.getItem(STORE));
+      if (!x || !x.items || typeof x.items !== "object") return emptyProgress();
+      return { xp: Math.max(0, Number(x.xp) || 0), attempts: Math.max(0, Number(x.attempts) || 0), correct: Math.max(0, Number(x.correct) || 0), items: x.items };
+    } catch (e) { return emptyProgress(); }
+  }
+  let progress = load();
+  let session = null;
+  let message = "";
+  let recorder = null;
+  let mediaStream = null;
+  let recordedUrl = null;
+  let recognition = null;
+  let recognized = "";
+  let isRecording = false;
+
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(progress)); } catch (e) { message = "기록 저장이 차단된 브라우저예요."; } }
+  function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function shuffle(array) { const a = array.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function pickOptions(answer, pool) {
+    const seen = new Set([answer]);
+    const others = shuffle(pool).filter(function (s) { if (!s || seen.has(s)) return false; seen.add(s); return true; }).slice(0, 3);
+    if (others.length < 3) return null;
+    return shuffle([answer].concat(others));
+  }
+  function wordQuestion(item) {
+    const answer = String(item.meaning).trim();
+    const opts = pickOptions(answer, words.map(function (x) { return String(x.meaning).trim(); }));
+    return opts ? { id: "word:" + item.word, type: "word", label: "단어 뜻 맞히기", prompt: "이 단어의 베트남어 뜻을 고르세요.", text: item.word, target: item.word, choices: opts, correct: opts.indexOf(answer), note: item.word + " = " + answer + (item.example ? " · " + item.example : "") } : null;
+  }
+  function soundQuestion(set) {
+    const answer = set.set[Math.floor(Math.random() * set.set.length)];
+    return { id: "sound:" + set.id + ":" + answer, type: "sound", label: "발음 듣고 맞히기", prompt: "소리를 듣고 들리는 단어를 고르세요.", text: "🔊 소리를 듣고 선택하세요", target: answer, choices: shuffle(set.set), correct: -1, note: set.note, mouth: set.mouth, breath: set.airflow };
+  }
+  function dialogQuestion(x) { return { id: "dialog:" + x.id, type: "dialog", label: "실전 회화", prompt: x.prompt, text: x.line, scene: x.scene, target: x.line, choices: x.choices, correct: x.correct, note: x.note }; }
+  function pronunciationQuestion(x) { return { id: "pron:" + x.id, type: "pron", label: "따라 말하기", prompt: "원어민 음성을 듣고 직접 따라 말하세요.", text: x.word, target: x.word, note: x.clue, mouth: x.mouth, breath: x.breath }; }
+  function normalizeQuestion(q) { if (q.type === "sound") q.correct = q.choices.indexOf(q.target); return q; }
+  function dueItems() {
+    const now = Date.now();
+    return Object.keys(progress.items).filter(function (id) { const row = progress.items[id]; return row && Number(row.dueAt) <= now; });
+  }
+  function questionById(id) {
+    if (id.indexOf("word:") === 0) return wordQuestion(words.find(function (x) { return x.word === id.slice(5); }) || {});
+    if (id.indexOf("dialog:") === 0) { const x = dialogues.find(function (x) { return "dialog:" + x.id === id; }); return x ? dialogQuestion(x) : null; }
+    if (id.indexOf("pron:") === 0) { const x = pronounce.find(function (x) { return "pron:" + x.id === id; }); return x ? pronunciationQuestion(x) : null; }
+    if (id.indexOf("sound:") === 0) {
+      const x = sounds.find(function (s) { return id.indexOf("sound:" + s.id + ":") === 0; });
+      if (!x) return null;
+      const target = id.slice(("sound:" + x.id + ":").length);
+      if (!x.set.includes(target)) return null;
+      const q = soundQuestion(x);
+      q.target = target; q.id = id;
+      return q;
+    }
+    return null;
+  }
+  function build(mode) {
+    if (mode === "word") return shuffle(words).slice(0, GAME_SIZE).map(wordQuestion).filter(Boolean);
+    if (mode === "sound") return shuffle(sounds).slice(0, GAME_SIZE).map(soundQuestion);
+    if (mode === "dialog") return shuffle(dialogues).slice(0, GAME_SIZE).map(dialogQuestion);
+    if (mode === "pron") return shuffle(pronounce).slice(0, GAME_SIZE).map(pronunciationQuestion);
+    if (mode === "review") return shuffle(dueItems()).map(questionById).filter(Boolean).slice(0, 12);
+    return [];
+  }
+  function button(label, action, cls, extras) { return '<button type="button" class="kg-btn ' + (cls || "") + '" data-kg-action="' + action + '"' + (extras || "") + '>' + label + '</button>'; }
+  function boxText(title, detail, icon, action) { return '<button type="button" class="kg-mode" data-kg-action="start" data-mode="' + action + '"><span class="kg-mode-icon">' + icon + '</span><strong>' + title + '</strong><small>' + detail + '</small><span class="kg-mode-arrow">시작 →</span></button>'; }
+  function dashboard() {
+    const due = dueItems().filter(function (id) { return !!questionById(id); }).length;
+    root.innerHTML = '<div class="kg-summary"><div><span>쌓인 경험치</span><strong>' + progress.xp + ' XP</strong></div><div><span>총 퀴즈 정답률</span><strong>' + (progress.attempts ? Math.round(progress.correct / progress.attempts * 100) : 0) + '%</strong></div><div><span>복습할 항목</span><strong>' + due + '개</strong></div></div>' +
+      '<div class="kg-info">💡 먼저 단어나 회화 게임을 풀고, 틀리거나 복습할 때가 된 문제는 <b>약점 복습</b>에서 다시 만나세요. 학습 기록은 이 기기의 브라우저에만 저장돼요.</div>' +
+      '<div class="kg-mode-grid">' +
+      boxText("단어 뜻 맞히기", "기존 한국어 단어와 베트남어 뜻 연결", "📘", "word") +
+      boxText("발음 듣고 맞히기", "비슷한 소리를 듣고 구별하기", "🎧", "sound") +
+      boxText("발음 따라 말하기", "입·혀 위치 설명 + 녹음 비교", "🎙️", "pron") +
+      boxText("실전 회화", "식당·직장·일상 대화 선택하기", "💬", "dialog") +
+      boxText("약점 복습", "틀렸거나 복습 시간이 된 문제", "🧠", "review") + '</div>' +
+      '<p class="kg-footnote">소리 재생은 기기의 한국어 음성 엔진을 사용해요. 음성 인식과 녹음은 브라우저 지원 및 마이크 권한이 필요해요.</p>';
+  }
+  function questionView() {
+    const q = session.queue[session.pos];
+    if (!q) { summary(); return; }
+    normalizeQuestion(q);
+    const fraction = Math.round(session.pos / Math.max(1, session.queue.length) * 100);
+    const intro = q.type === "sound" ? '<div class="kg-listen-center"><span class="kg-listen-icon">🎧</span>' + button("▶ 한국어 소리 듣기", "listen", "kg-primary") + '</div>' : '<div class="kg-question-word">' + esc(q.text) + '</div>';
+    let content = '<div class="kg-quiz-top"><span class="kg-pill">' + esc(q.label) + (q.scene ? ' · ' + esc(q.scene) : '') + '</span><span>' + (session.pos + 1) + ' / ' + session.queue.length + '</span></div>' +
+      '<div class="kg-track"><span style="width:' + fraction + '%"></span></div><p class="kg-prompt">' + esc(q.prompt) + '</p>' + intro;
+    if (q.type === "pron") {
+      content += '<div class="kg-sound-actions">' + button("▶ 표준 음성 듣기", "listen", "kg-outline") + button("🎙 녹음 시작", "record", "kg-outline") + button("🗣 말한 내용 확인", "recognize", "kg-outline") + '</div>' +
+        '<div id="kg-recorder-area" class="kg-record-area" aria-live="polite"></div>' +
+        '<div class="kg-tip"><b>발음 선생님 TIP</b><p>' + esc(q.note) + '</p><div class="kg-tip-grid"><span>👄 ' + esc(q.mouth) + '</span><span>💨 ' + esc(q.breath) + '</span></div></div>' +
+        '<p class="kg-footnote">음성 인식은 말한 글자를 보여줄 뿐, 실제 발음 정확도 점수가 아니에요. 직접 듣고 판단해 주세요.</p>' +
+        '<div class="kg-rating">' + button("😊 잘 발음했어요", "grade", "kg-primary", ' data-grade="yes"') + button("🔁 더 연습할래요", "grade", "kg-outline", ' data-grade="no"') + '</div>';
+    } else {
+      if (q.type !== "sound") content += '<div class="kg-small-listen">' + button("🔊 한국어 듣기", "listen", "kg-outline") + '</div>';
+      content += '<div class="kg-choices">' + q.choices.map(function (option, i) {
+        const chosen = session.answer;
+        const style = chosen !== null && i === q.correct ? " kg-right" : chosen === i ? " kg-wrong" : "";
+        return '<button type="button" class="kg-choice' + style + '" data-kg-action="choose" data-index="' + i + '"' + (chosen !== null ? ' disabled' : '') + '><span class="kg-choice-number">' + (i + 1) + '</span>' + esc(option) + (chosen !== null && i === q.correct ? ' ✓' : '') + '</button>';
+      }).join("") + '</div>';
+    }
+    if (session.answer !== null && q.type !== "pron") {
+      content += '<div class="kg-feedback ' + (session.answer === q.correct ? "kg-good" : "kg-bad") + '"><strong>' + (session.answer === q.correct ? '정답이에요! +10 XP' : '오답이에요. 복습 목록에 추가했어요.') + '</strong><p>' + esc(q.note) + '</p>' +
+        (q.type === "sound" ? '<p>들려준 단어: <b>' + esc(q.target) + '</b></p>' : '') + '</div>' + button("다음 문제 →", "next", "kg-primary kg-wide");
+    }
+    if (message) content += '<p class="kg-status" role="status">' + esc(message) + '</p>';
+    content += '<div class="kg-bottom">' + button("← 게임 목록", "home", "kg-link") + '</div>';
+    root.innerHTML = '<div class="kg-quiz-card">' + content + '</div>';
+    if (recordedUrl && q.type === "pron") showRecordedArea();
+  }
+  function summary() {
+    stopMedia();
+    const n = session.correct;
+    const total = session.answered;
+    root.innerHTML = '<div class="kg-finish"><div class="kg-trophy">🏆</div><h2>게임 완료!</h2><p>정답 또는 자기 평가 성공 <b>' + n + ' / ' + total + '</b></p><p>' + session.missed + '문제는 약점 복습 목록에 저장했어요.</p><p class="kg-success">이번 게임 획득 경험치: +' + session.earned + ' XP</p>' +
+      '<div class="kg-end-actions">' + button("다시 도전", "restart", "kg-primary") + button("게임 목록", "home", "kg-outline") + '</div></div>';
+  }
+  function start(mode) {
+    stopMedia(); message = "";
+    const queue = build(mode);
+    if (!queue.length) {
+      root.innerHTML = '<div class="kg-finish"><h2>' + (mode === "review" ? '지금 복습할 문제가 없어요 🎉' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '새 게임에서 연습한 뒤 다음 복습을 확인해 보세요.' : '학습 데이터를 확인해 주세요.') + '</p>' + button("게임 목록으로", "home", "kg-primary") + '</div>';
+      return;
+    }
+    session = { mode: mode, queue: queue, pos: 0, answer: null, correct: 0, answered: 0, missed: 0, earned: 0, retries: new Set() };
+    questionView();
+  }
+  function storeResult(q, good) {
+    const item = progress.items[q.id] || { streak: 0, wrong: 0 };
+    item.streak = good ? Math.min(10, (Number(item.streak) || 0) + 1) : 0;
+    if (!good) item.wrong = (Number(item.wrong) || 0) + 1;
+    const days = good ? [1, 3, 7, 14, 30][Math.min(item.streak - 1, 4)] : 0;
+    item.dueAt = Date.now() + days * DAY;
+    item.lastAt = Date.now();
+    item.kind = q.type;
+    progress.items[q.id] = item;
+    progress.attempts += 1;
+    session.answered += 1;
+    if (good) {
+      progress.correct += 1;
+      progress.xp += 10;
+      session.earned += 10;
+      session.correct += 1;
+    } else {
+      session.missed += 1;
+      if (!q._retry && !session.retries.has(q.id)) {
+        session.retries.add(q.id);
+        session.queue.push(Object.assign({}, q, { _retry: true }));
+      }
+    }
+    save();
+  }
+  function chosen(idx) {
+    if (!session || session.answer !== null) return;
+    const q = session.queue[session.pos];
+    if (q.type === "pron" || !Number.isInteger(idx) || idx < 0 || idx >= q.choices.length) return;
+    session.answer = idx;
+    storeResult(q, idx === q.correct);
+    questionView();
+  }
+  function finishPron(good) {
+    if (!session) return;
+    const q = session.queue[session.pos];
+    if (!q || q.type !== "pron") return;
+    storeResult(q, good);
+    advance();
+  }
+  function advance() {
+    stopMedia();
+    message = "";
+    if (!session) return;
+    session.pos += 1;
+    session.answer = null;
+    questionView();
+  }
+  function speak(text) {
+    if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) { message = "이 브라우저는 음성 재생을 지원하지 않아요."; questionView(); return; }
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "ko-KR";
+    utterance.rate = 0.86;
+    const voice = window.speechSynthesis.getVoices().find(function (v) { return v.lang && v.lang.toLowerCase().indexOf("ko") === 0; });
+    if (voice) utterance.voice = voice;
+    window.speechSynthesis.speak(utterance);
+  }
+  function stopMedia() {
+    if (recognition) { try { recognition.abort(); } catch (e) {} recognition = null; }
+    if (recorder && recorder.state !== "inactive") { try { recorder.stop(); } catch (e) {} }
+    if (mediaStream) mediaStream.getTracks().forEach(function (track) { track.stop(); });
+    mediaStream = null; recorder = null; isRecording = false;
+    if (recordedUrl) { URL.revokeObjectURL(recordedUrl); recordedUrl = null; }
+    recognized = "";
+  }
+  function showRecordedArea() {
+    const area = document.getElementById("kg-recorder-area");
+    if (!area) return;
+    area.innerHTML = (isRecording ? '🔴 녹음 중… ' + button("■ 녹음 끝내기", "stop-record", "kg-outline") :
+      recordedUrl ? '<p>내 녹음을 재생해 원어민 소리와 비교하세요.</p><audio id="kg-my-audio" controls></audio>' :
+      '<p>마이크를 눌러 발음해 보세요. 녹음은 서버로 전송하지 않아요.</p>') +
+      (recognized ? '<p>인식된 글자: <b>' + esc(recognized) + '</b> (발음 점수가 아님)</p>' : '');
+    if (recordedUrl) document.getElementById("kg-my-audio").src = recordedUrl;
+  }
+  async function beginRecord() {
+    if (!session || session.queue[session.pos].type !== "pron") return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+      message = "이 브라우저에서는 녹음을 지원하지 않아요. HTTPS 환경과 마이크 권한을 확인해 주세요."; questionView(); return;
+    }
+    stopMedia();
+    const expectedPosition = session.pos;
+    try {
+      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (section.hidden || !session || session.pos !== expectedPosition) { stopMedia(); return; }
+      const chunks = [];
+      recorder = new MediaRecorder(mediaStream);
+      recorder.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+      recorder.onstop = function () {
+        if (mediaStream) { mediaStream.getTracks().forEach(function (t) { t.stop(); }); mediaStream = null; }
+        isRecording = false;
+        if (chunks.length && session && session.pos === expectedPosition && !section.hidden) {
+          if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+          recordedUrl = URL.createObjectURL(new Blob(chunks, { type: recorder && recorder.mimeType || chunks[0].type || "audio/webm" }));
+        }
+        showRecordedArea();
+      };
+      recorder.start();
+      isRecording = true;
+      showRecordedArea();
+    } catch (e) { stopMedia(); message = "마이크 권한이 거부되었거나 녹음할 수 없어요."; questionView(); }
+  }
+  function recognize() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) { message = "이 브라우저에서는 음성 인식이 지원되지 않아요. 녹음 후 직접 비교할 수 있어요."; questionView(); return; }
+    if (!session || session.queue[session.pos].type !== "pron") return;
+    const pos = session.pos;
+    if (recognition) { try { recognition.abort(); } catch (e) {} }
+    const instance = new SpeechRecognition();
+    recognition = instance;
+    instance.lang = "ko-KR";
+    instance.interimResults = false;
+    instance.maxAlternatives = 1;
+    instance.onresult = function (event) {
+      if (!session || session.pos !== pos || section.hidden) return;
+      recognized = event.results[0][0].transcript;
+      showRecordedArea();
+    };
+    instance.onerror = function () { if (!section.hidden) { recognized = "음성을 인식하지 못했어요. 다시 시도해 주세요."; showRecordedArea(); } };
+    instance.onend = function () { if (recognition === instance) recognition = null; };
+    try { instance.start(); recognized = "듣고 있어요…"; showRecordedArea(); }
+    catch (e) { recognition = null; message = "음성 인식을 시작하지 못했어요."; questionView(); }
+  }
+
+  root.addEventListener("click", function (event) {
+    const b = event.target.closest("[data-kg-action]");
+    if (!b || !root.contains(b)) return;
+    const action = b.dataset.kgAction;
+    if (action === "home") { stopMedia(); session = null; message = ""; dashboard(); }
+    else if (action === "start") start(b.dataset.mode);
+    else if (action === "restart" && session) start(session.mode);
+    else if (action === "choose") chosen(Number(b.dataset.index));
+    else if (action === "next") advance();
+    else if (action === "grade") finishPron(b.dataset.grade === "yes");
+    else if (action === "listen" && session) speak(session.queue[session.pos].target);
+    else if (action === "record") beginRecord();
+    else if (action === "stop-record" && recorder && recorder.state !== "inactive") recorder.stop();
+    else if (action === "recognize") recognize();
+  });
+  new MutationObserver(function () {
+    if (section.hidden) {
+      stopMedia();
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    }
+  }).observe(section, { attributes: true, attributeFilter: ["hidden"] });
+
+  dashboard();
+}());
