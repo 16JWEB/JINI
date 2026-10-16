@@ -230,15 +230,38 @@
       const saved = JSON.parse(window.localStorage.getItem(STUDY_STATE_KEY) || "null");
       const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "verb-forms"];
       if (!saved) return { english: null, korean: null, lastStudy: null };
-      if (validPages.includes(saved.page)) {
-        const study = saved.study === "korean" || saved.page.indexOf("ko-") === 0 ? "korean" : "english";
-        return { english: study === "english" ? saved : null, korean: study === "korean" ? saved : null, lastStudy: study };
+      function isValidState(state) {
+        return state && validPages.includes(state.page);
       }
-      const states = { english: null, korean: null, lastStudy: saved.lastStudy === "korean" ? "korean" : "english" };
+      if (isValidState(saved)) {
+        const study = saved.study === "korean" || saved.page.indexOf("ko-") === 0 ? "korean" : "english";
+        const pages = {};
+        pages[saved.page] = saved;
+        return { english: study === "english" ? saved : null, korean: study === "korean" ? saved : null, pages: pages, lastStudy: study };
+      }
+      const states = {
+        english: isValidState(saved.english) ? saved.english : null,
+        korean: isValidState(saved.korean) ? saved.korean : null,
+        pages: {},
+        lastStudy: saved.lastStudy === "korean" ? "korean" : "english"
+      };
+      if (saved.pages && typeof saved.pages === "object") {
+        validPages.forEach(function (page) {
+          if (isValidState(saved.pages[page])) states.pages[page] = saved.pages[page];
+        });
+      }
       ["english", "korean"].forEach(function (study) {
-        if (saved[study] && validPages.includes(saved[study].page)) states[study] = saved[study];
+        if (!states[study]) return;
+        states.pages[states[study].page] = states.pages[states[study].page] || states[study];
       });
-      if (!states.lastStudy || !states[states.lastStudy]) states.lastStudy = states.english ? "english" : states.korean ? "korean" : null;
+      if (!states.english || !states.korean) {
+        Object.keys(states.pages).forEach(function (page) {
+          const state = states.pages[page];
+          const study = state.study === "korean" || page.indexOf("ko-") === 0 ? "korean" : "english";
+          if (!states[study]) states[study] = state;
+        });
+      }
+      if (!states[states.lastStudy]) states.lastStudy = states.english ? "english" : states.korean ? "korean" : null;
       return states;
     } catch (error) {
       showToast("마지막 학습 화면을 불러오지 못했어요.");
@@ -261,8 +284,11 @@
         playerIndex: playerIndex,
         playerWord: playerWords[playerIndex] ? playerWords[playerIndex].word : "",
         playerMode: playerMode,
-        verbQuery: verbSearch.value
+        verbQuery: verbSearch.value,
+        scrollY: window.scrollY
       };
+      if (!studyStates.pages) studyStates.pages = {};
+      studyStates.pages[currentPageView] = state;
       studyStates[currentStudy] = state;
       studyStates.lastStudy = currentStudy;
       window.localStorage.setItem(STUDY_STATE_KEY, JSON.stringify(studyStates));
@@ -290,6 +316,14 @@
     restoringStudyState = true;
     setPage(state.page);
     restoringStudyState = false;
+    selectedVocabularyIndex = Number.isInteger(state.selectedVocabularyIndex) && state.selectedVocabularyIndex >= 0 ?
+      state.selectedVocabularyIndex : -1;
+    document.querySelectorAll(".filter-chip").forEach(function (button) {
+      button.classList.toggle("selected", button.dataset.level === activeLevel);
+    });
+    document.querySelectorAll(".player-level").forEach(function (button) {
+      button.classList.toggle("selected", button.dataset.playerLevel === playerLevel);
+    });
     if (["player", "ko-player", "ko-expression-player"].includes(state.page)) {
       const savedWordIndex = playerWords.findIndex(function (item) { return item.word === state.playerWord; });
       const requestedIndex = Number.isInteger(state.playerIndex) ? state.playerIndex : 0;
@@ -297,8 +331,13 @@
       updatePlayerCard();
       setPlayerMode(playerMode);
     } else if (currentPageView === "vocabulary" || currentPageView === "ko-vocabulary") {
+      renderWords();
       const selectedCard = list.children[selectedVocabularyIndex % PAGE_SIZE];
       if (selectedCard && selectedVocabularyIndex >= 0) selectedCard.scrollIntoView({ block: "center" });
+    }
+    if (state.page === "verb-forms") renderVerbForms();
+    if (Number.isFinite(state.scrollY) && state.scrollY > 0) {
+      window.requestAnimationFrame(function () { window.scrollTo(0, state.scrollY); });
     }
     saveStudyState();
   }
@@ -763,6 +802,17 @@
         '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3 2.7c0-.7.8-1.1 1.4-.7l8.2 5.1a1 1 0 0 1 0 1.7l-8.2 5.1a.9.9 0 0 1-1.4-.8V2.7Z"/></svg>' +
       '</button>';
     const button = card.querySelector(".play-button");
+    card.tabIndex = 0;
+    card.setAttribute("aria-label", item.word + " 단어 카드. 눌러서 발음과 뜻, 예문 듣기");
+    card.addEventListener("click", function (event) {
+      if (event.target.closest("button, a, select, input")) return;
+      button.click();
+    });
+    card.addEventListener("keydown", function (event) {
+      if (event.target !== card || (event.key !== "Enter" && event.key !== " ")) return;
+      event.preventDefault();
+      button.click();
+    });
     button.addEventListener("click", function () {
       if (!speech) {
         showToast("이 브라우저에서는 음성 재생을 지원하지 않아요.");
@@ -1121,6 +1171,14 @@
 
   function setPage(page) {
     if (page === currentPageView) return;
+    if (!restoringStudyState) {
+      saveStudyState();
+      const savedPageState = studyStates.pages && studyStates.pages[page];
+      if (savedPageState) {
+        resumeStudyState(savedPageState);
+        return;
+      }
+    }
     selectedVocabularyIndex = -1;
     const leavingExpressions = currentPageView === "ko-expressions" || currentPageView === "ko-expression-player";
     stopPlayback("재생을 멈췄어요.");
