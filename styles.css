@@ -381,3 +381,6 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
   .home-nav .home-study-shortcut { flex-direction: column; }
   .filter-chip { padding-right: 9px; padding-left: 9px; }
 }
+
+/* 콘텐츠 검수 상태 표시: 확인되지 않은 자동 생성 예문은 단어 암기에 사용하지 않습니다. */
+.word-example .example-pending { display:block; color:var(--text-muted,#717c8e); font-size:0.9rem; font-style:normal; }

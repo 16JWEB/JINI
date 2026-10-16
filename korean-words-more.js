@@ -392,7 +392,8 @@
       ipa: ipa,
       meaning: meaning,
       example: template[0].replace(/\{word\}/g, word).replace(/\{objectParticle\}/g, objectParticle),
-      exampleKo: template[1].replace(/\{meaning\}/g, meaning)
+      exampleKo: template[1].replace(/\{meaning\}/g, meaning),
+      exampleReviewed: false
     };
   });
 

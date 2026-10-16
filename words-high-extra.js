@@ -208,12 +208,12 @@ empire|ˈempaɪər|제국
 revolution|ˌrevəˈluːʃən|혁명
 reform|ˈriːfɔːrm, rɪˈfɔːrm|개혁 (명사), 개혁하다 (동사)
 constitution|ˌkɑːnstəˈtuːʃən|헌법
-legislation|ˌledʒɪˈsleɪʃən|법률 제정
+legislation|ˌledʒɪˈsleɪʃən|법률, 입법
 jurisdiction|ˌdʒʊrɪsˈdɪkʃən|관할권
 sovereignty|ˈsɑːvrənti|주권
 democracy|dɪˈmɑːkrəsi|민주주의
 citizenship|ˈsɪtɪzənˌʃɪp|시민권
-representation|ˌreprɪzenˈteɪʃən|대표
+representation|ˌreprɪzenˈteɪʃən|대표, 대변, 대표성
 constituency|kənˈstɪtʃuənsi|선거구
 referendum|ˌrefəˈrendəm|국민투표
 coalition|ˌkoʊəˈlɪʃən|연합
@@ -468,7 +468,7 @@ preliminary|prɪˈlɪməˌneri|예비의
 probable|ˈprɑːbəbəl|개연성 있는
 procedural|prəˈsiːdʒərəl|절차상의
 qualitative|ˈkwɑːləˌteɪtɪv|질적인
-quantitative|ˈkwɑːntəˌteɪtɪv|양적인
+quantitative|ˈkwɑːntəˌteɪtɪv|정량적인, 양적인
 rational|ˈræʃənəl|합리적인
 recurrent|rɪˈkɝːənt|되풀이되는
 representative|ˌreprɪˈzentətɪv|대표적인
@@ -488,7 +488,7 @@ visible|ˈvɪzəbəl|눈에 보이는
 abstracted|æbˈstræktɪd|추상화된
 ambiguous|æmˈbɪɡjuəs|모호한
 approximate|əˈprɑːksəmət|대략적인
-assertive|əˈsɝːtɪv|단정적인
+assertive|əˈsɝːtɪv|자기주장을 분명히 하는, 단호한
 authoritative|əˈθɔːrəˌteɪtɪv|권위 있는
 autocratic|ˌɔːtəˈkrætɪk|독재적인
 authoritarian|əˌθɔːrɪˈteriən|권위주의적인

@@ -1866,7 +1866,9 @@ derivative|The artist created a derivative work that acknowledged the original d
           ipa: "/" + fields[1] + "/",
           meaning: fields[2],
           example: example,
-          exampleKo: exampleKo
+          exampleKo: exampleKo,
+          // 공통 문장 틀과 실제 개별 예문을 구별합니다.
+          exampleReviewed: Boolean(curatedExample)
         });
       });
     });
@@ -1958,7 +1960,8 @@ derivative|The artist created a derivative work that acknowledged the original d
       return {
         meaning: sense.meaning,
         example: sense.example,
-        exampleKo: alternateExampleTranslations[sense.example] || "“" + sense.meaning + "”라는 뜻으로 쓰인 예문입니다."
+        exampleKo: alternateExampleTranslations[sense.example] || "",
+        exampleReviewed: Boolean(alternateExampleTranslations[sense.example])
       };
     });
   });

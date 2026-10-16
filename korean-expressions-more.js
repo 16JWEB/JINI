@@ -256,7 +256,7 @@ QR 코드를 다시 스캔해 주세요.|Vui lòng quét lại mã QR.
 쓰레기 배출 날짜를 다시 알려 주세요.|Vui lòng cho tôi biết lại ngày đổ rác.
 대형 폐기물 신고를 온라인으로 할 수 있어요?|Tôi có thể khai báo đồ cồng kềnh cần bỏ qua mạng không?
 이 구역에 주차하면 과태료가 부과되나요?|Đỗ xe ở khu vực này có bị phạt không?
-도로 공사 일정이 언제 끝나나요?|Khi nào lịch thi công đường kết thúc?
+도로 공사는 언제 끝나나요?|Khi nào công trình làm đường kết thúc?
 분실한 지갑이 접수됐는지 확인해 주세요.|Vui lòng kiểm tra xem chiếc ví bị mất đã được nộp chưa.
 민원 처리 결과를 문자로 받고 싶어요.|Tôi muốn nhận kết quả xử lý kiến nghị qua tin nhắn.
 통역 지원을 요청할 수 있을까요?|Tôi có thể yêu cầu hỗ trợ phiên dịch không?
@@ -360,7 +360,7 @@ QR 코드를 다시 스캔해 주세요.|Vui lòng quét lại mã QR.
   const initials = ["g", "kk", "n", "d", "tt", "r", "m", "b", "pp", "s", "ss", "", "j", "jj", "ch", "k", "t", "p", "h"];
   const vowels = ["a", "ae", "ya", "yae", "eo", "e", "yeo", "ye", "o", "wa", "wae", "oe", "yo", "u", "wo", "we", "wi", "yu", "eu", "ui", "i"];
   const finals = ["", "k", "k", "k", "n", "n", "n", "t", "l", "k", "m", "l", "l", "p", "l", "l", "m", "p", "p", "t", "t", "ng", "t", "t", "k", "t", "p", "t"];
-  const liaisonInitial = { 1: 0, 2: 1, 4: 2, 7: 3, 8: 5, 16: 6, 17: 7, 19: 9, 20: 10, 21: 11, 22: 12, 23: 14, 24: 15, 25: 16, 26: 17, 27: 18 };
+  const liaisonInitial = { 1: 0, 2: 1, 4: 2, 7: 3, 8: 5, 16: 6, 17: 7, 19: 9, 20: 10, 22: 12, 23: 14, 24: 15, 25: 16, 26: 17, 27: 18 };
   function romanizeKorean(text) {
     const syllables = Array.from(text).map(function (character) {
       const code = character.charCodeAt(0) - 0xac00;
@@ -443,7 +443,8 @@ QR 코드를 다시 스캔해 주세요.|Vui lòng quét lại mã QR.
         ipa: romanizeKorean(word),
         meaning: meaning,
         example: curatedExample ? curatedExample[0] : template[0].replace(/\{word\}/g, word),
-        exampleKo: curatedExample ? curatedExample[1] : template[1].replace(/\{meaning\}/g, meaning)
+        exampleKo: curatedExample ? curatedExample[1] : template[1].replace(/\{meaning\}/g, meaning),
+        exampleReviewed: Boolean(curatedExample)
       });
     });
   });

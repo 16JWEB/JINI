@@ -619,8 +619,10 @@
       document.getElementById("player-ipa").textContent = item.ipa;
     }
     document.getElementById("player-meaning").textContent = item.meaning;
-    document.getElementById("player-example").textContent = item.example;
-    document.getElementById("player-example-translation").textContent = item.exampleKo;
+    document.getElementById("player-example").textContent = item.exampleReviewed === false ?
+      "예문 검수 중 · 자동 생성 문장은 학습 오류를 방지하기 위해 숨겼습니다." : item.example;
+    document.getElementById("player-example-translation").textContent =
+      item.exampleReviewed === false ? "" : item.exampleKo;
     document.getElementById("player-other-senses").innerHTML = (item.otherSenses || []).map(function (sense) {
       return '<div><span class="other-sense-label">다른 뜻</span> ' + escapeHtml(sense.meaning) + '</div>';
     }).join("");
@@ -802,8 +804,10 @@
       '</div>' +
       '<div class="word-example">' +
         '<span class="example-label">' + (currentStudy === "korean" ? "예문" : "EXAMPLE") + '</span>' +
-        '<span class="example-en">' + escapeHtml(item.example) + '</span>' +
-        '<span class="example-translation">' + escapeHtml(item.exampleKo) + '</span>' +
+        (item.exampleReviewed === false ?
+          '<span class="example-en example-pending">예문 검수 중 · 자동 생성 문장은 숨겼습니다.</span>' :
+          '<span class="example-en">' + escapeHtml(item.example) + '</span>' +
+          '<span class="example-translation">' + escapeHtml(item.exampleKo) + '</span>') +
         (item.otherSenses || []).map(function (sense) {
           return '<span class="word-extra-example"><strong>' + escapeHtml(sense.meaning) + '</strong> · ' +
             escapeHtml(sense.example) + '<span class="example-translation">' + escapeHtml(sense.exampleKo) + '</span></span>';
@@ -996,8 +1000,10 @@
     filtered.slice(start, start + PAGE_SIZE).forEach(function (item, index) {
       list.appendChild(makeCard(item, start + index + 1));
     });
-    resultCount.textContent = expressionStudy ? filtered.length + "개 표현 · 베트남어 번역" :
-      currentStudy === "korean" ? filtered.length + "개 단어 · 베트남어 뜻" : filtered.length + "개 단어";
+    const individualExampleCount = filtered.filter(function (item) { return item.exampleReviewed !== false; }).length;
+    resultCount.textContent = (expressionStudy ? filtered.length + "개 표현 · 베트남어 번역" :
+      currentStudy === "korean" ? filtered.length + "개 단어 · 베트남어 뜻" : filtered.length + "개 단어") +
+      " · 개별 예문 " + individualExampleCount + "개 · 검수 중 " + (filtered.length - individualExampleCount) + "개";
     if (currentPageView === "vocabulary" || currentPageView === "ko-vocabulary") {
       breadcrumbLevel.textContent = currentStudy === "korean" ? "필수 단어" : levelNames[activeLevel];
     }
