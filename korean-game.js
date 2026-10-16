@@ -124,7 +124,7 @@
   }
   function button(label, action, cls, extras) { return '<button type="button" class="kg-btn ' + (cls || "") + '" data-kg-action="' + action + '"' + (extras || "") + '>' + label + '</button>'; }
   function boxText(title, detail, icon, action) { return '<button type="button" class="kg-mode" data-kg-action="start" data-mode="' + action + '"><span class="kg-mode-icon">' + icon + '</span><strong>' + title + '</strong><small>' + detail + '</small><span class="kg-mode-arrow">시작 →</span></button>'; }
-  function gameNavigation() {
+  function gameNavigation(bottom) {
     const count = session ? session.queue.length : 0;
     const position = session ? session.pos : 0;
     const finished = count > 0 && position >= count;
@@ -132,7 +132,8 @@
       button("← 이전 문제", "previous", "kg-outline kg-previous-button", position === 0 ? " disabled" : "") +
       (finished ? "" : button(position === count - 1 ? "결과 보기 →" : "다음 문제 →", "next", "kg-outline kg-next-button")) +
       '</div>' : "";
-    return '<div class="kg-game-nav" role="navigation" aria-label="한글 게임 이동">' +
+    return '<div class="kg-game-nav' + (bottom ? ' kg-game-nav-bottom' : '') +
+      '" role="navigation" aria-label="' + (bottom ? '아래쪽' : '위쪽') + ' 한글 게임 이동">' +
       button("← 게임 목록", "home", "kg-outline kg-back-button") +
       controls + '</div>';
   }
@@ -206,7 +207,7 @@
         (q.type === "sound" ? '<p>들려준 단어: <b>' + esc(q.target) + '</b></p>' : '') + '</div>';
     }
     if (message) content += '<p class="kg-status" role="status">' + esc(message) + '</p>';
-    root.innerHTML = '<div class="kg-quiz-card">' + gameNavigation() + content + '</div>';
+    root.innerHTML = '<div class="kg-quiz-card">' + gameNavigation() + content + gameNavigation(true) + '</div>';
     if (q.type === "pron") showRecordedArea();
   }
   function summary() {
@@ -219,7 +220,7 @@
     root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<div class="kg-trophy">🏆</div><h2>게임 완료!</h2><p>정답 또는 자기 평가 성공 <b>' + n + ' / ' + total + '</b></p>' +
       (skipped ? '<p>답하지 않고 넘어간 문제: ' + skipped + '개 (채점 및 오답 기록 제외)</p>' : '') +
       '<p>' + session.missed + '문제는 약점 복습 목록에 저장했어요.</p><p class="kg-success">이번 게임 획득 경험치: +' + session.earned + ' XP</p>' +
-      '<div class="kg-end-actions">' + button("다시 도전", "restart", "kg-primary") + '</div></div>';
+      '<div class="kg-end-actions">' + button("다시 도전", "restart", "kg-primary") + '</div>' + gameNavigation(true) + '</div>';
   }
   function start(mode) {
     if (!["word", "sound", "pron", "dialog", "review"].includes(mode)) return;
@@ -234,7 +235,7 @@
     const queue = build(mode);
     if (!queue.length) {
       session = null;
-      root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<h2>' + (mode === "review" ? '지금 복습할 문제가 없어요 🎉' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '새 게임에서 연습한 뒤 다음 복습을 확인해 보세요.' : '학습 데이터를 확인해 주세요.') + '</p>' + '</div>';
+      root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<h2>' + (mode === "review" ? '지금 복습할 문제가 없어요 🎉' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '새 게임에서 연습한 뒤 다음 복습을 확인해 보세요.' : '학습 데이터를 확인해 주세요.') + '</p>' + gameNavigation(true) + '</div>';
       scrollGameTop();
       return;
     }
