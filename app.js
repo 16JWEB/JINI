@@ -854,7 +854,26 @@
     const filtered = getFilteredVerbForms();
     verbTableBody.replaceChildren();
     filtered.forEach(function (row) {
-      const tr = document.createElement("tr");
+      verbTableBody.appendChild(createVerbTableRow(row, true));
+    });
+    verbResultCount.textContent = filtered.length + "개 동사";
+    verbEmpty.hidden = filtered.length > 0;
+  }
+
+  function createVerbTableRow(row, interactive) {
+    const tr = document.createElement("tr");
+    [
+      ["뜻", row[4]],
+      ["현재형", row[1]],
+      ["과거형", row[2]],
+      ["과거분사", row[3]]
+    ].forEach(function (cell) {
+      const td = document.createElement("td");
+      td.dataset.label = cell[0];
+      td.textContent = cell[1].trim();
+      tr.appendChild(td);
+    });
+    if (interactive) {
       const spokenForms = getSpokenVerbForms(row);
       tr.tabIndex = 0;
       tr.setAttribute("aria-label", row[0] + " 동사 변화와 뜻 발음 듣기");
@@ -869,21 +888,22 @@
           playVerbForms(spokenForms, row[4]);
         }
       });
-      [
-        ["뜻", row[4]],
-        ["현재형", row[1]],
-        ["과거형", row[2]],
-        ["과거분사", row[3]]
-      ].forEach(function (cell) {
-        const td = document.createElement("td");
-        td.dataset.label = cell[0];
-        td.textContent = cell[1].trim();
-        tr.appendChild(td);
-      });
-      verbTableBody.appendChild(tr);
-    });
-    verbResultCount.textContent = filtered.length + "개 동사";
-    verbEmpty.hidden = filtered.length > 0;
+    } else {
+      tr.className = "verb-auto-highlight";
+    }
+    return tr;
+  }
+
+  function updateVerbAutoCurrentRow(row) {
+    const preview = document.getElementById("verb-auto-current");
+    const previewRow = document.getElementById("verb-auto-current-row");
+    previewRow.replaceChildren();
+    if (!row) {
+      preview.hidden = true;
+      return;
+    }
+    previewRow.appendChild(createVerbTableRow(row, false));
+    preview.hidden = false;
   }
 
   function updateVerbAutoButton() {
@@ -900,6 +920,7 @@
     if (cancelSpeech && speech) speech.cancel();
     updateVerbAutoButton();
     document.getElementById("verb-auto-status").textContent = "";
+    updateVerbAutoCurrentRow(null);
   }
 
   function startVerbAuto() {
@@ -930,9 +951,9 @@
       return;
     }
     const row = verbAutoRows[verbAutoIndex];
+    updateVerbAutoCurrentRow(row);
     document.getElementById("verb-auto-status").textContent =
-      "자동 재생 중 · " + (verbAutoIndex + 1) + "/" + verbAutoRows.length +
-      " · " + row[0] + " (" + row[4] + ")";
+      "자동 재생 중 · " + (verbAutoIndex + 1) + "/" + verbAutoRows.length;
     speech.cancel();
     playVerbForms(getSpokenVerbForms(row), row[4], function () {
       if (!verbAutoPlaying) return;
