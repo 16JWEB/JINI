@@ -123,7 +123,7 @@ h1 span { color: #6857df; }
 .sound-bubble { position: absolute; top: 130px; right: 57px; width: 39px; height: 39px; display: grid; place-items: center; border: 1px solid #e7e3ff; border-radius: 50%; background: white; color: var(--purple); font-size: 18px; box-shadow: 0 4px 13px #5647ac12; }
 .home-section { min-height: min(68vh, 620px); display: grid; place-items: center; }
 .home-section[hidden] { display: none; }
-.home-study-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.home-study-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 108px; }
 .home-study-choice { display: grid; gap: 8px; }
 .home-start-button { min-height: 42px; padding: 0 17px; border: 0; border-radius: 9px; background: var(--purple); color: white; cursor: pointer; font-size: 13px; font-weight: 700; box-shadow: 0 5px 12px #6958e82e; transition: transform .16s ease, background .16s ease; }
 .home-start-button:hover { transform: translateY(-2px); background: #5947d5; }
@@ -318,7 +318,7 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
   .voice-status { font-size: 10px; }
   .top-actions { gap: 12px; }
   .home-section { min-height: min(65vh, 540px); }
-  .home-study-tabs { flex-direction: column; align-items: stretch; width: min(100%, 230px); gap: 14px; }
+  .home-study-tabs { flex-direction: column; align-items: stretch; width: min(100%, 230px); gap: 90px; }
   .home-study-choice { width: 100%; }
   .page-title { margin-top: 22px; font-size: 23px; }
   .section-heading { align-items: stretch; flex-direction: column; gap: 12px; }
