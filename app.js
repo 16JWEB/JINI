@@ -359,16 +359,21 @@
         return;
       }
       const pageNumber = Number.isInteger(state.pageNumber) && state.pageNumber > 0 ? state.pageNumber : 1;
+      const playerItemNumber = Number.isInteger(state.playerIndex) && state.playerIndex >= 0 ?
+        state.playerIndex + 1 : 1;
+      const playerWordLabel = playerItemNumber + "번 " +
+        (state.playerWord || playerItemNumber + "번째 단어");
       const vocabularyPageLabel = study === "english" ?
         "필수 단어 · " + (state.level === "all" ? "전체" : state.level || "전체") + " " + pageNumber + "페이지" :
         "한글 필수 단어 " + pageNumber + "페이지";
       const pageLabels = {
         vocabulary: vocabularyPageLabel,
         "ko-vocabulary": vocabularyPageLabel,
-        player: "단어 재생 · " + (state.playerWord || ((state.playerIndex || 0) + 1) + "번째 단어"),
-        "ko-player": "단어 재생 · " + (state.playerWord || ((state.playerIndex || 0) + 1) + "번째 단어"),
+        player: "단어 재생 · " + (state.playerLevel || "초등") + " · " + playerWordLabel,
+        "ko-player": "단어 재생 · " + playerWordLabel,
         "ko-expressions": "일상생활 표현 " + pageNumber + "페이지",
-        "ko-expression-player": "표현 재생 · " + (state.playerWord || ((state.playerIndex || 0) + 1) + "번째 표현"),
+        "ko-expression-player": "표현 재생 · " + playerItemNumber + "번 " +
+          (state.playerWord || playerItemNumber + "번째 표현"),
         "verb-forms": "동사 변화"
       };
       button.textContent = "마지막 공부 화면 · " + (pageLabels[state.page] || "학습 화면");
