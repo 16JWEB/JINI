@@ -58,6 +58,13 @@
 .kg-sound-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
 .kg-record-area { min-height: 50px; padding: 12px 15px; border-radius: 10px; background: #f8f8fd; font-size: 13px; line-height: 1.7; }
 .kg-record-area audio { max-width: 100%; display: block; margin-top: 10px; }
+.kg-record-area .kg-recognition-status { color: #5552ac; font-weight: 700; margin: 9px 0; line-height: 1.7; }
+.kg-analysis { margin-top: 12px; padding: 14px 16px; border: 1px solid #dfdbfa; border-radius: 12px; background: #fff; line-height: 1.8; }
+.kg-analysis p { margin: 3px 0 8px; word-break: keep-all; }
+.kg-analysis small { display: block; margin-top: 8px; color: #797d91; font-size: 11px; }
+.kg-analysis-match { background: #effaf4; border-color: #9fddba; }
+.kg-analysis-different { background: #fff8ec; border-color: #ecd39c; }
+.kg-sound-actions { align-items: center; }
 .kg-record-area p { margin: 0 0 6px; }
 .kg-tip { padding: 17px; margin-top: 16px; border-radius: 13px; background: #f0edff; color: #514b83; font-size: 13px; line-height: 1.8; }
 .kg-tip p { margin: 8px 0 13px; }
