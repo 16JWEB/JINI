@@ -26,6 +26,7 @@
   let currentStudy = "english";
   let currentPage = 1;
   let currentPageView = "";
+  let selectedVocabularyIndex = -1;
   let toastTimer;
   let activeButton = null;
   let cardSpeechToken = 0;
@@ -317,6 +318,7 @@
         setPage(currentStudy === "korean" ? "ko-vocabulary" : "vocabulary");
         activeLevel = bookmark.level;
         currentPage = bookmark.page;
+        selectedVocabularyIndex = -1;
         search.value = bookmark.query;
         document.querySelectorAll(".filter-chip").forEach(function (chip) {
           chip.classList.toggle("selected", chip.dataset.level === activeLevel);
@@ -771,9 +773,35 @@
   }
 
   function goToPage(page) {
+    selectedVocabularyIndex = -1;
     currentPage = Math.max(1, Math.floor(page));
     renderWords();
     document.querySelector(".vocabulary-section").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function renderVocabularyItemOptions(filtered, expressionStudy) {
+    const navigation = document.getElementById("vocabulary-item-navigation");
+    const select = document.getElementById("vocabulary-item-select");
+    const showingVocabulary = currentPageView === "vocabulary" || currentPageView === "ko-vocabulary";
+    navigation.hidden = expressionStudy || !showingVocabulary;
+    select.replaceChildren();
+    select.setAttribute("aria-label", currentStudy === "korean" ? "번호로 한국어 단어 이동" : "번호로 영어 단어 이동");
+    if (navigation.hidden) {
+      select.disabled = true;
+      return;
+    }
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "번호로 단어 이동";
+    select.appendChild(placeholder);
+    filtered.forEach(function (item, index) {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = (index + 1) + ". " + item.word;
+      option.selected = index === selectedVocabularyIndex;
+      select.appendChild(option);
+    });
+    select.disabled = filtered.length === 0;
   }
 
   function renderWords() {
@@ -788,6 +816,7 @@
     });
     const pageCount = Math.ceil(filtered.length / PAGE_SIZE);
     currentPage = Math.min(Math.max(1, currentPage), Math.max(1, pageCount));
+    renderVocabularyItemOptions(filtered, expressionStudy);
     const start = (currentPage - 1) * PAGE_SIZE;
     list.replaceChildren();
     filtered.slice(start, start + PAGE_SIZE).forEach(function (item) {
@@ -949,6 +978,7 @@
   function setLevel(level) {
     activeLevel = level;
     currentPage = 1;
+    selectedVocabularyIndex = -1;
     document.querySelectorAll(".filter-chip").forEach(function (button) {
       button.classList.toggle("selected", button.dataset.level === level);
     });
@@ -957,6 +987,7 @@
 
   function setPage(page) {
     if (page === currentPageView) return;
+    selectedVocabularyIndex = -1;
     const leavingExpressions = currentPageView === "ko-expressions" || currentPageView === "ko-expression-player";
     stopPlayback("재생을 멈췄어요.");
     stopVerbAuto(true);
@@ -1103,7 +1134,23 @@
   document.querySelectorAll(".player-level").forEach(function (button) {
     button.addEventListener("click", function () { setPlayerLevel(button.dataset.playerLevel); });
   });
-  search.addEventListener("input", function () { currentPage = 1; renderWords(); });
+  search.addEventListener("input", function () {
+    currentPage = 1;
+    selectedVocabularyIndex = -1;
+    renderWords();
+  });
+  document.getElementById("vocabulary-item-select").addEventListener("change", function (event) {
+    if (event.currentTarget.value === "") return;
+    const index = Number(event.currentTarget.value);
+    const filteredIndex = Number.isInteger(index) ? index : -1;
+    if (filteredIndex < 0 || filteredIndex >= event.currentTarget.options.length - 1) return;
+    selectedVocabularyIndex = filteredIndex;
+    currentPage = Math.floor(filteredIndex / PAGE_SIZE) + 1;
+    renderWords();
+    const cardIndex = filteredIndex % PAGE_SIZE;
+    const selectedCard = list.children[cardIndex];
+    if (selectedCard) selectedCard.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
   verbSearch.addEventListener("input", function () {
     if (verbAutoPlaying) stopVerbAuto(true);
     renderVerbForms();

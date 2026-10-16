@@ -98,11 +98,6 @@
           </label>
         </div>
 
-        <div class="bookmark-toolbar" aria-label="단어장 책갈피">
-          <button class="bookmark-button" id="bookmark-current-page" type="button">☆ 이 페이지 책갈피</button>
-          <div class="bookmark-list" id="vocabulary-bookmarks" aria-live="polite"></div>
-        </div>
-
         <div class="filter-row" id="vocabulary-filter-row">
           <div class="filters" id="vocabulary-filters" aria-label="단어 수준 필터">
             <button class="filter-chip selected" data-level="all">전체 <span class="chip-count" id="count-all">2400</span></button>
@@ -111,6 +106,15 @@
             <button class="filter-chip" data-level="고등">고등 <span class="chip-count" id="count-high">800</span></button>
           </div>
           <div class="list-hint" id="vocabulary-hint"><span class="audio-mini">▶</span> 스피커를 눌러 발음을 들어 보세요</div>
+        </div>
+
+        <div class="bookmark-toolbar" aria-label="단어장 책갈피">
+          <button class="bookmark-button" id="bookmark-current-page" type="button">☆ 이 페이지 책갈피</button>
+          <div class="bookmark-list" id="vocabulary-bookmarks" aria-live="polite"></div>
+        </div>
+
+        <div class="vocabulary-item-navigation" id="vocabulary-item-navigation">
+          <select class="player-item-select" id="vocabulary-item-select" aria-label="번호로 단어 이동"></select>
         </div>
 
         <div class="word-list" id="word-list" aria-live="polite"></div>
@@ -127,14 +131,14 @@
           <p id="player-heading-description">학년과 재생 내용을 선택하고 시작해 보세요.</p>
           <button class="bookmark-button" id="open-language-packs" type="button" data-page="ko-language-packs" hidden>↓ 베트남어 음성 설정</button>
         </div>
-        <div class="bookmark-toolbar player-bookmark-toolbar" aria-label="단어 재생 책갈피">
-          <button class="bookmark-button" id="bookmark-current-word" type="button">☆ 이 단어 책갈피</button>
-          <div class="bookmark-list" id="player-bookmarks" aria-live="polite"></div>
-        </div>
         <div class="player-levels" id="player-levels" role="group" aria-label="재생할 단어 수준 선택">
           <button class="player-level selected" data-player-level="초등">초등 <span id="player-count-elementary">800개</span></button>
           <button class="player-level" data-player-level="중등">중등 <span id="player-count-middle">800개</span></button>
           <button class="player-level" data-player-level="고등">고등 <span id="player-count-high">800개</span></button>
+        </div>
+        <div class="bookmark-toolbar player-bookmark-toolbar" aria-label="단어 재생 책갈피">
+          <button class="bookmark-button" id="bookmark-current-word" type="button">☆ 이 단어 책갈피</button>
+          <div class="bookmark-list" id="player-bookmarks" aria-live="polite"></div>
         </div>
         <div class="player-mode-options" role="group" aria-label="단어 재생 내용 선택">
           <span>재생 내용</span>

@@ -148,6 +148,7 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
 .bookmark-button:hover, .bookmark-link:hover, .player-mode-button:hover { border-color: #c9c2f7; color: var(--purple); }
 .bookmark-button.selected, .player-mode-button.selected { border-color: var(--purple); background: var(--purple-soft); color: var(--purple); font-weight: 700; }
 .bookmark-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.vocabulary-item-navigation { display: flex; justify-content: flex-end; margin: 12px 0 8px; }
 .bookmark-entry { display: inline-flex; align-items: center; overflow: hidden; border: 1px solid #e9eaf1; border-radius: 8px; background: #faf9ff; }
 .bookmark-link { min-height: 28px; padding: 0 9px; background: #faf9ff; }
 .bookmark-entry .bookmark-link { border: 0; border-radius: 0; }
