@@ -1503,6 +1503,10 @@
   updatePlayerCard();
   window.history.pushState({ jiniHome: true }, "", window.location.href);
   window.addEventListener("popstate", function () {
+    // Give the Korean game its own back-navigation step.
+    if (currentPageView === "ko-game" &&
+        typeof window.JINI_KOREAN_GAME_BACK === "function" &&
+        window.JINI_KOREAN_GAME_BACK()) return;
     if (currentPageView === "home") return;
     setPage("home");
     window.history.pushState({ jiniHome: true }, "", window.location.href);
