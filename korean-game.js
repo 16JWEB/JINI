@@ -56,6 +56,9 @@
   }
   let progress = load();
   let session = null;
+  let gameScreenActive = false;
+  const MODE_ORDER = ["word", "sound", "pron", "dialog", "review"];
+  const MODE_NAMES = { word: "단어 뜻 맞히기", sound: "발음 듣고 맞히기", pron: "발음 따라 말하기", dialog: "실전 회화", review: "약점 복습" };
   let message = "";
   let recorder = null;
   let mediaStream = null;
@@ -122,6 +125,46 @@
   }
   function button(label, action, cls, extras) { return '<button type="button" class="kg-btn ' + (cls || "") + '" data-kg-action="' + action + '"' + (extras || "") + '>' + label + '</button>'; }
   function boxText(title, detail, icon, action) { return '<button type="button" class="kg-mode" data-kg-action="start" data-mode="' + action + '"><span class="kg-mode-icon">' + icon + '</span><strong>' + title + '</strong><small>' + detail + '</small><span class="kg-mode-arrow">시작 →</span></button>'; }
+  function upcomingMode(mode) {
+    const startIndex = MODE_ORDER.indexOf(mode);
+    for (let offset = 1; offset <= MODE_ORDER.length; offset += 1) {
+      const candidate = MODE_ORDER[(Math.max(startIndex, 0) + offset) % MODE_ORDER.length];
+      if (candidate !== "review" || dueItems().some(function (id) { return !!questionById(id); })) return candidate;
+    }
+    return "word";
+  }
+  function gameNavigation(mode) {
+    const next = upcomingMode(mode);
+    return '<div class="kg-game-nav" role="navigation" aria-label="한글 게임 이동">' +
+      button("← 게임 목록", "home", "kg-outline kg-back-button") +
+      button("다음 연습 →", "next-mode", "kg-outline kg-next-button", ' title="' + esc(MODE_NAMES[next]) + '으로 이동" aria-label="다음 연습: ' + esc(MODE_NAMES[next]) + '으로 이동"') +
+      '</div>';
+  }
+  function scrollGameTop() {
+    if (!section.hidden && section.scrollIntoView) section.scrollIntoView({ block: "start" });
+  }
+  function returnToGameList() {
+    stopMedia();
+    session = null;
+    gameScreenActive = false;
+    message = "";
+    dashboard();
+    scrollGameTop();
+  }
+  function goToGameList() {
+    if (window.history && window.history.state && window.history.state.jiniKoreanGame) {
+      window.history.back();
+    } else {
+      returnToGameList();
+    }
+  }
+  // Called first by the parent site's popstate handler so Android/browser Back
+  // returns to the game selection rather than the whole site's home page.
+  window.JINI_KOREAN_GAME_BACK = function () {
+    if (section.hidden || !gameScreenActive) return false;
+    returnToGameList();
+    return true;
+  };
   function dashboard() {
     const due = dueItems().filter(function (id) { return !!questionById(id); }).length;
     root.innerHTML = '<div class="kg-summary"><div><span>쌓인 경험치</span><strong>' + progress.xp + ' XP</strong></div><div><span>게임 성공률 (자가평가 포함)</span><strong>' + (progress.attempts ? Math.round(progress.correct / progress.attempts * 100) : 0) + '%</strong></div><div><span>복습할 항목</span><strong>' + due + '개</strong></div></div>' +
@@ -161,26 +204,34 @@
         (q.type === "sound" ? '<p>들려준 단어: <b>' + esc(q.target) + '</b></p>' : '') + '</div>' + button("다음 문제 →", "next", "kg-primary kg-wide");
     }
     if (message) content += '<p class="kg-status" role="status">' + esc(message) + '</p>';
-    content += '<div class="kg-bottom">' + button("← 게임 목록", "home", "kg-link") + '</div>';
-    root.innerHTML = '<div class="kg-quiz-card">' + content + '</div>';
+    root.innerHTML = '<div class="kg-quiz-card">' + gameNavigation(session.mode) + content + '</div>';
     if (recordedUrl && q.type === "pron") showRecordedArea();
   }
   function summary() {
     stopMedia();
     const n = session.correct;
     const total = session.answered;
-    root.innerHTML = '<div class="kg-finish"><div class="kg-trophy">🏆</div><h2>게임 완료!</h2><p>정답 또는 자기 평가 성공 <b>' + n + ' / ' + total + '</b></p><p>' + session.missed + '문제는 약점 복습 목록에 저장했어요.</p><p class="kg-success">이번 게임 획득 경험치: +' + session.earned + ' XP</p>' +
-      '<div class="kg-end-actions">' + button("다시 도전", "restart", "kg-primary") + button("게임 목록", "home", "kg-outline") + '</div></div>';
+    root.innerHTML = '<div class="kg-finish">' + gameNavigation(session.mode) + '<div class="kg-trophy">🏆</div><h2>게임 완료!</h2><p>정답 또는 자기 평가 성공 <b>' + n + ' / ' + total + '</b></p><p>' + session.missed + '문제는 약점 복습 목록에 저장했어요.</p><p class="kg-success">이번 게임 획득 경험치: +' + session.earned + ' XP</p>' +
+      '<div class="kg-end-actions">' + button("다시 도전", "restart", "kg-primary") + button("다음 연습 →", "next-mode", "kg-outline") + '</div></div>';
   }
   function start(mode) {
+    if (!MODE_ORDER.includes(mode)) return;
     stopMedia(); message = "";
+    if (!gameScreenActive) {
+      gameScreenActive = true;
+      // Only one history entry for an entire game session, even while switching modes.
+      if (window.history && window.history.pushState) {
+        window.history.pushState({ jiniHome: true, jiniKoreanGame: true }, "", window.location.href);
+      }
+    }
     const queue = build(mode);
     if (!queue.length) {
-      root.innerHTML = '<div class="kg-finish"><h2>' + (mode === "review" ? '지금 복습할 문제가 없어요 🎉' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '새 게임에서 연습한 뒤 다음 복습을 확인해 보세요.' : '학습 데이터를 확인해 주세요.') + '</p>' + button("게임 목록으로", "home", "kg-primary") + '</div>';
+      root.innerHTML = '<div class="kg-finish">' + gameNavigation(mode) + '<h2>' + (mode === "review" ? '지금 복습할 문제가 없어요 🎉' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '새 게임에서 연습한 뒤 다음 복습을 확인해 보세요.' : '학습 데이터를 확인해 주세요.') + '</p>' + button("다음 연습 →", "next-mode", "kg-primary") + '</div>';
       return;
     }
     session = { mode: mode, queue: queue, pos: 0, answer: null, correct: 0, answered: 0, missed: 0, earned: 0, retries: new Set() };
     questionView();
+    scrollGameTop();
   }
   function storeResult(q, good) {
     const item = progress.items[q.id] || { streak: 0, wrong: 0 };
@@ -311,7 +362,8 @@
     const b = event.target.closest("[data-kg-action]");
     if (!b || !root.contains(b)) return;
     const action = b.dataset.kgAction;
-    if (action === "home") { stopMedia(); session = null; message = ""; dashboard(); }
+    if (action === "home") goToGameList();
+    else if (action === "next-mode") start(upcomingMode(session ? session.mode : "review"));
     else if (action === "start") start(b.dataset.mode);
     else if (action === "restart" && session) start(session.mode);
     else if (action === "choose") chosen(Number(b.dataset.index));
