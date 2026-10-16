@@ -767,12 +767,13 @@
     saveStudyState();
   }
 
-  function makeCard(item) {
+  function makeCard(item, itemNumber) {
     const card = document.createElement("article");
     card.className = "word-card";
     const levelClass = item.level === "중등" ? "middle" : item.level === "고등" ? "high" : "";
     card.innerHTML =
       '<div class="word-primary">' +
+        '<span class="word-number">' + itemNumber + '</span>' +
         '<span class="word-level ' + levelClass + '">' + escapeHtml(item.level) + '</span>' +
         '<strong class="word-title">' + escapeHtml(item.word) + '</strong>' +
         '<div class="word-pronunciation">' +
@@ -803,7 +804,7 @@
       '</button>';
     const button = card.querySelector(".play-button");
     card.tabIndex = 0;
-    card.setAttribute("aria-label", item.word + " 단어 카드. 눌러서 발음과 뜻, 예문 듣기");
+    card.setAttribute("aria-label", itemNumber + "번 " + item.word + " 단어 카드. 눌러서 발음과 뜻, 예문 듣기");
     card.addEventListener("click", function (event) {
       if (event.target.closest("button, a, select, input")) return;
       button.click();
@@ -980,8 +981,8 @@
     renderVocabularyItemOptions(filtered, expressionStudy);
     const start = (currentPage - 1) * PAGE_SIZE;
     list.replaceChildren();
-    filtered.slice(start, start + PAGE_SIZE).forEach(function (item) {
-      list.appendChild(makeCard(item));
+    filtered.slice(start, start + PAGE_SIZE).forEach(function (item, index) {
+      list.appendChild(makeCard(item, start + index + 1));
     });
     resultCount.textContent = expressionStudy ? filtered.length + "개 표현 · 베트남어 번역" :
       currentStudy === "korean" ? filtered.length + "개 단어 · 베트남어 뜻" : filtered.length + "개 단어";
