@@ -41,8 +41,8 @@
     { id: "p3", word: "빨리", clue: "ㅃ은 두 입술을 단단히 닫았다 떼는 된소리예요.", mouth: "두 입술을 닫았다 떼기", breath: "숨보다 입술의 긴장에 집중" },
     { id: "p4", word: "괜찮아요", clue: "자연스럽게 이어 말할 때 [괜차나요]처럼 들려요.", mouth: "차를 말할 때 ㅊ의 숨을 느끼기", breath: "문장 전체를 한 호흡으로" },
     { id: "p5", word: "같이 가요", clue: "'같이'는 [가치]로 발음해요. ㅌ과 ㅣ가 만나 ㅊ 소리가 돼요.", mouth: "혀 앞부분을 입천장 가까이", breath: "차와 비슷한 ㅊ 소리로" },
-    { id: "p6", word: "한국말", clue: "받침 ㄱ을 발음할 때 뒤에 모음을 덧붙이지 않도록 주의하세요.", mouth: "혀 뒤쪽을 입천장에 닿게", breath: "받침 뒤에 '으'를 넣지 않기" },
-    { id: "p7", word: "학교", clue: "'학'의 받침 ㄱ을 끝내고 '교'로 이어 보세요.", mouth: "혀 뒤쪽의 닿는 위치 의식", breath: "단어의 리듬 유지" },
+    { id: "p6", word: "한국말", clue: "‘한국말’은 [한궁말]로 발음해요. ㄱ 받침이 뒤의 ㅁ을 만나 ㅇ 소리로 바뀌어요.", mouth: "혀 뒤쪽을 입천장에 닿게", breath: "받침 뒤에 '으'를 넣지 않기" },
+    { id: "p7", word: "학교", clue: "‘학교’는 [학꾜]로 발음해요. 뒤 음절의 ㄱ이 된소리로 바뀌어요.", mouth: "혀 뒤쪽의 닿는 위치 의식", breath: "단어의 리듬 유지" },
     { id: "p8", word: "밥 먹었어요?", clue: "단어별로 끊기보다 질문 억양을 살려 자연스럽게 이어 말해 보세요.", mouth: "ㅂ에서 두 입술을 닫기", breath: "문장 끝 질문 억양 연습" }
   ];
 
@@ -74,9 +74,16 @@
     return shuffle([answer].concat(others));
   }
   function wordQuestion(item) {
+    if (!item || !item.word || !item.meaning) return null;
     const answer = String(item.meaning).trim();
     const opts = pickOptions(answer, words.map(function (x) { return String(x.meaning).trim(); }));
     return opts ? { id: "word:" + item.word, type: "word", label: "단어 뜻 맞히기", prompt: "이 단어의 베트남어 뜻을 고르세요.", text: item.word, target: item.word, choices: opts, correct: opts.indexOf(answer), note: item.word + " = " + answer + (item.example ? " · " + item.example : "") } : null;
+  }
+  function expressionQuestion(item) {
+    if (!item || !item.word || !item.meaning) return null;
+    const answer = String(item.meaning).trim();
+    const options = pickOptions(answer, expressions.map(function (x) { return String(x.meaning).trim(); }));
+    return options ? { id: "expression:" + item.word, type: "expression", label: "일상 표현 복습", prompt: "이 한국어 표현의 베트남어 뜻을 선택하세요.", text: item.word, target: item.word, choices: options, correct: options.indexOf(answer), note: item.word + " = " + answer } : null;
   }
   function soundQuestion(set) {
     const answer = set.set[Math.floor(Math.random() * set.set.length)];
@@ -91,6 +98,7 @@
   }
   function questionById(id) {
     if (id.indexOf("word:") === 0) return wordQuestion(words.find(function (x) { return x.word === id.slice(5); }) || {});
+    if (id.indexOf("expression:") === 0) return expressionQuestion(expressions.find(function (x) { return x.word === id.slice(11); }));
     if (id.indexOf("dialog:") === 0) { const x = dialogues.find(function (x) { return "dialog:" + x.id === id; }); return x ? dialogQuestion(x) : null; }
     if (id.indexOf("pron:") === 0) { const x = pronounce.find(function (x) { return "pron:" + x.id === id; }); return x ? pronunciationQuestion(x) : null; }
     if (id.indexOf("sound:") === 0) {
@@ -107,7 +115,7 @@
   function build(mode) {
     if (mode === "word") return shuffle(words).slice(0, GAME_SIZE).map(wordQuestion).filter(Boolean);
     if (mode === "sound") return shuffle(sounds).slice(0, GAME_SIZE).map(soundQuestion);
-    if (mode === "dialog") return shuffle(dialogues).slice(0, GAME_SIZE).map(dialogQuestion);
+    if (mode === "dialog") return shuffle(shuffle(dialogues).slice(0, 5).map(dialogQuestion).concat(shuffle(expressions).slice(0, 3).map(expressionQuestion).filter(Boolean)));
     if (mode === "pron") return shuffle(pronounce).slice(0, GAME_SIZE).map(pronunciationQuestion);
     if (mode === "review") return shuffle(dueItems()).map(questionById).filter(Boolean).slice(0, 12);
     return [];
@@ -124,7 +132,7 @@
       boxText("발음 따라 말하기", "입·혀 위치 설명 + 녹음 비교", "🎙️", "pron") +
       boxText("실전 회화", "식당·직장·일상 대화 선택하기", "💬", "dialog") +
       boxText("약점 복습", "틀렸거나 복습 시간이 된 문제", "🧠", "review") + '</div>' +
-      '<p class="kg-footnote">소리 재생은 기기의 한국어 음성 엔진을 사용해요. 음성 인식과 녹음은 브라우저 지원 및 마이크 권한이 필요해요.</p>';
+      '<p class="kg-footnote">소리 재생은 기기의 한국어 음성 엔진을 사용해요. 음성 인식과 녹음은 브라우저 지원 및 마이크 권한이 필요해요. 음성 인식은 브라우저 제공 업체의 서버에서 처리될 수 있어요.</p>';
   }
   function questionView() {
     const q = session.queue[session.pos];
@@ -245,7 +253,7 @@
     if (!area) return;
     area.innerHTML = (isRecording ? '🔴 녹음 중… ' + button("■ 녹음 끝내기", "stop-record", "kg-outline") :
       recordedUrl ? '<p>내 녹음을 재생해 원어민 소리와 비교하세요.</p><audio id="kg-my-audio" controls></audio>' :
-      '<p>마이크를 눌러 발음해 보세요. 녹음은 서버로 전송하지 않아요.</p>') +
+      '<p>마이크를 눌러 발음해 보세요. 녹음 파일은 이 페이지 안에서만 재생하며 업로드하지 않아요.</p>') +
       (recognized ? '<p>인식된 글자: <b>' + esc(recognized) + '</b> (발음 점수가 아님)</p>' : '');
     if (recordedUrl) document.getElementById("kg-my-audio").src = recordedUrl;
   }
