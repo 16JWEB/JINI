@@ -1,0 +1,78 @@
+/* English practice games: isolated from other JINI pages */
+.english-game-section[hidden]{display:none!important}
+.english-game-section{max-width:1060px;padding:30px 0 52px}
+.eg-header{margin-bottom:18px}
+.eg-header h1{margin:7px 0 9px}
+.eg-header p{color:#77798f;font-size:13px;line-height:1.75}
+.eg-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.eg-stats>div{display:flex;flex-direction:column;gap:9px;padding:18px;border:1px solid #e8e8f2;border-radius:14px;background:white}
+.eg-stats small{color:#8989a1;font-size:11px}
+.eg-stats b{font-size:23px;color:#272641}
+.eg-options{display:flex;flex-wrap:wrap;gap:12px;padding:17px;border-radius:14px;border:1px solid #eae8f6;background:#fff}
+.eg-options label{display:flex;flex:1 1 160px;flex-direction:column;gap:7px;font-size:12px;font-weight:800;color:#5b5b75}
+.eg-options select{width:100%;padding:10px 11px;border:1px solid #dcdcee;border-radius:9px;background:white;color:#32324b;font:inherit;font-weight:500}
+.eg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:18px}
+.eg-mode{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-height:148px;text-align:left;padding:21px;border:1px solid #e9e9f4;border-radius:16px;background:white;cursor:pointer;transition:transform .15s,border-color .15s}
+.eg-mode:hover{transform:translateY(-2px);border-color:#aaa0f4}
+.eg-mode>span{font-size:26px}
+.eg-mode strong{font-size:16px}
+.eg-mode small{font-size:12px;color:#77798f;line-height:1.7}
+.eg-mode b{margin-top:auto;font-size:12px;color:#6958e8}
+.eg-note{color:#87889d;font-size:11px;line-height:1.9;margin:12px 0}
+.eg-card{max-width:800px;margin:8px auto 40px;padding:26px;border:1px solid #ececf5;border-radius:19px;background:white}
+.eg-nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:9px;border-bottom:1px solid #f0eef8;padding-bottom:16px;margin-bottom:18px}
+.eg-nav-controls{display:flex;gap:8px}
+.eg-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:11px 15px;border:1px solid transparent;border-radius:10px;cursor:pointer;font-size:12px;font-weight:800;text-align:center;line-height:1.5}
+.eg-btn:disabled{opacity:.44;cursor:default}
+.eg-btn:focus-visible,.eg-mode:focus-visible,.eg-options select:focus-visible,#eg-answer:focus-visible{outline:3px solid #9a92f5;outline-offset:2px}
+.eg-main{background:#6958e8;color:white}
+.eg-main:hover:not(:disabled){background:#5443d7}
+.eg-outline{background:#faf9ff;color:#6050cf;border-color:#d9d5fc}
+.eg-outline:hover:not(:disabled){background:#f0edff}
+.eg-progress{display:flex;justify-content:space-between;align-items:center;gap:12px;color:#67678a;font-size:12px;font-weight:800}
+.eg-bar{height:7px;background:#f0eef8;border-radius:100px;margin:14px 0 23px;overflow:hidden}
+.eg-bar i{display:block;height:100%;background:#6958e8;border-radius:100px;transition:width .2s}
+.eg-prompt{font-size:14px;color:#77788c;line-height:1.75}
+.eg-term{min-height:104px;padding:25px 16px;display:grid;place-items:center;text-align:center;font-weight:800;font-size:clamp(21px,3.2vw,31px);line-height:1.5;word-break:keep-all;border:1px solid #efedfc;border-radius:14px;background:#faf9ff}
+.eg-audio{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0}
+.eg-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.eg-option{min-height:68px;display:flex;align-items:center;justify-content:flex-start;text-align:left;padding:12px 14px;border-color:#e8e8f1;background:#fff;color:#303049}
+.eg-option:hover:not(:disabled){border-color:#9c91ee;background:#fcfbff}
+.eg-number{display:inline-grid;place-items:center;min-width:25px;height:25px;border-radius:50%;background:#f0eef9;color:#6958e8}
+.eg-true{border-color:#9edbbb;background:#effaf4;color:#25764f}
+.eg-false{border-color:#ecaaac;background:#fff2f2;color:#a74343}
+.eg-hint{margin:17px 0 10px;font-size:13px;line-height:1.8;color:#696c83}
+#eg-answer-form{display:flex;align-items:stretch;flex-wrap:wrap;gap:10px}
+#eg-answer{flex:1 1 180px;min-height:44px;padding:11px 13px;border:1px solid #dbdaed;border-radius:10px;font-size:14px}
+.eg-feedback{margin-top:18px;padding:16px;border-radius:12px;font-size:13px;line-height:1.75}
+.eg-feedback p{margin:6px 0}
+.eg-ok{color:#256845;background:#ebf9f1}
+.eg-wrong{color:#993a3a;background:#fff0ef}
+.eg-speaking{margin:16px 0}
+.eg-speaking audio{display:block;width:100%;max-width:450px;margin:8px 0}
+.eg-speech-result{margin:12px 0;padding:14px;border:1px solid #d9d5fc;background:#faf9ff;border-radius:12px;font-size:13px;line-height:1.8}
+.eg-speech-result p{margin:6px 0}
+.eg-status{color:#6859c6;font-size:12px;line-height:1.8;padding:8px 0}
+.eg-finish{text-align:center;padding:32px 10px 40px}
+.eg-finish h2{font-size:25px}
+.eg-finish p{font-size:14px;color:#73758e;line-height:1.8}
+.eg-trophy{font-size:43px}
+@media(max-width:740px){
+.english-game-section{padding:18px 0 75px}
+.eg-stats{gap:7px}
+.eg-stats>div{padding:12px 10px;gap:8px}
+.eg-stats small{font-size:10px}
+.eg-stats b{font-size:20px}
+.eg-options{padding:12px;gap:8px}
+.eg-options label{flex:1 1 105px;font-size:11px}
+.eg-grid{grid-template-columns:1fr;gap:9px}
+.eg-mode{min-height:120px;padding:16px}
+.eg-card{padding:17px}
+.eg-nav{gap:9px}
+.eg-nav>.eg-btn{width:100%;justify-content:flex-start}
+.eg-nav-controls{display:flex;width:100%}
+.eg-nav-controls>.eg-btn{flex:1;min-width:0}
+.eg-choices{grid-template-columns:1fr}
+.eg-option{min-height:58px}
+.eg-term{padding:20px 12px}
+}
