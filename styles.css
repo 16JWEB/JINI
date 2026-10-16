@@ -163,6 +163,9 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
 .search-box input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 11px; }
 .search-box input::placeholder { color: #a6a7b5; }
 .search-box:focus-within { border-color: #b9b0f4; box-shadow: 0 0 0 3px #f0edff; }
+.search-clear { width: 23px; height: 23px; display: grid; flex: 0 0 23px; place-items: center; padding: 0; border: 0; border-radius: 6px; background: transparent; color: #9293a4; cursor: pointer; font-size: 17px; line-height: 1; }
+.search-clear:hover { background: #f1effa; color: var(--purple); }
+.search-clear:focus-visible { outline: 2px solid #c9c2f7; outline-offset: 1px; }
 .search-box kbd { min-width: 17px; padding: 2px 4px; border: 1px solid #ededf2; border-radius: 4px; background: #fafafd; font-size: 10px; text-align: center; }
 .filter-row { display: flex; align-items: center; justify-content: space-between; margin: 20px 0 12px; }
 .filters { display: flex; gap: 7px; }

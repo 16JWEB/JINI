@@ -945,16 +945,17 @@
     const navigation = document.getElementById("vocabulary-item-navigation");
     const select = document.getElementById("vocabulary-item-select");
     const showingVocabulary = currentPageView === "vocabulary" || currentPageView === "ko-vocabulary";
-    navigation.hidden = expressionStudy || !showingVocabulary;
+    navigation.hidden = !showingVocabulary && !expressionStudy;
     select.replaceChildren();
-    select.setAttribute("aria-label", currentStudy === "korean" ? "번호로 한국어 단어 이동" : "번호로 영어 단어 이동");
+    select.setAttribute("aria-label", expressionStudy ? "번호로 한국어 표현 이동" :
+      currentStudy === "korean" ? "번호로 한국어 단어 이동" : "번호로 영어 단어 이동");
     if (navigation.hidden) {
       select.disabled = true;
       return;
     }
     const placeholder = document.createElement("option");
     placeholder.value = "";
-    placeholder.textContent = "번호로 단어 이동";
+    placeholder.textContent = expressionStudy ? "번호로 표현 이동" : "번호로 단어 이동";
     select.appendChild(placeholder);
     filtered.forEach(function (item, index) {
       const option = document.createElement("option");
@@ -1301,7 +1302,13 @@
   });
   document.querySelectorAll("[data-resume-study]").forEach(function (button) {
     button.addEventListener("click", function () {
-      resumeStudyState(studyStates[button.dataset.resumeStudy]);
+      const study = button.dataset.resumeStudy;
+      const state = studyStates[study];
+      if (state) {
+        resumeStudyState(state);
+      } else {
+        setPage(study === "korean" ? "ko-vocabulary" : "vocabulary");
+      }
     });
   });
   document.getElementById("open-android-tts-settings").addEventListener("click", function (event) {
@@ -1338,6 +1345,14 @@
     selectedVocabularyIndex = -1;
     renderWords();
   });
+  document.getElementById("clear-search").addEventListener("click", function (event) {
+    event.preventDefault();
+    search.value = "";
+    currentPage = 1;
+    selectedVocabularyIndex = -1;
+    renderWords();
+    search.focus();
+  });
   document.getElementById("vocabulary-item-select").addEventListener("change", function (event) {
     if (event.currentTarget.value === "") return;
     const index = Number(event.currentTarget.value);
@@ -1353,6 +1368,13 @@
   verbSearch.addEventListener("input", function () {
     if (verbAutoPlaying) stopVerbAuto(true);
     renderVerbForms();
+  });
+  document.getElementById("clear-verb-search").addEventListener("click", function (event) {
+    event.preventDefault();
+    if (verbAutoPlaying) stopVerbAuto(true);
+    verbSearch.value = "";
+    renderVerbForms();
+    verbSearch.focus();
   });
   document.getElementById("bookmark-current-page").addEventListener("click", toggleVocabularyBookmark);
   document.getElementById("bookmark-current-word").addEventListener("click", togglePlayerBookmark);

@@ -81,11 +81,11 @@
       <section class="home-section" id="home-section">
         <div class="home-study-tabs" role="group" aria-label="공부할 언어 선택">
           <div class="home-study-choice">
-            <button class="home-start-button" id="start-learning" type="button" data-page="vocabulary">AI 영어공부</button>
+            <button class="home-start-button" id="start-learning" type="button" data-resume-study="english">AI 영어공부</button>
             <button class="home-resume-button" id="resume-english-study" type="button" data-resume-study="english">마지막 공부 화면</button>
           </div>
           <div class="home-study-choice">
-            <button class="home-start-button" id="start-korean-learning" type="button" data-page="ko-vocabulary">AI 한글공부</button>
+            <button class="home-start-button" id="start-korean-learning" type="button" data-resume-study="korean">AI 한글공부</button>
             <button class="home-resume-button" id="resume-korean-study" type="button" data-resume-study="korean">마지막 공부 화면</button>
           </div>
         </div>
@@ -100,6 +100,7 @@
           <label class="search-box">
             <span aria-hidden="true">⌕</span>
             <input id="search-input" type="search" placeholder="단어 또는 뜻 검색" autocomplete="off" aria-label="단어 또는 뜻 검색">
+            <button class="search-clear" id="clear-search" type="button" aria-label="단어 검색어 지우기">×</button>
             <kbd>/</kbd>
           </label>
         </div>
@@ -199,6 +200,7 @@
         <label class="search-box verb-search">
           <span aria-hidden="true">⌕</span>
           <input id="verb-search-input" type="search" placeholder="동사 또는 뜻 검색" autocomplete="off" aria-label="동사 또는 뜻 검색">
+          <button class="search-clear" id="clear-verb-search" type="button" aria-label="동사 검색어 지우기">×</button>
         </label>
         <div class="verb-table-summary">
           <span>현재형은 동사원형 기준입니다.</span>
