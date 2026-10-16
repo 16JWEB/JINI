@@ -42,6 +42,7 @@
   let verbAutoPlaying = false;
   let verbAutoRows = [];
   let verbAutoIndex = 0;
+  let lastAutoVerbWord = "";
   let playerMode = "word-meaning-example";
   let bookmarks = { vocabulary: [], player: [] };
   let studyStates = { english: null, korean: null };
@@ -285,6 +286,7 @@
         playerWord: playerWords[playerIndex] ? playerWords[playerIndex].word : "",
         playerMode: playerMode,
         verbQuery: verbSearch.value,
+        autoVerbWord: lastAutoVerbWord,
         scrollY: window.scrollY
       };
       if (!studyStates.pages) studyStates.pages = {};
@@ -313,6 +315,7 @@
     playerLevel = validPlayerLevels.includes(state.playerLevel) ? state.playerLevel : "초등";
     playerMode = state.playerMode === "word-meaning" ? "word-meaning" : "word-meaning-example";
     verbSearch.value = typeof state.verbQuery === "string" ? state.verbQuery : "";
+    lastAutoVerbWord = typeof state.autoVerbWord === "string" ? state.autoVerbWord : "";
     restoringStudyState = true;
     setPage(state.page);
     restoringStudyState = false;
@@ -1017,25 +1020,49 @@
   function renderVerbForms() {
     const filtered = getFilteredVerbForms();
     verbTableBody.replaceChildren();
-    filtered.forEach(function (row) {
-      verbTableBody.appendChild(createVerbTableRow(row, true));
+    filtered.forEach(function (row, index) {
+      verbTableBody.appendChild(createVerbTableRow(row, true, index + 1));
     });
     verbResultCount.textContent = filtered.length + "개 동사";
     verbEmpty.hidden = filtered.length > 0;
+    const lastAutoRow = !verbAutoPlaying && lastAutoVerbWord ?
+      filtered.find(function (row) { return row[0] === lastAutoVerbWord; }) : null;
+    if (lastAutoRow) {
+      const rowIndex = filtered.indexOf(lastAutoRow);
+      updateVerbAutoCurrentRow(lastAutoRow, rowIndex + 1);
+      document.getElementById("verb-auto-status").textContent =
+        "마지막 자동 재생 위치 · " + (rowIndex + 1) + "/" + filtered.length + " · " + lastAutoRow[0];
+    } else if (!verbAutoPlaying) {
+      updateVerbAutoCurrentRow(null);
+      document.getElementById("verb-auto-status").textContent = "";
+    }
     saveStudyState();
   }
 
-  function createVerbTableRow(row, interactive) {
+  function createVerbTableRow(row, interactive, rowNumber) {
     const tr = document.createElement("tr");
-    [
+    const cells = [
       ["뜻", row[4]],
       ["현재형", row[1]],
       ["과거형", row[2]],
       ["과거분사", row[3]]
-    ].forEach(function (cell) {
+    ];
+    cells.forEach(function (cell, index) {
       const td = document.createElement("td");
       td.dataset.label = cell[0];
-      td.textContent = cell[1].trim();
+      if (index === 0 && rowNumber) {
+        const number = document.createElement("span");
+        number.className = "verb-row-number";
+        number.textContent = String(rowNumber);
+        td.appendChild(number);
+      }
+      if (index === 0) {
+        const label = document.createElement("span");
+        label.className = "verb-meaning-mobile-label";
+        label.textContent = cell[0];
+        td.appendChild(label);
+      }
+      td.appendChild(document.createTextNode(cell[1].trim()));
       tr.appendChild(td);
     });
     if (interactive) {
@@ -1059,7 +1086,7 @@
     return tr;
   }
 
-  function updateVerbAutoCurrentRow(row) {
+  function updateVerbAutoCurrentRow(row, rowNumber) {
     const preview = document.getElementById("verb-auto-current");
     const previewRow = document.getElementById("verb-auto-current-row");
     previewRow.replaceChildren();
@@ -1067,7 +1094,7 @@
       preview.hidden = true;
       return;
     }
-    previewRow.appendChild(createVerbTableRow(row, false));
+    previewRow.appendChild(createVerbTableRow(row, false, rowNumber));
     preview.hidden = false;
   }
 
@@ -1116,9 +1143,11 @@
       return;
     }
     const row = verbAutoRows[verbAutoIndex];
-    updateVerbAutoCurrentRow(row);
+    lastAutoVerbWord = row[0];
+    updateVerbAutoCurrentRow(row, verbAutoIndex + 1);
     document.getElementById("verb-auto-status").textContent =
       "자동 재생 중 · " + (verbAutoIndex + 1) + "/" + verbAutoRows.length;
+    saveStudyState();
     speech.cancel();
     playVerbForms(getSpokenVerbForms(row), row[4], function () {
       if (!verbAutoPlaying) return;
