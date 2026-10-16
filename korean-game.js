@@ -63,6 +63,7 @@
   let recordedUrl = null;
   let recognition = null;
   let recognized = "";
+  let recognitionStatus = "";
   let isRecording = false;
 
   function save() { try { localStorage.setItem(STORE, JSON.stringify(progress)); } catch (e) { message = "기록 저장이 차단된 브라우저예요."; } }
@@ -183,10 +184,10 @@
     let content = '<div class="kg-quiz-top"><span class="kg-pill">' + esc(q.label) + (q.scene ? ' · ' + esc(q.scene) : '') + '</span><span>' + (session.pos + 1) + ' / ' + session.queue.length + '</span></div>' +
       '<div class="kg-track"><span style="width:' + fraction + '%"></span></div><p class="kg-prompt">' + esc(q.prompt) + '</p>' + intro;
     if (q.type === "pron") {
-      content += '<div class="kg-sound-actions">' + button("▶ 표준 음성 듣기", "listen", "kg-outline") + button("🎙 녹음 시작", "record", "kg-outline") + button("🗣 말한 내용 확인", "recognize", "kg-outline") + '</div>' +
+      content += '<div class="kg-sound-actions">' + button("▶ 표준 음성 듣기", "listen", "kg-outline") + button("🔎 발음 확인하기", "recognize", "kg-primary") + button("🎙 내 목소리 녹음", "record", "kg-outline") + '</div>' +
         '<div id="kg-recorder-area" class="kg-record-area" aria-live="polite"></div>' +
         '<div class="kg-tip"><b>발음 선생님 TIP</b><p>' + esc(q.note) + '</p><div class="kg-tip-grid"><span>👄 ' + esc(q.mouth) + '</span><span>💨 ' + esc(q.breath) + '</span></div></div>' +
-        '<p class="kg-footnote">음성 인식은 말한 글자를 보여줄 뿐, 실제 발음 정확도 점수가 아니에요. 직접 듣고 판단해 주세요.</p>' +
+        '<p class="kg-footnote">‘발음 확인하기’를 누르고 한국어로 말하면 인식된 문구와 정답을 비교해요. 녹음은 다시 듣기 전용이며 녹음된 파일이 자동 분석되는 것은 아니에요. 글자 일치는 발음 정확도 점수가 아니에요.</p>' +
         (typeof q._grade === "boolean" ?
           '<div class="kg-feedback ' + (q._grade ? "kg-good" : "kg-bad") + '"><strong>' +
           (q._grade ? "잘 발음했다고 기록했어요." : "추가 연습이 필요하다고 기록했어요.") +
@@ -206,7 +207,7 @@
     }
     if (message) content += '<p class="kg-status" role="status">' + esc(message) + '</p>';
     root.innerHTML = '<div class="kg-quiz-card">' + gameNavigation() + content + '</div>';
-    if (recordedUrl && q.type === "pron") showRecordedArea();
+    if (q.type === "pron") showRecordedArea();
   }
   function summary() {
     stopMedia();
@@ -317,15 +318,38 @@
     mediaStream = null; recorder = null; isRecording = false;
     if (recordedUrl) { URL.revokeObjectURL(recordedUrl); recordedUrl = null; }
     recognized = "";
+    recognitionStatus = "";
+  }
+  function compareSpokenText(actual, expected) {
+    function clean(text) {
+      return String(text || "").normalize("NFC").replace(/[^\\p{L}\\p{N}]/gu, "").toLowerCase();
+    }
+    return clean(actual) === clean(expected);
   }
   function showRecordedArea() {
     const area = document.getElementById("kg-recorder-area");
     if (!area) return;
-    area.innerHTML = (isRecording ? '🔴 녹음 중… ' + button("■ 녹음 끝내기", "stop-record", "kg-outline") :
-      recordedUrl ? '<p>내 녹음을 재생해 원어민 소리와 비교하세요.</p><audio id="kg-my-audio" controls></audio>' :
-      '<p>마이크를 눌러 발음해 보세요. 녹음 파일은 이 페이지 안에서만 재생하며 업로드하지 않아요.</p>') +
-      (recognized ? '<p>인식된 글자: <b>' + esc(recognized) + '</b> (발음 점수가 아님)</p>' : '');
-    if (recordedUrl) document.getElementById("kg-my-audio").src = recordedUrl;
+    const q = session && session.queue[session.pos];
+    const detected = recognized || (q && q._recognized) || "";
+    const match = detected && q && compareSpokenText(detected, q.target);
+    let analysis = "";
+    if (detected && q) {
+      analysis = '<div class="kg-analysis ' + (match ? "kg-analysis-match" : "kg-analysis-different") + '">' +
+        '<p><b>🎯 연습 문구:</b> ' + esc(q.target) + '</p>' +
+        '<p><b>🗣 인식된 문구:</b> ' + esc(detected) + '</p>' +
+        '<p><strong>' + (match ? "표현이 일치해요! 발음 설명과 함께 다시 연습해 보세요." :
+          "다른 표현으로 인식됐어요. 표준 음성을 듣고 다시 말해 보세요.") + '</strong></p>' +
+        (!match ? '<p>💡 ' + esc(q.note || "") + '</p>' : "") +
+        '<small>음성 인식의 글자 비교이며, 발음의 음향적 정확도를 평가한 점수는 아니에요.</small></div>';
+    }
+    area.innerHTML = (isRecording ? '<p>🔴 내 목소리 녹음 중… ' + button("■ 녹음 끝내기", "stop-record", "kg-outline") + '</p>' :
+      recordedUrl ? '<p>내 목소리 녹음 (직접 듣기)</p><audio id="kg-my-audio" controls></audio>' :
+      '<p>🔎 발음 확인하기: 버튼을 누르고 다시 말해 보세요. 🎙 녹음은 듣기용으로 따로 저장돼요.</p>') +
+      (recognitionStatus ? '<p class="kg-recognition-status" role="status">' + esc(recognitionStatus) + '</p>' : '') + analysis;
+    if (recordedUrl) {
+      const player = document.getElementById("kg-my-audio");
+      if (player) player.src = recordedUrl;
+    }
   }
   async function beginRecord() {
     if (!session || session.queue[session.pos].type !== "pron") return;
@@ -354,26 +378,91 @@
       showRecordedArea();
     } catch (e) { stopMedia(); message = "마이크 권한이 거부되었거나 녹음할 수 없어요."; questionView(); }
   }
+  function speechErrorMessage(code) {
+    switch (code) {
+      case "not-allowed":
+        return "음성 인식 마이크 권한이 거부됐어요. 브라우저 주소창의 사이트 권한에서 마이크를 허용하고 다시 시도해 주세요.";
+      case "service-not-allowed":
+        return "브라우저에서 음성 인식 서비스 사용이 차단됐어요. Chrome 브라우저로 다시 열어 보세요.";
+      case "audio-capture":
+        return "음성 인식에 마이크를 사용할 수 없어요. 진행 중인 녹음을 먼저 끝내고 다시 시도해 주세요.";
+      case "network":
+        return "음성 인식 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.";
+      case "no-speech":
+        return "목소리를 인식하지 못했어요. 조용한 곳에서 다시 말해 보세요.";
+      case "language-not-supported":
+        return "이 브라우저의 음성 인식에서 한국어를 지원하지 않아요.";
+      default:
+        return "음성 인식이 실패했어요 (" + String(code || "unknown") + "). 다시 시도해 주세요.";
+    }
+  }
   function recognize() {
+    if (!session || section.hidden) return;
+    const question = session.queue[session.pos];
+    if (!question || question.type !== "pron") return;
+    if (isRecording || (recorder && recorder.state === "recording")) {
+      recognitionStatus = "녹음을 먼저 끝낸 다음 ‘발음 확인하기’를 눌러 다시 말해 주세요.";
+      showRecordedArea();
+      return;
+    }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) { message = "이 브라우저에서는 음성 인식이 지원되지 않아요. 녹음 후 직접 비교할 수 있어요."; questionView(); return; }
-    if (!session || session.queue[session.pos].type !== "pron") return;
-    const pos = session.pos;
-    if (recognition) { try { recognition.abort(); } catch (e) {} }
+    if (!SpeechRecognition) {
+      recognitionStatus = "이 브라우저는 실시간 음성 인식을 지원하지 않아요. Android에서는 최신 Chrome으로 사이트를 열어 보세요. 녹음 듣기 기능은 계속 사용할 수 있어요.";
+      showRecordedArea();
+      return;
+    }
+    if (recognition) {
+      const previous = recognition;
+      recognition = null;
+      try { previous.abort(); } catch (e) {}
+    }
+    const currentSession = session;
+    const position = session.pos;
     const instance = new SpeechRecognition();
     recognition = instance;
+    recognized = "";
+    question._recognized = "";
+    recognitionStatus = "🎙 듣고 있어요. 화면의 한국어를 또박또박 말해 주세요.";
     instance.lang = "ko-KR";
     instance.interimResults = false;
+    instance.continuous = false;
     instance.maxAlternatives = 1;
+    function stillActive() {
+      return recognition === instance && session === currentSession &&
+        session.pos === position && !section.hidden;
+    }
     instance.onresult = function (event) {
-      if (!session || session.pos !== pos || section.hidden) return;
-      recognized = event.results[0][0].transcript;
+      if (!stillActive()) return;
+      if (!event.results || !event.results.length) {
+        recognitionStatus = "인식 결과가 없어요. 다시 발음해 보세요.";
+      } else {
+        recognized = String(event.results[0][0].transcript || "").trim();
+        question._recognized = recognized;
+        recognitionStatus = recognized ? "음성 인식 완료. 아래 비교 결과를 확인하세요." : "인식된 글자가 없어요. 다시 발음해 보세요.";
+      }
       showRecordedArea();
     };
-    instance.onerror = function () { if (!section.hidden) { recognized = "음성을 인식하지 못했어요. 다시 시도해 주세요."; showRecordedArea(); } };
-    instance.onend = function () { if (recognition === instance) recognition = null; };
-    try { instance.start(); recognized = "듣고 있어요…"; showRecordedArea(); }
-    catch (e) { recognition = null; message = "음성 인식을 시작하지 못했어요."; questionView(); }
+    instance.onerror = function (event) {
+      if (!stillActive() || event.error === "aborted") return;
+      recognitionStatus = speechErrorMessage(event.error);
+      showRecordedArea();
+    };
+    instance.onend = function () {
+      if (!stillActive()) return;
+      if (!recognized && recognitionStatus.indexOf("듣고 있어요") !== -1) {
+        recognitionStatus = "음성 인식이 종료됐지만 말을 인식하지 못했어요. 다시 시도해 주세요.";
+      }
+      recognition = null;
+      showRecordedArea();
+    };
+    try {
+      instance.start();
+      showRecordedArea();
+    } catch (error) {
+      if (recognition === instance) recognition = null;
+      recognitionStatus = "음성 인식 시작에 실패했어요. 다른 앱에서 마이크를 사용하는지 확인하고 다시 시도해 주세요.";
+      showRecordedArea();
+    }
   }
 
   root.addEventListener("click", function (event) {
