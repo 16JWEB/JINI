@@ -124,7 +124,7 @@
   function boxText(title, detail, icon, action) { return '<button type="button" class="kg-mode" data-kg-action="start" data-mode="' + action + '"><span class="kg-mode-icon">' + icon + '</span><strong>' + title + '</strong><small>' + detail + '</small><span class="kg-mode-arrow">시작 →</span></button>'; }
   function dashboard() {
     const due = dueItems().filter(function (id) { return !!questionById(id); }).length;
-    root.innerHTML = '<div class="kg-summary"><div><span>쌓인 경험치</span><strong>' + progress.xp + ' XP</strong></div><div><span>총 퀴즈 정답률</span><strong>' + (progress.attempts ? Math.round(progress.correct / progress.attempts * 100) : 0) + '%</strong></div><div><span>복습할 항목</span><strong>' + due + '개</strong></div></div>' +
+    root.innerHTML = '<div class="kg-summary"><div><span>쌓인 경험치</span><strong>' + progress.xp + ' XP</strong></div><div><span>게임 성공률 (자가평가 포함)</span><strong>' + (progress.attempts ? Math.round(progress.correct / progress.attempts * 100) : 0) + '%</strong></div><div><span>복습할 항목</span><strong>' + due + '개</strong></div></div>' +
       '<div class="kg-info">💡 먼저 단어나 회화 게임을 풀고, 틀리거나 복습할 때가 된 문제는 <b>약점 복습</b>에서 다시 만나세요. 학습 기록은 이 기기의 브라우저에만 저장돼요.</div>' +
       '<div class="kg-mode-grid">' +
       boxText("단어 뜻 맞히기", "기존 한국어 단어와 베트남어 뜻 연결", "📘", "word") +
@@ -241,6 +241,7 @@
     window.speechSynthesis.speak(utterance);
   }
   function stopMedia() {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
     if (recognition) { try { recognition.abort(); } catch (e) {} recognition = null; }
     if (recorder && recorder.state !== "inactive") { try { recorder.stop(); } catch (e) {} }
     if (mediaStream) mediaStream.getTracks().forEach(function (track) { track.stop(); });
