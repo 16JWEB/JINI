@@ -1,0 +1,81 @@
+/* JINI Korean game: scoped styles */
+.korean-game-section[hidden] { display: none !important; }
+.korean-game-section { padding: 30px 0 50px; max-width: 1080px; }
+.kg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 20px; }
+.kg-head h1 { margin: 6px 0 10px; }
+.kg-head p { margin: 0; color: #77788f; line-height: 1.75; font-size: 13px; }
+.kg-head .kg-badge { flex: none; padding: 8px 12px; border-radius: 100px; background: #f0edff; color: #6251d9; font-size: 11px; font-weight: 800; }
+.kg-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; margin: 20px 0; }
+.kg-summary > div { display: grid; gap: 12px; padding: 19px 20px; border: 1px solid #ececf4; border-radius: 14px; background: #fff; }
+.kg-summary span { color: #85879b; font-size: 12px; }
+.kg-summary strong { color: #292841; font-size: 25px; }
+.kg-info { padding: 14px 18px; background: #efedff; border-radius: 12px; color: #585574; font-size: 12px; line-height: 1.75; }
+.kg-mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin-top: 18px; }
+.kg-mode { display: grid; justify-items: start; text-align: left; gap: 8px; min-height: 158px; padding: 23px; border: 1px solid #e9e9f3; border-radius: 17px; background: #fff; cursor: pointer; transition: border .16s, transform .16s, box-shadow .16s; }
+.kg-mode:hover { transform: translateY(-2px); border-color: #b6acff; box-shadow: 0 10px 25px #6958e817; }
+.kg-mode:focus-visible, .kg-btn:focus-visible, .kg-choice:focus-visible { outline: 3px solid #9284f6; outline-offset: 2px; }
+.kg-mode-icon { font-size: 28px; }
+.kg-mode strong { font-size: 17px; }
+.kg-mode small { color: #7f8096; font-size: 12px; line-height: 1.6; }
+.kg-mode-arrow { margin-top: 4px; font-size: 12px; font-weight: 800; color: #6655e4; }
+.kg-footnote { color: #8e8fa2; font-size: 11px; line-height: 1.8; margin: 18px 0 0; }
+.kg-quiz-card { width: min(100%, 770px); margin: 10px auto; padding: 28px; border-radius: 20px; border: 1px solid #eeedf7; background: #fff; box-shadow: 0 14px 38px #34346609; }
+.kg-quiz-top { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #7e8196; }
+.kg-pill { display: inline-block; border-radius: 100px; background: #f0edff; color: #6557de; padding: 8px 12px; font-size: 11px; font-weight: 800; }
+.kg-track { height: 7px; margin: 16px 0 25px; border-radius: 100px; background: #efedf9; overflow: hidden; }
+.kg-track span { display: block; height: 100%; border-radius: inherit; background: #7160e8; transition: width .2s; }
+.kg-prompt { margin: 0 0 17px; color: #737489; font-size: 14px; line-height: 1.8; }
+.kg-question-word { min-height: 107px; padding: 26px 20px; border: 1px solid #f0eefc; border-radius: 13px; background: #faf9ff; text-align: center; font-size: clamp(22px, 4vw, 32px); line-height: 1.5; font-weight: 800; word-break: keep-all; }
+.kg-listen-center { display: grid; justify-items: center; gap: 16px; padding: 25px; border-radius: 13px; background: #f8f7ff; }
+.kg-listen-icon { font-size: 38px; }
+.kg-small-listen { margin: 13px 0 18px; }
+.kg-btn { padding: 12px 19px; border: 1px solid transparent; border-radius: 10px; font-weight: 750; font-size: 13px; cursor: pointer; }
+.kg-btn.kg-primary { color: #fff; background: #6655e4; }
+.kg-btn.kg-primary:hover { background: #5040cf; }
+.kg-btn.kg-outline { color: #5e50bb; border-color: #d9d4ff; background: #faf9ff; }
+.kg-btn.kg-outline:hover { background: #f0edff; }
+.kg-btn.kg-link { background: transparent; color: #81819a; padding-left: 0; }
+.kg-btn.kg-wide { display: block; width: 100%; margin-top: 17px; }
+.kg-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-top: 19px; }
+.kg-choice { display: flex; gap: 10px; text-align: left; align-items: center; padding: 16px; min-height: 76px; border: 1px solid #e9e9f2; background: #fff; border-radius: 12px; font-size: 13px; line-height: 1.6; cursor: pointer; }
+.kg-choice:hover:not(:disabled) { border-color: #ab9fff; background: #faf9ff; }
+.kg-choice:disabled { cursor: default; }
+.kg-choice.kg-right { background: #edf9f3; border-color: #87d6af; color: #246548; }
+.kg-choice.kg-wrong { background: #fff1f1; border-color: #efa2a2; color: #a33131; }
+.kg-choice-number { flex: 0 0 23px; display: grid; place-items: center; width: 23px; height: 23px; border-radius: 50%; background: #f1f0f9; font-weight: 800; color: #6a63a8; }
+.kg-feedback { padding: 16px; margin-top: 18px; border-radius: 10px; font-size: 13px; line-height: 1.8; }
+.kg-feedback p { margin: 8px 0 0; }
+.kg-feedback.kg-good { color: #216846; background: #eaf8ef; }
+.kg-feedback.kg-bad { color: #923535; background: #fff0ef; }
+.kg-bottom { margin-top: 18px; border-top: 1px solid #f0eff7; padding-top: 8px; }
+.kg-sound-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.kg-record-area { min-height: 50px; padding: 12px 15px; border-radius: 10px; background: #f8f8fd; font-size: 13px; line-height: 1.7; }
+.kg-record-area audio { max-width: 100%; display: block; margin-top: 10px; }
+.kg-record-area p { margin: 0 0 6px; }
+.kg-tip { padding: 17px; margin-top: 16px; border-radius: 13px; background: #f0edff; color: #514b83; font-size: 13px; line-height: 1.8; }
+.kg-tip p { margin: 8px 0 13px; }
+.kg-tip-grid { display: grid; gap: 7px; font-size: 12px; }
+.kg-tip-grid span { display: block; padding: 9px; border-radius: 8px; background: #ffffffc7; }
+.kg-rating { display: flex; gap: 10px; margin-top: 17px; flex-wrap: wrap; }
+.kg-status { font-size: 12px; color: #b85638; line-height: 1.6; }
+.kg-finish { width: min(100%, 680px); margin: 16px auto; padding: 45px 25px; text-align: center; background: #fff; border-radius: 19px; border: 1px solid #eeedf7; }
+.kg-finish h2 { font-size: 25px; }
+.kg-finish p { color: #77788f; font-size: 14px; line-height: 1.8; }
+.kg-trophy { font-size: 44px; }
+.kg-success { color: #287f59 !important; font-weight: 800; }
+.kg-end-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 23px; }
+@media (max-width: 740px) {
+ .korean-game-section { padding: 18px 0 80px; }
+ .kg-head { gap: 10px; flex-wrap: wrap; }
+ .kg-summary { gap: 7px; }
+ .kg-summary > div { padding: 12px 10px; gap: 8px; }
+ .kg-summary strong { font-size: 20px; }
+ .kg-summary span { font-size: 10px; }
+ .kg-mode-grid { grid-template-columns: 1fr; gap: 9px; }
+ .kg-mode { min-height: 130px; padding: 17px; }
+ .kg-quiz-card { padding: 18px; }
+ .kg-choices { grid-template-columns: 1fr; gap: 8px; }
+ .kg-choice { min-height: 64px; }
+ .kg-question-word { padding: 20px 12px; }
+ .kg-btn { padding: 11px 12px; font-size: 12px; }
+}
