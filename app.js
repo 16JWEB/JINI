@@ -27,6 +27,7 @@
   let currentPage = 1;
   let currentPageView = "";
   let selectedVocabularyIndex = -1;
+  let restoringStudyState = false;
   let toastTimer;
   let activeButton = null;
   let cardSpeechToken = 0;
@@ -43,7 +44,9 @@
   let verbAutoIndex = 0;
   let playerMode = "word-meaning-example";
   let bookmarks = { vocabulary: [], player: [] };
+  let studyStates = { english: null, korean: null };
   const BOOKMARK_STORAGE_KEY = "jini-learning-bookmarks";
+  const STUDY_STATE_KEY = "jini-last-study-state";
 
   const levelNames = { all: "필수 단어", 초등: "초등 필수", 중등: "중등 필수", 고등: "고등 필수" };
   const verbForms = [
@@ -222,6 +225,111 @@
     }
   }
 
+  function loadStudyStates() {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(STUDY_STATE_KEY) || "null");
+      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "verb-forms"];
+      if (!saved) return { english: null, korean: null, lastStudy: null };
+      if (validPages.includes(saved.page)) {
+        const study = saved.study === "korean" || saved.page.indexOf("ko-") === 0 ? "korean" : "english";
+        return { english: study === "english" ? saved : null, korean: study === "korean" ? saved : null, lastStudy: study };
+      }
+      const states = { english: null, korean: null, lastStudy: saved.lastStudy === "korean" ? "korean" : "english" };
+      ["english", "korean"].forEach(function (study) {
+        if (saved[study] && validPages.includes(saved[study].page)) states[study] = saved[study];
+      });
+      if (!states.lastStudy || !states[states.lastStudy]) states.lastStudy = states.english ? "english" : states.korean ? "korean" : null;
+      return states;
+    } catch (error) {
+      showToast("마지막 학습 화면을 불러오지 못했어요.");
+      return { english: null, korean: null, lastStudy: null };
+    }
+  }
+
+  function saveStudyState() {
+    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "verb-forms"];
+    if (restoringStudyState || !validPages.includes(currentPageView)) return;
+    try {
+      const state = {
+        page: currentPageView,
+        study: currentStudy,
+        level: activeLevel,
+        pageNumber: currentPage,
+        query: search.value,
+        selectedVocabularyIndex: selectedVocabularyIndex,
+        playerLevel: playerLevel,
+        playerIndex: playerIndex,
+        playerWord: playerWords[playerIndex] ? playerWords[playerIndex].word : "",
+        playerMode: playerMode,
+        verbQuery: verbSearch.value
+      };
+      studyStates[currentStudy] = state;
+      studyStates.lastStudy = currentStudy;
+      window.localStorage.setItem(STUDY_STATE_KEY, JSON.stringify(studyStates));
+      updateResumeStudyButtons();
+    } catch (error) {
+      showToast("마지막 학습 화면을 저장하지 못했어요.");
+    }
+  }
+
+  function resumeStudyState(state) {
+    if (!state) return;
+    const koreanPage = state.study === "korean" || state.page.indexOf("ko-") === 0;
+    const study = koreanPage ? "korean" : "english";
+    const validLevels = ["all", "초등", "중등", "고등"];
+    const validPlayerLevels = ["초등", "중등", "고등"];
+    currentStudy = study;
+    activeLevel = !koreanPage && validLevels.includes(state.level) ? state.level : "all";
+    currentPage = Number.isInteger(state.pageNumber) && state.pageNumber > 0 ? state.pageNumber : 1;
+    search.value = typeof state.query === "string" ? state.query : "";
+    selectedVocabularyIndex = Number.isInteger(state.selectedVocabularyIndex) && state.selectedVocabularyIndex >= 0 ?
+      state.selectedVocabularyIndex : -1;
+    playerLevel = validPlayerLevels.includes(state.playerLevel) ? state.playerLevel : "초등";
+    playerMode = state.playerMode === "word-meaning" ? "word-meaning" : "word-meaning-example";
+    verbSearch.value = typeof state.verbQuery === "string" ? state.verbQuery : "";
+    restoringStudyState = true;
+    setPage(state.page);
+    restoringStudyState = false;
+    if (["player", "ko-player", "ko-expression-player"].includes(state.page)) {
+      const savedWordIndex = playerWords.findIndex(function (item) { return item.word === state.playerWord; });
+      const requestedIndex = Number.isInteger(state.playerIndex) ? state.playerIndex : 0;
+      playerIndex = savedWordIndex >= 0 ? savedWordIndex : Math.min(Math.max(requestedIndex, 0), playerWords.length - 1);
+      updatePlayerCard();
+      setPlayerMode(playerMode);
+    } else if (currentPageView === "vocabulary" || currentPageView === "ko-vocabulary") {
+      const selectedCard = list.children[selectedVocabularyIndex % PAGE_SIZE];
+      if (selectedCard && selectedVocabularyIndex >= 0) selectedCard.scrollIntoView({ block: "center" });
+    }
+    saveStudyState();
+  }
+
+  function updateResumeStudyButtons() {
+    [
+      ["english", document.getElementById("resume-english-study")],
+      ["korean", document.getElementById("resume-korean-study")]
+    ].forEach(function (entry) {
+      const study = entry[0];
+      const button = entry[1];
+      const state = studyStates[study];
+      button.disabled = !state;
+      if (!state) {
+        button.textContent = "마지막 공부 화면";
+        return;
+      }
+      const pageNumber = Number.isInteger(state.pageNumber) && state.pageNumber > 0 ? state.pageNumber : 1;
+      const pageLabels = {
+        vocabulary: "필수 단어 " + pageNumber + "페이지",
+        "ko-vocabulary": "필수 단어 " + pageNumber + "페이지",
+        player: "단어 재생 · " + (state.playerWord || ((state.playerIndex || 0) + 1) + "번째 단어"),
+        "ko-player": "단어 재생 · " + (state.playerWord || ((state.playerIndex || 0) + 1) + "번째 단어"),
+        "ko-expressions": "일상생활 표현 " + pageNumber + "페이지",
+        "ko-expression-player": "표현 재생 · " + (state.playerWord || ((state.playerIndex || 0) + 1) + "번째 표현"),
+        "verb-forms": "동사 변화"
+      };
+      button.textContent = "마지막 공부 화면 · " + (pageLabels[state.page] || "학습 화면");
+    });
+  }
+
   function vietnamesePronunciation(koreanText) {
     const initials = ["", "k", "n", "t", "t", "l", "m", "b", "p", "s", "x", "", "ch", "ch", "ch", "kh", "th", "ph", "h"];
     const vowels = ["a", "e", "ya", "ye", "ơ", "e", "yơ", "ye", "ô", "oa", "oe", "uê", "yô", "u", "uơ", "uê", "ui", "yu", "ư", "ưi", "i"];
@@ -377,6 +485,7 @@
     });
     updateVocabularyBookmarkControls();
     updatePlayerBookmarkControl();
+    saveStudyState();
   }
 
   function updatePlayerBookmarkControl() {
@@ -474,6 +583,7 @@
     document.getElementById("player-progress-bar").style.width =
       ((playerIndex + 1) / playerWords.length * 100) + "%";
     updatePlayerBookmarkControl();
+    saveStudyState();
   }
 
   function updatePlaybackButton() {
@@ -615,6 +725,7 @@
       button.setAttribute("aria-pressed", button.dataset.playerMode === mode ? "true" : "false");
     });
     setPlaybackStatus(mode === "word-meaning" ? "단어와 뜻만 재생합니다." : "단어, 뜻, 예문을 재생합니다.");
+    saveStudyState();
   }
 
   function makeCard(item) {
@@ -832,6 +943,7 @@
     list.hidden = filtered.length === 0;
     renderPagination(pageCount);
     updateVocabularyBookmarkControls();
+    saveStudyState();
   }
 
   function getFilteredVerbForms() {
@@ -858,6 +970,7 @@
     });
     verbResultCount.textContent = filtered.length + "개 동사";
     verbEmpty.hidden = filtered.length > 0;
+    saveStudyState();
   }
 
   function createVerbTableRow(row, interactive) {
@@ -1024,7 +1137,7 @@
         chip.classList.toggle("selected", chip.dataset.level === "all");
       });
     }
-    if (page === "ko-expressions" || page === "ko-expression-player" || leavingExpressions) {
+    if (!restoringStudyState && (page === "ko-expressions" || page === "ko-expression-player" || leavingExpressions)) {
       currentPage = 1;
       search.value = "";
     }
@@ -1094,6 +1207,7 @@
     }
     renderWords();
     renderBookmarkLists();
+    saveStudyState();
   }
 
   function setPlayerLevel(level) {
@@ -1125,6 +1239,11 @@
 
   document.querySelectorAll("[data-page]").forEach(function (button) {
     button.addEventListener("click", function () { setPage(button.dataset.page); });
+  });
+  document.querySelectorAll("[data-resume-study]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      resumeStudyState(studyStates[button.dataset.resumeStudy]);
+    });
   });
   document.getElementById("open-android-tts-settings").addEventListener("click", function (event) {
     if (!/Android/i.test(window.navigator.userAgent)) {
@@ -1242,7 +1361,14 @@
   bookmarks = loadBookmarks();
   renderBookmarkLists();
   updateVerbAutoButton();
-  setPage("home");
+  studyStates = loadStudyStates();
+  updateResumeStudyButtons();
+  const savedStudyState = studyStates[studyStates.lastStudy];
+  if (savedStudyState) {
+    resumeStudyState(savedStudyState);
+  } else {
+    setPage("home");
+  }
   showAndroidTtsFallback();
   renderWords();
   renderVerbForms();

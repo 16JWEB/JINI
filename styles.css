@@ -124,8 +124,12 @@ h1 span { color: #6857df; }
 .home-section { min-height: min(68vh, 620px); display: grid; place-items: center; }
 .home-section[hidden] { display: none; }
 .home-study-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.home-study-choice { display: grid; gap: 8px; }
 .home-start-button { min-height: 42px; padding: 0 17px; border: 0; border-radius: 9px; background: var(--purple); color: white; cursor: pointer; font-size: 13px; font-weight: 700; box-shadow: 0 5px 12px #6958e82e; transition: transform .16s ease, background .16s ease; }
 .home-start-button:hover { transform: translateY(-2px); background: #5947d5; }
+.home-resume-button { min-height: 36px; margin-left: 14px; padding: 6px 10px; border: 0; border-left: 2px solid #d9d4f8; border-radius: 0 8px 8px 0; background: #f7f6fd; color: #706c8d; cursor: pointer; font-size: 11px; text-align: left; transition: background .16s ease, color .16s ease; }
+.home-resume-button:hover:not(:disabled) { background: #efedfb; color: var(--purple); }
+.home-resume-button:disabled { cursor: default; opacity: .58; }
 .filters[hidden], .player-levels[hidden] { display: none; }
 .stat-card { min-height: 82px; display: flex; align-items: center; gap: 12px; padding: 15px 17px; border: 1px solid #eff0f5; border-radius: 12px; background: white; }
 .stat-icon { width: 34px; height: 34px; display: grid; flex: 0 0 34px; place-items: center; border-radius: 10px; font-size: 16px; }
@@ -314,7 +318,8 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
   .voice-status { font-size: 10px; }
   .top-actions { gap: 12px; }
   .home-section { min-height: min(65vh, 540px); }
-  .home-study-tabs { flex-direction: column; align-items: stretch; width: min(100%, 230px); gap: 9px; }
+  .home-study-tabs { flex-direction: column; align-items: stretch; width: min(100%, 230px); gap: 14px; }
+  .home-study-choice { width: 100%; }
   .page-title { margin-top: 22px; font-size: 23px; }
   .section-heading { align-items: stretch; flex-direction: column; gap: 12px; }
   h2 { font-size: 18px; }
