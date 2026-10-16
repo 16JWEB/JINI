@@ -22,6 +22,8 @@
 .eg-card{max-width:800px;margin:8px auto 40px;padding:26px;border:1px solid #ececf5;border-radius:19px;background:white}
 .eg-nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:9px;border-bottom:1px solid #f0eef8;padding-bottom:16px;margin-bottom:18px}
 .eg-nav-controls{display:flex;gap:8px}
+.eg-nav-bottom{border-bottom:0;border-top:1px solid #f0eef8;padding:18px 0 0;margin:24px 0 0}
+.eg-nav-bottom .eg-btn{min-height:44px}
 .eg-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:11px 15px;border:1px solid transparent;border-radius:10px;cursor:pointer;font-size:12px;font-weight:800;text-align:center;line-height:1.5}
 .eg-btn:disabled{opacity:.44;cursor:default}
 .eg-btn:focus-visible,.eg-mode:focus-visible,.eg-options select:focus-visible,#eg-answer:focus-visible{outline:3px solid #9a92f5;outline-offset:2px}
