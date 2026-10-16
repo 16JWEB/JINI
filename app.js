@@ -359,9 +359,12 @@
         return;
       }
       const pageNumber = Number.isInteger(state.pageNumber) && state.pageNumber > 0 ? state.pageNumber : 1;
+      const vocabularyPageLabel = study === "english" ?
+        "필수 단어 · " + (state.level === "all" ? "전체" : state.level || "전체") + " " + pageNumber + "페이지" :
+        "한글 필수 단어 " + pageNumber + "페이지";
       const pageLabels = {
-        vocabulary: "필수 단어 " + pageNumber + "페이지",
-        "ko-vocabulary": "필수 단어 " + pageNumber + "페이지",
+        vocabulary: vocabularyPageLabel,
+        "ko-vocabulary": vocabularyPageLabel,
         player: "단어 재생 · " + (state.playerWord || ((state.playerIndex || 0) + 1) + "번째 단어"),
         "ko-player": "단어 재생 · " + (state.playerWord || ((state.playerIndex || 0) + 1) + "번째 단어"),
         "ko-expressions": "일상생활 표현 " + pageNumber + "페이지",
