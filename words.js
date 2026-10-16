@@ -1862,6 +1862,7 @@ derivative|The artist created a derivative work that acknowledged the original d
         exampleIndex += 1;
         result.push({
           level: level,
+          partOfSpeech: partOfSpeech,
           word: fields[0],
           ipa: "/" + fields[1] + "/",
           meaning: fields[2],
