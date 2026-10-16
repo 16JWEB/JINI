@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20261017-final-review">
   <link rel="stylesheet" href="korean-game.css?v=20261017-speech-feedback">
+  <link rel="stylesheet" href="english-game.css?v=20261017-english-game">
 </head>
 <body>
   <div class="app-shell">
@@ -41,6 +42,9 @@
           </button>
           <button class="nav-item" data-page="verb-forms">
             <span class="nav-icon">↻</span><span>동사 변화</span>
+          </button>
+          <button class="nav-item" data-page="english-game">
+            <span class="nav-icon">🎮</span><span>연습 게임</span>
           </button>
         </div>
       </nav>
@@ -227,6 +231,15 @@
         <p class="verb-note">불규칙 동사는 과거형과 과거분사를 함께 익혀 보세요. 규칙 동사는 보통 동사원형에 <b>-ed</b>를 붙입니다.</p>
       </section>
 
+      <section class="english-game-section" id="english-game-section" hidden>
+        <div class="eg-header">
+          <span class="eyebrow section-eyebrow">ENGLISH PRACTICE GAME</span>
+          <h1 class="page-title">영어 연습 게임</h1>
+          <p>기존 영어 단어와 예문으로 뜻·듣기·철자·문장·회화를 연습하고, 틀린 문제는 다시 풀어 보세요.</p>
+        </div>
+        <div id="english-game-root" aria-live="polite"></div>
+      </section>
+
       <section class="korean-game-section" id="korean-game-section" hidden>
         <div class="kg-head">
           <div>
@@ -292,7 +305,8 @@
   <script src="content-review.js?v=20261017-final-review"></script>
   <script src="content-review-part2.js?v=20261017-final-review"></script>
   <script src="content-curated.js?v=20261017-final-review"></script>
-  <script src="app.js?v=20261017-game-nav"></script>
+  <script src="app.js?v=20261017-english-game"></script>
   <script src="korean-game.js?v=20261017-speech-feedback"></script>
+  <script src="english-game.js?v=20261017-english-game"></script>
 </body>
 </html>
