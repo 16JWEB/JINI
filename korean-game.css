@@ -22,6 +22,9 @@
 .kg-quiz-card { width: min(100%, 770px); margin: 10px auto; padding: 28px; border-radius: 20px; border: 1px solid #eeedf7; background: #fff; box-shadow: 0 14px 38px #34346609; }
 .kg-game-nav { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #efedf8; }
 .kg-game-nav .kg-btn { min-height: 42px; }
+.kg-game-nav-bottom { border-bottom: 0; border-top: 1px solid #efedf8; padding: 18px 0 0; margin: 24px 0 0; }
+.kg-game-nav-bottom .kg-btn { min-height: 44px; }
+.kg-finish .kg-game-nav-bottom { margin: 26px 0 0; padding: 18px 0 0; border-bottom: 0; border-top: 1px solid #efedf8; }
 .kg-game-nav .kg-back-button { background: #fff; }
 .kg-question-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; }
 .kg-game-nav .kg-next-button { background: #f0edff; font-weight: 800; }
