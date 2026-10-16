@@ -7,7 +7,7 @@ const modes=[
 ["word","📘","단어 뜻 맞히기","영어 단어의 한국어 뜻 선택"],
 ["listen","🎧","듣고 단어 맞히기","미국식·영국식 발음을 듣고 선택"],
 ["spelling","🔤","철자 완성하기","한국어 뜻을 보고 철자 입력"],
-["sentence","🧩","문장 완성하기","검수된 영어 예문 빈칸 채우기"],
+["sentence","🧩","문장 완성하기","4개 보기에서 선택하거나 철자를 입력해요"],
 ["speaking","🎙️","발음·회화 챌린지","회화 선택과 직접 따라 말하기"],
 ["review","🧠","약점 집중 복습","틀린 문제와 예정된 문제 다시 풀기"]];
 const dialogues=[
@@ -48,7 +48,7 @@ function wordQuestion(w,mode,group){
  return {id:mode+":"+w.level+":"+w.word,mode,kind:"choice",title:mode==="word"?w.word:"🎧 영어 소리를 들어 보세요",prompt:mode==="word"?"영어 단어의 뜻은?":"소리를 듣고 올바른 영어 단어를 고르세요.",answer,options:choices,voice:w.word,explanation:w.word+" — "+w.meaning,example:w.exampleReviewed?w.example:"",exampleKo:w.exampleReviewed?w.exampleKo:"",ipa:w.ipa||""};
 }
 function spelling(w){return {id:"spelling:"+w.level+":"+w.word,mode:"spelling",kind:"input",title:meaning(w),prompt:"한국어 뜻에 맞는 영어 단어를 입력하세요.",answer:w.word,voice:w.word,hint:random(w.word.split("")).join(" · "),explanation:w.word+" — "+w.meaning};}
-function sentence(w){
+function sentence(w, group){
  const text=String(w.example||"").trim();
  if(!w.exampleReviewed||!w.exampleKo||text.length>150)return null;
  const re=new RegExp("\\b"+w.word+"\\b","gi");
@@ -56,7 +56,13 @@ function sentence(w){
  if(!matches||matches.length!==1)return null;
  const blank=text.replace(re,"______");
  if(blank===text)return null;
- return {id:"sentence:"+w.level+":"+w.word,mode:"sentence",kind:"input",title:blank,prompt:"빈칸에 알맞은 영어 단어를 입력하세요.",answer:w.word,voice:text,hint:w.exampleKo,explanation:text,exampleKo:w.exampleKo};
+ // Prefer same-part-of-speech distractors to avoid mixing nouns and verbs.
+ const candidates=group.filter(other=>other.partOfSpeech && other.partOfSpeech===w.partOfSpeech);
+ const opts=options(w.word,(candidates.length>=4?candidates:group).map(other=>other.word));
+ if(!opts)return null;
+ return {id:"sentence:"+w.level+":"+w.word,mode:"sentence",kind:"input",title:blank,
+  prompt:"보기에서 단어를 골라 빈칸에 넣고 정답을 확인하세요. 직접 입력도 가능해요.",
+  answer:w.word,options:opts,voice:text,hint:w.exampleKo,explanation:text,exampleKo:w.exampleKo};
 }
 function dialogue(row){
  const opt=random([row[3],row[5],row[6],row[7]]);
@@ -70,7 +76,7 @@ function build(mode){
  const eligible=random(pool());
  if(mode==="word"||mode==="listen")return eligible.map(w=>wordQuestion(w,mode,eligible)).filter(Boolean).slice(0,count);
  if(mode==="spelling")return eligible.filter(w=>w.word.length<=18).slice(0,count).map(spelling);
- if(mode==="sentence")return eligible.map(sentence).filter(Boolean).slice(0,count);
+ if(mode==="sentence")return eligible.map(w=>sentence(w,eligible)).filter(Boolean).slice(0,count);
  if(mode==="speaking"){
   const d=random(dialogues.filter(r=>r[0]===level)).map(dialogue);
   const s=random(phrases.filter(r=>r[0]===level)).map(speaking);
@@ -127,17 +133,29 @@ function render(){
  const mode=modes.find(m=>m[0]===game.mode);
  let html=nav()+'<div class="eg-progress"><span>'+mode[1]+' '+mode[2]+'</span><span>'+(game.index+1)+' / '+game.questions.length+'</span></div>'+
  '<div class="eg-bar"><i style="width:'+(game.index/game.questions.length*100)+'%"></i></div>'+
- '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term">'+esc(q.title)+'</div>';
+ '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term">'+
+ (q.mode==="sentence"?
+   esc(q.title).replace("______",'<span id="eg-cloze-word" class="eg-cloze-word'+(q.draft||q.response?" eg-cloze-filled":"")+'">'+esc(q.draft||q.response||"______")+'</span>'):
+   esc(q.title))+'</div>';
  if(q.mode==="listen")html+='<div class="eg-audio">'+btn("🔊 다시 듣기","listen","eg-main")+'</div>';
- else if(q.mode==="word"||q.mode==="sentence"||q.mode==="speaking")html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
+ else if(q.mode==="word"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
  if(q.kind==="choice"){
   html+='<div class="eg-choices">'+q.options.map((o,i)=>btn('<span class="eg-number">'+(i+1)+'</span>'+esc(o)+(q.done&&o===q.answer?' ✓':""),"choose",
      q.done&&o===q.answer?"eg-option eg-true":q.done&&o===q.response?"eg-option eg-false":"eg-option",
      'data-index="'+i+'"'+(q.done?" disabled":""))).join("")+'</div>';
  }else if(q.kind==="input"){
-  html+='<div class="eg-hint">'+(q.mode==="spelling"?"섞인 철자: ":"문장 해석: ")+esc(q.hint||"")+'</div>'+
-   '<form id="eg-answer-form"><input id="eg-answer" placeholder="영어로 입력해 보세요" value="'+esc(q.response||"")+'" autocomplete="off" spellcheck="false" autocapitalize="none" '+(q.done?"disabled":"")+'>'+
-   (q.done?"":'<button class="eg-btn eg-main" type="submit">정답 확인</button>')+'</form>';
+  html+='<div class="eg-hint">'+(q.mode==="spelling"?"섞인 철자: ":"문장 해석: ")+esc(q.hint||"")+'</div>';
+  if(q.mode==="sentence" && Array.isArray(q.options)){
+   html+='<div class="eg-sentence-choices" role="group" aria-label="빈칸에 넣을 단어 선택">'+
+     q.options.map((choice,i)=>btn('<span class="eg-number">'+(i+1)+'</span>'+esc(choice)+(q.done&&choice===q.answer?' ✓':""),
+       "pick-sentence",
+       "eg-sentence-option"+(q.draft===choice?" eg-sentence-picked":"")+
+         (q.done&&choice===q.answer?" eg-true":q.done&&q.response===choice?" eg-false":""),
+       'data-index="'+i+'"'+(q.done?" disabled":""))).join("")+'</div>';
+   html+='<p class="eg-small-instruction">보기를 누르면 문장 빈칸에 들어가요. 아래에서 직접 입력하거나 수정할 수도 있어요.</p>';
+  }
+  html+='<form id="eg-answer-form"><input id="eg-answer" placeholder="영어 단어를 입력하세요" aria-label="영어 단어 정답 입력" value="'+esc(q.draft||q.response||"")+'" autocomplete="off" spellcheck="false" autocapitalize="none" '+(q.done?"disabled":"")+'>'+
+    (q.done?"":'<button class="eg-btn eg-main" type="submit">정답 확인</button>')+'</form>';
  }else{
   html+='<div class="eg-speaking"><div class="eg-audio">'+btn("🗣️ 발음 확인","recognize","eg-main")+' '+btn("🎙 목소리 녹음","record","eg-outline")+'</div>'+
    '<div id="eg-speech-feedback" aria-live="polite"></div>'+
@@ -188,10 +206,39 @@ function answerChoice(i){
  grade(q,q.options[i]===q.answer,q.options[i]);render();
 }
 function answerText(){
- if(!game)return;const q=game.questions[game.index],inp=document.getElementById("eg-answer");
+ if(!game)return;
+ const q=game.questions[game.index],inp=document.getElementById("eg-answer");
  if(!q||q.kind!=="input"||q.done||!inp)return;
- const value=inp.value.trim();if(!value){status="단어를 입력해 주세요.";render();return;}
- grade(q,clean(value)===clean(q.answer),value);render();
+ const value=inp.value.trim();
+ if(!value){status="단어를 선택하거나 입력해 주세요.";render();return;}
+ q.draft=value;
+ grade(q,clean(value)===clean(q.answer),value);
+ render();
+}
+function pickSentence(i){
+ if(!game)return;
+ const q=game.questions[game.index];
+ if(!q||q.mode!=="sentence"||q.done||!Array.isArray(q.options)||
+   !Number.isInteger(i)||i<0||i>=q.options.length)return;
+ q.draft=q.options[i];
+ status="";
+ render();
+}
+function updateSentenceDraft(input){
+ if(!game||!input||input.id!=="eg-answer")return;
+ const q=game.questions[game.index];
+ if(!q||q.kind!=="input"||q.done)return;
+ q.draft=String(input.value);
+ if(q.mode!=="sentence")return;
+ const blank=document.getElementById("eg-cloze-word");
+ if(blank){
+  blank.textContent=q.draft||"______";
+  blank.classList.toggle("eg-cloze-filled",Boolean(q.draft));
+ }
+ root.querySelectorAll('[data-eg="pick-sentence"]').forEach(b=>{
+  b.classList.toggle("eg-sentence-picked",
+   Boolean(q.draft)&&q.options[Number(b.dataset.index)]===q.draft);
+ });
 }
 function speak(){
  if(!game)return;const q=game.questions[game.index];if(!q)return;
@@ -263,6 +310,7 @@ root.addEventListener("click",e=>{
  else if(a==="previous")move(-1);
  else if(a==="next")move(1);
  else if(a==="choose")answerChoice(Number(b.dataset.index));
+ else if(a==="pick-sentence")pickSentence(Number(b.dataset.index));
  else if(a==="listen")speak();
  else if(a==="recognize")recognize();
  else if(a==="record")record();
@@ -270,6 +318,7 @@ root.addEventListener("click",e=>{
  else if(a==="grade"&&game){const q=game.questions[game.index];if(q&&q.kind==="speak"&&!q.done){grade(q,b.dataset.good==="yes",b.dataset.good);move(1);}}
 });
 root.addEventListener("submit",e=>{if(e.target&&e.target.id==="eg-answer-form"){e.preventDefault();answerText();}});
+root.addEventListener("input",e=>{if(e.target&&e.target.id==="eg-answer")updateSentenceDraft(e.target);});
 root.addEventListener("change",e=>{const t=e.target;if(!t)return;
  if(t.id==="eg-level"&&levels.includes(t.value)){level=t.value;dashboard();}
  if(t.id==="eg-count"&&[10,20,30].includes(Number(t.value))){count=Number(t.value);dashboard();}
