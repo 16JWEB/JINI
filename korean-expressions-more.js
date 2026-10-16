@@ -306,54 +306,54 @@ QR 코드를 다시 스캔해 주세요.|Vui lòng quét lại mã QR.
 
   const exampleTemplates = {
     housing: [
-      ['관리인에게 "{word}"라고 말씀드렸어요.', 'Tôi nói với người quản lý: "{meaning}".'],
-      ['집 문제를 설명하면서 "{word}"라고 덧붙였어요.', 'Khi giải thích vấn đề trong nhà, tôi nói thêm: "{meaning}".'],
-      ['수리 일정을 잡으며 "{word}"라고 요청했어요.', 'Khi sắp lịch sửa chữa, tôi nhờ: "{meaning}".']
+      ['계약 갱신 시기가 다가와 관리인에게 "{word}"라고 문의했어요.', 'Khi sắp đến thời điểm gia hạn hợp đồng, tôi hỏi người quản lý: "{meaning}".'],
+      ['누수 사진을 보여 드리며 관리인에게 "{word}"라고 상황을 설명했어요.', 'Tôi cho người quản lý xem ảnh rò rỉ nước và giải thích tình hình: "{meaning}".'],
+      ['수리 기사 방문 시간을 조율하면서 "{word}"라고 가능한 일정을 말씀드렸어요.', 'Khi sắp xếp giờ thợ sửa đến, tôi báo lịch có thể: "{meaning}".']
     ],
     finance: [
-      ['은행 창구에서 "{word}"라고 문의했어요.', 'Tôi hỏi ở quầy ngân hàng: "{meaning}".'],
-      ['상담 직원에게 "{word}"라고 말씀드렸어요.', 'Tôi nói với nhân viên tư vấn: "{meaning}".'],
-      ['거래를 확인하며 "{word}"라고 요청했어요.', 'Khi kiểm tra giao dịch, tôi đề nghị: "{meaning}".']
+      ['자동 이체 내역을 확인하다가 은행 창구에서 "{word}"라고 문의했어요.', 'Khi kiểm tra lịch sử chuyển khoản tự động, tôi hỏi ở quầy ngân hàng: "{meaning}".'],
+      ['상담 직원에게 필요한 서류를 보여 주며 "{word}"라고 말씀드렸어요.', 'Tôi đưa giấy tờ cần thiết cho nhân viên tư vấn và nói: "{meaning}".'],
+      ['거래 금액이 예상과 달라 확인을 요청하며 "{word}"라고 설명했어요.', 'Số tiền giao dịch khác dự kiến nên tôi yêu cầu kiểm tra và giải thích: "{meaning}".']
     ],
     travel: [
-      ['숙소 직원에게 "{word}"라고 부탁했어요.', 'Tôi nhờ nhân viên chỗ ở: "{meaning}".'],
-      ['공항 안내 직원에게 "{word}"라고 물어봤어요.', 'Tôi hỏi nhân viên hướng dẫn ở sân bay: "{meaning}".'],
-      ['여행 중 문제가 생겨 "{word}"라고 알렸어요.', 'Trong chuyến đi có sự cố, tôi báo: "{meaning}".']
+      ['예약 확인서를 보여 주며 숙소 직원에게 "{word}"라고 부탁했어요.', 'Tôi đưa xác nhận đặt phòng cho nhân viên chỗ ở xem rồi nhờ: "{meaning}".'],
+      ['환승 시간이 촉박해 공항 안내 직원에게 "{word}"라고 물어봤어요.', 'Thời gian chuyển chuyến gấp nên tôi hỏi nhân viên hướng dẫn ở sân bay: "{meaning}".'],
+      ['일정이 갑자기 바뀌어 여행 중 만난 직원에게 "{word}"라고 상황을 알렸어요.', 'Lịch trình đột ngột thay đổi nên tôi báo tình hình với nhân viên gặp trong chuyến đi: "{meaning}".']
     ],
     childcare: [
-      ['담임 선생님께 "{word}"라고 말씀드렸어요.', 'Tôi nói với giáo viên chủ nhiệm: "{meaning}".'],
-      ['가족에게 "{word}"라고 미리 알려 줬어요.', 'Tôi báo trước với gia đình: "{meaning}".'],
-      ['아이를 돌보며 "{word}"라고 부탁했어요.', 'Khi chăm bé, tôi nhờ: "{meaning}".']
+      ['아이의 알레르기 기록을 전달하며 담임 선생님께 "{word}"라고 말씀드렸어요.', 'Khi gửi thông tin dị ứng của bé, tôi nói với giáo viên chủ nhiệm: "{meaning}".'],
+      ['등원 시간이 달라져 가족에게 "{word}"라고 미리 알려 줬어요.', 'Giờ đưa bé đến trường thay đổi nên tôi báo trước với gia đình: "{meaning}".'],
+      ['아이의 낮잠 시간이 가까워져 돌봄 선생님께 "{word}"라고 부탁했어요.', 'Sắp đến giờ ngủ trưa của bé nên tôi nhờ giáo viên trông trẻ: "{meaning}".']
     ],
     hobbies: [
-      ['강사님께 "{word}"라고 여쭤봤어요.', 'Tôi hỏi người hướng dẫn: "{meaning}".'],
-      ['동호회 친구에게 "{word}"라고 제안했어요.', 'Tôi đề nghị với bạn trong câu lạc bộ: "{meaning}".'],
-      ['활동을 시작하기 전에 "{word}"라고 확인했어요.', 'Trước khi bắt đầu hoạt động, tôi xác nhận: "{meaning}".']
+      ['처음 배우는 동작이 어려워 강사님께 "{word}"라고 여쭤봤어요.', 'Động tác mới học khá khó nên tôi hỏi người hướng dẫn: "{meaning}".'],
+      ['다음 모임 일정을 정하면서 동호회 친구에게 "{word}"라고 제안했어요.', 'Khi chọn lịch buổi gặp tiếp theo, tôi đề nghị với bạn trong câu lạc bộ: "{meaning}".'],
+      ['장비를 빌리기 전에 이용 방법을 확인하려고 "{word}"라고 물어봤어요.', 'Trước khi mượn thiết bị, tôi hỏi cách sử dụng: "{meaning}".']
     ],
     emergency: [
-      ['긴급 상황을 알리며 "{word}"라고 말했어요.', 'Khi báo tình huống khẩn cấp, tôi nói: "{meaning}".'],
-      ['안내 직원에게 "{word}"라고 도움을 요청했어요.', 'Tôi nhờ nhân viên hướng dẫn giúp: "{meaning}".'],
-      ['안전을 확인한 뒤 "{word}"라고 전달했어요.', 'Sau khi xác nhận an toàn, tôi báo: "{meaning}".']
+      ['연기가 보여 주변 사람들에게 대피를 알리며 "{word}"라고 외쳤어요.', 'Khi thấy khói, tôi báo mọi người xung quanh sơ tán và hô: "{meaning}".'],
+      ['다친 사람이 있어 구조대에 연락한 뒤 안내 직원에게 "{word}"라고 도움을 요청했어요.', 'Có người bị thương nên sau khi gọi cứu hộ, tôi nhờ nhân viên hướng dẫn: "{meaning}".'],
+      ['현장 인원을 확인한 뒤 무전으로 "{word}"라고 상황을 전달했어요.', 'Sau khi kiểm tra số người tại hiện trường, tôi báo tình hình qua bộ đàm: "{meaning}".']
     ],
     health: [
-      ['의사에게 "{word}"라고 말씀드렸어요.', 'Tôi nói với bác sĩ: "{meaning}".'],
-      ['약사에게 "{word}"라고 문의했어요.', 'Tôi hỏi dược sĩ: "{meaning}".'],
-      ['진료를 받으며 "{word}"라고 설명했어요.', 'Trong buổi khám, tôi giải thích: "{meaning}".']
+      ['증상이 시작된 시점을 설명하며 의사에게 "{word}"라고 말씀드렸어요.', 'Khi giải thích thời điểm triệu chứng bắt đầu, tôi nói với bác sĩ: "{meaning}".'],
+      ['처방전을 보여 드리고 복용 시간을 확인하려고 약사에게 "{word}"라고 문의했어요.', 'Tôi đưa đơn thuốc và hỏi dược sĩ để xác nhận giờ uống: "{meaning}".'],
+      ['진료 기록을 함께 살펴보며 최근 달라진 점을 "{word}"라고 설명했어요.', 'Khi cùng xem hồ sơ khám bệnh, tôi giải thích điều gần đây thay đổi: "{meaning}".']
     ],
     digital: [
-      ['고객센터에 "{word}"라고 문의했어요.', 'Tôi hỏi trung tâm hỗ trợ khách hàng: "{meaning}".'],
-      ['앱을 사용하다가 "{word}"라고 알렸어요.', 'Khi dùng ứng dụng, tôi báo: "{meaning}".'],
-      ['기술 담당자에게 "{word}"라고 요청했어요.', 'Tôi nhờ nhân viên kỹ thuật: "{meaning}".']
+      ['오류 화면을 캡처해 고객센터에 보내며 "{word}"라고 문의했어요.', 'Tôi chụp màn hình lỗi gửi trung tâm hỗ trợ và hỏi: "{meaning}".'],
+      ['결제가 두 번 처리된 것을 확인하고 앱 문의 창에 "{word}"라고 알렸어요.', 'Tôi thấy khoản thanh toán bị xử lý hai lần nên báo trong cửa sổ hỗ trợ của ứng dụng: "{meaning}".'],
+      ['기기를 재시작해도 문제가 계속되어 기술 담당자에게 "{word}"라고 점검을 요청했어요.', 'Sự cố vẫn tiếp diễn dù đã khởi động lại thiết bị nên tôi nhờ nhân viên kỹ thuật kiểm tra: "{meaning}".']
     ],
     community: [
-      ['담당 직원에게 "{word}"라고 문의했어요.', 'Tôi hỏi nhân viên phụ trách: "{meaning}".'],
-      ['민원 창구에서 "{word}"라고 말씀드렸어요.', 'Tôi trình bày ở quầy tiếp nhận: "{meaning}".'],
-      ['시설 안내 데스크에서 "{word}"라고 확인했어요.', 'Tôi xác nhận tại quầy hướng dẫn cơ sở: "{meaning}".']
+      ['필요한 신청서를 준비한 뒤 담당 직원에게 "{word}"라고 문의했어요.', 'Sau khi chuẩn bị đơn cần thiết, tôi hỏi nhân viên phụ trách: "{meaning}".'],
+      ['접수 번호와 관련 서류를 함께 제시하며 민원 창구에서 "{word}"라고 말씀드렸어요.', 'Tôi đưa số tiếp nhận cùng giấy tờ liên quan và trình bày ở quầy: "{meaning}".'],
+      ['시설을 이용하기 전에 운영 시간과 위치를 안내 데스크에서 "{word}"라고 확인했어요.', 'Trước khi sử dụng cơ sở, tôi xác nhận giờ hoạt động và vị trí tại quầy hướng dẫn: "{meaning}".']
     ],
     communication: [
-      ['친구와 이야기하며 "{word}"라고 말했어요.', 'Khi trò chuyện với bạn, tôi nói: "{meaning}".'],
-      ['상대방에게 "{word}"라고 솔직하게 전했어요.', 'Tôi chân thành nói với người kia: "{meaning}".'],
-      ['대화를 마치며 "{word}"라고 덧붙였어요.', 'Kết thúc cuộc trò chuyện, tôi nói thêm: "{meaning}".']
+      ['친구가 제 의견을 물어봐서 생각을 정리한 뒤 "{word}"라고 말했어요.', 'Bạn hỏi ý kiến nên sau khi sắp xếp suy nghĩ, tôi nói: "{meaning}".'],
+      ['오해가 생기지 않도록 상대방의 입장을 들은 다음 "{word}"라고 솔직하게 전했어요.', 'Để tránh hiểu lầm, sau khi lắng nghe đối phương, tôi chân thành nói: "{meaning}".'],
+      ['서로 다음 약속을 확인한 뒤 대화를 마치며 "{word}"라고 덧붙였어요.', 'Sau khi xác nhận cuộc hẹn tiếp theo, tôi kết thúc cuộc trò chuyện bằng câu: "{meaning}".']
     ]
   };
 
@@ -390,6 +390,38 @@ QR 코드를 다시 스캔해 주세요.|Vui lòng quét lại mã QR.
   const normalize = function (value) { return value.normalize("NFC").toLowerCase().replace(/[^a-z0-9가-힣]/g, ""); };
   const existingWords = new Set(existing.map(function (item) { return normalize(item.word); }));
   const additions = [];
+  const curatedExamples = {
+    "지금 이야기해도 괜찮은 시간인가요?": ["상담을 시작하기 전에 상대의 일정을 확인하며 \"지금 이야기해도 괜찮은 시간인가요?\"라고 물었어요.", "Trước khi bắt đầu trao đổi, tôi hỏi lịch của đối phương: \"Bây giờ có phải lúc thích hợp để nói chuyện không?\""],
+    "제 말을 끝까지 들어 주셨으면 해요.": ["서로 오해한 부분이 있어 차분히 설명을 시작하며 \"제 말을 끝까지 들어 주셨으면 해요.\"라고 부탁했어요.", "Vì có điều hiểu lầm, tôi bình tĩnh giải thích và nhờ: \"Tôi mong bạn lắng nghe hết lời tôi nói.\""],
+    "제가 이해한 내용이 맞는지 확인하고 싶어요.": ["회의가 끝나기 전에 역할 분담을 다시 짚으며 \"제가 이해한 내용이 맞는지 확인하고 싶어요.\"라고 말했어요.", "Trước khi cuộc họp kết thúc, tôi nhắc lại việc phân công và nói: \"Tôi muốn kiểm tra xem mình hiểu đúng chưa.\""],
+    "그 부분은 다시 한번 설명해 주실래요?": ["상대방이 일정 변경을 빠르게 설명해 놓친 내용이 있어 \"그 부분은 다시 한번 설명해 주실래요?\"라고 여쭤봤어요.", "Đối phương giải thích nhanh về thay đổi lịch nên tôi chưa nắm rõ và hỏi: \"Bạn có thể giải thích lại phần đó một lần nữa không?\""],
+    "제 의견도 잠시 말씀드려도 될까요?": ["모두가 차례로 발언하는 회의에서 손을 들고 \"제 의견도 잠시 말씀드려도 될까요?\"라고 물었어요.", "Trong cuộc họp mọi người lần lượt phát biểu, tôi giơ tay hỏi: \"Tôi có thể trình bày ý kiến của mình một chút không?\""],
+    "오늘은 혼자 생각할 시간이 필요해요.": ["친구가 계속 답을 재촉하자 바로 결정하기 어렵다고 말하며 \"오늘은 혼자 생각할 시간이 필요해요.\"라고 했어요.", "Khi bạn liên tục giục trả lời, tôi nói mình chưa thể quyết định ngay: \"Hôm nay tôi cần thời gian suy nghĩ một mình.\""],
+    "걱정해 줘서 정말 고마워요.": ["시험 결과를 기다리며 긴장한 저를 친구가 위로해 줘서 \"걱정해 줘서 정말 고마워요.\"라고 전했어요.", "Bạn an ủi tôi khi tôi lo lắng chờ kết quả thi, nên tôi nói: \"Cảm ơn bạn đã lo lắng cho tôi.\""],
+    "그 말은 조금 서운하게 들렸어요.": ["농담이라도 제 노력을 가볍게 여기는 것 같아 대화가 끝난 뒤 \"그 말은 조금 서운하게 들렸어요.\"라고 솔직히 말했어요.", "Dù chỉ là lời đùa, tôi cảm thấy nỗ lực của mình bị xem nhẹ nên sau đó chân thành nói: \"Lời đó khiến tôi hơi chạnh lòng.\""],
+    "제 의도를 오해하지 않았으면 좋겠어요.": ["제안에 반대하는 것이 아니라 다른 방법을 찾자는 뜻이라며 \"제 의도를 오해하지 않았으면 좋겠어요.\"라고 덧붙였어요.", "Tôi nói thêm rằng mình không phản đối đề xuất mà chỉ muốn tìm cách khác: \"Tôi mong bạn đừng hiểu lầm ý định của tôi.\""],
+    "서로 편한 방법을 찾아봐요.": ["두 사람 모두 바쁜 일정 때문에 약속을 잡기 어려워 \"서로 편한 방법을 찾아봐요.\"라고 제안했어요.", "Cả hai đều bận nên khó hẹn gặp, tôi đề nghị: \"Chúng ta cùng tìm cách thoải mái cho cả hai nhé.\""],
+    "지금 바로 답하기 어려우니 조금만 기다려 주세요.": ["자료를 확인해야 정확히 답할 수 있어서 동료에게 \"지금 바로 답하기 어려우니 조금만 기다려 주세요.\"라고 메시지를 보냈어요.", "Tôi cần kiểm tra tài liệu để trả lời chính xác nên nhắn đồng nghiệp: \"Tôi khó trả lời ngay lúc này, vui lòng chờ một chút.\""],
+    "약속을 지키지 못해 정말 미안해요.": ["갑작스러운 야근 때문에 친구와의 약속에 늦게 되어 도착하자마자 \"약속을 지키지 못해 정말 미안해요.\"라고 사과했어요.", "Vì phải làm thêm đột xuất nên tôi đến muộn cuộc hẹn với bạn và vừa đến đã xin lỗi: \"Tôi thật sự xin lỗi vì đã không giữ lời hứa.\""],
+    "다음에는 같은 일이 없도록 할게요.": ["마감일을 놓쳐 팀에 피해를 준 뒤 일정 알림을 설정하며 \"다음에는 같은 일이 없도록 할게요.\"라고 약속했어요.", "Sau khi lỡ hạn chót và làm ảnh hưởng đến nhóm, tôi cài nhắc lịch và hứa: \"Lần sau tôi sẽ không để chuyện tương tự xảy ra.\""],
+    "먼저 연락하지 못해서 미안해요.": ["이사 준비로 정신이 없어 오랫동안 연락하지 못한 친구에게 전화를 걸어 \"먼저 연락하지 못해서 미안해요.\"라고 했어요.", "Vì bận chuẩn bị chuyển nhà nên lâu rồi tôi chưa liên lạc; gọi cho bạn, tôi nói: \"Xin lỗi vì tôi đã không liên lạc trước.\""],
+    "그 제안에 동의하는 이유를 말씀드릴게요.": ["회의에서 새 일정을 승인하기 전에 우려를 해소하려고 \"그 제안에 동의하는 이유를 말씀드릴게요.\"라고 했어요.", "Trước khi thông qua lịch mới trong cuộc họp, tôi nói: \"Tôi sẽ nói lý do mình đồng ý với đề xuất đó.\""],
+    "이번에는 정중히 거절하고 싶어요.": ["일정이 이미 가득 차 있어 추가 업무를 맡기 어렵다고 설명하며 \"이번에는 정중히 거절하고 싶어요.\"라고 말했어요.", "Lịch đã kín nên tôi giải thích rằng khó nhận thêm việc và nói: \"Lần này tôi muốn từ chối một cách lịch sự.\""],
+    "부담 갖지 말고 편하게 말해 주세요.": ["후배가 실수를 숨기려는 듯 망설이자 해결책을 같이 찾자며 \"부담 갖지 말고 편하게 말해 주세요.\"라고 했어요.", "Khi thấy đàn em ngập ngừng như muốn giấu lỗi, tôi nói sẽ cùng tìm cách giải quyết: \"Đừng ngại, cứ thoải mái nói với tôi.\""],
+    "상대방의 입장에서 한번 생각해 봐요.": ["서로 책임을 따지기 전에 각자 겪은 일을 떠올려 보자며 \"상대방의 입장에서 한번 생각해 봐요.\"라고 제안했어요.", "Trước khi đổ lỗi cho nhau, tôi đề nghị cùng nghĩ về trải nghiệm của mỗi người: \"Hãy thử suy nghĩ một lần từ góc nhìn của người kia.\""],
+    "좋은 소식이 있어서 가장 먼저 알려 주고 싶었어요.": ["오랫동안 준비한 장학금에 합격해 가장 가까운 친구에게 \"좋은 소식이 있어서 가장 먼저 알려 주고 싶었어요.\"라고 말했어요.", "Tôi giành được học bổng đã chuẩn bị từ lâu nên nói với người bạn thân nhất: \"Tôi có tin vui nên muốn báo cho bạn đầu tiên.\""],
+    "답장이 늦어도 괜찮으니 편할 때 연락해요.": ["친구가 바쁜 시험 기간이라 바로 답하기 어렵다며 \"답장이 늦어도 괜찮으니 편할 때 연락해요.\"라고 보냈어요.", "Vì bạn đang bận mùa thi, tôi nhắn: \"Bạn trả lời muộn cũng không sao, hãy liên lạc khi tiện nhé.\""],
+    "잠깐 쉬었다가 다시 이야기할까요?": ["대화가 감정적으로 흐르기 시작해 물을 마시며 진정한 뒤 \"잠깐 쉬었다가 다시 이야기할까요?\"라고 제안했어요.", "Cuộc trò chuyện bắt đầu căng thẳng, nên sau khi uống nước bình tĩnh lại tôi đề nghị: \"Chúng ta nghỉ một lát rồi nói tiếp nhé?\""],
+    "제 실수를 인정하고 사과드릴게요.": ["제가 보낸 파일이 잘못된 버전임을 확인하고 바로 연락해 \"제 실수를 인정하고 사과드릴게요.\"라고 했어요.", "Tôi phát hiện tệp mình gửi là phiên bản sai nên liên lạc ngay và nói: \"Tôi sẽ nhận lỗi và xin lỗi bạn.\""],
+    "서로 다른 의견을 존중했으면 합니다.": ["회의가 찬반으로 나뉘어 목소리가 커지자 진행자가 \"서로 다른 의견을 존중했으면 합니다.\"라고 당부했어요.", "Khi cuộc họp chia thành hai phía và mọi người bắt đầu lớn tiếng, người chủ trì nhắc: \"Tôi mong chúng ta tôn trọng ý kiến khác nhau.\""],
+    "오늘은 기분이 조금 가라앉아 있어요.": ["친구가 평소보다 말이 없어 이유를 묻자 억지로 괜찮은 척하지 않고 \"오늘은 기분이 조금 가라앉아 있어요.\"라고 답했어요.", "Khi bạn hỏi vì sao hôm nay tôi ít nói, tôi không giả vờ ổn mà trả lời: \"Hôm nay tâm trạng tôi hơi chùng xuống.\""],
+    "도움이 필요하면 언제든지 말해 주세요.": ["새로 이사 온 이웃이 낯선 동네에서 어려움을 겪을까 봐 \"도움이 필요하면 언제든지 말해 주세요.\"라고 인사했어요.", "Lo người hàng xóm mới chuyển đến có thể gặp khó khăn ở khu phố lạ, tôi chào và nói: \"Nếu cần giúp đỡ, hãy nói với tôi bất cứ lúc nào.\""],
+    "그 이야기는 여기까지만 나누고 싶어요.": ["개인적인 질문이 계속 이어져 더는 답하기 어렵다고 느껴 \"그 이야기는 여기까지만 나누고 싶어요.\"라고 선을 그었어요.", "Khi các câu hỏi riêng tư cứ tiếp tục và tôi thấy khó trả lời thêm, tôi đặt giới hạn: \"Tôi chỉ muốn chia sẻ câu chuyện đó đến đây thôi.\""],
+    "당신의 선택을 응원할게요.": ["안정적인 직장을 그만두고 새로운 공부를 시작하겠다는 친구에게 \"당신의 선택을 응원할게요.\"라고 말했어요.", "Với người bạn định nghỉ công việc ổn định để bắt đầu học ngành mới, tôi nói: \"Tôi sẽ ủng hộ lựa chọn của bạn.\""],
+    "제가 도울 수 있는 부분을 알려 주세요.": ["행사 준비가 벅차 보이는 동료에게 필요한 일을 나눠 맡자며 \"제가 도울 수 있는 부분을 알려 주세요.\"라고 했어요.", "Thấy đồng nghiệp có vẻ quá tải khi chuẩn bị sự kiện, tôi đề nghị chia bớt việc: \"Vui lòng cho tôi biết phần nào tôi có thể giúp.\""],
+    "오랜만에 만나서 정말 반가워요.": ["몇 년 만에 동창 모임에서 다시 만난 친구를 보자 웃으며 \"오랜만에 만나서 정말 반가워요.\"라고 인사했어요.", "Gặp lại người bạn ở buổi họp lớp sau vài năm, tôi mỉm cười chào: \"Lâu rồi mới gặp lại, tôi rất vui.\""],
+    "다음에 천천히 다시 이야기해요.": ["막차 시간이 가까워 대화를 마무리하며 못다 한 이야기는 다음에 하자고 \"다음에 천천히 다시 이야기해요.\"라고 했어요.", "Vì sắp đến giờ chuyến xe cuối, tôi kết thúc cuộc trò chuyện và nói sẽ kể tiếp lần sau: \"Lần sau chúng ta thong thả nói chuyện tiếp nhé.\""]
+  };
 
   Object.keys(categories).forEach(function (category) {
     const rows = categories[category].split("\n");
@@ -405,16 +437,23 @@ QR 코드를 다시 스캔해 주세요.|Vui lòng quét lại mã QR.
       if (existingWords.has(normalizedWord)) throw new Error("Duplicate Korean expression: " + word);
       existingWords.add(normalizedWord);
       const template = exampleTemplates[category][index % 3];
+      const curatedExample = curatedExamples[word];
       additions.push({
         word: word,
         ipa: romanizeKorean(word),
         meaning: meaning,
-        example: template[0].replace(/\{word\}/g, word),
-        exampleKo: template[1].replace(/\{meaning\}/g, meaning)
+        example: curatedExample ? curatedExample[0] : template[0].replace(/\{word\}/g, word),
+        exampleKo: curatedExample ? curatedExample[1] : template[1].replace(/\{meaning\}/g, meaning)
       });
     });
   });
 
+  const curatedExampleCount = additions.filter(function (item) {
+    return Object.prototype.hasOwnProperty.call(curatedExamples, item.word);
+  }).length;
+  if (Object.keys(curatedExamples).length !== 30 || curatedExampleCount !== 30) {
+    throw new Error("Expected curated examples for all 30 communication expressions.");
+  }
   if (additions.length !== 300 || new Set(additions.map(function (item) { return item.example; })).size !== 300) {
     throw new Error("Expected 300 unique Korean expression examples.");
   }

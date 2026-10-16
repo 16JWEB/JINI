@@ -1004,32 +1004,32 @@ widespread|ˈwaɪdspred|널리 퍼진
     noun: function (word, index, level) {
       if (nounExamples[word]) return nounExamples[word];
       const templates = level === "초등" ? [
-        "Can you see the " + word + "?",
-        "I found the " + word + " today.",
-        "Let's learn about the " + word + ".",
-        "We talked about the " + word + ".",
-        "Tell me about the " + word + ".",
-        "I read about the " + word + " in class.",
-        "Have you seen the " + word + "?",
-        "Can you find the " + word + "?"
+        "Can you spot the " + word + " near the path while we walk to school?",
+        "I found the " + word + " in our book and showed it to my family.",
+        "Let's learn about the " + word + " and draw what we discover.",
+        "We talked about the " + word + " after we saw it on our class trip.",
+        "Tell me about the " + word + " you noticed during the science activity.",
+        "I read about the " + word + " in class, then shared one new fact.",
+        "Have you seen the " + word + " in a story or in real life?",
+        "Can you find the " + word + " in this picture and explain where it is?"
       ] : level === "중등" ? [
-        "We learned about the " + word + " in class.",
-        "She found new facts about the " + word + ".",
-        "They discussed the " + word + " after school.",
-        "He wrote a short report about the " + word + ".",
-        "Our class shared ideas about the " + word + ".",
-        "We saw the " + word + " during our trip.",
-        "Can you explain the " + word + " to me?",
-        "The book gives an example of the " + word + "."
+        "We learned about the " + word + " in class and compared it with examples from everyday life.",
+        "She found new facts about the " + word + " and used them in her science report.",
+        "They discussed the " + word + " after school because it appeared in their reading assignment.",
+        "He wrote a short report about the " + word + " and explained why it matters.",
+        "Our class shared ideas about the " + word + " before choosing a topic for the project.",
+        "We saw the " + word + " during our trip and recorded what made it unusual.",
+        "Can you explain the " + word + " and give an example that makes its meaning clear?",
+        "The book gives an example of the " + word + " in a chapter about daily life."
       ] : [
-        "Researchers examined the role of the " + word + " in society.",
-        "The report considers the impact of the " + word + " on daily life.",
-        "Her essay compares the " + word + " with a related idea.",
-        "The article presents a new perspective on the " + word + ".",
-        "We discussed how the " + word + " affects our community.",
-        "His research explores the history of the " + word + ".",
-        "The speaker explained why the " + word + " remains important.",
-        "Understanding the " + word + " requires careful attention to context."
+        "Researchers examined the role of the " + word + " in society and compared evidence from several communities.",
+        "The report considers the impact of the " + word + " on daily life, including changes that are easy to overlook.",
+        "Her essay compares the " + word + " with a related idea to show where their effects differ.",
+        "The article presents a new perspective on the " + word + " by placing recent findings in historical context.",
+        "We discussed how the " + word + " affects our community and which groups experience the greatest change.",
+        "His research explores the history of the " + word + " and explains why its meaning shifted over time.",
+        "The speaker explained why the " + word + " remains important despite changes in technology and public opinion.",
+        "Understanding the " + word + " requires careful attention to context, evidence, and the assumptions behind each claim."
       ];
       return templates[index % templates.length];
     },
@@ -1046,45 +1046,45 @@ widespread|ˈwaɪdspred|널리 퍼진
       };
       if (commonExamples[word]) return commonExamples[word];
       const templates = [
-        "I learned the meaning of the verb '" + word + "' today.",
-        "We practiced the verb '" + word + "' in class.",
-        "Can you use the verb '" + word + "' in a sentence?",
-        "Please write a sentence with the verb '" + word + "'.",
-        "She looked up the meaning of '" + word + "'.",
-        "They are learning how to use '" + word + "'.",
-        "Try using '" + word + "' in your answer.",
-        "Do you know what '" + word + "' means?"
+        "During today's lesson, I learned how the verb '" + word + "' works in a complete sentence.",
+        "We practiced the verb '" + word + "' in pairs, then wrote examples that showed its meaning.",
+        "Can you use the verb '" + word + "' naturally when you explain what happened yesterday?",
+        "Please write a sentence with '" + word + "' and add enough detail to make the action clear.",
+        "She checked a dictionary to see how '" + word + "' changes meaning in different contexts.",
+        "They are learning how to use '" + word + "' correctly in both questions and answers.",
+        "Try using '" + word + "' in your answer, then explain why it fits the situation.",
+        "Do you know what '" + word + "' means and how it changes the meaning of a sentence?"
       ];
       return templates[index % templates.length];
     },
     adjective: function (word, index, level) {
       const templates = level === "초등" ? [
-        "We learned '" + word + "' today.",
-        "Can you say '" + word + "'?",
-        "Use '" + word + "' in a sentence.",
-        "She wrote '" + word + "' down.",
-        "Let's practice '" + word + "' today.",
-        "He chose '" + word + "' for his story.",
-        "Try '" + word + "' in this sentence.",
-        "Do you know '" + word + "'?"
+        "We learned the adjective '" + word + "' today and used it to describe a picture.",
+        "Can you say what '" + word + "' means and point to something it could describe?",
+        "Use '" + word + "' in a sentence that tells us more about a person or place.",
+        "She wrote '" + word + "' down beside a picture that helped her remember it.",
+        "Let's practice '" + word + "' by describing what we saw on our walk.",
+        "He chose '" + word + "' for his story because it helped readers picture the scene.",
+        "Try '" + word + "' in this sentence and check that it describes the right thing.",
+        "Do you know '" + word + "'? Tell me what it describes in your own words."
       ] : level === "중등" ? [
-        "We used '" + word + "' in our class story.",
-        "Can you explain what '" + word + "' means?",
-        "She chose '" + word + "' to describe the scene.",
-        "The word '" + word + "' appears in the passage.",
-        "He compared '" + word + "' with another adjective.",
-        "Try using '" + word + "' in your own sentence.",
-        "Our teacher asked us to define '" + word + "'.",
-        "They discussed how to use '" + word + "'."
+        "We used '" + word + "' in our class story and checked that it matched the scene.",
+        "Can you explain what '" + word + "' means and choose a noun it can describe?",
+        "She chose '" + word + "' to describe the scene more precisely for her readers.",
+        "The word '" + word + "' appears in the passage, where it changes how we imagine the setting.",
+        "He compared '" + word + "' with another adjective to notice the difference in tone.",
+        "Try using '" + word + "' in your own sentence and make its meaning clear from context.",
+        "Our teacher asked us to define '" + word + "' and support the definition with an example.",
+        "They discussed how to use '" + word + "' without changing the meaning of the paragraph."
       ] : [
-        "The author uses '" + word + "' to shape the reader's impression.",
-        "This adjective helps explain the character's changing mood.",
-        "The passage uses '" + word + "' to create a clear image.",
-        "Compare '" + word + "' with a more precise description.",
-        "The writer chose '" + word + "' to strengthen the argument.",
-        "Context can change how readers understand '" + word + "'.",
-        "The article uses '" + word + "' in a specific context.",
-        "Explain why '" + word + "' is effective in this sentence."
+        "The author uses '" + word + "' to shape the reader's impression before revealing the character's decision.",
+        "This adjective helps explain the character's changing mood as the situation becomes more difficult.",
+        "The passage uses '" + word + "' to create a clear image that supports the central idea.",
+        "Compare '" + word + "' with a more precise description and explain what each choice emphasizes.",
+        "The writer chose '" + word + "' to strengthen the argument without making the claim sound exaggerated.",
+        "Context can change how readers understand '" + word + "', especially when the surrounding details are ambiguous.",
+        "The article uses '" + word + "' in a specific context to distinguish two ideas that seem similar.",
+        "Explain why '" + word + "' is effective in this sentence and how a different adjective would change its tone."
       ];
       return templates[index % templates.length];
     }
@@ -1778,6 +1778,36 @@ specific|Please give a specific example to support your opinion in the essay.|�
 successful|The successful fundraiser paid for new books in the school library.|성공적인 모금 행사로 학교 도서관에 새 책을 마련할 수 있었습니다.
 traditional|The family served a traditional meal made from recipes passed down for generations.|그 가족은 여러 세대에 걸쳐 전해진 조리법으로 전통 음식을 차렸습니다.
 valuable|The experience was valuable because it taught us how to work as a team.|팀으로 일하는 법을 배웠기에 그 경험은 값졌습니다.
+statistical|The statistical analysis controlled for age and location before comparing the survey results.|통계 분석에서는 설문 결과를 비교하기 전에 나이와 지역의 영향을 통제했습니다.
+structural|Inspectors found structural damage in the bridge supports after the heavy storm.|점검관들은 큰 폭풍이 지나간 뒤 다리 지지대에서 구조적 손상을 발견했습니다.
+subjective|The judge explained that the award was subjective and depended on each reviewer's interpretation.|심사위원은 수상이 주관적이며 심사위원마다 해석이 달라질 수 있다고 설명했습니다.
+subsequent|Subsequent tests confirmed that the new filter removed more particles from the water.|후속 검사에서 새 필터가 물속의 입자를 더 많이 제거한다는 사실이 확인되었습니다.
+substantial|The charity received substantial donations, allowing it to reopen the neighborhood clinic.|그 자선 단체는 상당한 기부금을 받아 동네 진료소를 다시 열 수 있었습니다.
+systematic|The team took a systematic approach, checking each machine against the same safety list.|팀은 같은 안전 점검표에 따라 기계를 하나씩 확인하는 체계적인 접근법을 택했습니다.
+valid|Your ticket is valid for any train that leaves before midnight.|이 표는 자정 전에 출발하는 모든 열차에서 유효합니다.
+verifiable|The article relies on verifiable records rather than anonymous online claims.|그 기사는 익명의 온라인 주장 대신 검증 가능한 기록을 근거로 삼습니다.
+versatile|A versatile camera lens let the photographer capture both portraits and wide landscapes.|다재다능한 카메라 렌즈 덕분에 사진작가는 인물 사진과 넓은 풍경을 모두 촬영할 수 있었습니다.
+visible|The lighthouse remained visible from the boat even after the coastline disappeared in the fog.|해안선이 안개에 가려진 뒤에도 배에서는 등대가 보였습니다.
+abstracted|The abstracted diagram shows the main stages without including every technical detail.|추상화된 도표는 모든 기술적 세부 사항을 담지 않고 주요 단계를 보여 줍니다.
+ambiguous|The directions were ambiguous, so we called the museum to confirm which entrance to use.|안내가 모호해서 어느 입구를 이용해야 하는지 박물관에 전화해 확인했습니다.
+approximate|The map gives an approximate travel time, but traffic may add another twenty minutes.|지도에는 대략적인 이동 시간이 표시되어 있지만 교통 상황에 따라 20분 더 걸릴 수 있습니다.
+assertive|Her assertive response made it clear that the team needed more time to finish the work safely.|그녀는 단호하게 답하며 팀이 안전하게 일을 마치려면 시간이 더 필요하다고 분명히 밝혔습니다.
+authoritative|The guide is an authoritative source because its recommendations are based on years of field research.|그 안내서는 수년간의 현장 연구를 바탕으로 권고 사항을 제시하므로 신뢰할 만한 자료입니다.
+autocratic|The autocratic director made every decision alone and discouraged staff from questioning the plan.|독재적인 책임자는 모든 결정을 혼자 내리고 직원들이 계획에 의문을 제기하지 못하게 했습니다.
+authoritarian|The novel portrays an authoritarian government that monitors public speech and restricts the press.|그 소설은 대중의 발언을 감시하고 언론을 제한하는 권위주의 정부를 그립니다.
+bilateral|The two countries signed a bilateral agreement to share research on clean energy.|두 나라는 청정에너지 연구를 공유하기 위한 양자 협정을 체결했습니다.
+biological|The researchers studied biological changes in the plants after weeks without rain.|연구진은 몇 주 동안 비가 내리지 않은 뒤 식물에 나타난 생물학적 변화를 연구했습니다.
+biomedical|The biomedical team designed a safer device to monitor a patient's heart rhythm.|생의학 연구팀은 환자의 심장 박동을 관찰할 더 안전한 기기를 설계했습니다.
+chemical|A chemical reaction released heat when the two liquids were mixed.|두 액체를 섞자 화학 반응으로 열이 발생했습니다.
+chronological|The historian arranged the letters in chronological order to trace how the events unfolded.|역사학자는 사건의 전개를 추적하기 위해 편지들을 연대순으로 정리했습니다.
+civic|The students joined a civic project that helped residents make the local park more accessible.|학생들은 주민들이 동네 공원을 더 편리하게 이용하도록 돕는 시민 프로젝트에 참여했습니다.
+colonial|The museum examines how colonial rule changed the region's language, economy, and borders.|박물관은 식민 통치가 그 지역의 언어, 경제, 국경을 어떻게 바꾸었는지 살펴봅니다.
+constitutional|The court reviewed whether the new law was constitutional before it could take effect.|법원은 새 법이 시행되기 전에 헌법에 부합하는지 심리했습니다.
+controversial|The proposal remained controversial because residents disagreed about its cost and long-term effects.|주민들이 비용과 장기적인 영향에 대해 의견이 엇갈려 그 제안은 계속 논란이 되었습니다.
+corporate|The company published a corporate policy explaining how it would reduce waste across its offices.|그 회사는 모든 사무실에서 폐기물을 줄이는 방법을 설명하는 기업 정책을 발표했습니다.
+democratic|The club used a democratic process, giving every member a chance to vote on the venue.|그 동아리는 모든 회원에게 장소 투표 기회를 주는 민주적인 절차를 따랐습니다.
+demographic|The report compares demographic changes in the city by age group and neighborhood.|그 보고서는 연령대와 동네별로 도시의 인구 통계 변화를 비교합니다.
+derivative|The artist created a derivative work that acknowledged the original design while adding a new perspective.|그 예술가는 원작 디자인을 밝히면서 새로운 관점을 더한 파생 작품을 만들었습니다.
 `;
 
   const curatedExamples = new Map();

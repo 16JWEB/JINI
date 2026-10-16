@@ -312,54 +312,54 @@
   const rows = rowEntries.map(function (entry) { return entry.row; });
   const exampleTemplates = [
     [
-      ["회의 전에 '{word}' 관련 자료를 정리했어요.", "Trước cuộc họp, tôi sắp xếp tài liệu liên quan đến '{meaning}'."],
-      ["오늘은 '{word}'에 관한 내용을 동료와 확인했어요.", "Hôm nay, tôi kiểm tra nội dung về '{meaning}' cùng đồng nghiệp."],
-      ["업무를 처리하며 '{word}'의 의미를 다시 확인했어요.", "Khi xử lý công việc, tôi kiểm tra lại ý nghĩa của '{meaning}'."]
+      ["회의 자료를 검토하다가 '{word}' 관련 기준을 표시해 팀원들과 공유했어요.", "Khi xem lại tài liệu họp, tôi đánh dấu tiêu chí liên quan đến '{meaning}' rồi chia sẻ với cả nhóm."],
+      ["새 업무를 맡기 전에 '{word}'와 관련된 절차를 동료와 함께 확인했어요.", "Trước khi nhận nhiệm vụ mới, tôi cùng đồng nghiệp kiểm tra thủ tục liên quan đến '{meaning}'."],
+      ["마감일이 다가와 '{word}'의 변경 사항을 확인하고 필요한 자료를 다시 정리했어요.", "Hạn chót đang đến gần nên tôi kiểm tra thay đổi về '{meaning}' và sắp xếp lại tài liệu cần thiết."]
     ],
     [
-      ["요리할 때 '{word}'{objectParticle} 사용했어요.", "Khi nấu ăn, tôi đã dùng '{meaning}'."],
-      ["주방에서 '{word}'{objectParticle} 찾느라 서랍을 열어 봤어요.", "Tôi mở ngăn kéo để tìm '{meaning}' trong bếp."],
-      ["새 조리법에서 '{word}'의 용도를 확인했어요.", "Tôi xem công dụng của '{meaning}' trong công thức mới."]
+      ["재료를 손질한 뒤 '{word}'{objectParticle} 넣고 불을 약하게 줄였어요.", "Sau khi sơ chế nguyên liệu, tôi cho '{meaning}' vào rồi hạ lửa nhỏ."],
+      ["요리 순서를 확인하려고 조리대 위에 '{word}'{objectParticle} 꺼내 놓았어요.", "Để kiểm tra thứ tự nấu, tôi lấy '{meaning}' ra và đặt lên bàn bếp."],
+      ["새 조리법을 따라 하면서 '{word}'의 양을 조금씩 조절했어요.", "Khi làm theo công thức mới, tôi điều chỉnh lượng '{meaning}' từng chút một."]
     ],
     [
-      ["집을 정리하면서 '{word}'{objectParticle} 제자리에 두었어요.", "Khi dọn nhà, tôi đặt '{meaning}' về đúng chỗ."],
-      ["집에서 '{word}' 상태를 꼼꼼히 확인했어요.", "Tôi kiểm tra kỹ tình trạng của '{meaning}' ở nhà."],
-      ["이사 전에 '{word}'{objectParticle} 빠짐없이 챙겼어요.", "Trước khi chuyển nhà, tôi chuẩn bị đầy đủ '{meaning}'."]
+      ["청소를 마친 뒤 '{word}'{objectParticle} 원래 자리에 정리하고 주변도 닦았어요.", "Sau khi dọn dẹp xong, tôi cất '{meaning}' về chỗ cũ rồi lau cả khu vực xung quanh."],
+      ["오래 사용한 '{word}'의 상태를 살펴보고 수리가 필요한지 확인했어요.", "Tôi kiểm tra tình trạng của '{meaning}' đã dùng lâu và xem có cần sửa chữa không."],
+      ["이사 전날 필요한 물건을 목록과 대조하며 '{word}'{objectParticle} 빠뜨리지 않았는지 확인했어요.", "Ngày trước khi chuyển nhà, tôi đối chiếu đồ cần thiết với danh sách để chắc rằng không bỏ sót '{meaning}'."]
     ],
     [
-      ["출발 전에 '{word}' 정보를 다시 확인했어요.", "Trước khi khởi hành, tôi kiểm tra lại thông tin về '{meaning}'."],
-      ["여행 계획에 '{word}'{objectParticle} 미리 포함했어요.", "Tôi đưa '{meaning}' vào kế hoạch du lịch từ trước."],
-      ["이동 중에 '{word}' 관련 안내를 확인했어요.", "Trên đường đi, tôi xem thông tin hướng dẫn liên quan đến '{meaning}'."]
+      ["출발하기 전 예약 내역에서 '{word}' 정보를 다시 확인하고 일정표에 적었어요.", "Trước khi khởi hành, tôi kiểm tra lại thông tin về '{meaning}' trong đặt chỗ rồi ghi vào lịch trình."],
+      ["여행 동선을 짜면서 '{word}'{objectParticle} 미리 포함해 이동 시간을 계산했어요.", "Khi lên lộ trình chuyến đi, tôi đưa '{meaning}' vào trước và tính thời gian di chuyển."],
+      ["낯선 곳에 도착한 뒤 '{word}' 관련 안내를 확인하고 다음 목적지로 이동했어요.", "Sau khi đến nơi xa lạ, tôi xem hướng dẫn liên quan đến '{meaning}' rồi đi đến điểm tiếp theo."]
     ],
     [
-      ["자연 다큐멘터리에서 '{word}'의 모습을 봤어요.", "Tôi xem hình ảnh về '{meaning}' trong phim tài liệu thiên nhiên."],
-      ["수업 시간에 '{word}'의 특징을 배웠어요.", "Trong giờ học, tôi tìm hiểu đặc điểm của '{meaning}'."],
-      ["산책 중에 '{word}'의 변화를 자세히 관찰했어요.", "Trong lúc đi dạo, tôi quan sát kỹ sự thay đổi của '{meaning}'."]
+      ["자연 다큐멘터리를 보며 '{word}'의 생태계 속 역할과 특징을 알게 됐어요.", "Khi xem phim tài liệu thiên nhiên, tôi hiểu được vai trò và đặc điểm của '{meaning}' trong hệ sinh thái."],
+      ["수업에서 '{word}'의 특징을 배운 뒤 주변에서 비슷한 사례를 찾아봤어요.", "Sau khi học đặc điểm của '{meaning}' trong lớp, tôi tìm những trường hợp tương tự xung quanh."],
+      ["산책로에서 '{word}'의 변화를 관찰하고 날씨와 어떤 관계가 있는지 기록했어요.", "Trên đường đi dạo, tôi quan sát thay đổi của '{meaning}' và ghi lại mối liên hệ với thời tiết."]
     ],
     [
-      ["진료 때 '{word}'에 대해 의사에게 질문했어요.", "Trong buổi khám, tôi hỏi bác sĩ về '{meaning}'."],
-      ["건강을 위해 '{word}' 상태를 꾸준히 확인하고 있어요.", "Để giữ gìn sức khỏe, tôi thường xuyên theo dõi tình trạng '{meaning}'."],
-      ["병원에서 '{word}' 관련 설명을 듣고 메모했어요.", "Ở bệnh viện, tôi nghe giải thích về '{meaning}' rồi ghi chú lại."]
+      ["진료를 받으며 '{word}' 증상이 언제부터 나타났는지 의사에게 자세히 설명했어요.", "Trong buổi khám, tôi giải thích chi tiết với bác sĩ triệu chứng '{meaning}' bắt đầu từ khi nào."],
+      ["건강 기록을 남기려고 매일 '{word}' 상태와 달라진 점을 함께 적고 있어요.", "Để lưu hồ sơ sức khỏe, mỗi ngày tôi ghi lại tình trạng '{meaning}' cùng những thay đổi."],
+      ["병원에서 '{word}' 관련 설명을 들은 뒤 복용 방법과 주의사항을 메모했어요.", "Sau khi nghe giải thích về '{meaning}' ở bệnh viện, tôi ghi lại cách dùng và những điều cần lưu ý."]
     ],
     [
-      ["친구와 대화하면서 '{word}'에 대해 솔직하게 이야기했어요.", "Khi trò chuyện với bạn, tôi thành thật nói về '{meaning}'."],
-      ["그 일을 겪으며 '{word}'의 중요성을 깨달았어요.", "Qua chuyện đó, tôi nhận ra tầm quan trọng của '{meaning}'."],
-      ["'{word}'에 관해 서로의 생각을 나눴어요.", "Chúng tôi chia sẻ suy nghĩ của nhau về '{meaning}'."]
+      ["친구와 속마음을 나누면서 '{word}'{objectParticle} 느끼게 된 이유도 차분히 설명했어요.", "Khi tâm sự với bạn, tôi cũng bình tĩnh giải thích lý do khiến mình cảm thấy '{meaning}'."],
+      ["그 일을 겪고 나서 '{word}'의 중요성을 깨달았어요.", "Chỉ sau khi trải qua chuyện đó, tôi mới nhận ra tầm quan trọng của '{meaning}'."],
+      ["서로 다른 경험을 떠올리며 '{word}'에 관한 생각을 구체적인 예와 함께 나눴어요.", "Nhớ lại những trải nghiệm khác nhau, chúng tôi chia sẻ suy nghĩ về '{meaning}' cùng các ví dụ cụ thể."]
     ],
     [
-      ["수업이 끝난 뒤 '{word}' 내용을 복습했어요.", "Sau giờ học, tôi ôn lại nội dung về '{meaning}'."],
-      ["과제를 위해 '{word}' 자료를 도서관에서 찾았어요.", "Tôi tìm tài liệu về '{meaning}' ở thư viện để làm bài tập."],
-      ["선생님께 '{word}' 관련 질문을 했어요.", "Tôi hỏi giáo viên một câu liên quan đến '{meaning}'."]
+      ["수업이 끝난 뒤 노트를 다시 읽으며 '{word}'의 핵심 내용을 정리했어요.", "Sau giờ học, tôi đọc lại ghi chép và hệ thống nội dung chính về '{meaning}'."],
+      ["과제에 쓸 근거를 찾으려고 도서관에서 '{word}' 관련 자료를 여러 권 비교했어요.", "Để tìm luận cứ cho bài tập, tôi so sánh nhiều tài liệu về '{meaning}' ở thư viện."],
+      ["선생님께 '{word}'{objectParticle} 다른 개념과 비교하는 방법을 질문했어요.", "Tôi hỏi giáo viên cách so sánh '{meaning}' với khái niệm khác."]
     ],
     [
-      ["컴퓨터를 사용하면서 '{word}'{objectParticle} 확인했어요.", "Khi dùng máy tính, tôi kiểm tra '{meaning}'."],
-      ["필요한 정보를 찾으려고 '{word}' 기능을 이용했어요.", "Tôi dùng chức năng '{meaning}' để tìm thông tin cần thiết."],
-      ["새 기기에서 '{word}'{objectParticle} 사용할 수 있는지 확인했어요.", "Tôi kiểm tra xem có thể dùng '{meaning}' trên thiết bị mới không."]
+      ["파일을 보내기 전에 설정 화면에서 '{word}'{objectParticle} 확인하고 필요한 항목을 바꿨어요.", "Trước khi gửi tệp, tôi kiểm tra '{meaning}' trong phần cài đặt và thay đổi mục cần thiết."],
+      ["필요한 정보를 찾으려고 '{word}' 기능을 이용해 결과를 조건별로 좁혔어요.", "Để tìm thông tin cần thiết, tôi dùng chức năng '{meaning}' và lọc kết quả theo điều kiện."],
+      ["새 기기를 연결한 뒤 '{word}'{objectParticle} 시험해 보고 오류가 없는지 살펴봤어요.", "Sau khi kết nối thiết bị mới, tôi thử '{meaning}' và kiểm tra xem có lỗi không."]
     ],
     [
-      ["주민센터에서 '{word}' 관련 안내를 받았어요.", "Tôi nhận được hướng dẫn về '{meaning}' tại trung tâm hành chính."],
-      ["필요한 '{word}' 절차를 담당자에게 물어봤어요.", "Tôi hỏi nhân viên phụ trách về thủ tục '{meaning}' cần thiết."],
-      ["지역 주민을 위해 '{word}' 정보를 게시판에 올렸어요.", "Tôi đăng thông tin về '{meaning}' lên bảng tin để người dân trong khu vực cùng biết."]
+      ["주민센터를 방문해 '{word}' 관련 안내를 받고 준비해야 할 서류를 확인했어요.", "Tôi đến trung tâm hành chính, nhận hướng dẫn về '{meaning}' và kiểm tra giấy tờ cần chuẩn bị."],
+      ["신청을 마치기 전에 담당자에게 '{word}' 절차와 예상 처리 기간을 물어봤어요.", "Trước khi hoàn tất đăng ký, tôi hỏi nhân viên phụ trách về thủ tục '{meaning}' và thời gian xử lý dự kiến."],
+      ["지역 주민들이 놓치지 않도록 '{word}' 정보를 게시판과 온라인에 함께 공지했어요.", "Để người dân trong khu vực không bỏ lỡ, tôi đăng thông tin về '{meaning}' cả trên bảng tin lẫn trực tuyến."]
     ]
   ];
   const existing = Array.isArray(window.KOREAN_WORDS) ? window.KOREAN_WORDS : [];
