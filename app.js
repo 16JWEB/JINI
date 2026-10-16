@@ -376,7 +376,7 @@
           (state.playerWord || playerItemNumber + "번째 표현"),
         "verb-forms": "동사 변화",
         "english-game": "영어 연습 게임",
-        "ko-game": "한글 게임"
+        "ko-game": "연습 게임"
       };
       button.textContent = "마지막 공부 화면 · " + (pageLabels[state.page] || "학습 화면");
     });
@@ -1278,7 +1278,7 @@
     breadcrumbLevel.textContent = showingHome ? "" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
       showingPlayer ? (playingExpressions ? "표현 재생" : koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
-      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "한글 게임" : showingEnglishGame ? "연습 게임" : "동사 변화";
+      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : "동사 변화";
     document.getElementById("section-title").textContent = "필수 단어";
     if (showingExpressions) document.getElementById("section-title").textContent = "일상생활 표현";
     document.querySelector(".bookmark-toolbar").hidden = showingExpressions;
