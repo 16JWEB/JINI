@@ -165,7 +165,7 @@
   function dashboard() {
     const due = dueItems().filter(function (id) { return !!questionById(id); }).length;
     root.innerHTML = '<div class="kg-summary"><div><span>한글 게임 XP</span><strong>' + progress.xp + ' XP</strong></div><div><span>게임 성공률 (자가평가 포함)</span><strong>' + (progress.attempts ? Math.round(progress.correct / progress.attempts * 100) : 0) + '%</strong></div><div><span>복습할 항목</span><strong>' + due + '개</strong></div></div>' +
-      '<div class="kg-info">💡 먼저 단어나 회화 게임을 풀고, 틀리거나 복습할 때가 된 문제는 <b>약점 복습</b>에서 다시 만나세요. 학습 기록은 이 기기의 브라우저에만 저장돼요.</div>' +
+      '<div class="kg-info">💡 문제를 처음 맞히면 +10 XP, 이미 맞힌 문제는 +0 XP예요. 틀리거나 복습할 때가 된 문제는 <b>약점 복습</b>에서 다시 만날 수 있어요. 학습 기록은 이 기기의 브라우저에만 저장돼요.</div>' +
       '<div class="kg-mode-grid">' +
       boxText("단어 뜻 맞히기", "기존 한국어 단어와 베트남어 뜻 연결", "📘", "word") +
       boxText("발음 듣고 맞히기", "비슷한 소리를 듣고 구별하기", "🎧", "sound") +
@@ -191,7 +191,7 @@
         '<p class="kg-footnote">‘발음 확인하기’를 누르고 한국어로 말하면 인식된 문구와 정답을 비교해요. 녹음은 다시 듣기 전용이며 녹음된 파일이 자동 분석되는 것은 아니에요. 글자 일치는 발음 정확도 점수가 아니에요.</p>' +
         (typeof q._grade === "boolean" ?
           '<div class="kg-feedback ' + (q._grade ? "kg-good" : "kg-bad") + '"><strong>' +
-          (q._grade ? "잘 발음했다고 기록했어요." : "추가 연습이 필요하다고 기록했어요.") +
+          (q._grade ? (q._xpEarned ? "말하기 완료! +10 XP" : "말하기 완료! 이미 경험치를 받은 문제예요. +0 XP") : "추가 연습이 필요하다고 기록했어요.") +
           '</strong><p>이 문제의 평가는 이미 저장됐어요. 이전·다음 문제로 이동할 수 있어요.</p></div>' :
           '<div class="kg-rating">' + button("😊 잘 발음했어요", "grade", "kg-primary", ' data-grade="yes"') + button("🔁 더 연습할래요", "grade", "kg-outline", ' data-grade="no"') + '</div>');
     } else {
@@ -203,7 +203,7 @@
       }).join("") + '</div>';
     }
     if (session.answer !== null && q.type !== "pron") {
-      content += '<div class="kg-feedback ' + (session.answer === q.correct ? "kg-good" : "kg-bad") + '"><strong>' + (session.answer === q.correct ? '정답이에요! +10 XP' : '오답이에요. 복습 목록에 추가했어요.') + '</strong><p>' + esc(q.note) + '</p>' +
+      content += '<div class="kg-feedback ' + (session.answer === q.correct ? "kg-good" : "kg-bad") + '"><strong>' + (session.answer === q.correct ? (q._xpEarned ? '정답이에요! +10 XP' : '정답이에요! 이미 경험치를 받은 문제예요. +0 XP') : '오답이에요. 복습 목록에 추가했어요.') + '</strong><p>' + esc(q.note) + '</p>' +
         (q.type === "sound" ? '<p>들려준 단어: <b>' + esc(q.target) + '</b></p>' : '') + '</div>';
     }
     if (message) content += '<p class="kg-status" role="status">' + esc(message) + '</p>';
@@ -245,6 +245,13 @@
   }
   function storeResult(q, good) {
     const item = progress.items[q.id] || { streak: 0, wrong: 0 };
+    // Existing records with a positive streak were already credited before
+    // this update. New records remember this independently of later mistakes.
+    const previouslyRewarded = item.xpAwarded === true ||
+      (item.xpAwarded === undefined && Number(item.streak) > 0);
+    const firstCorrect = good && !previouslyRewarded;
+    q._xpEarned = firstCorrect;
+    item.xpAwarded = previouslyRewarded || good;
     item.streak = good ? Math.min(10, (Number(item.streak) || 0) + 1) : 0;
     if (!good) item.wrong = (Number(item.wrong) || 0) + 1;
     const days = good ? [1, 3, 7, 14, 30][Math.min(item.streak - 1, 4)] : 0;
@@ -256,15 +263,17 @@
     session.answered += 1;
     if (good) {
       progress.correct += 1;
-      progress.xp += 10;
-      session.earned += 10;
+      if (firstCorrect) {
+        progress.xp += 10;
+        session.earned += 10;
+      }
       session.correct += 1;
     } else {
       session.missed += 1;
       if (!q._retry && !session.retries.has(q.id)) {
         session.retries.add(q.id);
         // Retry is a new attempt; never inherit the previous choice or self-rating.
-        session.queue.push(Object.assign({}, q, { _retry: true, _answer: undefined, _grade: undefined }));
+        session.queue.push(Object.assign({}, q, { _retry: true, _answer: undefined, _grade: undefined, _xpEarned: undefined }));
       }
     }
     save();
