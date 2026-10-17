@@ -182,7 +182,7 @@ function render(){
  '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term">'+
  (q.mode==="sentence"?
    esc(q.title).replace("______",'<span id="eg-cloze-word" class="eg-cloze-word'+(q.draft||q.response?" eg-cloze-filled":"")+'">'+(q.draft||q.response?esc(q.draft||q.response):"&#160;")+'</span>'):
-   esc(q.wordTypingPending?q.answer:q.title))+'</div>';
+   esc(q.title))+'</div>';
  if(q.mode==="listen")html+='<div class="eg-audio">'+btn("🔊 다시 듣기","listen","eg-main")+'</div>';
  else if(q.mode==="word"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
  if(q.kind==="choice"){
@@ -267,7 +267,8 @@ function answerChoice(i){
  if(!q||q.kind!=="choice"||q.done||q.wordTypingPending||!Number.isInteger(i)||i<0||i>=q.options.length)return;
  const chosen=q.options[i];
  if(needsWordTyping(q)&&chosen===q.answer){
-  q.wordTypingPending=true;status="";render();focusWordTyping();return;
+  q.wordTypingPending=true;status="";render();focusWordTyping();
+  speakWordAnswerPair(q);return;
  }
  grade(q,chosen===q.answer,chosen);render();
 }
@@ -315,6 +316,29 @@ function updateSentenceDraft(input){
   b.classList.toggle("eg-sentence-picked",
    Boolean(q.draft)&&q.options[Number(b.dataset.index)]===q.draft);
  });
+}
+// Play the answer in both languages after the meaning is selected correctly.
+function speakWordAnswerPair(q){
+ if(!q||!needsWordTyping(q)||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
+ const synth=window.speechSynthesis;
+ const available=synth.getVoices?synth.getVoices():[];
+ const chooseVoice=locale=>available.find(v=>v.lang&&v.lang.toLowerCase()===locale.toLowerCase())
+   ||available.find(v=>v.lang&&v.lang.toLowerCase().startsWith(locale.slice(0,2).toLowerCase()));
+ const word=String(q.voice||q.title||"").trim();
+ const meaning=String(q.answer||"").trim();
+ if(!word||!meaning)return;
+ synth.cancel();
+ try{
+  const english=new window.SpeechSynthesisUtterance(word);
+  english.lang=ENGLISH_LOCALE;english.rate=.86;
+  english.voice=chooseVoice(ENGLISH_LOCALE)||null;
+  const korean=new window.SpeechSynthesisUtterance(meaning);
+  korean.lang="ko-KR";korean.rate=.92;
+  korean.voice=chooseVoice("ko-KR")||null;
+  // The speech queue plays sequentially; it is cancelled on question changes.
+  synth.speak(english);
+  synth.speak(korean);
+ }catch(e){status="음성 재생을 지원하지 않는 기기일 수 있어요.";}
 }
 function speak(exampleOnly){
  if(!game)return;const q=game.questions[game.index];if(!q)return;
