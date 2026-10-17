@@ -100,12 +100,14 @@
       return row && Number(row.wrong) > 0 && Number(row.streak) === 0;
     });
   }
+  // Keep the reminder and normal quiz filters consistent, including saved legacy scores.
+  function hasEarnedXP(id) {
+    const row = progress.items[id];
+    return !!(row && (row.xpAwarded === true ||
+      (row.xpAwarded === undefined && Number(row.streak) > 0)));
+  }
   function reminderItems() {
-    return Object.keys(progress.items).filter(function (id) {
-      const row = progress.items[id];
-      return row && (row.xpAwarded === true ||
-        (row.xpAwarded === undefined && Number(row.streak) > 0));
-    });
+    return Object.keys(progress.items).filter(hasEarnedXP);
   }
   function questionById(id) {
     if (id.indexOf("word:") === 0) return wordQuestion(words.find(function (x) { return x.word === id.slice(5); }) || {});
@@ -124,7 +126,9 @@
     return null;
   }
   function build(mode) {
-    if (mode === "word") return shuffle(words).slice(0, GAME_SIZE).map(wordQuestion).filter(Boolean);
+    if (mode === "word") return shuffle(words.filter(function (item) {
+      return !hasEarnedXP("word:" + item.word);
+    })).slice(0, GAME_SIZE).map(wordQuestion).filter(Boolean);
     if (mode === "sound") return shuffle(sounds).slice(0, GAME_SIZE).map(soundQuestion);
     if (mode === "dialog") return shuffle(dialogues).slice(0, GAME_SIZE).map(dialogQuestion);
     if (mode === "pron") return shuffle(pronounce).slice(0, GAME_SIZE).map(pronunciationQuestion);
@@ -176,7 +180,7 @@
     const due = wrongItems().filter(function (id) { return !!questionById(id); }).length;
     const remembered = reminderItems().filter(function (id) { return !!questionById(id); }).length;
     root.innerHTML = '<div class="kg-summary"><div><span>한글 게임 XP</span><strong>' + progress.xp + ' XP</strong></div><div><span>게임 성공률 (자가평가 포함)</span><strong>' + (progress.attempts ? Math.round(progress.correct / progress.attempts * 100) : 0) + '%</strong></div><div><span>오답 복습</span><strong>' + due + '개</strong></div></div>' +
-      '<div class="kg-info">💡 문제를 처음 맞히면 +10 XP, 이미 맞힌 문제는 +0 XP예요. 틀린 문제는 <b>오답 복습</b>에서, 이전에 맞힌 문제는 <b>리마인드</b>에서 다시 풀 수 있어요. 리마인드에서는 XP가 지급되지 않아요. 학습 기록은 이 기기의 브라우저에만 저장돼요.</div>' +
+      '<div class="kg-info">💡 문제를 처음 맞히면 +10 XP예요. <b>단어 뜻 맞히기</b>에서 한 번 맞힌 문제는 다시 나오지 않으며 <b>리마인드</b>에서 복습할 수 있어요. 틀린 문제는 <b>오답 복습</b>에서 다시 풀 수 있어요. 리마인드에서는 XP가 지급되지 않아요. 학습 기록은 이 기기의 브라우저에만 저장돼요.</div>' +
       '<div class="kg-mode-grid">' +
       boxText("단어 뜻 맞히기", "기존 한국어 단어와 베트남어 뜻 연결", "📘", "word") +
       boxText("발음 듣고 맞히기", "비슷한 소리를 듣고 구별하기", "🎧", "sound") +
@@ -264,7 +268,7 @@
     const queue = build(mode);
     if (!queue.length) {
       session = null;
-      root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<h2>' + (mode === "review" ? '현재 오답 복습할 문제가 없어요 🎉' : mode === "remind" ? '아직 리마인드할 문제가 없어요' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '틀린 문제가 생기면 여기에서 다시 풀 수 있어요.' : mode === "remind" ? '다른 게임에서 먼저 정답을 맞히면 리마인드에 추가돼요.' : '학습 데이터를 확인해 주세요.') + '</p>' + gameNavigation(true) + '</div>';
+      root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<h2>' + (mode === "review" ? '현재 오답 복습할 문제가 없어요 🎉' : mode === "remind" ? '아직 리마인드할 문제가 없어요' : mode === "word" ? '아직 맞히지 않은 단어 시험 문제가 없어요 🎉' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '틀린 문제가 생기면 여기에서 다시 풀 수 있어요.' : mode === "remind" ? '다른 게임에서 먼저 정답을 맞히면 리마인드에 추가돼요.' : mode === "word" ? '맞힌 단어는 리마인드에서 다시 풀 수 있어요.' : '학습 데이터를 확인해 주세요.') + '</p>' + gameNavigation(true) + '</div>';
       scrollGameTop();
       return;
     }
