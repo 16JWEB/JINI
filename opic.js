@@ -96,6 +96,8 @@
       ).join("") + '</div><p class="op-note">진도는 현재 브라우저에 저장해요. 음성 인식은 기기 및 브라우저 지원 여부에 따라 사용 가능해요.</p>';
   }
   function setStage(next) {
+    if (activeStage !== next && recognition) stopRecognition();
+    if (activeStage !== next) stopSpeech();
     activeStage = Math.max(1, Math.min(3, next));
     root.querySelectorAll("[data-training-step]").forEach(card => {
       card.hidden = Number(card.dataset.trainingStep) !== activeStage;
@@ -160,8 +162,8 @@
     const words = answer.match(/[A-Za-z]+(?:'[A-Za-z]+)?/g) || [];
     const tips = [];
     if (words.length < 12) tips.push("한 문장 더 덧붙여 답변을 조금 늘려 보세요.");
-    if (!/\\b(because|so|since|as a result)\\b/i.test(answer)) tips.push("because나 so로 이유를 연결해 보세요.");
-    if (!/\\b(for example|for instance|last|once|one time|yesterday|ago)\\b/i.test(answer)) tips.push("자신의 경험이나 구체적인 예시 한 가지를 추가하면 좋아요.");
+    if (!/\b(because|so|since|as a result)\b/i.test(answer)) tips.push("because나 so로 이유를 연결해 보세요.");
+    if (!/\b(for example|for instance|last|once|one time|yesterday|ago)\b/i.test(answer)) tips.push("자신의 경험이나 구체적인 예시 한 가지를 추가하면 좋아요.");
     feedback.textContent = "기본 점검 · " + words.length + "단어: " + (tips.length ? tips.join(" ") : "답변에 이유와 예시가 들어 있어요. 이제 소리 내어 자연스럽게 말해 보세요.") + " (문법·발음·시험 점수는 판정하지 않아요.)";
   }
   if (hub) hub.addEventListener("click", event => {
@@ -190,7 +192,7 @@
   function renderQuestion() {
     const q = current();
     const done = state.completed.includes(q.id);
-    root.innerHTML = '<div class="op-top"><div><span class="eyebrow section-eyebrow">OPIc · BASIC ANSWER PRACTICE</span><h1 class="page-title">기초 답변 훈련</h1><p>현재 주제 <strong>' + escape(q.topic) + '</strong></p></div><label class="op-level">학습 난이도<select id="op-level">' + Object.entries(levels).map(([v, label]) => '<option value="' + v + '" ' + (v === state.level ? "selected" : "") + '>' + label + '</option>').join("") + '</select></label></div>' +
+    root.innerHTML = '<div class="op-top"><div><span class="eyebrow section-eyebrow">SPEAKING · BASIC ANSWER PRACTICE</span><h1 class="page-title">기초 답변 훈련</h1><p>현재 주제 <strong>' + escape(q.topic) + '</strong></p></div><label class="op-level">모범답변 수준<select id="op-level">' + Object.entries(levels).map(([v, label]) => '<option value="' + v + '" ' + (v === state.level ? "selected" : "") + '>' + label + '</option>').join("") + '</select></label></div>' +
       '<div class="op-progress"><span>문제 ' + (index + 1) + ' / 20</span><span>학습 완료 ' + state.completed.length + ' / 20 (' + Math.round(state.completed.length / questions.length * 100) + '%)</span></div><progress max="20" value="' + state.completed.length + '" aria-label="학습 완료 진행률"></progress>' +
       '<article class="op-card"><h2 id="op-question-heading" tabindex="-1">1. 질문 듣고 이해하기</h2><p class="op-question" lang="en">' + escape(q.en) + '</p><p>' + escape(q.ko) + '</p><div class="op-actions">' + button("🔊 질문 음성 재생", "question", true) + button("음성 멈추기", "stop-audio") + '</div><p id="op-audio-status" class="op-note" role="status">' + (canSpeak ? "미국 영어 음성을 우선 사용해요. 사용 가능한 음성은 기기 설정에 따라 달라요." : "이 브라우저는 음성 재생을 지원하지 않아요. 영어 문장으로 연습해 주세요.") + '</p></article>' +
       '<article class="op-card"><div class="op-card-heading"><h2>2. 한국어 힌트로 답변 구상하기</h2>' + button("힌트 보기", "hint", false, 'aria-expanded="false" aria-controls="op-hint"') + '</div><div id="op-hint" hidden><p>' + escape(q.hint) + '</p><h3>핵심 단어와 표현</h3><ul>' + q.expressions.map(e => '<li>' + escape(e) + '</li>').join("") + '</ul></div></article>' +
@@ -198,7 +200,7 @@
       '<article class="op-card"><h2>4. 나만의 영어 답변 연습하기</h2><label for="op-answer">위 힌트를 참고해 내 이야기로 바꿔 써 보세요.</label><textarea id="op-answer" lang="en" rows="6" maxlength="10000" placeholder="Start with one or two sentences…" spellcheck="true"></textarea><div class="op-actions">' + (canRecognize ? button("🎤 말해서 입력", "mic", false, 'id="op-mic" aria-pressed="false"') : "") + '</div><p class="op-note" id="op-mic-status" role="status">' + (canRecognize ? "마이크를 허용하면 영어로 말한 내용을 답변 끝에 추가해요. 인식된 문장은 직접 고칠 수 있어요. 브라우저에 따라 음성 처리를 위해 인터넷 연결이 필요할 수 있어요." : "이 환경에서는 음성 인식을 사용할 수 없어요. 위 입력란에 직접 작성하며 연습해 주세요.") + '</p><p id="op-save-status" class="op-note" role="status">' + (storageFailed ? "브라우저 저장을 사용할 수 없어요. 중요한 답변은 복사해 주세요." : "답변과 학습 기록은 이 브라우저에 자동 저장돼요.") + '</p></article>' +
       '<article class="op-card"><div class="op-card-heading"><h2>5. 모범 답변과 비교하기</h2>' + button("모범 답변 보기", "model", false, 'aria-expanded="false" aria-controls="op-model"') + '</div><div id="op-model" hidden><p class="op-note">' + levels[state.level] + ' 참고 답변 · 실제 등급이나 점수를 보장하는 답변이 아니에요. 내 경험에 맞게 바꿔 말해 보세요.</p><p class="op-model" lang="en">' + escape(q.answers[state.level]) + '</p>' + button("🔊 모범 답변 음성 듣기", "model-audio", true) + '</div></article>' +
       '<div class="op-card op-finish">' + button(done ? "✓ 학습 완료 · 누르면 표시 취소" : "이 문제 학습 완료 표시", "complete", !done, 'aria-pressed="' + done + '"') + '<p class="op-note" id="op-complete-status" role="status">직접 연습하고 복습했다면 완료를 표시해 주세요. 다음 문제로 이동해도 작성한 답변은 저장돼요.</p>' + (state.completed.length === questions.length ? '<p>🎉 20문제를 모두 학습했어요! 목록에서 원하는 문제를 다시 연습할 수 있어요.</p>' : "") + '</div>' +
-      '<nav class="op-bottom" aria-label="오픽 문제 이동">' + button("← 오픽 학습 목록", "list") + '<div class="op-actions">' + button("이전 문제", "previous", false, index === 0 ? "disabled" : "") + button("다음 문제 →", "next", true, index === questions.length - 1 ? "disabled" : "") + '</div></nav>';
+      '<nav class="op-bottom" aria-label="오픽 문제 이동">' + button("← 주제별 질문 목록", "list") + '<div class="op-actions">' + button("이전 문제", "previous", false, index === 0 ? "disabled" : "") + button("다음 문제 →", "next", true, index === questions.length - 1 ? "disabled" : "") + '</div></nav>';
     document.getElementById("op-answer").value = state.answers[q.id] || "";
     renderSentence();
     decorateQuestion();
