@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="korean-game.css?v=20261017-bottom-nav">
   <link rel="stylesheet" href="english-game.css?v=20261017-example-feedback">
   <link rel="stylesheet" href="opic.css?v=20261017-level-il-ih">
+  <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
 </head>
 <body>
   <div class="app-shell">
@@ -53,6 +54,9 @@
             </button>
             <button class="nav-item opic-menu-child" data-page="opic" type="button">
               <span class="nav-icon">↳</span><span>주제별 질문 목록</span>
+            </button>
+            <button class="nav-item opic-menu-child" data-page="opic-mock" type="button">
+              <span class="nav-icon">↳</span><span>실전 연습</span><span class="nav-count">15</span>
             </button>
           </div>
           <button class="nav-item" data-page="english-game">
@@ -273,6 +277,10 @@
         <div id="opic-basic-root"></div>
       </section>
 
+      <section class="opic-section" id="opic-mock-section" hidden>
+        <div id="opic-mock-root"></div>
+      </section>
+
       <section class="korean-game-section" id="korean-game-section" hidden>
         <div class="kg-head">
           <div>
@@ -338,11 +346,13 @@
   <script src="content-review.js?v=20261017-final-review"></script>
   <script src="content-review-part2.js?v=20261017-final-review"></script>
   <script src="content-curated.js?v=20261017-final-review"></script>
-  <script src="app.js?v=20261017-opic"></script>
+  <script src="app.js?v=20261017-mock-v1"></script>
   <script src="korean-game.js?v=20261017-bottom-nav"></script>
   <script src="english-game.js?v=20261017-example-feedback"></script>
   <script src="opic-data.js?v=20261017-opic"></script>
   <script src="opic.js?v=20261017-level-il-ih"></script>
+  <script src="opic-mock-data.js?v=20261017-mock-v1"></script>
+  <script src="opic-mock.js?v=20261017-mock-v1"></script>
 </body>
 </html>
 
