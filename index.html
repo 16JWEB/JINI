@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="korean-game.css?v=20261017-dialog-audio-submit">
   <link rel="stylesheet" href="english-game.css?v=20261017-cloze-box">
   <link rel="stylesheet" href="game-character.css?v=20261018-hd-wardrobe-final">
+  <link rel="stylesheet" href="admin-preview.css?v=20261018-admin-preview-1">
   <link rel="stylesheet" href="opic.css?v=20261017-game-submenus">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
 </head>
@@ -134,6 +135,7 @@
       </header>
 
       <section class="home-section" id="home-section">
+        <button id="jini-admin-entry" type="button" aria-haspopup="dialog" aria-controls="jini-admin-dialog">관리자 페이지</button>
         <div class="home-study-tabs" role="group" aria-label="공부할 언어 선택">
           <div class="home-study-choice">
             <button class="home-start-button" id="start-learning" type="button" data-resume-study="english">AI 영어공부</button>
@@ -369,6 +371,46 @@
     </main>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="jini-admin-dialog" class="ja-auth" aria-labelledby="ja-dialog-title">
+    <div class="ja-topline">
+      <strong id="ja-dialog-title">관리자 페이지</strong>
+      <button class="ja-close" type="button" data-ja-close aria-label="관리자 페이지 닫기">닫기 ✕</button>
+    </div>
+    <div class="ja-login" id="ja-login">
+      <p>관리자 전용 캐릭터 보상 미리보기입니다. 비밀번호를 입력해 주세요.</p>
+      <form id="ja-login-form">
+        <label for="ja-password">비밀번호</label>
+        <input id="ja-password" type="password" inputmode="numeric" autocomplete="off" aria-describedby="ja-error" required>
+        <button class="ja-primary" type="submit">확인</button>
+        <p id="ja-error" class="ja-error" role="alert" hidden></p>
+      </form>
+    </div>
+    <div id="ja-panel" class="ja-panel" hidden>
+      <div class="ja-tabs" role="tablist" aria-label="관리자 메뉴">
+        <button class="ja-tab" type="button" role="tab" aria-selected="true" aria-controls="ja-preview-panel" id="ja-tab-preview">캐릭터 보상 미리보기</button>
+      </div>
+      <section id="ja-preview-panel" role="tabpanel" aria-labelledby="ja-tab-preview">
+        <p class="ja-intro">토끼·고양이·곰·여우의 실제 캐릭터 그림에 공통 보상 파츠를 장착한 예시예요. 레벨을 눌러 성장 외형과 장비를 비교할 수 있어요.</p>
+        <div class="ja-stages" role="group" aria-label="미리 볼 캐릭터 레벨">
+          <button class="ja-stage" type="button" data-ja-level="1" aria-pressed="false">Lv.1</button>
+          <button class="ja-stage" type="button" data-ja-level="50" aria-pressed="false">Lv.50</button>
+          <button class="ja-stage" type="button" data-ja-level="100" aria-pressed="true">Lv.100</button>
+          <button class="ja-stage" type="button" data-ja-level="140" aria-pressed="false">Lv.140</button>
+        </div>
+        <div class="ja-grid">
+          <article class="ja-char"><strong>🐰 토끼</strong><div class="ja-art" data-ja-animal="rabbit" aria-label="토끼 캐릭터 장착 예시">🐰</div></article>
+          <article class="ja-char"><strong>🐱 고양이</strong><div class="ja-art" data-ja-animal="cat" aria-label="고양이 캐릭터 장착 예시">🐱</div></article>
+          <article class="ja-char"><strong>🐻 곰</strong><div class="ja-art" data-ja-animal="bear" aria-label="곰 캐릭터 장착 예시">🐻</div></article>
+          <article class="ja-char"><strong>🦊 여우</strong><div class="ja-art" data-ja-animal="fox" aria-label="여우 캐릭터 장착 예시">🦊</div></article>
+        </div>
+        <div class="ja-equipment">
+          <strong>미리보기 착용 보상</strong>
+          <div class="ja-equip-parts" id="ja-equip-parts"></div>
+        </div>
+        <p class="ja-footnote">표시된 장비는 해당 레벨까지 획득할 수 있는 보상 조합 예시이며, 실제 이용자의 장착 상태는 변경하지 않습니다. 공개 정적 사이트이므로 이 화면의 비밀번호는 강력한 접근 통제가 아닙니다.</p>
+      </section>
+    </div>
+  </dialog>
   <dialog id="jini-character-dialog" aria-labelledby="jini-character-title"></dialog>
   <div id="jini-level-up-toast" role="status" aria-live="polite" hidden></div>
   <script src="words-elementary-extra.js?v=20261017-final-review"></script>
@@ -398,6 +440,7 @@
   <script src="app.js?v=20261017-game-submenus"></script>
   <script src="game-character-art.js?v=20261018-hd-assets-final"></script>
   <script src="game-character.js?v=20261018-equipped-final"></script>
+  <script src="admin-preview.js?v=20261018-admin-preview-1"></script>
   <script src="korean-game.js?v=20261018-review-reminder"></script>
   <script src="english-game.js?v=20261018-review-reminder"></script>
   <script src="opic-data.js?v=20261017-opic"></script>
