@@ -30,7 +30,7 @@ const phrases=[
 ["초등","Can you help me?","도와주실 수 있나요?"],["초등","Thank you very much.","정말 감사합니다."],["초등","Where is the bathroom?","화장실이 어디예요?"],["초등","Have a nice day!","좋은 하루 보내세요!"],
 ["중등","Could you say that again?","다시 말씀해 주시겠어요?"],["중등","I'm looking forward to it.","기대하고 있어요."],["중등","Let me think about it.","생각해 볼게요."],["중등","I haven't decided yet.","아직 결정하지 않았어요."],
 ["고등","I'd appreciate your feedback.","의견을 주시면 감사하겠습니다."],["고등","Could you elaborate on that?","좀 더 자세히 설명해 주시겠어요?"],["고등","I understand your concerns.","걱정하시는 부분을 이해해요."],["고등","Let's consider another approach.","다른 방법을 고려해 봅시다."]];
-const words=(window.WORDS||[]).filter(w=>w&&levels.includes(w.level)&&/^[a-z][a-z'-]*$/i.test(w.word||"")&&String(w.meaning||"").trim());
+const words=(window.WORDS||[]).filter(w=>w&&levels.includes(w.level)&&/^[a-z][a-z' -]*$/i.test(w.word||"")&&String(w.meaning||"").trim());
 let level="초등", count=10, accent="en-US", game=null, active=false, status="", heard="", recognition=null, recorder=null, stream=null, audioUrl=null, recording=false;
 let memory={xp:0,tries:0,correct:0,items:{}};
 try{const saved=JSON.parse(localStorage.getItem(KEY)||"null");if(saved&&saved.items)memory=Object.assign(memory,saved);}catch(e){}
