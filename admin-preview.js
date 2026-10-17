@@ -8,22 +8,15 @@
   const form = document.getElementById("ja-login-form");
   const passwordInput = document.getElementById("ja-password");
   const error = document.getElementById("ja-error");
-  const equipment = document.getElementById("ja-equip-parts");
-  if (!entry || !dialog || !loginView || !panel || !form || !passwordInput || !equipment) return;
-  const EXPECTED_DIGEST = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
+  if (!entry || !dialog || !loginView || !panel || !form || !passwordInput) return;
+  const EXPECTED_DIGEST = "d4758ff40ebce1b5d0980f165c14d660f4723e50cd8c59d25403cde2ad87edc6";
   const ANIMALS = [
     { id: "rabbit", name: "토끼", emoji: "🐰" },
     { id: "cat", name: "고양이", emoji: "🐱" },
     { id: "bear", name: "곰", emoji: "🐻" },
     { id: "fox", name: "여우", emoji: "🦊" }
   ];
-  // These are display examples of currently unlocked gear, not auto-equipped rewards.
-  const EXAMPLES = {
-    1: { hat: "none", outfit: "basic", bag: "none", book: "basic", names: ["기본 옷", "기본 책"] },
-    50: { hat: "ribbon", outfit: "academy", bag: "backpack", book: "special", names: ["핑크 리본", "학생복", "책가방", "별빛 책"] },
-    100: { hat: "crown", outfit: "robe", bag: "premium", book: "special", names: ["왕관", "마법사 의상", "고급 가방", "별빛 책"] },
-    140: { hat: "scholar", outfit: "royal", bag: "explorer", book: "cosmic", names: ["마법사 모자", "왕실 의상", "모험 가방", "별자리 책"] }
-  };
+  const PREVIEW_LEVELS = new Set([1, 50, 100, 140]);
   let level = 100;
   function reset() {
     loginView.hidden = false;
@@ -39,7 +32,6 @@
     else { dialog.removeAttribute("open"); reset(); }
   }
   function render() {
-    const sample = EXAMPLES[level];
     dialog.querySelectorAll("[data-ja-level]").forEach(function (button) {
       const active = Number(button.dataset.jaLevel) === level;
       button.classList.toggle("is-active", active);
@@ -49,21 +41,11 @@
       const animal = ANIMALS.find(function (a) { return a.id === target.dataset.jaAnimal; });
       if (!animal) return;
       if (window.JINI_CHARACTER_ART && typeof window.JINI_CHARACTER_ART.render === "function") {
-        target.innerHTML = window.JINI_CHARACTER_ART.render({
-          avatar: animal.id, level: level,
-          equipped: { hat: sample.hat, outfit: sample.outfit, bag: sample.bag, book: sample.book }
-        });
+        target.innerHTML = window.JINI_CHARACTER_ART.render({ avatar: animal.id, level: level });
       } else {
         target.textContent = animal.emoji;
         target.classList.add("ja-fallback");
       }
-    });
-    equipment.replaceChildren();
-    sample.names.forEach(function (name) {
-      const part = document.createElement("span");
-      part.className = "ja-equip-part";
-      part.textContent = name;
-      equipment.appendChild(part);
     });
   }
   async function digest(value) {
@@ -103,7 +85,7 @@
     button.addEventListener("click", function () {
       if (panel.hidden) return;
       const selected = Number(button.dataset.jaLevel);
-      if (!Object.prototype.hasOwnProperty.call(EXAMPLES, selected)) return;
+      if (!PREVIEW_LEVELS.has(selected)) return;
       level = selected;
       render();
     });
