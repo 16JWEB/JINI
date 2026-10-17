@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
   <link rel="stylesheet" href="game-character-aura.css?v=20261018-aura-2">
   <link rel="stylesheet" href="home-characters.css?v=20261018-home-study-top-v1">
-  <link rel="stylesheet" href="admin-preview.css?v=20261018-admin-preview-1">
+  <link rel="stylesheet" href="admin-preview.css?v=20261018-admin-topbar-1">
   <link rel="stylesheet" href="opic.css?v=20261017-game-submenus">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
 </head>
@@ -129,7 +129,10 @@
 
     <main class="main-content">
       <header class="topbar">
-        <div class="breadcrumb"><span class="breadcrumb-root" id="breadcrumb-section">홈</span><span id="breadcrumb-divider" hidden> / </span><strong id="breadcrumb-level"></strong></div>
+        <div class="topbar-start">
+          <div class="breadcrumb"><span class="breadcrumb-root" id="breadcrumb-section">홈</span><span id="breadcrumb-divider" hidden> / </span><strong id="breadcrumb-level"></strong></div>
+          <button id="jini-admin-entry" type="button" aria-haspopup="dialog" aria-controls="jini-admin-dialog">관리자 페이지</button>
+        </div>
         <div class="top-actions">
           <span class="voice-status"><i></i> 기기 기본 음성</span>
           <button class="profile" aria-label="프로필">J</button>
@@ -137,7 +140,6 @@
       </header>
 
       <section class="home-section" id="home-section">
-        <button id="jini-admin-entry" type="button" aria-haspopup="dialog" aria-controls="jini-admin-dialog">관리자 페이지</button>
         <div class="jini-home-wrap">
           <strong class="jini-home-actions-title">공부 이어가기</strong>
           <div class="home-study-tabs" role="group" aria-label="공부할 언어 선택">
