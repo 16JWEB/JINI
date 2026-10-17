@@ -36,6 +36,10 @@
 .eg-bar i{display:block;height:100%;background:#6958e8;border-radius:100px;transition:width .2s}
 .eg-prompt{font-size:14px;color:#77788c;line-height:1.75}
 .eg-term{min-height:104px;padding:25px 16px;display:grid;place-items:center;text-align:center;font-weight:800;font-size:clamp(21px,3.2vw,31px);line-height:1.5;word-break:keep-all;border:1px solid #efedfc;border-radius:14px;background:#faf9ff}
+/* Keep the quiz word unchanged and show its dictionary IPA directly beneath it. */
+.eg-term.eg-term-word{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.eg-term-text{display:block}
+.eg-term-ipa{display:block;font-size:clamp(15px,2.25vw,19px);line-height:1.5;font-weight:500;letter-spacing:0;color:#797b94;overflow-wrap:anywhere}
 .eg-audio{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0}
 .eg-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
 .eg-option{min-height:68px;display:flex;align-items:center;justify-content:flex-start;text-align:left;padding:12px 14px;border-color:#e8e8f1;background:#fff;color:#303049}
