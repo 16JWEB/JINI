@@ -128,3 +128,22 @@
  #english-study-menu .opic-menu-group .nav-item{min-height:44px}
  .opic-menu-child{font-size:11px;padding-left:26px}
 }
+
+
+/* Example-first: see and hear a real short answer before building your own. */
+.op-example-card{border-color:#ded8ff}
+.op-example-card>.op-card-heading{align-items:flex-start}
+.op-example-card>.op-card-heading h2{margin:0;flex:1}
+.op-first-example{padding:21px 23px;margin:13px 0 12px;background:#f8f7ff;border:1px solid #e1ddff;border-radius:15px}
+.op-sample-text{font-size:clamp(18px,2.2vw,23px);line-height:1.7;font-weight:700;color:#37306f;margin:0 0 12px!important;overflow-wrap:anywhere}
+.op-sample-translation{font-size:14px!important;line-height:1.85!important;color:#66647c!important;margin:10px 0 0!important}
+.op-first-example .op-sample-translation{border-top:1px solid #e7e3fa;padding-top:12px}
+.op-example-hint{margin-top:17px;padding-top:13px;border-top:1px solid #f0eef6}
+.op-example-hint .op-card-heading{margin:0}
+.op-answer-example .op-sample-translation{font-size:13px!important;border-top:1px solid #edeafd;padding-top:8px}
+@media(max-width:760px){
+ .op-first-example{padding:16px 15px}
+ .op-example-card>.op-card-heading{flex-direction:column;align-items:stretch;gap:10px}
+ .op-example-card>.op-card-heading>.op-btn{width:100%}
+ .op-sample-text{font-size:18px}
+}
