@@ -68,3 +68,63 @@
   #english-study-menu .opic-menu-group .nav-item{min-height:44px}
   .opic-menu-child{padding:9px 5px;font-size:9px}
 }
+
+
+/* Speaking hub and 3-step answer flow */
+.op-hub-hero{display:flex;gap:28px;align-items:center;justify-content:space-between;border-radius:20px;padding:30px;margin:22px 0 22px;background:linear-gradient(115deg,#edeaff,#f9f8ff 70%,#eef5ff);border:1px solid #e7e2ff}
+.op-hub-hero h2{font-size:clamp(21px,2.7vw,30px);line-height:1.4;margin:10px 0;color:var(--ink);letter-spacing:-.7px}
+.op-hub-hero p{font-size:14px;color:#66677f;line-height:1.8;max-width:640px;margin:0 0 14px}
+.op-hub-availability{display:inline-block;font-size:12px;color:#6056a7;font-weight:700}
+.op-hub-meter{flex:0 0 168px;padding:19px;border:1px solid #e4dfff;border-radius:16px;background:white;display:flex;flex-direction:column;align-items:flex-start}
+.op-hub-meter strong{font-size:32px;line-height:1.2;color:var(--purple)}
+.op-hub-meter small{font-size:15px;color:#9390aa}
+.op-hub-meter span{color:#66677f;font-size:12px;margin:4px 0 8px}
+.op-hub-meter progress{margin:0}
+.op-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:0 0 17px}
+.op-hub-card{display:flex;flex-direction:column;align-items:flex-start;min-height:206px;padding:23px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.op-hub-card h3{font-size:17px;margin:7px 0 4px;line-height:1.45}
+.op-hub-card p{color:#77788d;line-height:1.7;margin:0 0 20px}
+.op-hub-card .op-btn,.op-hub-upcoming{margin-top:auto}
+.op-hub-number{font-size:12px;letter-spacing:1px;font-weight:800;color:var(--purple)}
+.op-hub-coming{background:#fafafe}
+.op-hub-upcoming{display:inline-block;padding:6px 11px;border-radius:20px;background:#edecf3;font-weight:700;color:#85869a;font-size:12px}
+.op-stepper{margin:12px 0 19px;padding:18px 20px 15px;border:1px solid #e4e0fc;background:#f8f7ff;border-radius:17px}
+.op-stepper-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.op-stepper-head strong{font-size:15px}
+.op-stepper-head span{color:#87869b;font-size:12px}
+.op-step-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.op-step-tabs button{border:1px solid #ddd9f4;border-radius:12px;background:#fff;padding:14px 8px;min-height:54px;font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+.op-step-tabs button span{color:#8d7ff0;margin-right:5px}
+.op-step-tabs button.is-selected{background:var(--purple);border-color:var(--purple);color:white;box-shadow:0 5px 14px #6958e82a}
+.op-step-tabs button.is-selected span{color:#e3dcff}
+.op-step-guide{margin:13px 0 0;color:#636477;font-size:13px;line-height:1.7}
+.op-stage-tag{display:inline-block;margin-bottom:10px;color:#6555cd;font-size:12px;font-weight:800;letter-spacing:.4px}
+.op-answer-example{padding:15px 17px;margin-top:13px;border:1px solid #eeeaff;background:#fafaff;border-radius:12px}
+.op-answer-example p{font-size:16px;line-height:1.8;color:var(--ink);margin:8px 0 0}
+.op-answer-example .op-card-heading{align-items:center;margin-bottom:3px}
+.op-answer-example .op-btn{min-height:36px;padding:5px 10px;font-size:12px}
+.op-stage-hint{padding:16px 17px;margin-top:15px;border-radius:12px;background:#f1efff}
+.op-stage-hint p{font-size:13px;line-height:1.85;margin:9px 0 0}
+.op-checkbar{margin-top:12px;display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.op-checkbar .op-note{flex:1;min-width:180px}
+.op-draft-feedback{margin:12px 0;padding:14px 16px;border:1px solid #e0dcfd;border-radius:11px;background:#f8f7ff;line-height:1.85}
+.op-stage-navigation{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;margin:16px 0 8px}
+.op-stage-navigation .op-btn{min-width:153px}
+.op-stage-navigation [hidden]{display:none!important}
+@media(max-width:760px){
+ .op-hub-hero{flex-direction:column;align-items:stretch;padding:21px;gap:16px}
+ .op-hub-meter{flex-basis:auto;width:100%}
+ .op-hub-grid{grid-template-columns:1fr;gap:11px}
+ .op-hub-card{min-height:158px;padding:18px}
+ .op-stepper{padding:13px 12px}
+ .op-stepper-head span{display:none}
+ .op-step-tabs{gap:5px}
+ .op-step-tabs button{padding:10px 3px;font-size:11px;min-height:50px}
+ .op-step-tabs button span{display:block;margin:0 0 3px}
+ .op-answer-example{padding:12px}
+ .op-stage-navigation{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ .op-stage-navigation .op-btn{min-width:0;padding:10px 5px;font-size:12px}
+ .opic-menu-group{display:flex;flex-direction:column;align-items:stretch;flex:0 0 auto;margin:0;padding:0;border-left:0;width:100%;gap:2px}
+ #english-study-menu .opic-menu-group .nav-item{min-height:44px}
+ .opic-menu-child{font-size:11px;padding-left:26px}
+}
