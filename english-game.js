@@ -169,6 +169,13 @@ function feedback(q){
  }
  return html+'</div>';
 }
+function questionIpa(q){
+ if(q.mode!=="word")return "";
+ // A saved review question can predate the IPA field; use the source vocabulary.
+ if(q.ipa)return String(q.ipa);
+ const word=words.find(item=>item.word===q.voice&&item.level===String(q.id||"").split(":")[1]);
+ return word&&word.ipa?String(word.ipa):"";
+}
 function render(){
  if(!game){dashboard();return;}
  const q=game.questions[game.index];
@@ -179,9 +186,12 @@ function render(){
  const mode=modes.find(m=>m[0]===game.mode);
  let html=nav()+'<div class="eg-progress"><span>'+mode[1]+' '+mode[2]+'</span><span>'+(game.index+1)+' / '+game.questions.length+'</span></div>'+
  '<div class="eg-bar"><i style="width:'+(game.index/game.questions.length*100)+'%"></i></div>'+
- '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term">'+
+ '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term'+(q.mode==="word"?" eg-term-word":"")+'">'+
  (q.mode==="sentence"?
    esc(q.title).replace("______",'<span id="eg-cloze-word" class="eg-cloze-word'+(q.draft||q.response?" eg-cloze-filled":"")+'">'+(q.draft||q.response?esc(q.draft||q.response):"&#160;")+'</span>'):
+   q.mode==="word"?
+     '<span class="eg-term-text" lang="en">'+esc(q.title)+'</span>'+
+     (questionIpa(q)?'<span class="eg-term-ipa" lang="en">'+esc(questionIpa(q))+'</span>':""):
    esc(q.title))+'</div>';
  if(q.mode==="listen")html+='<div class="eg-audio">'+btn("🔊 다시 듣기","listen","eg-main")+'</div>';
  else if(q.mode==="word"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
