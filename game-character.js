@@ -1,6 +1,7 @@
-/* JINI English/Korean game characters. Each language has its own XP and level. */
+/* JINI study mascots: independent English/Korean characters, actual XP, repeatable unlocks. */
 (function () {
   "use strict";
+  const XP_PER_LEVEL = 100;
   const ENGLISH_KEY = "jini-english-game-v1";
   const KOREAN_KEY = "jini-korean-games-v1";
   const LEGACY_PROFILE_KEY = "jini-game-character-v1";
@@ -12,115 +13,224 @@
     english: { label: "영어", xpKey: ENGLISH_KEY, defaultName: "영어 모험가", defaultAvatar: "fox" },
     korean: { label: "한글", xpKey: KOREAN_KEY, defaultName: "한글 모험가", defaultAvatar: "rabbit" }
   };
-  const XP_PER_LEVEL = 100;
   const AVATARS = [
-    { id: "fox", icon: "🦊", label: "여우" },
+    { id: "rabbit", icon: "🐰", label: "토끼" },
     { id: "cat", icon: "🐱", label: "고양이" },
-    { id: "panda", icon: "🐼", label: "판다" },
-    { id: "rabbit", icon: "🐰", label: "토끼" }
+    { id: "bear", icon: "🐻", label: "곰" },
+    { id: "fox", icon: "🦊", label: "여우" }
+  ];
+  const COLORS = [
+    { id: "blue", name: "블루", hex: "#6499E8" },
+    { id: "purple", name: "퍼플", hex: "#AC84E8" },
+    { id: "pink", name: "핑크", hex: "#EE91B8" },
+    { id: "mint", name: "민트", hex: "#61C7B3" },
+    { id: "yellow", name: "옐로", hex: "#EABF67" },
+    { id: "black", name: "차콜", hex: "#687288" }
+  ];
+  const DEFAULT_EQUIPPED = { hat: "none", bag: "none", book: "basic", outfit: "basic", effect: "none" };
+  const ITEMS = {
+    hat: [
+      { id: "none", name: "없음", lv: 1 },
+      { id: "ribbon", name: "리본 / 모자", lv: 10 },
+      { id: "crown", name: "특별 머리장식", lv: 90 }
+    ],
+    bag: [
+      { id: "none", name: "없음", lv: 1 },
+      { id: "backpack", name: "책가방", lv: 20 },
+      { id: "premium", name: "고급 가방", lv: 80 }
+    ],
+    book: [
+      { id: "basic", name: "기본 책", lv: 1 },
+      { id: "special", name: "별빛 책", lv: 30 }
+    ],
+    outfit: [
+      { id: "basic", name: "기본 옷", lv: 1 },
+      { id: "academy", name: "학생복", lv: 40 },
+      { id: "robe", name: "고급 의상", lv: 70 }
+    ],
+    effect: [
+      { id: "none", name: "없음", lv: 1 },
+      { id: "stars", name: "반짝 효과", lv: 60 }
+    ]
+  };
+  const REWARDS = [
+    { level: 10, label: "머리장식", icon: "🎀" },
+    { level: 20, label: "책가방", icon: "🎒" },
+    { level: 30, label: "책 스킨", icon: "📘" },
+    { level: 40, label: "학생복", icon: "👕" },
+    { level: 50, label: "루키 성장", icon: "🌱", growth: true },
+    { level: 60, label: "반짝 효과", icon: "✨" },
+    { level: 70, label: "고급 의상", icon: "🧥" },
+    { level: 80, label: "고급 가방", icon: "👜" },
+    { level: 90, label: "특별 머리장식", icon: "👑" },
+    { level: 100, label: "에이스 성장", icon: "🌟", growth: true }
   ];
   const panels = Array.from(document.querySelectorAll("[data-jini-character-panel]"));
   const dialog = document.getElementById("jini-character-dialog");
   const toast = document.getElementById("jini-level-up-toast");
   if (!dialog || !panels.length) return;
-
-  const studyOf = value => value === "korean" ? "korean" : "english";
   const escape = value => String(value == null ? "" : value).replace(/[&<>"']/g, c =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-
+  const studyOf = value => value === "korean" ? "korean" : "english";
+  const avatarOf = id => AVATARS.find(a => a.id === id) || AVATARS[0];
   function readXP(key) {
     try {
       const data = JSON.parse(localStorage.getItem(key) || "null");
-      const amount = data && Number(data.xp);
-      return Number.isSafeInteger(amount) && amount >= 0 ? amount : 0;
+      const xp = data && Number(data.xp);
+      return Number.isSafeInteger(xp) && xp >= 0 ? xp : 0;
     } catch (_) { return 0; }
   }
-  function readCharacter(study) {
-    const meta = STUDIES[study];
-    const defaultProfile = { name: meta.defaultName, avatar: meta.defaultAvatar };
-    try {
-      // Prior character selections are inherited initially, but subsequent edits
-      // are saved separately for each language without losing old preferences.
-      const stored = localStorage.getItem(PROFILE_KEYS[study]);
-      const data = JSON.parse(stored || localStorage.getItem(LEGACY_PROFILE_KEY) || "null");
-      if (!data || typeof data !== "object") return defaultProfile;
-      return {
-        name: typeof data.name === "string" && data.name.trim()
-          ? data.name.trim().slice(0, 16) : defaultProfile.name,
-        avatar: AVATARS.some(a => a.id === data.avatar) ? data.avatar : defaultProfile.avatar
-      };
-    } catch (_) { return defaultProfile; }
-  }
-  const profiles = { english: readCharacter("english"), korean: readCharacter("korean") };
-  let activeStudy = "english";
-  const lastLevels = { english: null, korean: null };
-  let toastTimer;
-
   function readScore(study) {
     const key = studyOf(study);
     const xp = readXP(STUDIES[key].xpKey);
     return {
-      study: key, xp,
-      level: Math.floor(xp / XP_PER_LEVEL) + 1,
+      study: key, xp: xp, level: Math.floor(xp / XP_PER_LEVEL) + 1,
       inLevel: xp % XP_PER_LEVEL,
       untilNext: XP_PER_LEVEL - xp % XP_PER_LEVEL,
       percent: xp % XP_PER_LEVEL
     };
   }
-  const avatarIcon = study => (AVATARS.find(a => a.id === profiles[study].avatar) || AVATARS[0]).icon;
-
+  function growth(level) {
+    if (level >= 100) return { stage: 3, name: "에이스", description: "더 큰 모습과 새로운 디테일로 성장했어요." };
+    if (level >= 50) return { stage: 2, name: "루키", description: "한층 성장한 공부 친구예요." };
+    return { stage: 1, name: "새싹", description: "책을 들고 첫 공부를 시작했어요." };
+  }
+  function readCharacter(study) {
+    const meta = STUDIES[study];
+    const fallback = { name: meta.defaultName, avatar: meta.defaultAvatar, color: study === "english" ? "blue" : "purple", equipped: Object.assign({}, DEFAULT_EQUIPPED) };
+    try {
+      const saved = localStorage.getItem(PROFILE_KEYS[study]);
+      const data = JSON.parse(saved || localStorage.getItem(LEGACY_PROFILE_KEY) || "null");
+      if (!data || typeof data !== "object") return fallback;
+      const oldAvatar = data.avatar === "panda" ? "bear" : data.avatar;
+      const avatar = AVATARS.some(a => a.id === oldAvatar) ? oldAvatar : fallback.avatar;
+      const color = COLORS.some(c => c.id === data.color) ? data.color : fallback.color;
+      const equipped = Object.assign({}, DEFAULT_EQUIPPED);
+      Object.keys(ITEMS).forEach(function (slot) {
+        const id = data.equipped && data.equipped[slot];
+        if (ITEMS[slot].some(entry => entry.id === id)) equipped[slot] = id;
+      });
+      return {
+        name: typeof data.name === "string" && data.name.trim() ? data.name.trim().slice(0, 16) : fallback.name,
+        avatar: avatar, color: color, equipped: equipped
+      };
+    } catch (_) { return fallback; }
+  }
+  const profiles = { english: readCharacter("english"), korean: readCharacter("korean") };
+  let activeStudy = "english";
+  const lastLevels = { english: null, korean: null };
+  let toastTimer;
+  function effectiveEquipment(study) {
+    const score = readScore(study);
+    const stored = profiles[study].equipped;
+    const safe = {};
+    Object.keys(ITEMS).forEach(function (slot) {
+      const selected = ITEMS[slot].find(entry => entry.id === stored[slot]);
+      safe[slot] = selected && score.level >= selected.lv ? selected.id : DEFAULT_EQUIPPED[slot];
+    });
+    return safe;
+  }
+  function illustration(study, avatarOverride) {
+    const profile = profiles[study];
+    const animal = avatarOverride || profile.avatar;
+    if (window.JINI_CHARACTER_ART && typeof window.JINI_CHARACTER_ART.render === "function") {
+      return window.JINI_CHARACTER_ART.render({
+        avatar: animal, color: profile.color, level: readScore(study).level,
+        equipped: effectiveEquipment(study)
+      });
+    }
+    return '<span class="jgc-fallback" aria-hidden="true">' + avatarOf(animal).icon + '</span>';
+  }
   function saveProfile(study) {
     try { localStorage.setItem(PROFILE_KEYS[study], JSON.stringify(profiles[study])); }
-    catch (_) { /* Keep current changes until the browser session ends. */ }
+    catch (_) { /* Changes remain active for this tab. */ }
   }
-
   function renderPanels() {
-    panels.forEach(panel => {
+    panels.forEach(function (panel) {
       const study = studyOf(panel.dataset.jiniCharacterPanel);
       const score = readScore(study);
       const profile = profiles[study];
-      const label = STUDIES[study].label;
+      const tier = growth(score.level);
       panel.innerHTML =
         '<button type="button" class="jgc-card" data-jgc-action="open" data-jgc-study="' + study +
-        '" aria-label="' + label + ' 캐릭터 창 열기, 레벨 ' + score.level + '">' +
-        '<span class="jgc-avatar" aria-hidden="true">' + avatarIcon(study) + '</span>' +
-        '<span class="jgc-card-info"><span class="jgc-label">' + label + ' MY CHARACTER · 나의 캐릭터</span>' +
-        '<span class="jgc-name">' + escape(profile.name) + ' <strong>LV. ' + score.level + '</strong></span>' +
+        '" aria-label="' + STUDIES[study].label + ' 캐릭터 꾸미기, 레벨 ' + score.level + '">' +
+        '<span class="jgc-card-art" aria-hidden="true">' + illustration(study) + '</span>' +
+        '<span class="jgc-card-info"><span class="jgc-label">' + STUDIES[study].label + ' · 나의 캐릭터</span>' +
+        '<span class="jgc-name">' + escape(profile.name) + '<strong>Lv.' + score.level + '</strong></span>' +
+        '<span class="jgc-tier">' + tier.name + ' · ' + avatarOf(profile.avatar).label + ' · ' +
+        (COLORS.find(c => c.id === profile.color) || COLORS[0]).name + '</span>' +
         '<span class="jgc-track"><span style="width:' + score.percent + '%"></span></span>' +
         '<span class="jgc-meter">' + score.inLevel + ' / 100 XP · 다음 레벨까지 ' + score.untilNext + ' XP</span></span>' +
-        '<span class="jgc-card-arrow" aria-hidden="true">상세 보기 ›</span></button>';
+        '<span class="jgc-card-arrow">꾸미기 ›</span></button>';
     });
   }
-
+  function rewardBox(entry, level) {
+    const unlocked = level >= entry.level;
+    return '<div class="jgc-reward' + (unlocked ? ' is-unlocked' : ' is-locked') +
+      (entry.growth ? ' is-growth' : '') + '">' +
+      '<span class="jgc-reward-icon">' + (unlocked ? entry.icon : '🔒') + '</span>' +
+      '<span class="jgc-reward-data"><strong>Lv.' + entry.level + '</strong><small>' + entry.label + '</small></span>' +
+      '<span class="jgc-reward-status">' + (unlocked ? "해금" : "잠김") + '</span></div>';
+  }
+  function slotChoices(study, slot, label) {
+    const level = readScore(study).level;
+    const current = profiles[study].equipped[slot];
+    return '<fieldset class="jgc-item-slot"><legend>' + label + '</legend><div class="jgc-item-buttons">' +
+      ITEMS[slot].map(function (entry) {
+        const locked = level < entry.lv;
+        return '<button type="button" class="jgc-item' + (entry.id === current && !locked ? ' is-selected' : '') +
+          '" data-jgc-action="item" data-slot="' + slot + '" data-item="' + entry.id +
+          '" aria-pressed="' + (entry.id === current && !locked) + '"' + (locked ? ' disabled' : '') +
+          '>' + (locked ? '🔒 ' : '') + escape(entry.name) + (locked ? ' · Lv.' + entry.lv : '') + '</button>';
+      }).join("") + '</div></fieldset>';
+  }
   function renderDialog() {
     const study = activeStudy;
     const score = readScore(study);
     const profile = profiles[study];
+    const tier = growth(score.level);
     const label = STUDIES[study].label;
+    const savedScroll = dialog.scrollTop;
     dialog.innerHTML =
-      '<div class="jgc-dialog-content"><div class="jgc-dialog-head"><span class="jgc-kicker">' +
-      label + ' CHARACTER</span><button type="button" class="jgc-close" data-jgc-action="close" aria-label="캐릭터 창 닫기">✕</button></div>' +
-      '<div class="jgc-portrait"><span class="jgc-portrait-icon" aria-hidden="true">' + avatarIcon(study) + '</span>' +
-      '<span class="jgc-level">' + label + ' LEVEL ' + score.level + '</span><h2 id="jini-character-title">' + escape(profile.name) + '</h2>' +
-      '<p>' + label + ' 연습게임을 풀며 성장하는 나만의 캐릭터</p></div>' +
-      '<div class="jgc-xp-section"><div class="jgc-xp-heading"><strong>' + label + ' 레벨 ' + score.level + ' → ' + (score.level + 1) + '</strong>' +
-      '<span>' + score.inLevel + ' / 100 XP</span></div><div class="jgc-large-track"><span style="width:' + score.percent + '%"></span></div>' +
-      '<p>' + label + ' 게임에서 100 XP를 모을 때마다 해당 레벨만 1씩 올라가요. 다음 레벨까지 <b>' + score.untilNext + ' XP</b>!</p></div>' +
-      '<div class="jgc-figures"><div><small>' + label + ' 누적 경험치</small><strong>' + score.xp.toLocaleString() + ' XP</strong></div>' +
-      '<div><small>현재 레벨</small><strong>LV. ' + score.level + '</strong></div>' +
-      '<div><small>다음 레벨까지</small><strong>' + score.untilNext + ' XP</strong></div></div>' +
+      '<div class="jgc-dialog-content"><div class="jgc-dialog-head"><span class="jgc-kicker">' + label +
+      ' · MY CHARACTER</span><button type="button" class="jgc-close" data-jgc-action="close" aria-label="캐릭터 창 닫기">✕</button></div>' +
+      '<div class="jgc-portrait">' +
+      '<span class="jgc-portrait-art" aria-hidden="true">' + illustration(study) + '</span>' +
+      '<span class="jgc-level">Lv.' + score.level + ' · ' + tier.name + '</span>' +
+      '<h2 id="jini-character-title">' + escape(profile.name) + '</h2>' +
+      '<p>' + tier.description + ' 영어·한글은 각각 따로 키울 수 있어요.</p></div>' +
+      '<div class="jgc-xp-section"><div class="jgc-xp-heading"><strong>' + label + ' 레벨 ' + score.level + ' → ' +
+      (score.level + 1) + '</strong><span>' + score.inLevel + ' / 100 XP</span></div>' +
+      '<div class="jgc-large-track"><span style="width:' + score.percent + '%"></span></div>' +
+      '<p>누적 ' + score.xp.toLocaleString() + ' XP · 다음 레벨까지 ' + score.untilNext + ' XP · 레벨 제한 없음</p></div>' +
       '<div class="jgc-choices"><label for="jgc-name-input">' + label + ' 캐릭터 이름</label>' +
-      '<input id="jgc-name-input" maxlength="16" value="' + escape(profile.name) + '" placeholder="캐릭터 이름" autocomplete="off">' +
-      '<span class="jgc-choice-title">캐릭터 선택</span><div class="jgc-avatar-options">' +
-      AVATARS.map(a => '<button type="button" class="jgc-avatar-option' +
-        (a.id === profile.avatar ? ' is-selected' : '') + '" data-jgc-action="avatar" data-avatar="' + a.id +
-        '" aria-label="' + a.label + ' 캐릭터 선택" aria-pressed="' + (a.id === profile.avatar) + '">' +
-        '<span aria-hidden="true">' + a.icon + '</span><small>' + a.label + '</small></button>').join("") + '</div></div>' +
-      '<p class="jgc-tip">각 문제의 첫 정답 또는 첫 말하기 완료(자가평가)에만 10 XP가 쌓이고, 복습 정답은 +0 XP예요. ' +
-      '영어 XP와 한글 XP는 서로 합산하지 않으며, 각각 100 XP마다 레벨업해요. ' +
-      '기록은 현재 기기의 브라우저에 저장되고, 기존에 획득한 각 게임의 XP는 그대로 유지돼요.</p></div>';
+      '<input id="jgc-name-input" maxlength="16" value="' + escape(profile.name) +
+      '" placeholder="캐릭터 이름" autocomplete="off">' +
+      '<span class="jgc-choice-title">캐릭터 종류</span><div class="jgc-avatar-options">' +
+      AVATARS.map(function (a) {
+        return '<button type="button" class="jgc-avatar-option' + (a.id === profile.avatar ? ' is-selected' : '') +
+          '" data-jgc-action="avatar" data-avatar="' + a.id + '" aria-pressed="' + (a.id === profile.avatar) +
+          '" aria-label="' + a.label + ' 선택"><span class="jgc-animal-art" aria-hidden="true">' +
+          illustration(study, a.id) + '</span><small>' + a.label + '</small></button>';
+      }).join("") + '</div>' +
+      '<span class="jgc-choice-title">색상 테마 · 언어와 관계없이 자유 선택</span><div class="jgc-colors">' +
+      COLORS.map(function (c) {
+        return '<button type="button" class="jgc-color' + (c.id === profile.color ? ' is-selected' : '') +
+          '" data-jgc-action="color" data-color="' + c.id + '" aria-pressed="' + (c.id === profile.color) +
+          '"><span style="background:' + c.hex + '"></span>' + c.name + '</button>';
+      }).join("") + '</div>' +
+      '<span class="jgc-choice-title">아이템 꾸미기</span>' +
+      slotChoices(study, "hat", "머리장식") + slotChoices(study, "bag", "가방") +
+      slotChoices(study, "book", "책") + slotChoices(study, "outfit", "의상") +
+      slotChoices(study, "effect", "장식 효과") +
+      '<span class="jgc-choice-title">레벨 보상 도감</span><div class="jgc-rewards">' +
+      REWARDS.map(entry => rewardBox(entry, score.level)).join("") + '</div></div>' +
+      '<p class="jgc-tip">Lv.50 루키 · Lv.100 에이스는 크기만 확대하는 게 아니라 모습이 바뀌는 성장 단계예요. ' +
+      '100레벨 이후에도 레벨이 계속 올라가며, 추가 보상은 추후 확장할 수 있어요. ' +
+      '각 게임에서 처음 맞힌 문제만 +10 XP이며 리마인드는 +0 XP예요. ' +
+      '기존 XP와 학습 기록은 그대로 유지돼요. 설정은 이 브라우저에 저장됩니다.</p></div>';
+    dialog.scrollTop = savedScroll;
   }
-
   function open(study) {
     activeStudy = studyOf(study);
     renderDialog();
@@ -131,13 +241,15 @@
   }
   function showLevelUp(study, level) {
     if (!toast) return;
-    toast.textContent = "🎉 " + STUDIES[study].label + " 레벨 업! LV. " + level + " 달성";
+    const milestone = REWARDS.find(r => r.level === level);
+    toast.textContent = "🎉 " + STUDIES[study].label + " Lv." + level + " 달성!" +
+      (milestone ? " " + (milestone.growth ? milestone.label + "!" : milestone.label + " 해금!") : "");
     toast.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { toast.hidden = true; }, 3200);
   }
   function refresh() {
-    ["english", "korean"].forEach(study => {
+    ["english", "korean"].forEach(function (study) {
       const level = readScore(study).level;
       if (lastLevels[study] !== null && level > lastLevels[study]) showLevelUp(study, level);
       lastLevels[study] = level;
@@ -149,42 +261,57 @@
     }
     return { english: readScore("english"), korean: readScore("korean") };
   }
-
-  document.addEventListener("click", event => {
+  document.addEventListener("click", function (event) {
     const button = event.target.closest("[data-jgc-action]");
     if (!button) return;
     const action = button.dataset.jgcAction;
-    if (action === "open") open(button.dataset.jgcStudy);
-    else if (action === "close") dialog.close ? dialog.close() : dialog.removeAttribute("open");
-    else if (action === "avatar") {
+    if (action === "open") { open(button.dataset.jgcStudy); return; }
+    if (action === "close") {
+      if (typeof dialog.close === "function") dialog.close();
+      else dialog.removeAttribute("open");
+      return;
+    }
+    if (action === "avatar") {
       if (!AVATARS.some(a => a.id === button.dataset.avatar)) return;
       profiles[activeStudy].avatar = button.dataset.avatar;
-      saveProfile(activeStudy);
-      refresh();
+    } else if (action === "color") {
+      if (!COLORS.some(c => c.id === button.dataset.color)) return;
+      profiles[activeStudy].color = button.dataset.color;
+    } else if (action === "item") {
+      const slot = button.dataset.slot;
+      const entry = Object.prototype.hasOwnProperty.call(ITEMS, slot) &&
+        ITEMS[slot].find(x => x.id === button.dataset.item);
+      if (!entry || readScore(activeStudy).level < entry.lv) return;
+      profiles[activeStudy].equipped[slot] = entry.id;
+    } else return;
+    saveProfile(activeStudy);
+    refresh();
+  });
+  dialog.addEventListener("click", function (event) {
+    if (event.target === dialog) {
+      if (typeof dialog.close === "function") dialog.close();
+      else dialog.removeAttribute("open");
     }
   });
-  dialog.addEventListener("click", event => {
-    if (event.target === dialog) dialog.close ? dialog.close() : dialog.removeAttribute("open");
-  });
-  dialog.addEventListener("change", event => {
+  dialog.addEventListener("change", function (event) {
     if (event.target.id !== "jgc-name-input") return;
     profiles[activeStudy].name = event.target.value.trim().slice(0, 16) || STUDIES[activeStudy].defaultName;
     saveProfile(activeStudy);
     refresh();
   });
-  dialog.addEventListener("keydown", event => {
+  dialog.addEventListener("keydown", function (event) {
     if (event.target.id === "jgc-name-input" && event.key === "Enter") {
       event.preventDefault();
       event.target.blur();
     }
   });
-  window.addEventListener("storage", event => {
-    if ([ENGLISH_KEY, KOREAN_KEY, LEGACY_PROFILE_KEY, ...Object.values(PROFILE_KEYS)].includes(event.key)) {
+  window.addEventListener("storage", function (event) {
+    if ([ENGLISH_KEY, KOREAN_KEY, LEGACY_PROFILE_KEY].concat(Object.values(PROFILE_KEYS)).includes(event.key)) {
       if (event.key === PROFILE_KEYS.english) profiles.english = readCharacter("english");
       if (event.key === PROFILE_KEYS.korean) profiles.korean = readCharacter("korean");
       refresh();
     }
   });
-  window.JINI_CHARACTER = { refresh, open, getStatus: readScore };
+  window.JINI_CHARACTER = { refresh: refresh, open: open, getStatus: readScore };
   refresh();
 }());
