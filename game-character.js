@@ -150,6 +150,18 @@
         '<span class="jgc-meter">' + score.inLevel + ' / 100 XP · 다음 레벨까지 ' + score.untilNext +
         ' XP</span></span><span class="jgc-card-arrow">보기 ›</span></button>';
     });
+    // Sort the actual homepage DOM, not just visual order, so mobile,
+    // keyboard navigation and screen readers all follow the higher level first.
+    const homePanels = panels.filter(panel => panel.dataset.jiniCharacterHome === "true");
+    homePanels.sort(function(a, b) {
+      const aStudy=studyOf(a.dataset.jiniCharacterPanel);
+      const bStudy=studyOf(b.dataset.jiniCharacterPanel);
+      const levelDiff=readScore(bStudy).level-readScore(aStudy).level;
+      return levelDiff || (aStudy === "english" ? -1 : 1);
+    });
+    homePanels.forEach(function(panel) {
+      if(panel.parentElement)panel.parentElement.appendChild(panel);
+    });
   }
   function renderDialog() {
     const study = activeStudy;
