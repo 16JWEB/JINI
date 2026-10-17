@@ -1,0 +1,24 @@
+/* Transparent, reusable SVG aura behind each original high-resolution mascot. */
+.jgc-mascot .jgc-aura{position:absolute;inset:-9%;z-index:0;display:block;pointer-events:none;overflow:visible;filter:drop-shadow(0 0 7px #ffffff65);animation:jgc-aura-breathe 4.7s ease-in-out infinite alternate}
+.jgc-mascot .jgc-aura svg{display:block;width:100%;height:100%;overflow:visible}
+.jgc-mascot .jgc-base-art{z-index:2}
+.jgc-mascot .jgc-growth-seal{position:absolute;z-index:3;pointer-events:none;top:14%;left:50%;transform:translateX(-50%);width:34%;height:24%;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 2px 3px #30233a55)}
+.jgc-mascot .jgc-growth-seal svg{width:100%;height:100%;overflow:visible}
+.jgc-mascot.jgc-mascot-stage-4 .jgc-base-art{filter:saturate(1.1) contrast(1.02)}
+.jgc-mascot.jgc-mascot-stage-5 .jgc-base-art{filter:saturate(1.15) contrast(1.035) drop-shadow(0 0 2px #ffe2ab6b)}
+.jgc-aura-picker{border-top:1px solid #efedf5;padding-top:14px;margin-top:14px}
+.jgc-aura-picker-header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.jgc-aura-picker-header strong{font-size:13px;color:#4e4565}
+.jgc-aura-picker-header small{font-size:11px;color:#877d9b}
+.jgc-aura-current{font-size:12px;color:#74688c;line-height:1.6;margin:7px 0 12px}
+.jgc-aura-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;max-height:245px;overflow-y:auto;padding:2px}
+.jgc-aura-option{font:inherit;min-width:0;padding:9px 5px;border:1px solid #e8e2f3;background:#fff;border-radius:11px;color:#5c5270;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.jgc-aura-option strong{font-size:12px}
+.jgc-aura-option small{font-size:10px;line-height:1.2;color:#8d8399}
+.jgc-aura-option .jgc-aura-icon{font-size:19px;color:#9683d8}
+.jgc-aura-option.is-active{background:#f5f0ff;border-color:#907ee1;box-shadow:inset 0 0 0 1px #907ee1}
+.jgc-aura-option:disabled{background:#f8f7fa;opacity:.45;cursor:default}
+.jgc-aura-option:focus-visible{outline:2px solid #7463c9;outline-offset:2px}
+@keyframes jgc-aura-breathe{from{opacity:.86;transform:scale(.985)}to{opacity:1;transform:scale(1.015)}}
+@media(max-width:460px){.jgc-aura-grid{grid-template-columns:repeat(3,minmax(0,1fr));max-height:218px}.jgc-aura-option{padding:8px 3px}}
+@media(prefers-reduced-motion:reduce){.jgc-mascot .jgc-aura{animation:none}}
