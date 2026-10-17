@@ -1,0 +1,94 @@
+/* JINI homepage: real English/Korean mascot dashboards.
+   Study-game and AI chat shortcuts are intentionally absent from this view. */
+#home-section{display:block;min-height:0;padding:57px 0 36px}
+#home-section[hidden]{display:none!important}
+.jini-home-wrap{width:min(100%,1100px);margin:0 auto}
+.jini-home-heading{text-align:center;margin:0 auto 24px;padding:0 7px}
+.jini-home-kicker{display:block;color:#7566d4;font-size:11px;font-weight:800;letter-spacing:1.6px;margin-bottom:10px}
+.jini-home-heading h1{margin:0;font-size:clamp(25px,3vw,33px);line-height:1.35;letter-spacing:-1.1px}
+.jini-home-heading h1 span{color:#7662df}
+.jini-home-heading p{font-size:12px;line-height:1.8;color:#85849a;margin:10px 0 0}
+.jini-home-character-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch}
+.jgc-home-slot{min-width:0;display:flex}
+.jgc-home-card{display:block;position:relative;text-align:left;width:100%;min-width:0;min-height:330px;overflow:hidden;border-radius:24px;border:1px solid #d6e1fb;padding:25px 24px;background:linear-gradient(145deg,#eaf2ff 0%,#f5f8ff 56%,#fff 100%);font:inherit;color:#262e4d;cursor:pointer;box-shadow:0 13px 33px #2f5f9a10;transition:box-shadow .2s,transform .2s,border-color .2s}
+.jgc-home-card-korean{border-color:#f0d4e6;background:linear-gradient(145deg,#ffeaf5 0%,#fff6fb 60%,#fff 100%);color:#4b2c46;box-shadow:0 13px 33px #b95a9b0e}
+.jgc-home-card:hover{transform:translateY(-3px);box-shadow:0 17px 37px #3c478b21}
+.jgc-home-card:focus-visible{outline:3px solid #8c7be8;outline-offset:4px}
+.jgc-home-copy{position:relative;z-index:2;display:flex;flex-direction:column;width:57%;min-width:0;height:100%}
+.jgc-home-label{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:800;letter-spacing:-.3px}
+.jgc-home-label-icon{width:35px;height:35px;display:grid;place-items:center;border-radius:11px;background:#3f82f5;box-shadow:0 4px 11px #4c80db28;color:#fff;font-size:17px}
+.jgc-home-card-korean .jgc-home-label-icon{background:#ed599e;box-shadow:0 4px 11px #ee6eaa22}
+.jgc-home-name{margin-top:23px;color:#516189;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.jgc-home-card-korean .jgc-home-name{color:#9c5f80}
+.jgc-home-level{font-size:27px;line-height:1.15;font-weight:800;color:#286ce6;letter-spacing:-1.3px;margin-top:3px}
+.jgc-home-level strong{font-size:46px;font-weight:800;letter-spacing:-2px}
+.jgc-home-card-korean .jgc-home-level{color:#e83e8b}
+.jgc-home-rank{font-size:12px;font-weight:750;color:#687aa3;margin-top:7px}
+.jgc-home-card-korean .jgc-home-rank{color:#a86690}
+.jgc-home-progress-label{margin-top:17px;display:flex;gap:5px;justify-content:space-between;align-items:center;font-size:10px;color:#7d86a3}
+.jgc-home-progress-label strong{white-space:nowrap;color:#3775d5;font-size:11px}
+.jgc-home-card-korean .jgc-home-progress-label strong{color:#df5091}
+.jgc-home-track{display:block;width:100%;height:9px;border-radius:999px;background:#d8e5fa;margin-top:6px;overflow:hidden}
+.jgc-home-track>span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#3475f2,#79aaff);transition:width .25s}
+.jgc-home-card-korean .jgc-home-track{background:#f7dbea}
+.jgc-home-card-korean .jgc-home-track>span{background:linear-gradient(90deg,#da3483,#ffa3c8)}
+.jgc-home-progress-count{font-size:10px;color:#8790a8;margin-top:5px}
+.jgc-home-stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+.jgc-home-stats>span{display:flex;flex:1 1 70px;flex-direction:column;gap:4px;border:1px solid #e3e9f9;background:#ffffffb5;border-radius:12px;padding:9px 10px;min-width:0}
+.jgc-home-stats small{font-size:10px;color:#8993aa;font-weight:600}
+.jgc-home-stats strong{font-size:15px;color:#3e5178;font-weight:800;white-space:nowrap}
+.jgc-home-card-korean .jgc-home-stats>span{border-color:#f4dfea}
+.jgc-home-card-korean .jgc-home-stats strong{color:#87516c}
+.jgc-home-aura{margin-top:11px;display:block;color:#6d7295;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jgc-home-card-korean .jgc-home-aura{color:#956b83}
+.jgc-home-view{display:inline-flex;margin-top:12px;gap:6px;align-items:center;font-size:12px;font-weight:800;color:#3d70d1}
+.jgc-home-card-korean .jgc-home-view{color:#d54d93}
+.jgc-home-view span{font-size:18px;line-height:1}
+.jgc-home-illustration{pointer-events:none;position:absolute;width:52%;aspect-ratio:1;right:1%;top:50%;transform:translateY(-50%);z-index:1;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 8px 12px #425c8a1b)}
+.jgc-home-illustration .jgc-mascot{width:100%;height:100%;max-width:none;display:block}
+.jini-home-actions-title{display:block;text-align:center;margin:26px auto 13px;font-size:13px;font-weight:800;color:#66627f}
+#home-section .home-study-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch;gap:16px;width:100%;margin:0}
+#home-section .home-study-choice{display:flex;align-items:stretch;flex-direction:column;gap:7px;min-width:0}
+#home-section .home-start-button{width:100%;text-align:left;padding:13px 18px;min-height:56px;border-radius:15px;font-size:14px;box-shadow:none;background:#e5efff;color:#265bbb}
+#home-section .home-study-choice:nth-child(2) .home-start-button{background:#fce6f1;color:#be3981}
+#home-section .home-resume-button{margin:0;border:1px solid #e7e8f2;border-radius:12px;padding:10px 17px;min-height:38px;color:#858396;background:#fff;text-align:left}
+#home-section .home-start-button:hover{transform:none;filter:brightness(.98)}
+#home-section .home-resume-button:hover:not(:disabled){background:#faf8ff}
+@media(max-width:1100px){
+ .jgc-home-card{padding:21px 17px;min-height:313px}
+ .jgc-home-label{font-size:13px}
+ .jgc-home-name{margin-top:17px}
+ .jgc-home-level strong{font-size:40px}
+ .jgc-home-stats>span{padding:8px}
+ .jgc-home-stats strong{font-size:13px}
+ .jgc-home-illustration{width:54%;right:-2%}
+}
+@media(max-width:760px){
+ #home-section{padding:55px 0 22px}
+ .jini-home-heading{margin-bottom:18px}
+ .jini-home-heading p{font-size:11px}
+ .jini-home-character-grid{grid-template-columns:1fr;gap:13px}
+ .jgc-home-card{min-height:267px;padding:19px 18px;border-radius:20px}
+ .jgc-home-label{font-size:14px}
+ .jgc-home-level strong{font-size:39px}
+ .jgc-home-name{margin-top:13px}
+ .jgc-home-progress-label{margin-top:12px}
+ .jgc-home-stats{margin-top:11px}
+ .jgc-home-illustration{width:min(52%,210px);right:1%;top:51%}
+ .jgc-home-aura{margin-top:9px}
+ .jgc-home-view{margin-top:9px}
+ #home-section .home-study-tabs{gap:10px}
+ #home-section .home-start-button{min-height:53px;padding:12px;font-size:12px}
+ #home-section .home-resume-button{padding:10px;font-size:10px}
+ .jini-home-actions-title{margin:19px auto 12px}
+}
+@media(max-width:390px){
+ .jgc-home-card{padding:17px 13px;min-height:270px}
+ .jgc-home-copy{width:59%}
+ .jgc-home-label-icon{width:31px;height:31px}
+ .jgc-home-illustration{width:53%;right:-1%}
+ .jgc-home-stats{gap:5px}
+ .jgc-home-stats>span{flex-basis:65px;padding:7px}
+ .jgc-home-stats strong{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.jgc-home-card{transition:none}.jgc-home-track>span{transition:none}}
