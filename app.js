@@ -1593,12 +1593,9 @@
   updateVerbAutoButton();
   studyStates = loadStudyStates();
   updateResumeStudyButtons();
-  const savedStudyState = studyStates[studyStates.lastStudy];
-  if (savedStudyState) {
-    resumeStudyState(savedStudyState);
-  } else {
-    setPage("home");
-  }
+  // Always open JINI on Home. Saved study screens remain available through
+  // the separate "마지막 공부 화면" buttons; do not auto-resume on startup.
+  setPage("home");
   showAndroidTtsFallback();
   renderWords();
   renderVerbForms();
