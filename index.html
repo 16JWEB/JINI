@@ -11,7 +11,8 @@
   <link rel="stylesheet" href="styles.css?v=20261017-final-review">
   <link rel="stylesheet" href="korean-game.css?v=20261017-dialog-audio-submit">
   <link rel="stylesheet" href="english-game.css?v=20261017-cloze-box">
-  <link rel="stylesheet" href="game-character.css?v=20261018-growth-only-1">
+  <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
+  <link rel="stylesheet" href="game-character-aura.css?v=20261018-aura-2">
   <link rel="stylesheet" href="admin-preview.css?v=20261018-admin-preview-1">
   <link rel="stylesheet" href="opic.css?v=20261017-game-submenus">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
@@ -377,7 +378,7 @@
       <button class="ja-close" type="button" data-ja-close aria-label="관리자 페이지 닫기">닫기 ✕</button>
     </div>
     <div class="ja-login" id="ja-login">
-      <p>관리자용 캐릭터 성장 미리보기입니다. 비밀번호를 입력해 주세요.</p>
+      <p>관리자용 캐릭터 성장·오라 미리보기입니다. 비밀번호를 입력해 주세요.</p>
       <form id="ja-login-form">
         <label for="ja-password">비밀번호</label>
         <input id="ja-password" type="password" inputmode="numeric" autocomplete="off" aria-describedby="ja-error" required>
@@ -387,15 +388,32 @@
     </div>
     <div id="ja-panel" class="ja-panel" hidden>
       <div class="ja-tabs" role="tablist" aria-label="관리자 메뉴">
-        <button class="ja-tab" type="button" role="tab" aria-selected="true" aria-controls="ja-preview-panel" id="ja-tab-preview">캐릭터 성장 미리보기</button>
+        <button class="ja-tab" type="button" role="tab" aria-selected="true" aria-controls="ja-preview-panel" id="ja-tab-preview">캐릭터 성장·오라 미리보기</button>
       </div>
       <section id="ja-preview-panel" role="tabpanel" aria-labelledby="ja-tab-preview">
-        <p class="ja-intro">토끼·고양이·곰·여우의 실제 캐릭터 성장 외형을 비교할 수 있어요. Lv.50과 Lv.100에 모습이 바뀌고 Lv.140은 Lv.100과 같은 모습으로 레벨만 이어져요.</p>
+        <p class="ja-intro">토끼·고양이·곰·여우의 성장 단계(50·100·150·200)와 10레벨마다 새로 얻는 오라를 함께 비교할 수 있어요. 여기서 레벨을 바꿔도 실제 XP는 바뀌지 않아요.</p>
         <div class="ja-stages" role="group" aria-label="미리 볼 캐릭터 레벨">
           <button class="ja-stage" type="button" data-ja-level="1" aria-pressed="false">Lv.1</button>
+          <button class="ja-stage" type="button" data-ja-level="10" aria-pressed="false">Lv.10</button>
+          <button class="ja-stage" type="button" data-ja-level="20" aria-pressed="false">Lv.20</button>
+          <button class="ja-stage" type="button" data-ja-level="30" aria-pressed="false">Lv.30</button>
+          <button class="ja-stage" type="button" data-ja-level="40" aria-pressed="false">Lv.40</button>
           <button class="ja-stage" type="button" data-ja-level="50" aria-pressed="false">Lv.50</button>
+          <button class="ja-stage" type="button" data-ja-level="60" aria-pressed="false">Lv.60</button>
+          <button class="ja-stage" type="button" data-ja-level="70" aria-pressed="false">Lv.70</button>
+          <button class="ja-stage" type="button" data-ja-level="80" aria-pressed="false">Lv.80</button>
+          <button class="ja-stage" type="button" data-ja-level="90" aria-pressed="false">Lv.90</button>
           <button class="ja-stage" type="button" data-ja-level="100" aria-pressed="true">Lv.100</button>
+          <button class="ja-stage" type="button" data-ja-level="110" aria-pressed="false">Lv.110</button>
+          <button class="ja-stage" type="button" data-ja-level="120" aria-pressed="false">Lv.120</button>
+          <button class="ja-stage" type="button" data-ja-level="130" aria-pressed="false">Lv.130</button>
           <button class="ja-stage" type="button" data-ja-level="140" aria-pressed="false">Lv.140</button>
+          <button class="ja-stage" type="button" data-ja-level="150" aria-pressed="false">Lv.150</button>
+          <button class="ja-stage" type="button" data-ja-level="160" aria-pressed="false">Lv.160</button>
+          <button class="ja-stage" type="button" data-ja-level="170" aria-pressed="false">Lv.170</button>
+          <button class="ja-stage" type="button" data-ja-level="180" aria-pressed="false">Lv.180</button>
+          <button class="ja-stage" type="button" data-ja-level="190" aria-pressed="false">Lv.190</button>
+          <button class="ja-stage" type="button" data-ja-level="200" aria-pressed="false">Lv.200</button>
         </div>
         <div class="ja-grid">
           <article class="ja-char"><strong>🐰 토끼</strong><div class="ja-art" data-ja-animal="rabbit" aria-label="토끼 캐릭터 성장 예시">🐰</div></article>
@@ -403,7 +421,7 @@
           <article class="ja-char"><strong>🐻 곰</strong><div class="ja-art" data-ja-animal="bear" aria-label="곰 캐릭터 성장 예시">🐻</div></article>
           <article class="ja-char"><strong>🦊 여우</strong><div class="ja-art" data-ja-animal="fox" aria-label="여우 캐릭터 성장 예시">🦊</div></article>
         </div>
-        <p class="ja-footnote">성장 단계는 미리보기 전용으로 표시되며 실제 이용자의 XP와 캐릭터 설정은 변경하지 않습니다. 공개 정적 사이트이므로 이 화면의 비밀번호는 강력한 접근 통제가 아닙니다.</p>
+        <p class="ja-footnote">성장과 오라는 미리보기 전용이며 실제 이용자의 XP·오라 설정은 변경하지 않습니다. 150·200레벨 성장 연출은 기존 고화질 캐릭터 이미지 위에 추가 효과를 결합한 버전입니다. 공개 정적 사이트의 비밀번호는 강력한 접근 통제가 아닙니다.</p>
       </section>
     </div>
   </dialog>
@@ -434,9 +452,10 @@
   <script src="words-everyday-reviewed-09.js?v=20261017-life-reviewed-2"></script>
   <script src="words-everyday-reviewed-10.js?v=20261017-life-reviewed-2"></script>
   <script src="app.js?v=20261017-game-submenus"></script>
-  <script src="game-character-art.js?v=20261018-growth-only-1"></script>
-  <script src="game-character.js?v=20261018-growth-only-1"></script>
-  <script src="admin-preview.js?v=20261018-growth-only-pin-7410"></script>
+  <script src="game-character-aura.js?v=20261018-aura-1"></script>
+  <script src="game-character-art.js?v=20261018-growth-aura-1"></script>
+  <script src="game-character.js?v=20261018-growth-aura-1"></script>
+  <script src="admin-preview.js?v=20261018-growth-aura-pin-7410"></script>
   <script src="korean-game.js?v=20261018-review-reminder"></script>
   <script src="english-game.js?v=20261018-review-reminder"></script>
   <script src="opic-data.js?v=20261017-opic"></script>
