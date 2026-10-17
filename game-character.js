@@ -197,7 +197,10 @@
     return '<div class="jgc-equipped-summary" aria-label="현재 착용 중인 아이템">' +
       Object.keys(labels).map(function (slot) {
         const selected = ITEMS[slot].find(function (item) { return item.id === equipped[slot]; }) || ITEMS[slot][0];
-        return '<span class="jgc-equipped-chip"><span aria-hidden="true">' + selected.icon + '</span><small>' +
+        const preview = window.JINI_CHARACTER_ART && window.JINI_CHARACTER_ART.itemPreview
+          ? window.JINI_CHARACTER_ART.itemPreview(slot, selected.id)
+          : '<span class="jgc-item-emoji" aria-hidden="true">' + selected.icon + '</span>';
+        return '<span class="jgc-equipped-chip">' + preview + '<small>' +
           labels[slot] + '</small><strong>' + escape(selected.name) + '</strong></span>';
       }).join("") + '</div>';
   }
