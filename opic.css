@@ -190,3 +190,10 @@
  .sidebar[data-study="korean"] #korean-study-menu .practice-menu-children .practice-menu-child{display:flex;flex-direction:row;justify-content:flex-start;align-items:center;width:100%;min-height:48px;gap:10px;padding:12px 16px;font-size:13px;text-align:left}
  .practice-menu-children .practice-menu-child .nav-icon{font-size:15px;width:18px}
 }
+
+/* Keep Korean practice game labels horizontal inside the mobile tab bar. */
+@media(max-width:760px){
+ .sidebar[data-study="korean"] #korean-study-menu .practice-menu-header>.nav-item{
+  flex-direction:row;gap:4px;min-height:44px;min-width:75px;padding:6px 2px 6px 6px;font-size:10px
+ }
+}
