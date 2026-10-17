@@ -117,3 +117,11 @@
  .kg-dialog-choice-row .kg-choice{padding:12px;min-height:60px}
  .kg-dialog-listen{min-width:76px;font-size:11px}
 }
+
+/* Korean vocabulary: a correct meaning choice must be followed by typed recall. */
+.kg-word-typing{margin:18px 0 8px;padding:15px;border:1px solid #dcd6fa;border-radius:14px;background:#faf7ff}
+.kg-word-typing strong{display:block;color:#5042a2;font-size:14px;line-height:1.65}
+.kg-word-typing p{margin:8px 0 13px;font-size:12px;color:#71698b;line-height:1.7}
+#kg-word-typing-form{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+#kg-word-typing{flex:1 1 160px;min-height:45px;box-sizing:border-box;padding:10px 12px;border:1px solid #cfc5f3;border-radius:10px;font:inherit;font-size:15px;background:#fff;color:#2e2850}
+#kg-word-typing:focus-visible{outline:3px solid #9284f6;outline-offset:2px}
