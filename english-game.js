@@ -112,7 +112,7 @@ function dashboard(){
  '<label>문제 수 <select id="eg-count">'+[10,20,30].map(n=>'<option '+(n===count?"selected ":"")+'value="'+n+'">'+n+'문제</option>').join("")+'</select></label>'+
  '<label>영어 발음 <select id="eg-accent"><option '+(accent==="en-US"?"selected ":"")+'value="en-US">🇺🇸 미국식</option><option '+(accent==="en-GB"?"selected ":"")+'value="en-GB">🇬🇧 영국식</option></select></label></div>'+
  '<div class="eg-grid">'+modes.map(m=>'<button type="button" class="eg-mode" data-eg="start" data-mode="'+m[0]+'"><span>'+m[1]+'</span><strong>'+m[2]+'</strong><small>'+m[3]+'</small><b>시작 →</b></button>').join("")+'</div>'+
- '<p class="eg-note">기존 JINI 영어 단어와 검수 예문을 사용해요. 게임 결과는 이 브라우저에 저장됩니다. 미국식·영국식 발음은 설치된 음성 엔진에 따라 다를 수 있어요.</p>';
+ '<p class="eg-note">기존 JINI 영어 단어와 검수 예문을 사용해요. 각 문제를 처음 맞히면 +10 XP, 이미 맞힌 문제는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 미국식·영국식 발음은 설치된 음성 엔진에 따라 다를 수 있어요.</p>';
 }
 function nav(bottom){
  const p=game.index,n=game.questions.length;
@@ -145,7 +145,9 @@ function feedback(q){
  const description=String(q.explanation||"").trim();
  const repeated=sample&&(description===sample.en||description===sample.ko||description===sample.en+" — "+sample.ko);
  let html='<div class="eg-feedback '+(q.good?"eg-ok":"eg-wrong")+'"><strong>'+
-  (q.kind==="speak"?(q.good?"말하기 완료로 기록했어요.":"복습 대상으로 저장했어요."):(q.good?"정답이에요! +10 XP":"아쉬워요. 복습 목록에 추가했어요."))+
+  (q.kind==="speak"
+    ? (q.good ? (q.xpEarned ? "말하기 완료! +10 XP" : "말하기 완료! 이미 경험치를 받은 문제예요. +0 XP") : "복습 대상으로 저장했어요.")
+    : (q.good ? (q.xpEarned ? "정답이에요! +10 XP" : "정답이에요! 이미 경험치를 받은 문제예요. +0 XP") : "아쉬워요. 복습 목록에 추가했어요."))+
   '</strong>'+(q.kind==="speak"?"":'<p>정답: '+esc(q.answer)+'</p>');
  if(description&&!repeated)html+='<p>'+esc(description)+'</p>';
  if(sample){
@@ -223,10 +225,19 @@ function move(diff){
 }
 function grade(q,good,response){
  if(q.done)return;
- q.done=true;q.good=good;q.response=response;
- memory.tries++;game.tries++;
- if(good){memory.correct++;memory.xp+=10;game.correct++;game.earned+=10;}else game.misses++;
  const prev=memory.items[q.id]||{streak:0,wrong:0};
+ // Old saved results don't have xpAwarded. A positive streak means they
+ // have already earned XP; retain it even if subsequent attempts are wrong.
+ const previouslyRewarded=prev.xpAwarded===true||
+   (prev.xpAwarded===undefined&&Number(prev.streak)>0);
+ const firstCorrect=good&&!previouslyRewarded;
+ q.done=true;q.good=good;q.response=response;q.xpEarned=firstCorrect;
+ memory.tries++;game.tries++;
+ if(good){
+  memory.correct++;game.correct++;
+  if(firstCorrect){memory.xp+=10;game.earned+=10;}
+ }else game.misses++;
+ prev.xpAwarded=previouslyRewarded||good;
  prev.streak=good?Math.min(5,(prev.streak||0)+1):0;
  if(!good)prev.wrong++;
  prev.level=level;prev.due=Date.now()+(good?[1,3,7,14,30][prev.streak-1]*DAY:0);
