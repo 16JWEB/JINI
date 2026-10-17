@@ -26,7 +26,7 @@ earphones|ˈɪrfoʊnz|이어폰|I forgot my earphones at home.|집에 이어폰�
 Bluetooth|ˈbluːtuːθ|블루투스|Turn on Bluetooth to connect your headphones.|헤드폰을 연결하려면 블루투스를 켜세요.|중등|noun
 Wi-Fi|ˈwaɪ faɪ|와이파이, 무선 인터넷|Is free Wi-Fi available in this café?|이 카페에서 무료 와이파이를 사용할 수 있나요?|초등|noun
 mobile data|ˈmoʊbəl ˈdeɪtə|모바일 데이터|I turned off mobile data to save money.|요금을 아끼려고 모바일 데이터를 껐어요.|초등|noun
-reception|rɪˈsepʃən|통신 수신 상태|My phone has poor reception in the basement.|지하실에서는 휴대전화 신호가 잘 잡히지 않아요.|중등|noun
+airplane mode|ˈerpleɪn moʊd|비행기 모드|Please turn on airplane mode before takeoff.|이륙하기 전에 비행기 모드를 켜 주세요.|초등|noun
 storage|ˈstɔːrɪdʒ|저장 공간|My phone is running out of storage.|휴대전화 저장 공간이 거의 다 찼어요.|중등|noun
 sync|sɪŋk|동기화하다|I sync my contacts between my phone and laptop.|휴대전화와 노트북의 연락처를 동기화해요.|중등|verb
 offline|ˌɔːfˈlaɪn|오프라인의|I saved the map so I can use it offline.|인터넷 없이 쓰려고 지도를 저장했어요.|초등|adjective
