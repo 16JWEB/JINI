@@ -229,7 +229,7 @@
   function loadStudyStates() {
     try {
       const saved = JSON.parse(window.localStorage.getItem(STUDY_STATE_KEY) || "null");
-      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-game"];
+      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-game", "speaking"];
       if (!saved) return { english: null, korean: null, lastStudy: null };
       function isValidState(state) {
         return state && validPages.includes(state.page);
@@ -271,7 +271,7 @@
   }
 
   function saveStudyState() {
-    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-game"];
+    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-game", "speaking"];
     if (restoringStudyState || !validPages.includes(currentPageView)) return;
     try {
       const state = {
@@ -376,6 +376,7 @@
           (state.playerWord || playerItemNumber + "번째 표현"),
         "verb-forms": "동사 변화",
         "english-game": "영어 연습 게임",
+        "speaking": "스피킹",
         "ko-game": "연습 게임"
       };
       button.textContent = "마지막 공부 화면 · " + (pageLabels[state.page] || "학습 화면");
@@ -1256,6 +1257,7 @@
     const showingLanguagePacks = page === "ko-language-packs";
     const showingKoreanGame = page === "ko-game";
     const showingEnglishGame = page === "english-game";
+    const showingSpeaking = page === "speaking";
     const koreanStudy = currentStudy === "korean";
     document.querySelector(".sidebar").dataset.study = showingHome ? "home" : currentStudy;
     document.getElementById("home-section").hidden = !showingHome;
@@ -1265,7 +1267,9 @@
     languagePacksSection.hidden = !showingLanguagePacks;
     document.getElementById("korean-game-section").hidden = !showingKoreanGame;
     document.getElementById("english-game-section").hidden = !showingEnglishGame;
-    document.querySelector(".page-footer").hidden = showingHome;
+    const speakingSection = document.getElementById("speaking-section");
+    if (speakingSection) speakingSection.hidden = !showingSpeaking;
+    document.querySelector(".page-footer").hidden = showingHome || showingSpeaking;
     document.querySelectorAll(".nav-item[data-page]").forEach(function (button) {
       button.classList.toggle("active", button.dataset.page === page);
     });
@@ -1273,12 +1277,12 @@
       "YOUR DAILY KOREAN<br><span>베트남어로 배우는 한국어</span>" :
       "YOUR DAILY ENGLISH<br><span>기초부터 차근차근</span>";
     document.getElementById("breadcrumb-section").textContent =
-      showingHome ? "홈" : koreanStudy ? "AI 한글공부" : showingEnglishGame ? "AI 영어공부" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
+      showingHome ? "홈" : koreanStudy ? "AI 한글공부" : (showingEnglishGame || showingSpeaking) ? "AI 영어공부" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
     document.getElementById("breadcrumb-divider").hidden = showingHome;
     breadcrumbLevel.textContent = showingHome ? "" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
       showingPlayer ? (playingExpressions ? "표현 재생" : koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
-      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : "동사 변화";
+      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹" : "동사 변화";
     document.getElementById("section-title").textContent = "필수 단어";
     if (showingExpressions) document.getElementById("section-title").textContent = "일상생활 표현";
     document.querySelector(".bookmark-toolbar").hidden = showingExpressions;
