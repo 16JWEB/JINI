@@ -30,40 +30,46 @@
   const DEFAULT_EQUIPPED = { hat: "none", bag: "none", book: "basic", outfit: "basic", effect: "none" };
   const ITEMS = {
     hat: [
-      { id: "none", name: "없음", lv: 1 },
-      { id: "ribbon", name: "리본 / 모자", lv: 10 },
-      { id: "crown", name: "특별 머리장식", lv: 90 }
+      { id: "none", name: "기본", icon: "—", lv: 1 },
+      { id: "ribbon", name: "핑크 리본", icon: "🎀", lv: 10 },
+      { id: "flower", name: "꽃장식", icon: "🌸", lv: 60 },
+      { id: "crown", name: "왕관", icon: "👑", lv: 90 },
+      { id: "scholar", name: "마법사 모자", icon: "🎓", lv: 110 }
     ],
     bag: [
-      { id: "none", name: "없음", lv: 1 },
-      { id: "backpack", name: "책가방", lv: 20 },
-      { id: "premium", name: "고급 가방", lv: 80 }
+      { id: "none", name: "기본", icon: "—", lv: 1 },
+      { id: "backpack", name: "책가방", icon: "🎒", lv: 20 },
+      { id: "premium", name: "고급 가방", icon: "👜", lv: 80 },
+      { id: "explorer", name: "모험 가방", icon: "💼", lv: 130 }
     ],
     book: [
-      { id: "basic", name: "기본 책", lv: 1 },
-      { id: "special", name: "별빛 책", lv: 30 }
+      { id: "basic", name: "기본 책", icon: "📖", lv: 1 },
+      { id: "special", name: "별빛 책", icon: "📘", lv: 30 },
+      { id: "royal", name: "왕실 책", icon: "📕", lv: 90 },
+      { id: "cosmic", name: "별자리 책", icon: "📙", lv: 140 }
     ],
     outfit: [
-      { id: "basic", name: "기본 옷", lv: 1 },
-      { id: "academy", name: "학생복", lv: 40 },
-      { id: "robe", name: "고급 의상", lv: 70 }
-    ],
-    effect: [
-      { id: "none", name: "없음", lv: 1 },
-      { id: "stars", name: "반짝 효과", lv: 60 }
+      { id: "basic", name: "기본 옷", icon: "👕", lv: 1 },
+      { id: "academy", name: "학생복", icon: "👔", lv: 40 },
+      { id: "robe", name: "마법사 의상", icon: "🧥", lv: 70 },
+      { id: "royal", name: "왕실 의상", icon: "👘", lv: 120 }
     ]
   };
   const REWARDS = [
-    { level: 10, label: "머리장식", icon: "🎀" },
+    { level: 10, label: "핑크 리본", icon: "🎀" },
     { level: 20, label: "책가방", icon: "🎒" },
-    { level: 30, label: "책 스킨", icon: "📘" },
-    { level: 40, label: "학생복", icon: "👕" },
+    { level: 30, label: "별빛 책", icon: "📘" },
+    { level: 40, label: "학생복", icon: "👔" },
     { level: 50, label: "루키 성장", icon: "🌱", growth: true },
-    { level: 60, label: "반짝 효과", icon: "✨" },
-    { level: 70, label: "고급 의상", icon: "🧥" },
+    { level: 60, label: "꽃장식", icon: "🌸" },
+    { level: 70, label: "마법사 의상", icon: "🧥" },
     { level: 80, label: "고급 가방", icon: "👜" },
-    { level: 90, label: "특별 머리장식", icon: "👑" },
-    { level: 100, label: "에이스 성장", icon: "🌟", growth: true }
+    { level: 90, label: "왕실 책 · 왕관", icon: "👑" },
+    { level: 100, label: "에이스 성장", icon: "🌟", growth: true },
+    { level: 110, label: "마법사 모자", icon: "🎓" },
+    { level: 120, label: "왕실 의상", icon: "👘" },
+    { level: 130, label: "모험 가방", icon: "💼" },
+    { level: 140, label: "별자리 책", icon: "📙" }
   ];
   const panels = Array.from(document.querySelectorAll("[data-jini-character-panel]"));
   const dialog = document.getElementById("jini-character-dialog");
@@ -157,8 +163,7 @@
         '<span class="jgc-card-art" aria-hidden="true">' + illustration(study) + '</span>' +
         '<span class="jgc-card-info"><span class="jgc-label">' + STUDIES[study].label + ' · 나의 캐릭터</span>' +
         '<span class="jgc-name">' + escape(profile.name) + '<strong>Lv.' + score.level + '</strong></span>' +
-        '<span class="jgc-tier">' + tier.name + ' · ' + avatarOf(profile.avatar).label + ' · ' +
-        (COLORS.find(c => c.id === profile.color) || COLORS[0]).name + '</span>' +
+        '<span class="jgc-tier">' + tier.name + ' · ' + avatarOf(profile.avatar).label + '</span>' +
         '<span class="jgc-track"><span style="width:' + score.percent + '%"></span></span>' +
         '<span class="jgc-meter">' + score.inLevel + ' / 100 XP · 다음 레벨까지 ' + score.untilNext + ' XP</span></span>' +
         '<span class="jgc-card-arrow">꾸미기 ›</span></button>';
@@ -174,14 +179,17 @@
   }
   function slotChoices(study, slot, label) {
     const level = readScore(study).level;
-    const current = profiles[study].equipped[slot];
+    const current = effectiveEquipment(study)[slot];
+    const available = ITEMS[slot].filter(function (entry) { return level >= entry.lv; });
     return '<fieldset class="jgc-item-slot"><legend>' + label + '</legend><div class="jgc-item-buttons">' +
-      ITEMS[slot].map(function (entry) {
-        const locked = level < entry.lv;
-        return '<button type="button" class="jgc-item' + (entry.id === current && !locked ? ' is-selected' : '') +
+      available.map(function (entry) {
+        const preview = window.JINI_CHARACTER_ART && window.JINI_CHARACTER_ART.itemPreview
+          ? window.JINI_CHARACTER_ART.itemPreview(slot, entry.id)
+          : '<span class="jgc-item-emoji" aria-hidden="true">' + entry.icon + '</span>';
+        return '<button type="button" class="jgc-item' + (entry.id === current ? ' is-selected' : '') +
           '" data-jgc-action="item" data-slot="' + slot + '" data-item="' + entry.id +
-          '" aria-pressed="' + (entry.id === current && !locked) + '"' + (locked ? ' disabled' : '') +
-          '>' + (locked ? '🔒 ' : '') + escape(entry.name) + (locked ? ' · Lv.' + entry.lv : '') + '</button>';
+          '" aria-pressed="' + (entry.id === current) + '">' + preview +
+          '<span class="jgc-item-label">' + escape(entry.name) + '</span></button>';
       }).join("") + '</div></fieldset>';
   }
   function renderDialog() {
@@ -213,22 +221,13 @@
           '" aria-label="' + a.label + ' 선택"><span class="jgc-animal-art" aria-hidden="true">' +
           illustration(study, a.id) + '</span><small>' + a.label + '</small></button>';
       }).join("") + '</div>' +
-      '<span class="jgc-choice-title">색상 테마 · 언어와 관계없이 자유 선택</span><div class="jgc-colors">' +
-      COLORS.map(function (c) {
-        return '<button type="button" class="jgc-color' + (c.id === profile.color ? ' is-selected' : '') +
-          '" data-jgc-action="color" data-color="' + c.id + '" aria-pressed="' + (c.id === profile.color) +
-          '"><span style="background:' + c.hex + '"></span>' + c.name + '</button>';
-      }).join("") + '</div>' +
       '<span class="jgc-choice-title">아이템 꾸미기</span>' +
       slotChoices(study, "hat", "머리장식") + slotChoices(study, "bag", "가방") +
       slotChoices(study, "book", "책") + slotChoices(study, "outfit", "의상") +
-      slotChoices(study, "effect", "장식 효과") +
-      '<span class="jgc-choice-title">레벨 보상 도감</span><div class="jgc-rewards">' +
-      REWARDS.map(entry => rewardBox(entry, score.level)).join("") + '</div></div>' +
-      '<p class="jgc-tip">Lv.50 루키 · Lv.100 에이스는 크기만 확대하는 게 아니라 모습이 바뀌는 성장 단계예요. ' +
-      '100레벨 이후에도 레벨이 계속 올라가며, 추가 보상은 추후 확장할 수 있어요. ' +
-      '각 게임에서 처음 맞힌 문제만 +10 XP이며 리마인드는 +0 XP예요. ' +
-      '기존 XP와 학습 기록은 그대로 유지돼요. 설정은 이 브라우저에 저장됩니다.</p></div>';
+      '<p class="jgc-coordination-tip">성장해도 현재 착용 중인 아이템이 유지돼요. 획득한 아이템은 언제든 다시 골라 입을 수 있어요.</p>' +
+      '<p class="jgc-tip">Lv.50 · Lv.100에 외형이 성장합니다. Lv.110~140에는 새 꾸미기 아이템이 추가됩니다. 150레벨 오라는 추후 공개할 예정이에요. ' +
+      '100레벨 이후에도 레벨이 계속 올라가며, 게임에서 처음 맞힌 문제에만 +10 XP를 지급해요. ' +
+      '기존 XP와 학습 기록은 그대로 유지됩니다. 설정은 이 브라우저에 저장됩니다.</p></div>';
     dialog.scrollTop = savedScroll;
   }
   function open(study) {
