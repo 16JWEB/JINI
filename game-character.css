@@ -118,3 +118,41 @@
 @media(prefers-reduced-motion:reduce){
  .jgc-track>span,.jgc-large-track>span,.jgc-card{transition:none}
 }
+
+
+/* JINI illustrated character expansion / simplified wardrobe layout */
+.jgc-card{min-height:189px;padding:16px 21px;gap:20px}
+.jgc-card-art{width:165px;min-width:165px;height:165px;background:radial-gradient(ellipse,#fffefa 4%,#faf5ff 73%);border-radius:22px}
+.jgc-card-art .jgc-mascot{width:165px;height:165px}
+#jini-character-dialog{width:min(94vw,645px);max-height:min(93dvh,900px);border-radius:25px}
+.jgc-dialog-content{padding:24px 29px 28px}
+.jgc-portrait{padding:8px 8px 17px}
+.jgc-portrait-art{width:min(75vw,310px);height:min(75vw,310px);margin:0 auto 11px;background:radial-gradient(ellipse at 50% 65%,#fffdfb 0%,#f8f2ff 66%,#f5f3ff 100%);border-radius:25px}
+.jgc-portrait-art .jgc-mascot{width:100%;height:100%}
+.jgc-animal-art{height:87px}
+.jgc-avatar-option{padding:8px 4px 11px}
+.jgc-animal-art .jgc-mascot{width:92px;height:92px}
+.jgc-choices{gap:13px}
+.jgc-item-slot{padding:14px 12px;border-radius:16px}
+.jgc-item-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:9px}
+.jgc-item{display:flex;min-height:86px;flex-direction:column;align-items:center;justify-content:center;gap:7px;border-radius:13px;padding:9px 6px;background:#fff}
+.jgc-item-emoji{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-size:32px;line-height:1.15;display:block}
+.jgc-item-label{font-size:12px;line-height:1.25;text-align:center}
+.jgc-item.is-selected{background:linear-gradient(155deg,#f7efff,#fff7fc);border-color:#9b81e9;box-shadow:inset 0 0 0 1px #9b81e9}
+.jgc-coordination-tip{font-size:12px;line-height:1.7;margin:5px 0 0;padding:11px 12px;border-radius:13px;background:#f7f4ff;color:#64588b}
+@media(max-width:760px){
+ .jgc-card{min-height:140px;padding:10px 12px;gap:10px}
+ .jgc-card-art{width:118px;min-width:118px;height:118px}
+ .jgc-card-art .jgc-mascot{width:118px;height:118px}
+ .jgc-dialog-content{padding:15px 15px 20px}
+ .jgc-portrait-art{width:min(76vw,275px);height:min(76vw,275px)}
+ .jgc-animal-art{height:75px}
+ .jgc-animal-art .jgc-mascot{width:80px;height:80px}
+ .jgc-item-buttons{grid-template-columns:repeat(auto-fit,minmax(79px,1fr));gap:7px}
+ .jgc-item{min-height:78px}
+}
+@media(max-width:380px){
+ .jgc-card-art{width:105px;min-width:105px;height:105px}
+ .jgc-card-art .jgc-mascot{width:105px;height:105px}
+ .jgc-portrait-art{width:235px;height:235px}
+}
