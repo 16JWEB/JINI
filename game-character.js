@@ -110,12 +110,36 @@
     try { localStorage.setItem(PROFILE_KEYS[study], JSON.stringify(profiles[study])); }
     catch (_) { /* Still active in this tab. */ }
   }
+  function renderHomePanel(study, score, profile, tier) {
+    const meta=STUDIES[study], auraLevel=equippedAuraLevel(study);
+    const auraName=auraLevel && window.JINI_AURA ? window.JINI_AURA.rewardLabel(auraLevel,profile.avatar) : "오라 없음";
+    const unlocked=Math.min(20,Math.floor(score.level/10));
+    return '<button type="button" class="jgc-home-card jgc-home-card-'+study+'" data-jgc-action="open" data-jgc-study="'+study+
+      '" aria-label="'+meta.label+' 캐릭터 '+escape(profile.name)+', 레벨 '+score.level+', 상세보기 열기">'+
+      '<span class="jgc-home-copy">'+
+      '<span class="jgc-home-label"><span class="jgc-home-label-icon" aria-hidden="true">'+(study==="english"?"📘":"📕")+'</span>'+meta.label+' 캐릭터</span>'+
+      '<span class="jgc-home-name">'+escape(profile.name)+'</span>'+
+      '<span class="jgc-home-level">Lv. <strong>'+score.level+'</strong></span>'+
+      '<span class="jgc-home-rank">'+tier.name+' · '+avatarOf(profile.avatar).label+'</span>'+
+      '<span class="jgc-home-progress-label"><span>다음 레벨까지</span><strong>'+score.untilNext+' XP</strong></span>'+
+      '<span class="jgc-home-track"><span style="width:'+score.percent+'%"></span></span>'+
+      '<span class="jgc-home-progress-count">'+score.inLevel+' / 100 XP</span>'+
+      '<span class="jgc-home-stats"><span><small>누적 XP</small><strong>'+score.xp.toLocaleString()+'</strong></span>'+
+      '<span><small>해금한 오라</small><strong>'+unlocked+' / 20</strong></span></span>'+
+      '<span class="jgc-home-aura" title="'+escape(auraName)+'">✨ '+escape(auraName)+'</span>'+
+      '<span class="jgc-home-view">캐릭터 상세보기 <span aria-hidden="true">›</span></span>'+
+      '</span><span class="jgc-home-illustration" aria-hidden="true">'+illustration(study)+'</span></button>';
+  }
   function renderPanels() {
     panels.forEach(function (panel) {
       const study = studyOf(panel.dataset.jiniCharacterPanel);
       const score = readScore(study);
       const profile = profiles[study];
       const tier = growth(score.level);
+      if (panel.dataset.jiniCharacterHome === "true") {
+        panel.innerHTML=renderHomePanel(study,score,profile,tier);
+        return;
+      }
       panel.innerHTML = '<button type="button" class="jgc-card" data-jgc-action="open" data-jgc-study="' + study +
         '" aria-label="' + STUDIES[study].label + ' 캐릭터, 레벨 ' + score.level + '">' +
         '<span class="jgc-card-art" aria-hidden="true">' + illustration(study) + '</span>' +
