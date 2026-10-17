@@ -101,3 +101,19 @@
  .kg-question-word { padding: 20px 12px; }
  .kg-btn { padding: 11px 12px; font-size: 12px; }
 }
+
+/* Korean conversation: listen to each choice, select, then submit. */
+.kg-dialog-hint{margin:16px 0 0;color:#66678a;font-size:13px;line-height:1.8}
+.kg-dialog-choices{grid-template-columns:1fr}
+.kg-dialog-choice-row{display:flex;gap:10px;align-items:stretch;min-width:0}
+.kg-dialog-choice-row .kg-choice{flex:1;min-width:0;overflow-wrap:anywhere}
+.kg-choice.kg-picked{border-color:#796beb;background:#f0edff;box-shadow:0 0 0 1px #796beb;color:#5546bb}
+.kg-dialog-listen{flex:0 0 auto;align-self:stretch;min-width:84px;border:1px solid #d9d4ff;border-radius:12px;background:#faf9ff;color:#5e50bb;font-size:12px;font-weight:800;cursor:pointer}
+.kg-dialog-listen:hover{background:#f0edff}
+.kg-dialog-listen:focus-visible{outline:3px solid #9284f6;outline-offset:2px}
+.kg-dialog-submit .kg-btn:disabled{opacity:.42;cursor:not-allowed}
+@media(max-width:740px){
+ .kg-dialog-choice-row{gap:7px}
+ .kg-dialog-choice-row .kg-choice{padding:12px;min-height:60px}
+ .kg-dialog-listen{min-width:76px;font-size:11px}
+}
