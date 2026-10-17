@@ -191,6 +191,16 @@
           '<span class="jgc-item-label">' + escape(entry.name) + '</span></button>';
       }).join("") + '</div></fieldset>';
   }
+  function equippedSummary(study) {
+    const equipped = effectiveEquipment(study);
+    const labels = { hat: "모자", outfit: "옷", bag: "가방", book: "책" };
+    return '<div class="jgc-equipped-summary" aria-label="현재 착용 중인 아이템">' +
+      Object.keys(labels).map(function (slot) {
+        const selected = ITEMS[slot].find(function (item) { return item.id === equipped[slot]; }) || ITEMS[slot][0];
+        return '<span class="jgc-equipped-chip"><span aria-hidden="true">' + selected.icon + '</span><small>' +
+          labels[slot] + '</small><strong>' + escape(selected.name) + '</strong></span>';
+      }).join("") + '</div>';
+  }
   function renderDialog() {
     const study = activeStudy;
     const score = readScore(study);
@@ -205,7 +215,8 @@
       '<span class="jgc-portrait-art" aria-hidden="true">' + illustration(study) + '</span>' +
       '<span class="jgc-level">Lv.' + score.level + ' · ' + tier.name + '</span>' +
       '<h2 id="jini-character-title">' + escape(profile.name) + '</h2>' +
-      '<p>' + tier.description + ' 영어·한글은 각각 따로 키울 수 있어요.</p></div>' +
+      '<p>' + tier.description + ' 영어·한글은 각각 따로 키울 수 있어요.</p>' +
+      equippedSummary(study) + '</div>' +
       '<div class="jgc-xp-section"><div class="jgc-xp-heading"><strong>' + label + ' 레벨 ' + score.level + ' → ' +
       (score.level + 1) + '</strong><span>' + score.inLevel + ' / 100 XP</span></div>' +
       '<div class="jgc-large-track"><span style="width:' + score.percent + '%"></span></div>' +
@@ -223,7 +234,7 @@
       '<span class="jgc-choice-title">아이템 꾸미기</span>' +
       slotChoices(study, "hat", "머리장식") + slotChoices(study, "bag", "가방") +
       slotChoices(study, "book", "책") + slotChoices(study, "outfit", "의상") +
-      '<p class="jgc-coordination-tip">성장해도 현재 착용 중인 아이템이 유지돼요. 획득한 아이템은 언제든 다시 골라 입을 수 있어요.</p>' +
+      '<p class="jgc-coordination-tip">성장해도 선택한 아이템 설정은 유지돼요. 획득한 아이템은 언제든 다시 선택할 수 있어요.</p>' +
       '<p class="jgc-tip">Lv.50 · Lv.100에 외형이 성장합니다. Lv.110~140에는 새 꾸미기 아이템이 추가됩니다. 150레벨 오라는 추후 공개할 예정이에요. ' +
       '100레벨 이후에도 레벨이 계속 올라가며, 게임에서 처음 맞힌 문제에만 +10 XP를 지급해요. ' +
       '기존 XP와 학습 기록은 그대로 유지됩니다. 설정은 이 브라우저에 저장됩니다.</p></div>';
