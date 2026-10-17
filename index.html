@@ -9,10 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=20261017-final-review">
-  <link rel="stylesheet" href="korean-game.css?v=20261017-bottom-nav">
+  <link rel="stylesheet" href="korean-game.css?v=20261017-dialog-audio-submit">
   <link rel="stylesheet" href="english-game.css?v=20261017-cloze-box">
   <link rel="stylesheet" href="game-character.css?v=20261017-game-character-v1">
-  <link rel="stylesheet" href="opic.css?v=20261017-mobile-speaking-nav">
+  <link rel="stylesheet" href="opic.css?v=20261017-game-submenus">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
 </head>
 <body>
@@ -67,9 +67,20 @@
               </button>
             </div>
           </div>
-          <button class="nav-item" data-page="english-game">
-            <span class="nav-icon">🎮</span><span>연습 게임</span>
-          </button>
+          <div class="practice-menu-group" role="group" data-practice="english" aria-label="연습 게임 유형별 선택">
+            <div class="practice-menu-header">
+              <button class="nav-item" data-page="english-game" type="button"><span class="nav-icon">🎮</span><span>연습 게임</span></button>
+              <button class="practice-menu-toggle" type="button" aria-expanded="false" aria-label="연습 게임 하위 메뉴 열기" aria-controls="english-game-menu-children"><span aria-hidden="true">▾</span></button>
+            </div>
+            <div class="practice-menu-children" id="english-game-menu-children" role="group" aria-label="연습 게임 하위 메뉴">
+              <button class="nav-item practice-menu-child" data-page="english-game" data-game-mode="word" type="button"><span class="nav-icon">📘</span><span>단어 뜻 맞히기</span></button>
+              <button class="nav-item practice-menu-child" data-page="english-game" data-game-mode="listen" type="button"><span class="nav-icon">🎧</span><span>듣고 단어 맞히기</span></button>
+              <button class="nav-item practice-menu-child" data-page="english-game" data-game-mode="spelling" type="button"><span class="nav-icon">🔤</span><span>철자 완성하기</span></button>
+              <button class="nav-item practice-menu-child" data-page="english-game" data-game-mode="sentence" type="button"><span class="nav-icon">🧩</span><span>문장 완성하기</span></button>
+              <button class="nav-item practice-menu-child" data-page="english-game" data-game-mode="speaking" type="button"><span class="nav-icon">🎙️</span><span>발음·회화 챌린지</span></button>
+              <button class="nav-item practice-menu-child" data-page="english-game" data-game-mode="review" type="button"><span class="nav-icon">🧠</span><span>약점 집중 복습</span></button>
+            </div>
+          </div>
         </div>
       </nav>
       <div class="menu-label study-menu-label" id="korean-menu-label">AI 한글공부</div>
@@ -87,9 +98,19 @@
           <button class="nav-item" data-page="ko-expression-player">
             <span class="nav-icon">♫</span><span>표현 재생</span>
           </button>
-          <button class="nav-item" data-page="ko-game">
-            <span class="nav-icon">🎮</span><span>연습 게임</span>
-          </button>
+          <div class="practice-menu-group" role="group" data-practice="korean" aria-label="연습 게임 유형별 선택">
+            <div class="practice-menu-header">
+              <button class="nav-item" data-page="ko-game" type="button"><span class="nav-icon">🎮</span><span>연습 게임</span></button>
+              <button class="practice-menu-toggle" type="button" aria-expanded="false" aria-label="연습 게임 하위 메뉴 열기" aria-controls="korean-game-menu-children"><span aria-hidden="true">▾</span></button>
+            </div>
+            <div class="practice-menu-children" id="korean-game-menu-children" role="group" aria-label="연습 게임 하위 메뉴">
+              <button class="nav-item practice-menu-child" data-page="ko-game" data-game-mode="word" type="button"><span class="nav-icon">📘</span><span>단어 뜻 맞히기</span></button>
+              <button class="nav-item practice-menu-child" data-page="ko-game" data-game-mode="sound" type="button"><span class="nav-icon">🎧</span><span>발음 듣고 맞히기</span></button>
+              <button class="nav-item practice-menu-child" data-page="ko-game" data-game-mode="pron" type="button"><span class="nav-icon">🎙️</span><span>발음 따라 말하기</span></button>
+              <button class="nav-item practice-menu-child" data-page="ko-game" data-game-mode="dialog" type="button"><span class="nav-icon">💬</span><span>실전 회화</span></button>
+              <button class="nav-item practice-menu-child" data-page="ko-game" data-game-mode="review" type="button"><span class="nav-icon">🧠</span><span>약점 복습</span></button>
+            </div>
+          </div>
         </div>
       </nav>
 
@@ -371,10 +392,10 @@
   <script src="words-everyday-reviewed-08.js?v=20261017-life-reviewed-2"></script>
   <script src="words-everyday-reviewed-09.js?v=20261017-life-reviewed-2"></script>
   <script src="words-everyday-reviewed-10.js?v=20261017-life-reviewed-2"></script>
-  <script src="app.js?v=20261017-mobile-speaking-nav"></script>
+  <script src="app.js?v=20261017-game-submenus"></script>
   <script src="game-character.js?v=20261017-once-xp-v1"></script>
-  <script src="korean-game.js?v=20261017-once-xp-v1"></script>
-  <script src="english-game.js?v=20261017-us-pronunciation"></script>
+  <script src="korean-game.js?v=20261017-dialog-audio-submit"></script>
+  <script src="english-game.js?v=20261017-game-submenus"></script>
   <script src="opic-data.js?v=20261017-opic"></script>
   <script src="opic.js?v=20261017-level-il-ih"></script>
   <script src="opic-mock-data.js?v=20261017-mock-v1"></script>
