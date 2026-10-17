@@ -376,9 +376,9 @@
           (state.playerWord || playerItemNumber + "번째 표현"),
         "verb-forms": "동사 변화",
         "english-game": "영어 연습 게임",
-        "speaking": "스피킹",
-        "opic": "오픽 대비",
-        "opic-basic": "오픽 기초 답변 훈련",
+        "speaking": "스피킹 대비",
+        "opic": "주제별 질문 목록",
+        "opic-basic": "기초 답변 훈련",
         "ko-game": "연습 게임"
       };
       button.textContent = "마지막 공부 화면 · " + (pageLabels[state.page] || "학습 화면");
@@ -1287,7 +1287,7 @@
     breadcrumbLevel.textContent = showingHome ? "" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
       showingPlayer ? (playingExpressions ? "표현 재생" : koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
-      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹" : showingOpic ? (page === "opic-basic" ? "오픽 대비 / 기초 답변 훈련" : "오픽 대비") : "동사 변화";
+      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비" : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
     document.getElementById("section-title").textContent = "필수 단어";
     if (showingExpressions) document.getElementById("section-title").textContent = "일상생활 표현";
     document.querySelector(".bookmark-toolbar").hidden = showingExpressions;
