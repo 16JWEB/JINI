@@ -371,5 +371,6 @@ root.addEventListener("change",e=>{const t=e.target;if(!t)return;
  if(t.id==="eg-count"&&[10,20,30].includes(Number(t.value))){count=Number(t.value);dashboard();}
 });
 new MutationObserver(()=>{if(section.hidden){stop();active=false;game=null;dashboard();}}).observe(section,{attributes:true,attributeFilter:["hidden"]});
+window.JINI_START_ENGLISH_GAME=begin;
 dashboard();
 }());
