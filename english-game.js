@@ -170,7 +170,7 @@ function render(){
  '<div class="eg-bar"><i style="width:'+(game.index/game.questions.length*100)+'%"></i></div>'+
  '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term">'+
  (q.mode==="sentence"?
-   esc(q.title).replace("______",'<span id="eg-cloze-word" class="eg-cloze-word'+(q.draft||q.response?" eg-cloze-filled":"")+'">'+esc(q.draft||q.response||"______")+'</span>'):
+   esc(q.title).replace("______",'<span id="eg-cloze-word" class="eg-cloze-word'+(q.draft||q.response?" eg-cloze-filled":"")+'">'+(q.draft||q.response?esc(q.draft||q.response):"&#160;")+'</span>'):
    esc(q.title))+'</div>';
  if(q.mode==="listen")html+='<div class="eg-audio">'+btn("🔊 다시 듣기","listen","eg-main")+'</div>';
  else if(q.mode==="word"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
@@ -276,7 +276,7 @@ function updateSentenceDraft(input){
  if(q.mode!=="sentence")return;
  const blank=document.getElementById("eg-cloze-word");
  if(blank){
-  blank.textContent=q.draft||"______";
+  blank.textContent=q.draft||"\u00a0";
   blank.classList.toggle("eg-cloze-filled",Boolean(q.draft));
  }
  root.querySelectorAll('[data-eg="pick-sentence"]').forEach(b=>{
