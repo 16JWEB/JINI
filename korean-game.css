@@ -125,3 +125,10 @@
 #kg-word-typing-form{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
 #kg-word-typing{flex:1 1 160px;min-height:45px;box-sizing:border-box;padding:10px 12px;border:1px solid #cfc5f3;border-radius:10px;font:inherit;font-size:15px;background:#fff;color:#2e2850}
 #kg-word-typing:focus-visible{outline:3px solid #9284f6;outline-offset:2px}
+
+/* Result example audio: aligned with the English word quiz feedback. */
+.kg-example{margin-top:14px;padding-top:14px;border-top:1px solid #c9e5d4}
+.kg-example-label{margin:10px 0 4px;font-weight:800;font-size:12px;color:#526e61}
+.kg-example-text{font-size:15px;line-height:1.65;margin:4px 0 10px;word-break:keep-all}
+.kg-example-translation{font-size:13px;line-height:1.7;margin:4px 0 0;color:#426b58}
+.kg-example-listen{margin:2px 0 6px;min-height:40px}
