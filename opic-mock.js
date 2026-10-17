@@ -20,6 +20,7 @@
   let recordingIndex = -1;
   let recordStarted = 0;
   let busy = false;
+  let finishing = false;
   const recordings = new Map();
   let displayLevel = null;
 
@@ -31,7 +32,7 @@
   }
   function emptyState() {
     return { phase: "setup", level: goalFromBasic(), index: 0, startAt: null, endAt: null,
-      difficulty: null, listens: Array(15).fill(0), answered: Array(15).fill(false),
+      difficulty: null, finishAt: null, listens: Array(15).fill(0), answered: Array(15).fill(false),
       revealed: Array(15).fill(false), notes: Array(15).fill(""), finishReason: "" };
   }
   function load() {
@@ -44,6 +45,7 @@
       blank.index = Math.max(0, Math.min(14, Number.isInteger(old.index) ? old.index : 0));
       blank.startAt = typeof old.startAt === "number" ? old.startAt : null;
       blank.endAt = typeof old.endAt === "number" ? old.endAt : null;
+      blank.finishAt = typeof old.finishAt === "number" ? old.finishAt : null;
       blank.difficulty = ["easy", "same", "hard"].includes(old.difficulty) ? old.difficulty : null;
       ["listens", "answered", "revealed", "notes"].forEach(name => {
         if (!Array.isArray(old[name])) return;
@@ -233,7 +235,8 @@
     if (el) el.textContent = timeLabel();
   }
   async function finish(reason) {
-    if (state.phase === "finished") return;
+    if (state.phase === "finished" || finishing) return;
+    finishing = true;
     await stopRecording();
     stopSpeech();
     state.phase = "finished";
@@ -241,6 +244,7 @@
     state.finishAt = Date.now();
     save();
     renderResults();
+    finishing = false;
   }
   async function next() {
     if (busy) return;
