@@ -96,3 +96,10 @@
 .eg-option{min-height:58px}
 .eg-term{padding:20px 12px}
 }
+/* Word quiz: choice verification is followed by a typed recall check. */
+.eg-word-typing{margin:17px 0 8px;padding:16px;border:1px solid #dcd5f8;border-radius:14px;background:#f8f5ff}
+.eg-word-typing strong{display:block;color:#5447a3;font-size:14px;line-height:1.65}
+.eg-word-typing p{margin:8px 0 13px;font-size:12px;color:#71668c;line-height:1.7}
+#eg-word-typing-form{display:flex;align-items:stretch;gap:9px;flex-wrap:wrap}
+#eg-word-typing{flex:1 1 160px;min-height:45px;box-sizing:border-box;padding:10px 13px;border:1px solid #cfc5f3;border-radius:10px;font:inherit;font-size:15px;color:#2e2850;background:#fff}
+#eg-word-typing:focus-visible{outline:3px solid #9a92f5;outline-offset:2px}
