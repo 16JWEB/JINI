@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="styles.css?v=20261017-final-review">
   <link rel="stylesheet" href="korean-game.css?v=20261017-bottom-nav">
   <link rel="stylesheet" href="english-game.css?v=20261017-example-feedback">
+  <link rel="stylesheet" href="game-character.css?v=20261017-game-character-v1">
   <link rel="stylesheet" href="opic.css?v=20261017-level-il-ih">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
 </head>
@@ -262,6 +263,7 @@
           <h1 class="page-title">영어 연습 게임</h1>
           <p>기존 영어 단어와 예문으로 뜻·듣기·철자·문장·회화를 연습하고, 틀린 문제는 다시 풀어 보세요.</p>
         </div>
+        <div id="jini-character-english" class="jgc-slot" data-jini-character-panel></div>
         <div id="english-game-root" aria-live="polite"></div>
       </section>
 
@@ -293,6 +295,7 @@
           </div>
           <span class="kg-badge">한국어 중급 연습 · 베트남어 뜻</span>
         </div>
+        <div id="jini-character-korean" class="jgc-slot" data-jini-character-panel></div>
         <div id="korean-game-root" aria-live="polite"></div>
       </section>
 
@@ -336,6 +339,8 @@
     </main>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="jini-character-dialog" aria-labelledby="jini-character-title"></dialog>
+  <div id="jini-level-up-toast" role="status" aria-live="polite" hidden></div>
   <script src="words-elementary-extra.js?v=20261017-final-review"></script>
   <script src="words-middle-extra.js?v=20261017-final-review"></script>
   <script src="words-high-extra.js?v=20261017-final-review"></script>
@@ -350,8 +355,9 @@
   <script src="content-review-part2.js?v=20261017-final-review"></script>
   <script src="content-curated.js?v=20261017-final-review"></script>
   <script src="app.js?v=20261017-mock-back-v1"></script>
-  <script src="korean-game.js?v=20261017-bottom-nav"></script>
-  <script src="english-game.js?v=20261017-example-feedback"></script>
+  <script src="game-character.js?v=20261017-game-character-v1"></script>
+  <script src="korean-game.js?v=20261017-game-character-v1"></script>
+  <script src="english-game.js?v=20261017-game-character-v1"></script>
   <script src="opic-data.js?v=20261017-opic"></script>
   <script src="opic.js?v=20261017-level-il-ih"></script>
   <script src="opic-mock-data.js?v=20261017-mock-v1"></script>
