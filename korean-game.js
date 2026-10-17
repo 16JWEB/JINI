@@ -79,7 +79,9 @@
     if (!item || !item.word || !item.meaning) return null;
     const answer = String(item.meaning).trim();
     const opts = pickOptions(answer, words.map(function (x) { return String(x.meaning).trim(); }));
-    return opts ? { id: "word:" + item.word, type: "word", label: "단어 뜻 맞히기", prompt: "이 단어의 베트남어 뜻을 고르세요.", text: item.word, target: item.word, choices: opts, correct: opts.indexOf(answer), note: item.word + " = " + answer + (item.example ? " · " + item.example : "") } : null;
+    return opts ? { id: "word:" + item.word, type: "word", label: "단어 뜻 맞히기", prompt: "이 단어의 베트남어 뜻을 고르세요.", text: item.word, target: item.word, choices: opts, correct: opts.indexOf(answer),
+      note: item.word + " = " + answer, example: typeof item.example === "string" ? item.example.trim() : "",
+      exampleVi: typeof item.exampleKo === "string" ? item.exampleKo.trim() : "" } : null;
   }
   function expressionQuestion(item) {
     if (!item || !item.word || !item.meaning) return null;
@@ -251,8 +253,14 @@
         '<button class="kg-btn kg-primary" type="submit">타이핑 확인</button></form></div>';
     }
     if (session.answer !== null && q.type !== "pron") {
-      content += '<div class="kg-feedback ' + (session.answer === q.correct ? "kg-good" : "kg-bad") + '"><strong>' + (session.answer === q.correct ? (q._xpEarned ? '정답이에요! +10 XP' : '정답이에요! 이미 경험치를 받은 문제예요. +0 XP') : '오답이에요. 오답 복습에 추가했어요.') + '</strong><p>' + esc(q.note) + '</p>' +
-        (q.type === "sound" ? '<p>들려준 단어: <b>' + esc(q.target) + '</b></p>' : '') + '</div>';
+      const passed = session.answer === q.correct;
+      content += '<div class="kg-feedback ' + (passed ? "kg-good" : "kg-bad") + '"><strong>' + (passed ? (q._xpEarned ? '정답이에요! +10 XP' : '정답이에요! 이미 경험치를 받은 문제예요. +0 XP') : '오답이에요. 오답 복습에 추가했어요.') + '</strong><p>' + esc(q.note) + '</p>' +
+        (q.type === "sound" ? '<p>들려준 단어: <b>' + esc(q.target) + '</b></p>' : '') +
+        (passed && q.type === "word" && q.example ?
+          '<div class="kg-example"><div class="kg-example-label">한국어 예문</div><p class="kg-example-text" lang="ko">' + esc(q.example) + '</p>' +
+          button("🔊 예문 듣기", "listen-example", "kg-outline kg-example-listen") +
+          (q.exampleVi ? '<div class="kg-example-label">베트남어 해석</div><p class="kg-example-translation" lang="vi">' + esc(q.exampleVi) + '</p>' : '') +
+          '</div>' : '') + '</div>';
     }
     if (message) content += '<p class="kg-status" role="status">' + esc(message) + '</p>';
     root.innerHTML = '<div class="kg-quiz-card">' + gameNavigation() + content + gameNavigation(true) + '</div>';
@@ -356,6 +364,8 @@
     message="";
     storeResult(q,true);
     questionView();
+    // Play the completed word's Korean example only after accurate typing.
+    if(q.example)speak(q.example);
   }
   function selectDialogOption(idx) {
     if (!session) return;
@@ -615,6 +625,10 @@
     else if (action === "next") advance();
     else if (action === "grade") finishPron(b.dataset.grade === "yes");
     else if (action === "listen" && session) speak(session.queue[session.pos].target);
+    else if (action === "listen-example" && session) {
+      const q=session.queue[session.pos];
+      if(q && q.type==="word" && Number.isInteger(q._answer) && q._answer===q.correct && q.example)speak(q.example);
+    }
     else if (action === "record") beginRecord();
     else if (action === "stop-record" && recorder && recorder.state !== "inactive") recorder.stop();
     else if (action === "recognize") recognize();
