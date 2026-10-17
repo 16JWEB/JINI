@@ -298,7 +298,8 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
 @media (max-width: 760px) {
   .sidebar { width: auto; height: 61px; inset: auto 0 0; flex-direction: row; align-items: center; justify-content: flex-start; overflow-x: auto; overflow-y: hidden; padding: 5px 10px; border-top: 1px solid #eceef4; border-right: 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .sidebar::-webkit-scrollbar { display: none; }
-  .brand { margin: 0 7px 0 1px; gap: 6px; font-size: 15px; }
+  /* Hide the redundant W/JINI link from the mobile bottom navigation. */
+  .brand { display: none; }
   .brand-mark { width: 29px; height: 29px; border-radius: 9px; font-size: 15px; }
   .menu-label, .sidebar-note, .sidebar-foot { display: none; }
   .main-nav { flex: 0 0 auto; display: flex; justify-content: flex-start; gap: 3px; }
