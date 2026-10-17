@@ -94,9 +94,18 @@
   function dialogQuestion(x) { return { id: "dialog:" + x.id, type: "dialog", label: "실전 회화", prompt: x.prompt, text: x.line, scene: x.scene, target: x.line, choices: x.choices, correct: x.correct, note: x.note }; }
   function pronunciationQuestion(x) { return { id: "pron:" + x.id, type: "pron", label: "따라 말하기", prompt: "원어민 음성을 듣고 직접 따라 말하세요.", text: x.word, target: x.word, note: x.clue, mouth: x.mouth, breath: x.breath }; }
   function normalizeQuestion(q) { if (q.type === "sound") q.correct = q.choices.indexOf(q.target); return q; }
-  function dueItems() {
-    const now = Date.now();
-    return Object.keys(progress.items).filter(function (id) { const row = progress.items[id]; return row && Number(row.dueAt) <= now; });
+  function wrongItems() {
+    return Object.keys(progress.items).filter(function (id) {
+      const row = progress.items[id];
+      return row && Number(row.wrong) > 0 && Number(row.streak) === 0;
+    });
+  }
+  function reminderItems() {
+    return Object.keys(progress.items).filter(function (id) {
+      const row = progress.items[id];
+      return row && (row.xpAwarded === true ||
+        (row.xpAwarded === undefined && Number(row.streak) > 0));
+    });
   }
   function questionById(id) {
     if (id.indexOf("word:") === 0) return wordQuestion(words.find(function (x) { return x.word === id.slice(5); }) || {});
@@ -119,7 +128,8 @@
     if (mode === "sound") return shuffle(sounds).slice(0, GAME_SIZE).map(soundQuestion);
     if (mode === "dialog") return shuffle(dialogues).slice(0, GAME_SIZE).map(dialogQuestion);
     if (mode === "pron") return shuffle(pronounce).slice(0, GAME_SIZE).map(pronunciationQuestion);
-    if (mode === "review") return shuffle(dueItems()).map(questionById).filter(Boolean).slice(0, 12);
+    if (mode === "review") return shuffle(wrongItems()).map(questionById).filter(Boolean).slice(0, 12);
+    if (mode === "remind") return shuffle(reminderItems()).map(questionById).filter(Boolean).slice(0, 12);
     return [];
   }
   function button(label, action, cls, extras) { return '<button type="button" class="kg-btn ' + (cls || "") + '" data-kg-action="' + action + '"' + (extras || "") + '>' + label + '</button>'; }
@@ -163,15 +173,17 @@
     return true;
   };
   function dashboard() {
-    const due = dueItems().filter(function (id) { return !!questionById(id); }).length;
-    root.innerHTML = '<div class="kg-summary"><div><span>한글 게임 XP</span><strong>' + progress.xp + ' XP</strong></div><div><span>게임 성공률 (자가평가 포함)</span><strong>' + (progress.attempts ? Math.round(progress.correct / progress.attempts * 100) : 0) + '%</strong></div><div><span>복습할 항목</span><strong>' + due + '개</strong></div></div>' +
-      '<div class="kg-info">💡 문제를 처음 맞히면 +10 XP, 이미 맞힌 문제는 +0 XP예요. 틀리거나 복습할 때가 된 문제는 <b>약점 복습</b>에서 다시 만날 수 있어요. 학습 기록은 이 기기의 브라우저에만 저장돼요.</div>' +
+    const due = wrongItems().filter(function (id) { return !!questionById(id); }).length;
+    const remembered = reminderItems().filter(function (id) { return !!questionById(id); }).length;
+    root.innerHTML = '<div class="kg-summary"><div><span>한글 게임 XP</span><strong>' + progress.xp + ' XP</strong></div><div><span>게임 성공률 (자가평가 포함)</span><strong>' + (progress.attempts ? Math.round(progress.correct / progress.attempts * 100) : 0) + '%</strong></div><div><span>오답 복습</span><strong>' + due + '개</strong></div></div>' +
+      '<div class="kg-info">💡 문제를 처음 맞히면 +10 XP, 이미 맞힌 문제는 +0 XP예요. 틀린 문제는 <b>오답 복습</b>에서, 이전에 맞힌 문제는 <b>리마인드</b>에서 다시 풀 수 있어요. 리마인드에서는 XP가 지급되지 않아요. 학습 기록은 이 기기의 브라우저에만 저장돼요.</div>' +
       '<div class="kg-mode-grid">' +
       boxText("단어 뜻 맞히기", "기존 한국어 단어와 베트남어 뜻 연결", "📘", "word") +
       boxText("발음 듣고 맞히기", "비슷한 소리를 듣고 구별하기", "🎧", "sound") +
       boxText("발음 따라 말하기", "입·혀 위치 설명 + 녹음 비교", "🎙️", "pron") +
       boxText("실전 회화", "식당·직장·일상 대화 선택하기", "💬", "dialog") +
-      boxText("약점 복습", "틀렸거나 복습 시간이 된 문제", "🧠", "review") + '</div>' +
+      boxText("오답 복습", "현재 틀린 문제 " + due + "개", "📝", "review") +
+      boxText("리마인드", "전에 맞힌 문제 " + remembered + "개 · 0 XP", "🔁", "remind") + '</div>' +
       '<p class="kg-footnote">소리 재생은 기기의 한국어 음성 엔진을 사용해요. 음성 인식과 녹음은 브라우저 지원 및 마이크 권한이 필요해요. 음성 인식은 브라우저 제공 업체의 서버에서 처리될 수 있어요.</p>';
   }
   function questionView() {
@@ -220,7 +232,7 @@
       }
     }
     if (session.answer !== null && q.type !== "pron") {
-      content += '<div class="kg-feedback ' + (session.answer === q.correct ? "kg-good" : "kg-bad") + '"><strong>' + (session.answer === q.correct ? (q._xpEarned ? '정답이에요! +10 XP' : '정답이에요! 이미 경험치를 받은 문제예요. +0 XP') : '오답이에요. 복습 목록에 추가했어요.') + '</strong><p>' + esc(q.note) + '</p>' +
+      content += '<div class="kg-feedback ' + (session.answer === q.correct ? "kg-good" : "kg-bad") + '"><strong>' + (session.answer === q.correct ? (q._xpEarned ? '정답이에요! +10 XP' : '정답이에요! 이미 경험치를 받은 문제예요. +0 XP') : '오답이에요. 오답 복습에 추가했어요.') + '</strong><p>' + esc(q.note) + '</p>' +
         (q.type === "sound" ? '<p>들려준 단어: <b>' + esc(q.target) + '</b></p>' : '') + '</div>';
     }
     if (message) content += '<p class="kg-status" role="status">' + esc(message) + '</p>';
@@ -236,11 +248,11 @@
     }).length;
     root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<div class="kg-trophy">🏆</div><h2>게임 완료!</h2><p>정답 또는 자기 평가 성공 <b>' + n + ' / ' + total + '</b></p>' +
       (skipped ? '<p>답하지 않고 넘어간 문제: ' + skipped + '개 (채점 및 오답 기록 제외)</p>' : '') +
-      '<p>' + session.missed + '문제는 약점 복습 목록에 저장했어요.</p><p class="kg-success">이번 게임 획득 경험치: +' + session.earned + ' XP</p>' +
+      '<p>' + session.missed + '문제는 오답 복습 목록에 저장했어요.</p><p class="kg-success">이번 게임 획득 경험치: +' + session.earned + ' XP</p>' +
       '<div class="kg-end-actions">' + button("다시 도전", "restart", "kg-primary") + '</div>' + gameNavigation(true) + '</div>';
   }
   function start(mode) {
-    if (!["word", "sound", "pron", "dialog", "review"].includes(mode)) return;
+    if (!["word", "sound", "pron", "dialog", "review", "remind"].includes(mode)) return;
     stopMedia(); message = "";
     if (!gameScreenActive) {
       gameScreenActive = true;
@@ -252,7 +264,7 @@
     const queue = build(mode);
     if (!queue.length) {
       session = null;
-      root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<h2>' + (mode === "review" ? '지금 복습할 문제가 없어요 🎉' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '새 게임에서 연습한 뒤 다음 복습을 확인해 보세요.' : '학습 데이터를 확인해 주세요.') + '</p>' + gameNavigation(true) + '</div>';
+      root.innerHTML = '<div class="kg-finish">' + gameNavigation() + '<h2>' + (mode === "review" ? '현재 오답 복습할 문제가 없어요 🎉' : mode === "remind" ? '아직 리마인드할 문제가 없어요' : '문제 데이터가 없어요') + '</h2><p>' + (mode === "review" ? '틀린 문제가 생기면 여기에서 다시 풀 수 있어요.' : mode === "remind" ? '다른 게임에서 먼저 정답을 맞히면 리마인드에 추가돼요.' : '학습 데이터를 확인해 주세요.') + '</p>' + gameNavigation(true) + '</div>';
       scrollGameTop();
       return;
     }
@@ -266,7 +278,7 @@
     // this update. New records remember this independently of later mistakes.
     const previouslyRewarded = item.xpAwarded === true ||
       (item.xpAwarded === undefined && Number(item.streak) > 0);
-    const firstCorrect = good && !previouslyRewarded;
+    const firstCorrect = good && !previouslyRewarded && session.mode !== "remind";
     q._xpEarned = firstCorrect;
     item.xpAwarded = previouslyRewarded || good;
     item.streak = good ? Math.min(10, (Number(item.streak) || 0) + 1) : 0;
