@@ -66,7 +66,7 @@
   let recognitionStatus = "";
   let isRecording = false;
 
-  function save() { try { localStorage.setItem(STORE, JSON.stringify(progress)); } catch (e) { message = "기록 저장이 차단된 브라우저예요."; } }
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(progress)); if (window.JINI_CHARACTER) window.JINI_CHARACTER.refresh(); } catch (e) { message = "기록 저장이 차단된 브라우저예요."; } }
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function shuffle(array) { const a = array.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function pickOptions(answer, pool) {
