@@ -37,3 +37,6 @@
 .ja-equip-part{padding:7px 9px;background:#fff;border:1px solid #eee9f7;border-radius:9px;font-size:12px}
 .ja-footnote{font-size:11px;line-height:1.7;color:#8a8595;margin:12px 0 0}
 @media(max-width:760px){#jini-admin-entry{top:9px;right:0;padding:6px 7px;font-size:10px} .ja-grid{grid-template-columns:repeat(2,minmax(0,1fr))} .ja-panel{padding:16px 12px 23px}.ja-topline{padding:14px}.ja-char{padding:10px 4px 7px}.ja-stages{gap:6px}.ja-stage{padding:8px 10px}.ja-art{max-width:200px}}
+
+/* Scrollable all-level aura preview controls. */
+.ja-stages{max-height:124px;overflow-y:auto;align-content:flex-start;padding-bottom:5px}
