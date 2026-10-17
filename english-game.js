@@ -281,6 +281,8 @@ function answerTypedWord(){
  }
  q.wordTypingPending=false;status="";
  grade(q,true,q.answer);render();
+ // Read the existing verified English example as soon as the typed word passes.
+ speak(true);
 }
 function answerText(){
  if(!game)return;
@@ -289,8 +291,10 @@ function answerText(){
  const value=inp.value.trim();
  if(!value){status="단어를 선택하거나 입력해 주세요.";render();return;}
  q.draft=value;
- grade(q,clean(value)===clean(q.answer),value);
+ const right=clean(value)===clean(q.answer);
+ grade(q,right,value);
  render();
+ if(right)speak(true);
 }
 function pickSentence(i){
  if(!game)return;
