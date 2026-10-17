@@ -117,7 +117,7 @@
   function build(mode) {
     if (mode === "word") return shuffle(words).slice(0, GAME_SIZE).map(wordQuestion).filter(Boolean);
     if (mode === "sound") return shuffle(sounds).slice(0, GAME_SIZE).map(soundQuestion);
-    if (mode === "dialog") return shuffle(shuffle(dialogues).slice(0, 5).map(dialogQuestion).concat(shuffle(expressions).slice(0, 3).map(expressionQuestion).filter(Boolean)));
+    if (mode === "dialog") return shuffle(dialogues).slice(0, GAME_SIZE).map(dialogQuestion);
     if (mode === "pron") return shuffle(pronounce).slice(0, GAME_SIZE).map(pronunciationQuestion);
     if (mode === "review") return shuffle(dueItems()).map(questionById).filter(Boolean).slice(0, 12);
     return [];
@@ -196,11 +196,28 @@
           '<div class="kg-rating">' + button("😊 잘 발음했어요", "grade", "kg-primary", ' data-grade="yes"') + button("🔁 더 연습할래요", "grade", "kg-outline", ' data-grade="no"') + '</div>');
     } else {
       if (q.type !== "sound") content += '<div class="kg-small-listen">' + button("🔊 한국어 듣기", "listen", "kg-outline") + '</div>';
-      content += '<div class="kg-choices">' + q.choices.map(function (option, i) {
+      const dialog = q.type === "dialog";
+      if (dialog) content += '<p class="kg-dialog-hint">🔊 각 보기를 들어본 뒤 답을 선택하고 <b>정답 제출</b>을 눌러 주세요.</p>';
+      content += '<div class="kg-choices' + (dialog ? ' kg-dialog-choices' : '') + '">' + q.choices.map(function (option, i) {
         const chosen = session.answer;
-        const style = chosen !== null && i === q.correct ? " kg-right" : chosen === i ? " kg-wrong" : "";
-        return '<button type="button" class="kg-choice' + style + '" data-kg-action="choose" data-index="' + i + '"' + (chosen !== null ? ' disabled' : '') + '><span class="kg-choice-number">' + (i + 1) + '</span>' + esc(option) + (chosen !== null && i === q.correct ? ' ✓' : '') + '</button>';
+        const pending = Number.isInteger(q._pending) ? q._pending : null;
+        const style = chosen !== null && i === q.correct ? " kg-right" : chosen === i ? " kg-wrong" :
+          dialog && chosen === null && pending === i ? " kg-picked" : "";
+        const answerButton = '<button type="button" class="kg-choice' + style +
+          '" data-kg-action="' + (dialog ? 'select' : 'choose') + '" data-index="' + i + '"' +
+          (dialog ? ' aria-pressed="' + (chosen === null && pending === i) + '"' : '') +
+          (chosen !== null ? ' disabled' : '') + '><span class="kg-choice-number">' + (i + 1) +
+          '</span><span>' + esc(option) + (chosen !== null && i === q.correct ? ' ✓' : '') + '</span></button>';
+        if (!dialog) return answerButton;
+        return '<div class="kg-dialog-choice-row">' + answerButton +
+          '<button type="button" class="kg-dialog-listen" data-kg-action="listen-option" data-index="' + i +
+          '" aria-label="보기 ' + (i + 1) + ' ' + esc(option) + ' 음성 듣기">🔊 듣기</button></div>';
       }).join("") + '</div>';
+      if (dialog && session.answer === null) {
+        content += '<div class="kg-dialog-submit">' +
+          button("정답 제출", "submit-dialog", "kg-primary kg-wide", Number.isInteger(q._pending) ? "" : " disabled") +
+          '</div>';
+      }
     }
     if (session.answer !== null && q.type !== "pron") {
       content += '<div class="kg-feedback ' + (session.answer === q.correct ? "kg-good" : "kg-bad") + '"><strong>' + (session.answer === q.correct ? (q._xpEarned ? '정답이에요! +10 XP' : '정답이에요! 이미 경험치를 받은 문제예요. +0 XP') : '오답이에요. 복습 목록에 추가했어요.') + '</strong><p>' + esc(q.note) + '</p>' +
@@ -273,7 +290,7 @@
       if (!q._retry && !session.retries.has(q.id)) {
         session.retries.add(q.id);
         // Retry is a new attempt; never inherit the previous choice or self-rating.
-        session.queue.push(Object.assign({}, q, { _retry: true, _answer: undefined, _grade: undefined, _xpEarned: undefined }));
+        session.queue.push(Object.assign({}, q, { _retry: true, _answer: undefined, _pending: undefined, _grade: undefined, _xpEarned: undefined }));
       }
     }
     save();
@@ -286,6 +303,26 @@
     q._answer = idx;
     session.answer = idx;
     storeResult(q, idx === q.correct);
+    questionView();
+  }
+  function selectDialogOption(idx) {
+    if (!session) return;
+    const q = session.queue[session.pos];
+    if (!q || q.type !== "dialog" || Number.isInteger(q._answer) ||
+        !Number.isInteger(idx) || idx < 0 || idx >= q.choices.length) return;
+    q._pending = idx;
+    message = "";
+    questionView();
+  }
+  function submitDialog() {
+    if (!session) return;
+    const q = session.queue[session.pos];
+    if (!q || q.type !== "dialog" || Number.isInteger(q._answer) ||
+        !Number.isInteger(q._pending) || q._pending < 0 || q._pending >= q.choices.length) return;
+    q._answer = q._pending;
+    session.answer = q._answer;
+    message = "";
+    storeResult(q, q._answer === q.correct);
     questionView();
   }
   function finishPron(good) {
@@ -484,6 +521,15 @@
     else if (action === "start") start(b.dataset.mode);
     else if (action === "restart" && session) start(session.mode);
     else if (action === "choose") chosen(Number(b.dataset.index));
+    else if (action === "select") selectDialogOption(Number(b.dataset.index));
+    else if (action === "submit-dialog") submitDialog();
+    else if (action === "listen-option" && session) {
+      const q = session.queue[session.pos];
+      const index = Number(b.dataset.index);
+      if (q && q.type === "dialog" && Number.isInteger(index) && index >= 0 && index < q.choices.length) {
+        speak(q.choices[index]);
+      }
+    }
     else if (action === "next") advance();
     else if (action === "grade") finishPron(b.dataset.grade === "yes");
     else if (action === "listen" && session) speak(session.queue[session.pos].target);
@@ -498,5 +544,6 @@
     }
   }).observe(section, { attributes: true, attributeFilter: ["hidden"] });
 
+  window.JINI_START_KOREAN_GAME = start;
   dashboard();
 }());
