@@ -2,10 +2,10 @@
 "use strict";
 const root=document.getElementById("english-game-root"), section=document.getElementById("english-game-section");
 if(!root||!section)return;
-const KEY="jini-english-game-v1", DAY=86400000, levels=["초등","중등","고등"];
+const KEY="jini-english-game-v1", DAY=86400000, levels=["초등","중등","고등"], ENGLISH_LOCALE="en-US";
 const modes=[
 ["word","📘","단어 뜻 맞히기","영어 단어의 한국어 뜻 선택"],
-["listen","🎧","듣고 단어 맞히기","미국식·영국식 발음을 듣고 선택"],
+["listen","🎧","듣고 단어 맞히기","미국식 발음을 듣고 선택"],
 ["spelling","🔤","철자 완성하기","한국어 뜻을 보고 철자 입력"],
 ["sentence","🧩","문장 완성하기","4개 보기에서 선택하거나 철자를 입력해요"],
 ["speaking","🎙️","발음·회화 챌린지","회화 선택과 직접 따라 말하기"],
@@ -31,7 +31,7 @@ const phrases=[
 ["중등","Could you say that again?","다시 말씀해 주시겠어요?"],["중등","I'm looking forward to it.","기대하고 있어요."],["중등","Let me think about it.","생각해 볼게요."],["중등","I haven't decided yet.","아직 결정하지 않았어요."],
 ["고등","I'd appreciate your feedback.","의견을 주시면 감사하겠습니다."],["고등","Could you elaborate on that?","좀 더 자세히 설명해 주시겠어요?"],["고등","I understand your concerns.","걱정하시는 부분을 이해해요."],["고등","Let's consider another approach.","다른 방법을 고려해 봅시다."]];
 const words=(window.WORDS||[]).filter(w=>w&&levels.includes(w.level)&&/^[a-z][a-z' -]*$/i.test(w.word||"")&&String(w.meaning||"").trim());
-let level="초등", count=10, accent="en-US", game=null, active=false, status="", heard="", recognition=null, recorder=null, stream=null, audioUrl=null, recording=false;
+let level="초등", count=10, game=null, active=false, status="", heard="", recognition=null, recorder=null, stream=null, audioUrl=null, recording=false;
 let memory={xp:0,tries:0,correct:0,items:{}};
 try{const saved=JSON.parse(localStorage.getItem(KEY)||"null");if(saved&&saved.items)memory=Object.assign(memory,saved);}catch(e){}
 function esc(x){return String(x==null?"":x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -109,10 +109,9 @@ function goHome(){if(window.history&&window.history.state&&window.history.state.
 function dashboard(){
  root.innerHTML='<div class="eg-stats"><div><small>영어 게임 XP</small><b>'+memory.xp+'</b></div><div><small>성공률 (자가평가 포함)</small><b>'+(memory.tries?Math.round(memory.correct/memory.tries*100):0)+'%</b></div><div><small>복습할 문제</small><b>'+due().length+'</b></div></div>'+
  '<div class="eg-options"><label>난이도 <select id="eg-level">'+levels.map(t=>'<option '+(t===level?"selected ":"")+'value="'+t+'">'+t+'</option>').join("")+'</select></label>'+
- '<label>문제 수 <select id="eg-count">'+[10,20,30].map(n=>'<option '+(n===count?"selected ":"")+'value="'+n+'">'+n+'문제</option>').join("")+'</select></label>'+
- '<label>영어 발음 <select id="eg-accent"><option '+(accent==="en-US"?"selected ":"")+'value="en-US">🇺🇸 미국식</option><option '+(accent==="en-GB"?"selected ":"")+'value="en-GB">🇬🇧 영국식</option></select></label></div>'+
+ '<label>문제 수 <select id="eg-count">'+[10,20,30].map(n=>'<option '+(n===count?"selected ":"")+'value="'+n+'">'+n+'문제</option>').join("")+'</select></label></div>'+
  '<div class="eg-grid">'+modes.map(m=>'<button type="button" class="eg-mode" data-eg="start" data-mode="'+m[0]+'"><span>'+m[1]+'</span><strong>'+m[2]+'</strong><small>'+m[3]+'</small><b>시작 →</b></button>').join("")+'</div>'+
- '<p class="eg-note">기존 JINI 영어 단어와 검수 예문을 사용해요. 각 문제를 처음 맞히면 +10 XP, 이미 맞힌 문제는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 미국식·영국식 발음은 설치된 음성 엔진에 따라 다를 수 있어요.</p>';
+ '<p class="eg-note">기존 JINI 영어 단어와 검수 예문을 사용해요. 각 문제를 처음 맞히면 +10 XP, 이미 맞힌 문제는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 영어 음성은 미국식으로 재생해요. 실제 목소리는 기기에 설치된 음성 엔진에 따라 달라질 수 있어요.</p>';
 }
 function nav(bottom){
  const p=game.index,n=game.questions.length;
@@ -292,12 +291,12 @@ function speak(exampleOnly){
  if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){status="브라우저에서 영어 음성을 재생할 수 없어요.";render();return;}
  window.speechSynthesis.cancel();
  const u=new window.SpeechSynthesisUtterance(phrase);
- u.lang=accent;u.rate=.88;
+ u.lang=ENGLISH_LOCALE;u.rate=.88;
  const voices=window.speechSynthesis.getVoices();
- const exact=voices.find(v=>v.lang&&v.lang.toLowerCase()===accent.toLowerCase());
+ const exact=voices.find(v=>v.lang&&v.lang.toLowerCase()===ENGLISH_LOCALE.toLowerCase());
  const general=voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith("en"));
  if(exact||general)u.voice=exact||general;
- if(!exact)status="선택한 지역의 영어 음성이 없어서 다른 영어 음성으로 재생될 수 있어요.";
+ if(!exact)status="기기에 미국식 영어 음성이 없어 다른 영어 음성으로 재생될 수 있어요.";
  window.speechSynthesis.speak(u);
 }
 function errorMessage(e){
@@ -326,7 +325,7 @@ function recognize(){
  if(recognition){try{recognition.abort();}catch(e){}recognition=null;}
  const rec=new API(),session=game,pos=game.index;
  recognition=rec;status="🎙 듣고 있어요. 영어로 말해 주세요.";heard="";q.heard="";
- rec.lang=accent;rec.interimResults=false;rec.continuous=false;
+ rec.lang=ENGLISH_LOCALE;rec.interimResults=false;rec.continuous=false;
  const valid=()=>recognition===rec&&game===session&&game.index===pos&&!section.hidden;
  rec.onresult=e=>{if(!valid())return;heard=e.results&&e.results.length?String(e.results[0][0].transcript||"").trim():"";q.heard=heard;status=heard?"인식 완료. 아래 결과를 확인하세요.":"말소리를 인식하지 못했어요.";speechStatus();};
  rec.onerror=e=>{if(!valid()||e.error==="aborted")return;status=errorMessage(e.error);speechStatus();};
@@ -370,7 +369,6 @@ root.addEventListener("input",e=>{if(e.target&&e.target.id==="eg-answer")updateS
 root.addEventListener("change",e=>{const t=e.target;if(!t)return;
  if(t.id==="eg-level"&&levels.includes(t.value)){level=t.value;dashboard();}
  if(t.id==="eg-count"&&[10,20,30].includes(Number(t.value))){count=Number(t.value);dashboard();}
- if(t.id==="eg-accent"&&["en-US","en-GB"].includes(t.value)){accent=t.value;dashboard();}
 });
 new MutationObserver(()=>{if(section.hidden){stop();active=false;game=null;dashboard();}}).observe(section,{attributes:true,attributeFilter:["hidden"]});
 dashboard();
