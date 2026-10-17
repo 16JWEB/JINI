@@ -138,13 +138,22 @@
   }
   function button(label, action, cls, extras) { return '<button type="button" class="kg-btn ' + (cls || "") + '" data-kg-action="' + action + '"' + (extras || "") + '>' + label + '</button>'; }
   function boxText(title, detail, icon, action) { return '<button type="button" class="kg-mode" data-kg-action="start" data-mode="' + action + '"><span class="kg-mode-icon">' + icon + '</span><strong>' + title + '</strong><small>' + detail + '</small><span class="kg-mode-arrow">시작 →</span></button>'; }
+  // Choice must be followed by correctly typing the word, without penalizing typos.
+  function matchingWord(a,b) {
+    return String(a||"").normalize("NFC").trim().replace(/\s+/g," ")===String(b||"").normalize("NFC").trim().replace(/\s+/g," ");
+  }
+  function focusTypingWord() {
+    const input=document.getElementById("kg-word-typing");
+    if(input)input.focus();
+  }
   function gameNavigation(bottom) {
     const count = session ? session.queue.length : 0;
     const position = session ? session.pos : 0;
     const finished = count > 0 && position >= count;
     const controls = count ? '<div class="kg-question-controls">' +
       button("← 이전 문제", "previous", "kg-outline kg-previous-button", position === 0 ? " disabled" : "") +
-      (finished ? "" : button(position === count - 1 ? "결과 보기 →" : "다음 문제 →", "next", "kg-outline kg-next-button")) +
+      (finished ? "" : button(position === count - 1 ? "결과 보기 →" : "다음 문제 →", "next", "kg-outline kg-next-button",
+      session && session.queue[position] && session.queue[position]._typingPending ? " disabled" : "")) +
       '</div>' : "";
     return '<div class="kg-game-nav' + (bottom ? ' kg-game-nav-bottom' : '') +
       '" role="navigation" aria-label="' + (bottom ? '아래쪽' : '위쪽') + ' 한글 게임 이동">' +
@@ -197,7 +206,7 @@
     // Each question retains its own answer when moving backward and forward.
     session.answer = Number.isInteger(q._answer) ? q._answer : null;
     const fraction = Math.round(session.pos / Math.max(1, session.queue.length) * 100);
-    const intro = q.type === "sound" ? '<div class="kg-listen-center"><span class="kg-listen-icon">🎧</span>' + button("▶ 한국어 소리 듣기", "listen", "kg-primary") + '</div>' : '<div class="kg-question-word">' + esc(q.text) + '</div>';
+    const intro = q.type === "sound" ? '<div class="kg-listen-center"><span class="kg-listen-icon">🎧</span>' + button("▶ 한국어 소리 듣기", "listen", "kg-primary") + '</div>' : '<div class="kg-question-word">' + esc(q.type==="word"&&q._typingPending?q.choices[q.correct]:q.text) + '</div>';
     let content = '<div class="kg-quiz-top"><span class="kg-pill">' + esc(q.label) + (q.scene ? ' · ' + esc(q.scene) : '') + '</span><span>' + (session.pos + 1) + ' / ' + session.queue.length + '</span></div>' +
       '<div class="kg-track"><span style="width:' + fraction + '%"></span></div><p class="kg-prompt">' + esc(q.prompt) + '</p>' + intro;
     if (q.type === "pron") {
@@ -217,12 +226,12 @@
       content += '<div class="kg-choices' + (dialog ? ' kg-dialog-choices' : '') + '">' + q.choices.map(function (option, i) {
         const chosen = session.answer;
         const pending = Number.isInteger(q._pending) ? q._pending : null;
-        const style = chosen !== null && i === q.correct ? " kg-right" : chosen === i ? " kg-wrong" :
+        const style = (chosen !== null || q._typingPending) && i === q.correct ? " kg-right" : chosen === i ? " kg-wrong" :
           dialog && chosen === null && pending === i ? " kg-picked" : "";
         const answerButton = '<button type="button" class="kg-choice' + style +
           '" data-kg-action="' + (dialog ? 'select' : 'choose') + '" data-index="' + i + '"' +
           (dialog ? ' aria-pressed="' + (chosen === null && pending === i) + '"' : '') +
-          (chosen !== null ? ' disabled' : '') + '><span class="kg-choice-number">' + (i + 1) +
+          (chosen !== null || q._typingPending ? ' disabled' : '') + '><span class="kg-choice-number">' + (i + 1) +
           '</span><span>' + esc(option) + (chosen !== null && i === q.correct ? ' ✓' : '') + '</span></button>';
         if (!dialog) return answerButton;
         return '<div class="kg-dialog-choice-row">' + answerButton +
@@ -234,6 +243,12 @@
           button("정답 제출", "submit-dialog", "kg-primary kg-wide", Number.isInteger(q._pending) ? "" : " disabled") +
           '</div>';
       }
+    }
+    if(q.type==="word"&&q._typingPending) {
+      content+='<div class="kg-word-typing"><strong>뜻을 맞혔어요! 이번에는 한국어 단어를 직접 써 보세요.</strong>'+
+        '<p>정확히 입력하면 다음 문제로 넘어갈 수 있어요. 틀리게 써도 여러 번 다시 입력할 수 있어요.</p>'+
+        '<form id="kg-word-typing-form"><input id="kg-word-typing" type="text" lang="ko" aria-label="한국어 단어 직접 입력" placeholder="한국어 단어 입력" autocomplete="off" autocorrect="off" spellcheck="false" required>'+
+        '<button class="kg-btn kg-primary" type="submit">타이핑 확인</button></form></div>';
     }
     if (session.answer !== null && q.type !== "pron") {
       content += '<div class="kg-feedback ' + (session.answer === q.correct ? "kg-good" : "kg-bad") + '"><strong>' + (session.answer === q.correct ? (q._xpEarned ? '정답이에요! +10 XP' : '정답이에요! 이미 경험치를 받은 문제예요. +0 XP') : '오답이에요. 오답 복습에 추가했어요.') + '</strong><p>' + esc(q.note) + '</p>' +
@@ -303,7 +318,7 @@
       session.correct += 1;
     } else {
       session.missed += 1;
-      if (!q._retry && !session.retries.has(q.id)) {
+      if (q.type !== "word" && !q._retry && !session.retries.has(q.id)) {
         session.retries.add(q.id);
         // Retry is a new attempt; never inherit the previous choice or self-rating.
         session.queue.push(Object.assign({}, q, { _retry: true, _answer: undefined, _pending: undefined, _grade: undefined, _xpEarned: undefined }));
@@ -316,9 +331,30 @@
     const q = session.queue[session.pos];
     if (!q || Number.isInteger(q._answer) || q.type === "pron" ||
         !Number.isInteger(idx) || idx < 0 || idx >= q.choices.length) return;
+    if(q.type==="word"&&idx===q.correct){
+      q._typingPending=true;
+      q._pendingChoice=idx;
+      message="";
+      questionView();focusTypingWord();return;
+    }
     q._answer = idx;
     session.answer = idx;
     storeResult(q, idx === q.correct);
+    questionView();
+  }
+  function confirmWordTyping() {
+    if(!session)return;
+    const q=session.queue[session.pos],input=document.getElementById("kg-word-typing");
+    if(!q||q.type!=="word"||!q._typingPending||!input)return;
+    if(!matchingWord(input.value,q.target)){
+      message="철자가 달라요. 다시 입력해 주세요.";
+      questionView();focusTypingWord();return;
+    }
+    q._typingPending=false;
+    q._answer=q.correct;
+    session.answer=q.correct;
+    message="";
+    storeResult(q,true);
     questionView();
   }
   function selectDialogOption(idx) {
@@ -353,6 +389,10 @@
     if (!session || !Number.isInteger(delta)) return;
     const next = session.pos + delta;
     if (next < 0 || next > session.queue.length || next === session.pos) return;
+    if (delta > 0 && session.queue[session.pos] && session.queue[session.pos]._typingPending) {
+      message="단어를 정확히 입력해야 다음으로 넘어갈 수 있어요.";
+      questionView();focusTypingWord();return;
+    }
     stopMedia();
     message = "";
     session.pos = next;
@@ -552,6 +592,11 @@
     else if (action === "record") beginRecord();
     else if (action === "stop-record" && recorder && recorder.state !== "inactive") recorder.stop();
     else if (action === "recognize") recognize();
+  });
+  root.addEventListener("submit",function(event){
+    if(event.target&&event.target.id==="kg-word-typing-form"){
+      event.preventDefault();confirmWordTyping();
+    }
   });
   new MutationObserver(function () {
     if (section.hidden) {
