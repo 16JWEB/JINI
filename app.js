@@ -229,7 +229,7 @@
   function loadStudyStates() {
     try {
       const saved = JSON.parse(window.localStorage.getItem(STUDY_STATE_KEY) || "null");
-      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-game", "speaking", "opic", "opic-basic"];
+      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-game", "speaking", "opic", "opic-basic", "opic-mock"];
       if (!saved) return { english: null, korean: null, lastStudy: null };
       function isValidState(state) {
         return state && validPages.includes(state.page);
@@ -271,7 +271,7 @@
   }
 
   function saveStudyState() {
-    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-game", "speaking", "opic", "opic-basic"];
+    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-game", "speaking", "opic", "opic-basic", "opic-mock"];
     if (restoringStudyState || !validPages.includes(currentPageView)) return;
     try {
       const state = {
@@ -379,6 +379,7 @@
         "speaking": "스피킹 대비",
         "opic": "주제별 질문 목록",
         "opic-basic": "기초 답변 훈련",
+        "opic-mock": "오픽 실전 연습",
         "ko-game": "연습 게임"
       };
       button.textContent = "마지막 공부 화면 · " + (pageLabels[state.page] || "학습 화면");
@@ -1260,7 +1261,7 @@
     const showingKoreanGame = page === "ko-game";
     const showingEnglishGame = page === "english-game";
     const showingSpeaking = page === "speaking";
-    const showingOpic = page === "opic" || page === "opic-basic";
+    const showingOpic = page === "opic" || page === "opic-basic" || page === "opic-mock";
     const koreanStudy = currentStudy === "korean";
     document.querySelector(".sidebar").dataset.study = showingHome ? "home" : currentStudy;
     document.getElementById("home-section").hidden = !showingHome;
@@ -1274,6 +1275,7 @@
     if (speakingSection) speakingSection.hidden = !showingSpeaking;
     document.getElementById("opic-list-section").hidden = page !== "opic";
     document.getElementById("opic-basic-section").hidden = page !== "opic-basic";
+    document.getElementById("opic-mock-section").hidden = page !== "opic-mock";
     document.querySelector(".page-footer").hidden = showingHome || showingSpeaking || showingOpic;
     document.querySelectorAll(".nav-item[data-page]").forEach(function (button) {
       button.classList.toggle("active", button.dataset.page === page);
@@ -1287,7 +1289,7 @@
     breadcrumbLevel.textContent = showingHome ? "" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
       showingPlayer ? (playingExpressions ? "표현 재생" : koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
-      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비" : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
+      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비" : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : page === "opic-mock" ? "스피킹 대비 / 실전 연습" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
     document.getElementById("section-title").textContent = "필수 단어";
     if (showingExpressions) document.getElementById("section-title").textContent = "일상생활 표현";
     document.querySelector(".bookmark-toolbar").hidden = showingExpressions;
