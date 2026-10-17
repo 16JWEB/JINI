@@ -1,4 +1,4 @@
-/* JINI study characters: independent English/Korean XP, simple growth at levels 50 and 100. */
+/* JINI study characters: separate XP, expanded growth, selectable level 10–200 aura rewards. */
 (function () {
   "use strict";
   const XP_PER_LEVEL = 100;
@@ -36,20 +36,27 @@
       inLevel: xp % XP_PER_LEVEL, untilNext: XP_PER_LEVEL - xp % XP_PER_LEVEL, percent: xp % XP_PER_LEVEL };
   }
   function growth(level) {
+    if (level >= 200) return { stage: 5, name: "별의 수호자", description: "200레벨 성장 연출과 더욱 풍성한 별빛을 얻었어요." };
+    if (level >= 150) return { stage: 4, name: "빛의 모험가", description: "새로운 빛의 문장과 특별한 성장 연출이 생겼어요." };
     if (level >= 100) return { stage: 3, name: "에이스", description: "더 큰 모습과 새로운 디테일로 성장했어요." };
     if (level >= 50) return { stage: 2, name: "루키", description: "한층 성장한 공부 친구예요." };
     return { stage: 1, name: "새싹", description: "책을 들고 첫 공부를 시작했어요." };
   }
   function readCharacter(study) {
     const meta = STUDIES[study];
-    const fallback = { name: meta.defaultName, avatar: meta.defaultAvatar };
+    const fallback = { name: meta.defaultName, avatar: meta.defaultAvatar, auraSelection: "auto" };
     try {
       const data = JSON.parse(localStorage.getItem(PROFILE_KEYS[study]) || localStorage.getItem(LEGACY_PROFILE_KEY) || "null");
       if (!data || typeof data !== "object") return fallback;
       const oldAvatar = data.avatar === "panda" ? "bear" : data.avatar;
       return {
         name: typeof data.name === "string" && data.name.trim() ? data.name.trim().slice(0, 16) : fallback.name,
-        avatar: AVATARS.some(a => a.id === oldAvatar) ? oldAvatar : fallback.avatar
+        avatar: AVATARS.some(a => a.id === oldAvatar) ? oldAvatar : fallback.avatar,
+        auraSelection: data.auraSelection === "none" || data.auraSelection === "auto"
+          ? data.auraSelection
+          : (Number.isInteger(Number(data.auraSelection)) && Number(data.auraSelection) >= 10 &&
+             Number(data.auraSelection) <= 200 && Number(data.auraSelection) % 10 === 0
+             ? String(data.auraSelection) : "auto")
       };
     } catch (_) { return fallback; }
   }
@@ -57,10 +64,46 @@
   let activeStudy = "english";
   const lastLevels = { english: null, korean: null };
   let toastTimer;
+  function equippedAuraLevel(study) {
+    const selected = profiles[study].auraSelection;
+    const level = readScore(study).level;
+    if (selected === "none") return 0;
+    if (selected && selected !== "auto") {
+      const specific = Number(selected);
+      return window.JINI_AURA && window.JINI_AURA.isUnlocked(level, specific) ? specific : 0;
+    }
+    return window.JINI_AURA ? window.JINI_AURA.newestUnlocked(level) : 0;
+  }
+  function auraControls(study) {
+    const source = window.JINI_AURA;
+    if (!source) return "";
+    const score = readScore(study);
+    const profile = profiles[study];
+    const chosen = profile.auraSelection || "auto";
+    const active = equippedAuraLevel(study);
+    const name = active ? source.rewardLabel(active, profile.avatar) : "오라 없음";
+    function item(value, title, detail, disabled, symbol) {
+      const selected = chosen === value;
+      return '<button type="button" class="jgc-aura-option' + (selected ? ' is-active' : '') +
+        '" data-jgc-action="aura" data-aura="' + value + '" aria-pressed="' + selected +
+        '"' + (disabled ? ' disabled aria-label="Lv.' + detail + '부터 획득 가능"' : '') + '>' +
+        '<span class="jgc-aura-icon" aria-hidden="true">' + symbol + '</span><strong>' +
+        escape(title) + '</strong><small>' + escape(detail) + '</small></button>';
+    }
+    const options = [item("auto", "자동", "최신 오라", false, "✨"), item("none", "해제", "오라 없음", false, "○")];
+    source.LEVELS.forEach(function (lv) {
+      const unlocked = score.level >= lv;
+      options.push(item(String(lv), "Lv." + lv, unlocked ? source.NAMES[lv / 10 - 1] : "잠금", !unlocked, unlocked ? "✦" : "🔒"));
+    });
+    return '<div class="jgc-aura-picker"><div class="jgc-aura-picker-header"><strong>오라 꾸미기</strong>' +
+      '<small>10레벨마다 새 오라</small></div><p class="jgc-aura-current">현재: ' + escape(name) +
+      '</p><div class="jgc-aura-grid" aria-label="오라 선택">' + options.join("") + '</div></div>';
+  }
   function illustration(study, override) {
     const animal = override || profiles[study].avatar;
     if (window.JINI_CHARACTER_ART && typeof window.JINI_CHARACTER_ART.render === "function")
-      return window.JINI_CHARACTER_ART.render({ avatar: animal, level: readScore(study).level });
+      return window.JINI_CHARACTER_ART.render({ avatar: animal, level: readScore(study).level,
+        auraLevel: equippedAuraLevel(study) });
     return '<span class="jgc-fallback" aria-hidden="true">' + avatarOf(animal).icon + '</span>';
   }
   function saveProfile(study) {
@@ -110,8 +153,10 @@
           '" data-jgc-action="avatar" data-avatar="' + a.id + '" aria-pressed="' + (a.id === profile.avatar) +
           '" aria-label="' + a.label + ' 선택"><span class="jgc-animal-art" aria-hidden="true">' +
           illustration(study, a.id) + '</span><small>' + a.label + '</small></button>';
-      }).join("") + '</div><p class="jgc-tip">Lv.50과 Lv.100에 캐릭터 모습이 성장해요. 레벨은 100 이후에도 계속 오르며, 영어·한글의 경험치는 각각 저장돼요. ' +
-      '처음 맞힌 문제만 +10 XP가 지급됩니다. 학습 기록은 이 브라우저에 저장됩니다.</p></div></div>';
+      }).join("") + '</div>' + auraControls(study) +
+      '<p class="jgc-tip">Lv.50·100·150·200에 성장하며, Lv.10부터 10레벨마다 오라가 해금돼요. ' +
+      '획득한 오라는 자유롭게 바꿀 수 있고 200레벨 뒤에도 레벨이 계속 오릅니다. ' +
+      '처음 맞힌 문제만 +10 XP가 지급되며 영어·한글 기록은 별도로 저장됩니다.</p></div></div>';
     dialog.scrollTop = savedScroll;
   }
   function open(study) {
@@ -124,7 +169,9 @@
   }
   function showLevelUp(study, level) {
     if (!toast) return;
-    const milestone = level === 50 ? " 루키 성장!" : level === 100 ? " 에이스 성장!" : "";
+    const milestone = level === 50 ? " 루키 성장!" : level === 100 ? " 에이스 성장!" :
+      level === 150 ? " 빛의 모험가 성장!" : level === 200 ? " 별의 수호자 성장!" :
+      level >= 10 && level <= 200 && level % 10 === 0 ? " 새 오라 해금!" : "";
     toast.textContent = "🎉 " + STUDIES[study].label + " Lv." + level + " 달성!" + milestone;
     toast.hidden = false;
     clearTimeout(toastTimer);
@@ -153,8 +200,15 @@
       else dialog.removeAttribute("open");
       return;
     }
-    if (action !== "avatar" || !AVATARS.some(a => a.id === button.dataset.avatar)) return;
-    profiles[activeStudy].avatar = button.dataset.avatar;
+    if (action === "avatar") {
+      if (!AVATARS.some(a => a.id === button.dataset.avatar)) return;
+      profiles[activeStudy].avatar = button.dataset.avatar;
+    } else if (action === "aura") {
+      const selected = button.dataset.aura;
+      if (selected !== "auto" && selected !== "none" &&
+          !(window.JINI_AURA && window.JINI_AURA.isUnlocked(readScore(activeStudy).level, selected))) return;
+      profiles[activeStudy].auraSelection = selected;
+    } else return;
     saveProfile(activeStudy);
     refresh();
   });
