@@ -72,11 +72,15 @@ function dialogue(row){
 function speaking(row){
  return {id:"speak:"+row[0]+":"+row[1],mode:"speaking",kind:"speak",title:row[1],prompt:"영어 발음을 듣고 따라 말해 보세요.",answer:row[1],voice:row[1],explanation:"",example:row[1],exampleKo:row[2]};
 }
+// A previously earned XP credit keeps a question in Remind, even if retried incorrectly.
+function hasEarnedXP(id){const p=memory.items[id];return !!(p&&(p.xpAwarded===true||(p.xpAwarded===undefined&&Number(p.streak)>0)));}
 function wrongItems(){return Object.keys(memory.items).filter(id=>{const p=memory.items[id];return p&&p.snapshot&&p.level===level&&Number(p.wrong)>0&&Number(p.streak)===0;});}
-function reminderItems(){return Object.keys(memory.items).filter(id=>{const p=memory.items[id];return p&&p.snapshot&&p.level===level&&(p.xpAwarded===true||(p.xpAwarded===undefined&&Number(p.streak)>0));});}
+function reminderItems(){return Object.keys(memory.items).filter(id=>{const p=memory.items[id];return p&&p.snapshot&&p.level===level&&hasEarnedXP(id);});}
 function build(mode){
  const eligible=random(pool());
- if(mode==="word"||mode==="listen")return eligible.map(w=>wordQuestion(w,mode,eligible)).filter(Boolean).slice(0,count);
+ if(mode==="word")return eligible.filter(w=>!hasEarnedXP("word:"+w.level+":"+w.word))
+    .map(w=>wordQuestion(w,mode,eligible)).filter(Boolean).slice(0,count);
+ if(mode==="listen")return eligible.map(w=>wordQuestion(w,mode,eligible)).filter(Boolean).slice(0,count);
  if(mode==="spelling")return eligible.filter(w=>w.word.length<=18).slice(0,count).map(spelling);
  if(mode==="sentence")return eligible.map(w=>sentence(w,eligible)).filter(Boolean).slice(0,count);
  if(mode==="speaking"){
@@ -113,7 +117,7 @@ function dashboard(){
  '<div class="eg-options"><label>난이도 <select id="eg-level">'+levels.map(t=>'<option '+(t===level?"selected ":"")+'value="'+t+'">'+t+'</option>').join("")+'</select></label>'+
  '<label>문제 수 <select id="eg-count">'+[10,20,30].map(n=>'<option '+(n===count?"selected ":"")+'value="'+n+'">'+n+'문제</option>').join("")+'</select></label></div>'+
  '<div class="eg-grid">'+modes.map(m=>'<button type="button" class="eg-mode" data-eg="start" data-mode="'+m[0]+'"><span>'+m[1]+'</span><strong>'+m[2]+'</strong><small>'+(m[0]==="review"?"현재 틀린 문제 "+wrongItems().length+"개":m[0]==="remind"?"전에 맞힌 문제 "+reminderItems().length+"개 · 0 XP":m[3])+'</small><b>시작 →</b></button>').join("")+'</div>'+
- '<p class="eg-note">기존 JINI 영어 단어와 검수 예문을 사용해요. 각 문제를 처음 맞히면 +10 XP, 이미 맞힌 문제는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 영어 음성은 미국식으로 재생해요. 실제 목소리는 기기에 설치된 음성 엔진에 따라 달라질 수 있어요.</p>';
+ '<p class="eg-note">기존 JINI 영어 단어와 검수 예문을 사용해요. 단어 뜻 맞히기에서 이미 맞힌 문제는 자동으로 제외되고 리마인드에서 다시 풀 수 있어요. 처음 맞힌 문제는 +10 XP, 리마인드에서는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 영어 음성은 미국식으로 재생해요. 실제 목소리는 기기에 설치된 음성 엔진에 따라 달라질 수 있어요.</p>';
 }
 function nav(bottom){
  const p=game.index,n=game.questions.length;
@@ -166,8 +170,8 @@ function render(){
  if(!game){dashboard();return;}
  const q=game.questions[game.index];
  if(!q){if(!game.questions.length){
-  const emptyTitle=game.mode==="review"?"현재 오답 복습할 문제가 없어요 🎉":game.mode==="remind"?"아직 리마인드할 문제가 없어요":"지금 풀 문제가 없어요";
-  const emptyHint=game.mode==="review"?"틀린 문제가 생기면 여기에서 다시 풀 수 있어요.":game.mode==="remind"?"다른 게임에서 먼저 정답을 맞히면 리마인드에 추가돼요.":"다른 난이도나 게임을 선택해 보세요.";
+  const emptyTitle=game.mode==="review"?"현재 오답 복습할 문제가 없어요 🎉":game.mode==="remind"?"아직 리마인드할 문제가 없어요":game.mode==="word"?"아직 맞히지 않은 단어 시험 문제가 없어요 🎉":"지금 풀 문제가 없어요";
+  const emptyHint=game.mode==="review"?"틀린 문제가 생기면 여기에서 다시 풀 수 있어요.":game.mode==="remind"?"다른 게임에서 먼저 정답을 맞히면 리마인드에 추가돼요.":game.mode==="word"?"맞힌 단어는 리마인드에서 복습할 수 있어요. 다른 난이도도 선택해 보세요.":"다른 난이도나 게임을 선택해 보세요.";
   root.innerHTML='<div class="eg-card">'+nav()+'<h2>'+emptyTitle+'</h2><p>'+emptyHint+'</p>'+nav(true)+'</div>';return;}summary();return;}
  const mode=modes.find(m=>m[0]===game.mode);
  let html=nav()+'<div class="eg-progress"><span>'+mode[1]+' '+mode[2]+'</span><span>'+(game.index+1)+' / '+game.questions.length+'</span></div>'+
