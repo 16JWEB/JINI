@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="styles.css?v=20261017-final-review">
   <link rel="stylesheet" href="korean-game.css?v=20261017-bottom-nav">
   <link rel="stylesheet" href="english-game.css?v=20261017-example-feedback">
+  <link rel="stylesheet" href="opic.css?v=20261017-opic">
 </head>
 <body>
   <div class="app-shell">
@@ -49,6 +50,14 @@
           <button class="nav-item" data-page="english-game">
             <span class="nav-icon">🎮</span><span>연습 게임</span>
           </button>
+          <div class="opic-menu-group" role="group" aria-label="오픽(OPIc) 대비">
+            <button class="nav-item" data-page="opic" type="button">
+              <span class="nav-icon">◎</span><span>오픽(OPIc) 대비</span>
+            </button>
+            <button class="nav-item opic-menu-child" data-page="opic-basic" type="button">
+              <span class="nav-icon">↳</span><span>기초 답변 훈련</span>
+            </button>
+          </div>
         </div>
       </nav>
       <div class="menu-label study-menu-label" id="korean-menu-label">AI 한글공부</div>
@@ -250,6 +259,18 @@
         <div id="english-game-root" aria-live="polite"></div>
       </section>
 
+      <section class="opic-section" id="opic-list-section" hidden>
+        <div class="player-heading">
+          <span class="eyebrow section-eyebrow">OPIc PRACTICE</span>
+          <h1 class="page-title">오픽(OPIc) 대비</h1>
+          <p>기초 문장부터 내 이야기를 영어로 말하는 연습을 시작해 보세요.</p>
+        </div>
+        <div id="opic-list-root"></div>
+      </section>
+      <section class="opic-section" id="opic-basic-section" hidden>
+        <div id="opic-basic-root"></div>
+      </section>
+
       <section class="korean-game-section" id="korean-game-section" hidden>
         <div class="kg-head">
           <div>
@@ -315,8 +336,11 @@
   <script src="content-review.js?v=20261017-final-review"></script>
   <script src="content-review-part2.js?v=20261017-final-review"></script>
   <script src="content-curated.js?v=20261017-final-review"></script>
-  <script src="app.js?v=20261017-speaking"></script>
+  <script src="app.js?v=20261017-opic"></script>
   <script src="korean-game.js?v=20261017-bottom-nav"></script>
   <script src="english-game.js?v=20261017-example-feedback"></script>
+  <script src="opic-data.js?v=20261017-opic"></script>
+  <script src="opic.js?v=20261017-opic"></script>
 </body>
 </html>
+

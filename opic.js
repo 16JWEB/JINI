@@ -1,0 +1,237 @@
+(function () {
+  "use strict";
+  const questions = window.JINI_OPIC_QUESTIONS;
+  const root = document.getElementById("opic-basic-root");
+  const list = document.getElementById("opic-list-root");
+  const section = document.getElementById("opic-basic-section");
+  if (!root || !list || !questions || !questions.length) return;
+  const KEY = "jini-opic-basic-v1";
+  const levels = { basic: "기초", intermediate: "중급", ih: "IH 목표" };
+  const ids = new Set(questions.map(q => q.id));
+  let storageFailed = false;
+  function load() {
+    const clean = { lastId: questions[0].id, level: "basic", completed: [], answers: {} };
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) || "null");
+      if (!saved || typeof saved !== "object") return clean;
+      if (ids.has(saved.lastId)) clean.lastId = saved.lastId;
+      if (Object.hasOwn(levels, saved.level)) clean.level = saved.level;
+      if (Array.isArray(saved.completed)) clean.completed = [...new Set(saved.completed.filter(id => ids.has(id)))];
+      questions.forEach(q => {
+        if (saved.answers && Object.hasOwn(saved.answers, q.id) && typeof saved.answers[q.id] === "string")
+          clean.answers[q.id] = saved.answers[q.id].slice(0, 10000);
+      });
+    } catch (_) { storageFailed = true; }
+    return clean;
+  }
+  const state = load();
+  let index = questions.findIndex(q => q.id === state.lastId);
+  let selected = [], bank = [], solved = false, recognition = null, utterance = null;
+  let session = 0, speechSession = 0;
+  const synth = window.speechSynthesis;
+  const canSpeak = !!(synth && window.SpeechSynthesisUtterance);
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const canRecognize = !!(Recognition && window.isSecureContext);
+  const escape = value => String(value).replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
+  const current = () => questions[index];
+  const button = (label, action, primary, extra = "") => '<button type="button" class="op-btn' + (primary ? ' op-primary' : '') + '" data-op="' + action + '" ' + extra + '>' + label + '</button>';
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); storageFailed = false; }
+    catch (_) { storageFailed = true; }
+    const status = document.getElementById("op-save-status");
+    if (status) status.textContent = storageFailed ? "브라우저에 저장할 수 없어 이번 화면에서만 기록을 유지해요. 중요한 답변은 복사해 주세요." : "이 브라우저에 학습 기록을 저장했어요.";
+  }
+  function status(text) { const el = document.getElementById("op-audio-status"); if (el) el.textContent = text; }
+  function stopSpeech() {
+    speechSession += 1;
+    if (utterance && synth) synth.cancel();
+    utterance = null;
+  }
+  function stopRecognition() {
+    if (!recognition) return;
+    const old = recognition;
+    recognition = null;
+    old.onresult = old.onerror = old.onend = null;
+    try { old.abort(); } catch (_) { /* Already stopped. */ }
+    const mic = document.getElementById("op-mic");
+    if (mic) { mic.textContent = "🎤 말해서 입력"; mic.setAttribute("aria-pressed", "false"); }
+    const input = document.getElementById("op-answer");
+    if (input) input.readOnly = false;
+  }
+  function stop() { session += 1; stopRecognition(); stopSpeech(); }
+  function speak(text) {
+    stopRecognition();
+    stopSpeech();
+    if (!canSpeak) { status("이 브라우저에서는 음성 재생을 지원하지 않아요. 화면의 영어 문장으로 연습해 주세요."); return; }
+    const token = speechSession;
+    const voice = synth.getVoices().find(v => /^en[-_]US$/i.test(v.lang)) || synth.getVoices().find(v => /^en\b/i.test(v.lang));
+    utterance = new window.SpeechSynthesisUtterance(text);
+    utterance.lang = "en-US";
+    utterance.rate = 0.88;
+    if (voice) utterance.voice = voice;
+    utterance.onend = () => { if (token === speechSession) { utterance = null; status("재생을 마쳤어요. 소리 내어 따라 해 보세요."); } };
+    utterance.onerror = event => { if (token === speechSession) { utterance = null; status(["canceled", "interrupted"].includes(event.error) ? "재생을 멈췄어요." : "음성을 재생하지 못했어요. 기기의 영어 음성 설정을 확인하고 다시 눌러 주세요."); } };
+    try { status("영어 음성을 재생하고 있어요."); synth.speak(utterance); }
+    catch (_) { utterance = null; status("음성을 시작하지 못했어요. 다시 눌러 주세요."); }
+  }
+  function renderList() {
+    list.innerHTML = '<div class="op-card"><h2>기초 답변 훈련</h2><p>20개의 일상 질문으로 듣기부터 나만의 답변까지 차근차근 연습해요.</p><p><strong>' + state.completed.length + ' / 20문제 학습 완료</strong> · 마지막 학습: ' + (index + 1) + '번 ' + escape(current().topic) + '</p>' + button("마지막 문제부터 이어하기 →", "resume", true) + '<p class="op-note">아래에서 원하는 문제를 골라 시작할 수도 있어요. 완료 표시는 직접 학습한 기록이며 점수가 아니에요.</p></div><div class="op-topic-grid">' + questions.map((q, i) => '<button type="button" class="op-topic" data-index="' + i + '"><span>' + String(i + 1).padStart(2, "0") + ' · ' + escape(q.topic) + '</span><strong lang="en">' + escape(q.en) + '</strong><small>' + (state.completed.includes(q.id) ? "✓ 학습 완료" : state.answers[q.id] ? "작성한 답변 있음" : "연습 시작 →") + '</small></button>').join("") + '</div>';
+  }
+  function resetSentence() {
+    selected = []; solved = false;
+    bank = current().chunks.map((_, i) => i);
+    for (let i = bank.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [bank[i], bank[j]] = [bank[j], bank[i]]; }
+    if (bank.every((v, i) => v === i)) bank.reverse();
+  }
+  function renderSentence() {
+    const q = current();
+    document.getElementById("op-selected").innerHTML = selected.length ? selected.map((n, pos) => '<button type="button" class="op-chunk op-picked" data-remove="' + pos + '" lang="en" ' + (solved ? "disabled" : "") + ' aria-label="' + escape(q.chunks[n] + " 조각 빼기") + '">' + escape(q.chunks[n]) + ' <span aria-hidden="true">×</span></button>').join("") : '<span class="op-note">아래 조각을 순서대로 눌러 문장을 만들어 보세요.</span>';
+    document.getElementById("op-bank").innerHTML = bank.map(n => '<button type="button" class="op-chunk" data-chunk="' + n + '" lang="en" ' + (selected.includes(n) || solved ? "disabled" : "") + '>' + escape(q.chunks[n]) + '</button>').join("");
+    document.getElementById("op-check").disabled = solved || selected.length !== q.chunks.length;
+    document.getElementById("op-sentence-listen").hidden = !solved;
+  }
+  function renderQuestion() {
+    const q = current();
+    const done = state.completed.includes(q.id);
+    root.innerHTML = '<div class="op-top"><div><span class="eyebrow section-eyebrow">OPIc · BASIC ANSWER PRACTICE</span><h1 class="page-title">기초 답변 훈련</h1><p>현재 주제 <strong>' + escape(q.topic) + '</strong></p></div><label class="op-level">학습 난이도<select id="op-level">' + Object.entries(levels).map(([v, label]) => '<option value="' + v + '" ' + (v === state.level ? "selected" : "") + '>' + label + '</option>').join("") + '</select></label></div>' +
+      '<div class="op-progress"><span>문제 ' + (index + 1) + ' / 20</span><span>학습 완료 ' + state.completed.length + ' / 20 (' + Math.round(state.completed.length / questions.length * 100) + '%)</span></div><progress max="20" value="' + state.completed.length + '" aria-label="학습 완료 진행률"></progress>' +
+      '<article class="op-card"><h2 id="op-question-heading" tabindex="-1">1. 질문 듣고 이해하기</h2><p class="op-question" lang="en">' + escape(q.en) + '</p><p>' + escape(q.ko) + '</p><div class="op-actions">' + button("🔊 질문 음성 재생", "question", true) + button("음성 멈추기", "stop-audio") + '</div><p id="op-audio-status" class="op-note" role="status">' + (canSpeak ? "미국 영어 음성을 우선 사용해요. 사용 가능한 음성은 기기 설정에 따라 달라요." : "이 브라우저는 음성 재생을 지원하지 않아요. 영어 문장으로 연습해 주세요.") + '</p></article>' +
+      '<article class="op-card"><div class="op-card-heading"><h2>2. 한국어 힌트로 답변 구상하기</h2>' + button("힌트 보기", "hint", false, 'aria-expanded="false" aria-controls="op-hint"') + '</div><div id="op-hint" hidden><p>' + escape(q.hint) + '</p><h3>핵심 단어와 표현</h3><ul>' + q.expressions.map(e => '<li>' + escape(e) + '</li>').join("") + '</ul></div></article>' +
+      '<article class="op-card"><h2>3. 영어 조각으로 문장 완성하기</h2><p>' + escape(q.sentenceKo) + '</p><p class="op-note">제시된 조각을 모두 사용해 이 뜻의 문장을 만들어 보세요. 선택한 조각을 다시 누르면 뺄 수 있어요.</p><div id="op-selected" class="op-selected" aria-label="내가 만든 문장"></div><div id="op-bank" class="op-bank" aria-label="선택할 영어 조각"></div><div class="op-actions">' + button("정답 확인", "check", true, 'id="op-check"') + button("다시 만들기", "reset") + button("🔊 완성 문장 듣기", "sentence", false, 'id="op-sentence-listen" hidden') + '</div><p id="op-feedback" role="status"></p></article>' +
+      '<article class="op-card"><h2>4. 나만의 영어 답변 연습하기</h2><label for="op-answer">위 힌트를 참고해 내 이야기로 바꿔 써 보세요.</label><textarea id="op-answer" lang="en" rows="6" maxlength="10000" placeholder="Start with one or two sentences…" spellcheck="true"></textarea><div class="op-actions">' + (canRecognize ? button("🎤 말해서 입력", "mic", false, 'id="op-mic" aria-pressed="false"') : "") + '</div><p class="op-note" id="op-mic-status" role="status">' + (canRecognize ? "마이크를 허용하면 영어로 말한 내용을 답변 끝에 추가해요. 인식된 문장은 직접 고칠 수 있어요. 브라우저에 따라 음성 처리를 위해 인터넷 연결이 필요할 수 있어요." : "이 환경에서는 음성 인식을 사용할 수 없어요. 위 입력란에 직접 작성하며 연습해 주세요.") + '</p><p id="op-save-status" class="op-note" role="status">' + (storageFailed ? "브라우저 저장을 사용할 수 없어요. 중요한 답변은 복사해 주세요." : "답변과 학습 기록은 이 브라우저에 자동 저장돼요.") + '</p></article>' +
+      '<article class="op-card"><div class="op-card-heading"><h2>5. 모범 답변과 비교하기</h2>' + button("모범 답변 보기", "model", false, 'aria-expanded="false" aria-controls="op-model"') + '</div><div id="op-model" hidden><p class="op-note">' + levels[state.level] + ' 참고 답변 · 실제 등급이나 점수를 보장하는 답변이 아니에요. 내 경험에 맞게 바꿔 말해 보세요.</p><p class="op-model" lang="en">' + escape(q.answers[state.level]) + '</p>' + button("🔊 모범 답변 음성 듣기", "model-audio", true) + '</div></article>' +
+      '<div class="op-card op-finish">' + button(done ? "✓ 학습 완료 · 누르면 표시 취소" : "이 문제 학습 완료 표시", "complete", !done, 'aria-pressed="' + done + '"') + '<p class="op-note" id="op-complete-status" role="status">직접 연습하고 복습했다면 완료를 표시해 주세요. 다음 문제로 이동해도 작성한 답변은 저장돼요.</p>' + (state.completed.length === questions.length ? '<p>🎉 20문제를 모두 학습했어요! 목록에서 원하는 문제를 다시 연습할 수 있어요.</p>' : "") + '</div>' +
+      '<nav class="op-bottom" aria-label="오픽 문제 이동">' + button("← 오픽 학습 목록", "list") + '<div class="op-actions">' + button("이전 문제", "previous", false, index === 0 ? "disabled" : "") + button("다음 문제 →", "next", true, index === questions.length - 1 ? "disabled" : "") + '</div></nav>';
+    document.getElementById("op-answer").value = state.answers[q.id] || "";
+    renderSentence();
+  }
+  function go(next, focus = true) {
+    if (!Number.isInteger(next) || next < 0 || next >= questions.length) return;
+    stop(); index = next; state.lastId = current().id; save(); resetSentence(); renderQuestion(); renderList();
+    if (focus && !section.hidden) { document.getElementById("op-question-heading").focus({ preventScroll: true }); section.scrollIntoView({ block: "start" }); }
+  }
+  function toggle(target, control, label) {
+    const el = document.getElementById(target);
+    el.hidden = !el.hidden;
+    control.textContent = label + (el.hidden ? " 보기" : " 숨기기");
+    control.setAttribute("aria-expanded", String(!el.hidden));
+  }
+  function recognize() {
+    if (recognition) {
+      try { recognition.stop(); } catch (_) { stopRecognition(); }
+      return;
+    }
+    if (!canRecognize) return;
+    stopSpeech();
+    const token = session;
+    const qid = current().id;
+    const input = document.getElementById("op-answer");
+    const micStatus = document.getElementById("op-mic-status");
+    try {
+      const engine = new Recognition();
+      recognition = engine; engine.lang = "en-US"; engine.continuous = false; engine.interimResults = false;
+      const mic = document.getElementById("op-mic");
+      mic.textContent = "■ 말하기 종료"; mic.setAttribute("aria-pressed", "true");
+      input.readOnly = true;
+      micStatus.textContent = "마이크 연결 중이에요. 권한을 허용한 뒤 영어로 말해 주세요.";
+      engine.onstart = () => { if (token === session && recognition === engine) micStatus.textContent = "듣고 있어요. 영어로 답변해 주세요."; };
+      engine.onresult = event => {
+        if (token !== session || recognition !== engine || section.hidden) return;
+        const text = Array.from(event.results).filter(r => r.isFinal).map(r => r[0].transcript).join(" ");
+        input.value = (input.value + (input.value.trim() ? " " : "") + text).slice(0, 10000);
+        state.answers[qid] = input.value; save();
+        micStatus.textContent = text ? "말한 내용을 답변에 추가했어요. 잘못 인식된 부분은 직접 고쳐 주세요." : "인식된 문장이 없어요. 다시 말하거나 직접 입력해 주세요.";
+      };
+      engine.onerror = event => {
+        if (token !== session || recognition !== engine) return;
+        const errors = { "not-allowed": "마이크 권한이 허용되지 않았어요.", "service-not-allowed": "이 브라우저에서 음성 인식을 사용할 수 없어요.", "audio-capture": "사용 가능한 마이크가 없어요.", "no-speech": "목소리를 인식하지 못했어요.", "network": "음성 인식 서비스에 연결하지 못했어요.", "language-not-supported": "영어 음성 인식을 지원하지 않아요." };
+        micStatus.textContent = (errors[event.error] || "음성 인식을 마쳤어요.") + " 다시 시도하거나 직접 입력해 주세요.";
+      };
+      engine.onend = () => {
+        if (token !== session || recognition !== engine) return;
+        recognition = null; input.readOnly = false;
+        mic.textContent = "🎤 말해서 입력"; mic.setAttribute("aria-pressed", "false");
+        if (micStatus.textContent.startsWith("듣고") || micStatus.textContent.startsWith("마이크 연결")) micStatus.textContent = "말하기를 마쳤어요. 다시 시도하거나 직접 입력해 주세요.";
+      };
+      engine.start();
+    } catch (_) { stopRecognition(); micStatus.textContent = "음성 인식을 시작하지 못했어요. 직접 입력해 주세요."; }
+  }
+  root.addEventListener("input", event => {
+    if (event.target.id !== "op-answer") return;
+    state.answers[current().id] = event.target.value; save();
+  });
+  root.addEventListener("change", event => {
+    if (event.target.id !== "op-level" || !Object.hasOwn(levels, event.target.value)) return;
+    stop(); state.level = event.target.value; save();
+    // Keep the draft and sentence work when switching the model-answer level.
+    const model = document.getElementById("op-model");
+    model.querySelector(".op-model").textContent = current().answers[state.level];
+    model.querySelector(".op-note").textContent = levels[state.level] + " 참고 답변 · 실제 등급이나 점수를 보장하는 답변이 아니에요. 내 경험에 맞게 바꿔 말해 보세요.";
+    status("학습 난이도를 " + levels[state.level] + "로 바꿨어요.");
+  });
+  root.addEventListener("click", event => {
+    const control = event.target.closest("button");
+    if (!control || control.disabled) return;
+    const q = current();
+    if (control.hasAttribute("data-chunk")) {
+      const n = Number(control.dataset.chunk);
+      if (!solved && !selected.includes(n)) selected.push(n);
+      document.getElementById("op-feedback").textContent = ""; renderSentence(); return;
+    }
+    if (control.hasAttribute("data-remove")) {
+      if (!solved) selected.splice(Number(control.dataset.remove), 1);
+      document.getElementById("op-feedback").textContent = ""; renderSentence(); return;
+    }
+    switch (control.dataset.op) {
+      case "question": speak(q.en); break;
+      case "stop-audio": stopSpeech(); status("재생을 멈췄어요."); break;
+      case "hint": toggle("op-hint", control, "힌트"); break;
+      case "model": toggle("op-model", control, "모범 답변"); break;
+      case "model-audio": speak(q.answers[state.level]); break;
+      case "sentence": if (solved) speak(q.chunks.join(" ")); break;
+      case "check": {
+        const answer = selected.map(n => q.chunks[n]).join(" ");
+        solved = answer === q.chunks.join(" ");
+        const feedback = document.getElementById("op-feedback");
+        feedback.className = solved ? "op-correct" : "op-retry";
+        feedback.textContent = solved ? "✓ 정답이에요! 완성한 문장을 듣고 따라 말해 보세요." : "조각의 순서를 다시 살펴보세요. 선택한 조각을 빼거나 ‘다시 만들기’를 눌러 재도전할 수 있어요.";
+        renderSentence(); break;
+      }
+      case "reset": stopSpeech(); resetSentence(); document.getElementById("op-feedback").textContent = ""; renderSentence(); break;
+      case "mic": recognize(); break;
+      case "complete": {
+        const done = state.completed.includes(q.id);
+        state.completed = done ? state.completed.filter(id => id !== q.id) : state.completed.concat(q.id);
+        save(); renderList();
+        control.textContent = done ? "이 문제 학습 완료 표시" : "✓ 학습 완료 · 누르면 표시 취소";
+        control.setAttribute("aria-pressed", String(!done));
+        root.querySelector("progress").value = state.completed.length;
+        root.querySelector(".op-progress span:last-child").textContent = "학습 완료 " + state.completed.length + " / 20 (" + Math.round(state.completed.length / questions.length * 100) + "%)";
+        document.getElementById("op-complete-status").textContent = state.completed.length === questions.length ? "🎉 20문제를 모두 학습했어요! 목록에서 원하는 문제를 복습해 보세요." : done ? "완료 표시를 취소했어요." : "학습 완료를 기록했어요. 다음 문제로 이어가 보세요.";
+        break;
+      }
+      case "previous": go(index - 1); break;
+      case "next": go(index + 1); break;
+      case "list": stop(); renderList(); document.querySelector('.nav-item[data-page="opic"]').click(); break;
+    }
+  });
+  list.addEventListener("click", event => {
+    const control = event.target.closest("button");
+    if (!control) return;
+    if (control.hasAttribute("data-index")) go(Number(control.dataset.index), false);
+    else if (control.dataset.op === "resume") go(index, false);
+    else return;
+    document.querySelector('.nav-item[data-page="opic-basic"]').click();
+    document.getElementById("op-question-heading").focus({ preventScroll: true });
+    section.scrollIntoView({ block: "start" });
+  });
+  new MutationObserver(() => { if (section.hidden) { stop(); status("음성을 멈췄어요. 버튼을 눌러 다시 들을 수 있어요."); } }).observe(section, { attributes: true, attributeFilter: ["hidden"] });
+  new MutationObserver(() => { if (!document.getElementById("opic-list-section").hidden) renderList(); }).observe(document.getElementById("opic-list-section"), { attributes: true, attributeFilter: ["hidden"] });
+  document.addEventListener("visibilitychange", () => { if (document.hidden) stop(); });
+  window.addEventListener("pagehide", stop);
+  window.JINI_OPIC_BACK = function () {
+    if (section.hidden) return false;
+    document.querySelector('.nav-item[data-page="opic"]').click(); return true;
+  };
+  resetSentence(); renderQuestion(); renderList();
+}());
