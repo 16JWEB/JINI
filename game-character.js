@@ -45,7 +45,6 @@
     book: [
       { id: "basic", name: "기본 책", icon: "📖", lv: 1 },
       { id: "special", name: "별빛 책", icon: "📘", lv: 30 },
-      { id: "royal", name: "왕실 책", icon: "📕", lv: 90 },
       { id: "cosmic", name: "별자리 책", icon: "📙", lv: 140 }
     ],
     outfit: [
@@ -64,7 +63,7 @@
     { level: 60, label: "꽃장식", icon: "🌸" },
     { level: 70, label: "마법사 의상", icon: "🧥" },
     { level: 80, label: "고급 가방", icon: "👜" },
-    { level: 90, label: "왕실 책 · 왕관", icon: "👑" },
+    { level: 90, label: "왕관", icon: "👑" },
     { level: 100, label: "에이스 성장", icon: "🌟", growth: true },
     { level: 110, label: "마법사 모자", icon: "🎓" },
     { level: 120, label: "왕실 의상", icon: "👘" },
