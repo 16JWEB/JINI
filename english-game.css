@@ -58,6 +58,12 @@
 #eg-answer{flex:1 1 180px;min-height:44px;padding:11px 13px;border:1px solid #dbdaed;border-radius:10px;font-size:14px}
 .eg-feedback{margin-top:18px;padding:16px;border-radius:12px;font-size:13px;line-height:1.75}
 .eg-feedback p{margin:6px 0}
+.eg-example{margin-top:14px;padding-top:12px;border-top:1px solid rgba(36,103,69,.16)}
+.eg-example-label{font-size:11px;font-weight:800;opacity:.75;margin:10px 0 3px}
+.eg-example-en{font-size:15px;line-height:1.7;font-weight:750;overflow-wrap:anywhere}
+.eg-example-ko{font-size:13px;line-height:1.75}
+.eg-example-listen{min-height:38px;padding:7px 12px;margin:4px 0 7px}
+.eg-example-empty{font-size:12px;opacity:.76}
 .eg-ok{color:#256845;background:#ebf9f1}
 .eg-wrong{color:#993a3a;background:#fff0ef}
 .eg-speaking{margin:16px 0}
