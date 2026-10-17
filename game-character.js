@@ -86,7 +86,7 @@
       const selected = chosen === value;
       return '<button type="button" class="jgc-aura-option' + (selected ? ' is-active' : '') +
         '" data-jgc-action="aura" data-aura="' + value + '" aria-pressed="' + selected +
-        '"' + (disabled ? ' disabled aria-label="Lv.' + detail + '부터 획득 가능"' : '') + '>' +
+        '"' + (disabled ? ' disabled aria-label="' + escape(title) + ' 오라 보상 잠금"' : '') + '>' +
         '<span class="jgc-aura-icon" aria-hidden="true">' + symbol + '</span><strong>' +
         escape(title) + '</strong><small>' + escape(detail) + '</small></button>';
     }
