@@ -1285,7 +1285,8 @@
     document.getElementById("opic-mock-section").hidden = page !== "opic-mock";
     document.querySelector(".page-footer").hidden = showingHome || showingSpeaking || showingOpic;
     document.querySelectorAll(".nav-item[data-page]").forEach(function (button) {
-      button.classList.toggle("active", button.dataset.page === page);
+      button.classList.toggle("active", button.dataset.page === page ||
+        (button.dataset.page === "speaking" && showingOpic));
     });
     document.getElementById("sidebar-foot").innerHTML = koreanStudy ?
       "YOUR DAILY KOREAN<br><span>베트남어로 배우는 한국어</span>" :
@@ -1378,8 +1379,38 @@
     mockBackButton.addEventListener("click", function () { leaveMockPractice(); });
   }
 
+  const speakingMenu = document.querySelector(".opic-menu-group");
+  const speakingMenuToggle = document.querySelector(".opic-menu-toggle");
+  function setSpeakingMenuOpen(open) {
+    if (!speakingMenu || !speakingMenuToggle) return;
+    speakingMenu.classList.toggle("is-open", open);
+    speakingMenuToggle.setAttribute("aria-expanded", String(open));
+    speakingMenuToggle.setAttribute("aria-label",
+      open ? "스피킹 대비 하위 메뉴 닫기" : "스피킹 대비 하위 메뉴 열기");
+  }
+  if (speakingMenuToggle) {
+    speakingMenuToggle.addEventListener("click", function () {
+      setSpeakingMenuOpen(!speakingMenu.classList.contains("is-open"));
+    });
+  }
   document.querySelectorAll("[data-page]").forEach(function (button) {
-    button.addEventListener("click", function () { setPage(button.dataset.page); });
+    button.addEventListener("click", function () {
+      if (button.dataset.page === "speaking" && window.matchMedia("(max-width: 760px)").matches) {
+        setSpeakingMenuOpen(!speakingMenu.classList.contains("is-open"));
+      } else {
+        setSpeakingMenuOpen(false);
+      }
+      setPage(button.dataset.page);
+    });
+  });
+  document.addEventListener("click", function (event) {
+    if (speakingMenu && !speakingMenu.contains(event.target)) setSpeakingMenuOpen(false);
+  });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && speakingMenu && speakingMenu.classList.contains("is-open")) {
+      setSpeakingMenuOpen(false);
+      if (speakingMenuToggle) speakingMenuToggle.focus();
+    }
   });
   document.querySelectorAll("[data-resume-study]").forEach(function (button) {
     button.addEventListener("click", function () {
