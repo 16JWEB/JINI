@@ -16,7 +16,7 @@
     { id: "bear", name: "곰", emoji: "🐻" },
     { id: "fox", name: "여우", emoji: "🦊" }
   ];
-  const PREVIEW_LEVELS = new Set([1, 50, 100, 140]);
+  const PREVIEW_LEVELS = new Set([1].concat(Array.from({ length: 20 }, (_, i) => (i + 1) * 10)));
   let level = 100;
   function reset() {
     loginView.hidden = false;
@@ -41,7 +41,7 @@
       const animal = ANIMALS.find(function (a) { return a.id === target.dataset.jaAnimal; });
       if (!animal) return;
       if (window.JINI_CHARACTER_ART && typeof window.JINI_CHARACTER_ART.render === "function") {
-        target.innerHTML = window.JINI_CHARACTER_ART.render({ avatar: animal.id, level: level });
+        target.innerHTML = window.JINI_CHARACTER_ART.render({ avatar: animal.id, level: level, auraLevel: level >= 10 ? Math.min(level, 200) : 0 });
       } else {
         target.textContent = animal.emoji;
         target.classList.add("ja-fallback");
