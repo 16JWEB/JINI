@@ -206,7 +206,7 @@
     // Each question retains its own answer when moving backward and forward.
     session.answer = Number.isInteger(q._answer) ? q._answer : null;
     const fraction = Math.round(session.pos / Math.max(1, session.queue.length) * 100);
-    const intro = q.type === "sound" ? '<div class="kg-listen-center"><span class="kg-listen-icon">🎧</span>' + button("▶ 한국어 소리 듣기", "listen", "kg-primary") + '</div>' : '<div class="kg-question-word">' + esc(q.type==="word"&&q._typingPending?q.choices[q.correct]:q.text) + '</div>';
+    const intro = q.type === "sound" ? '<div class="kg-listen-center"><span class="kg-listen-icon">🎧</span>' + button("▶ 한국어 소리 듣기", "listen", "kg-primary") + '</div>' : '<div class="kg-question-word">' + esc(q.text) + '</div>';
     let content = '<div class="kg-quiz-top"><span class="kg-pill">' + esc(q.label) + (q.scene ? ' · ' + esc(q.scene) : '') + '</span><span>' + (session.pos + 1) + ' / ' + session.queue.length + '</span></div>' +
       '<div class="kg-track"><span style="width:' + fraction + '%"></span></div><p class="kg-prompt">' + esc(q.prompt) + '</p>' + intro;
     if (q.type === "pron") {
@@ -335,7 +335,7 @@
       q._typingPending=true;
       q._pendingChoice=idx;
       message="";
-      questionView();focusTypingWord();return;
+      questionView();focusTypingWord();speakCorrectWordAndMeaning(q);return;
     }
     q._answer = idx;
     session.answer = idx;
@@ -402,6 +402,32 @@
   }
   function advance() {
     moveQuestion(1);
+  }
+  // Correct word choice: Korean pronunciation, then Vietnamese translation.
+  function speakCorrectWordAndMeaning(q) {
+    if(!q||q.type!=="word"||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
+    const korean=String(q.target||"").trim();
+    const vietnamese=String(q.choices[q.correct]||"").trim();
+    if(!korean||!vietnamese)return;
+    const synth=window.speechSynthesis;
+    try {
+      const voices=typeof synth.getVoices==="function"?synth.getVoices():[];
+      const selectVoice=locale=>voices.find(v=>v.lang&&v.lang.toLowerCase()===locale.toLowerCase())
+        ||voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith(locale.slice(0,2).toLowerCase()));
+      const original=new window.SpeechSynthesisUtterance(korean);
+      original.lang="ko-KR";original.rate=.86;
+      const voiceKorean=selectVoice("ko-KR");
+      if(voiceKorean)original.voice=voiceKorean;
+      const meaning=new window.SpeechSynthesisUtterance(vietnamese);
+      meaning.lang="vi-VN";meaning.rate=.9;
+      const voiceVietnamese=selectVoice("vi-VN");
+      if(voiceVietnamese)meaning.voice=voiceVietnamese;
+      synth.cancel();
+      synth.speak(original);
+      synth.speak(meaning);
+    } catch (e) {
+      message="기기에서 자동 발음을 재생하지 못했어요.";
+    }
   }
   function speak(text) {
     if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) { message = "이 브라우저는 음성 재생을 지원하지 않아요."; questionView(); return; }
