@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="styles.css?v=20261017-final-review">
   <link rel="stylesheet" href="korean-game.css?v=20261017-bottom-nav">
   <link rel="stylesheet" href="english-game.css?v=20261017-example-feedback">
-  <link rel="stylesheet" href="opic.css?v=20261017-opic">
+  <link rel="stylesheet" href="opic.css?v=20261017-speaking-v2">
 </head>
 <body>
   <div class="app-shell">
@@ -44,20 +44,20 @@
           <button class="nav-item" data-page="verb-forms">
             <span class="nav-icon">↻</span><span>동사 변화</span>
           </button>
-          <button class="nav-item" data-page="speaking">
-            <span class="nav-icon">🎤</span><span>스피킹</span>
-          </button>
-          <button class="nav-item" data-page="english-game">
-            <span class="nav-icon">🎮</span><span>연습 게임</span>
-          </button>
-          <div class="opic-menu-group" role="group" aria-label="오픽(OPIc) 대비">
-            <button class="nav-item" data-page="opic" type="button">
-              <span class="nav-icon">◎</span><span>오픽(OPIc) 대비</span>
+          <div class="opic-menu-group" role="group" aria-label="스피킹 대비 학습">
+            <button class="nav-item" data-page="speaking" type="button">
+              <span class="nav-icon">🎤</span><span>스피킹 대비</span>
             </button>
             <button class="nav-item opic-menu-child" data-page="opic-basic" type="button">
               <span class="nav-icon">↳</span><span>기초 답변 훈련</span>
             </button>
+            <button class="nav-item opic-menu-child" data-page="opic" type="button">
+              <span class="nav-icon">↳</span><span>주제별 질문 목록</span>
+            </button>
           </div>
+          <button class="nav-item" data-page="english-game">
+            <span class="nav-icon">🎮</span><span>연습 게임</span>
+          </button>
         </div>
       </nav>
       <div class="menu-label study-menu-label" id="korean-menu-label">AI 한글공부</div>
@@ -243,11 +243,13 @@
         <p class="verb-note">불규칙 동사는 과거형과 과거분사를 함께 익혀 보세요. 규칙 동사는 보통 동사원형에 <b>-ed</b>를 붙입니다.</p>
       </section>
 
-      <section class="speaking-section" id="speaking-section" hidden>
+      <section class="speaking-section opic-section" id="speaking-section" hidden>
         <div class="player-heading">
-          <h1 class="page-title">스피킹</h1>
-          <p role="status">준비중</p>
+          <span class="eyebrow section-eyebrow">ENGLISH SPEAKING PRACTICE</span>
+          <h1 class="page-title">스피킹 대비</h1>
+          <p>OPIc·토익스피킹을 준비하는 첫걸음. 우선 기초 답변부터 자신 있게 말하는 연습을 시작해요.</p>
         </div>
+        <div id="speaking-hub-root"></div>
       </section>
 
       <section class="english-game-section" id="english-game-section" hidden>
@@ -261,9 +263,9 @@
 
       <section class="opic-section" id="opic-list-section" hidden>
         <div class="player-heading">
-          <span class="eyebrow section-eyebrow">OPIc PRACTICE</span>
-          <h1 class="page-title">오픽(OPIc) 대비</h1>
-          <p>기초 문장부터 내 이야기를 영어로 말하는 연습을 시작해 보세요.</p>
+          <span class="eyebrow section-eyebrow">TOPIC PRACTICE · OPIc BASICS</span>
+          <h1 class="page-title">주제별 질문 목록</h1>
+          <p>20개의 일상 질문 중 원하는 주제를 골라 연습할 수 있어요.</p>
         </div>
         <div id="opic-list-root"></div>
       </section>
@@ -340,7 +342,7 @@
   <script src="korean-game.js?v=20261017-bottom-nav"></script>
   <script src="english-game.js?v=20261017-example-feedback"></script>
   <script src="opic-data.js?v=20261017-opic"></script>
-  <script src="opic.js?v=20261017-opic"></script>
+  <script src="opic.js?v=20261017-speaking-v2"></script>
 </body>
 </html>
 
