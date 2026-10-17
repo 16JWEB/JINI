@@ -1,7 +1,8 @@
 /* Private-looking admin preview for the public static JINI site. UI gate only, not server-side authentication. */
-#jini-admin-entry{position:absolute;top:12px;right:0;z-index:2;padding:6px 9px;border:1px solid #dfe1ea;border-radius:9px;background:#fff;color:#8a8999;font-family:inherit;font-weight:600;font-size:11px;line-height:1.3;cursor:pointer;box-shadow:0 2px 8px #29334b08}
+.topbar-start{display:flex;align-items:center;gap:12px;min-width:0}
+.topbar-start .breadcrumb{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#jini-admin-entry{position:static;flex:0 0 auto;padding:6px 9px;border:1px solid #dfe1ea;border-radius:9px;background:#fff;color:#8a8999;font-family:inherit;font-weight:600;font-size:11px;line-height:1.3;cursor:pointer;box-shadow:0 2px 8px #29334b08}
 #jini-admin-entry:hover,#jini-admin-entry:focus-visible{color:#5b50a3;border-color:#bdb5ef;outline-offset:3px}
-#home-section{position:relative}
 #jini-admin-dialog{box-sizing:border-box;max-width:96vw;max-height:90dvh;margin:auto;padding:0;border:1px solid #e5e2f2;border-radius:20px;background:#fff;color:#29253d;font-family:inherit;box-shadow:0 24px 90px #25234555;overflow-y:auto}
 #jini-admin-dialog::backdrop{background:#19182d91}
 #jini-admin-dialog[open]{display:block}
@@ -36,7 +37,7 @@
 .ja-equip-parts{display:flex;flex-wrap:wrap;gap:7px}
 .ja-equip-part{padding:7px 9px;background:#fff;border:1px solid #eee9f7;border-radius:9px;font-size:12px}
 .ja-footnote{font-size:11px;line-height:1.7;color:#8a8595;margin:12px 0 0}
-@media(max-width:760px){#jini-admin-entry{top:9px;right:0;padding:6px 7px;font-size:10px} .ja-grid{grid-template-columns:repeat(2,minmax(0,1fr))} .ja-panel{padding:16px 12px 23px}.ja-topline{padding:14px}.ja-char{padding:10px 4px 7px}.ja-stages{gap:6px}.ja-stage{padding:8px 10px}.ja-art{max-width:200px}}
+@media(max-width:760px){.topbar-start{gap:9px} #jini-admin-entry{padding:6px 7px;font-size:10px} .ja-grid{grid-template-columns:repeat(2,minmax(0,1fr))} .ja-panel{padding:16px 12px 23px}.ja-topline{padding:14px}.ja-char{padding:10px 4px 7px}.ja-stages{gap:6px}.ja-stage{padding:8px 10px}.ja-art{max-width:200px}}
 
 /* Scrollable all-level aura preview controls. */
 .ja-stages{max-height:124px;overflow-y:auto;align-content:flex-start;padding-bottom:5px}
