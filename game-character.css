@@ -1,0 +1,55 @@
+/* One character panel shared by English and Korean practice games. */
+.jgc-slot{max-width:1060px;margin:0 0 18px}
+.jgc-card{width:100%;display:flex;align-items:center;gap:16px;text-align:left;border:1px solid #dedafa;border-radius:18px;padding:17px 20px;background:linear-gradient(112deg,#f1efff 0%,#faf9ff 65%,#f4f6ff 100%);font:inherit;cursor:pointer;color:#272443;transition:box-shadow .18s,border-color .18s}
+.jgc-card:hover{border-color:#a99df2;box-shadow:0 7px 19px #6053cf18}
+.jgc-avatar{display:grid;place-items:center;flex:0 0 64px;width:64px;height:64px;font-size:40px;border-radius:20px;background:#fff;border:2px solid #e5ddff;box-shadow:0 5px 12px #6d5bc51c}
+.jgc-card-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.jgc-label,.jgc-kicker{font-weight:800;letter-spacing:.8px;font-size:10px;color:#6e5ce0}
+.jgc-name{font-size:16px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:9px}
+.jgc-name strong{font-size:13px;white-space:nowrap;color:#6755cd}
+.jgc-track,.jgc-large-track{display:block;width:100%;height:9px;background:#dedaf4;border-radius:99px;overflow:hidden}
+.jgc-track>span,.jgc-large-track>span{display:block;height:100%;background:linear-gradient(90deg,#6b58e9,#a18cff);border-radius:inherit;transition:width .4s}
+.jgc-meter{font-size:11px;color:#77738e}
+.jgc-card-arrow{font-size:12px;white-space:nowrap;font-weight:800;color:#715fd6;padding-left:8px}
+#jini-character-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(92vw,490px);max-height:min(88vh,820px);overflow-y:auto;border:1px solid #e5defe;border-radius:22px;padding:0;color:#272443;background:#fff;box-shadow:0 20px 75px #21184550;font:inherit}
+#jini-character-dialog::backdrop{background:#211b43a6;backdrop-filter:blur(3px)}
+.jgc-dialog-content{padding:23px}
+.jgc-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.jgc-close{width:36px;height:36px;border:0;border-radius:11px;background:#f3f2fa;color:#615a79;font-size:16px;cursor:pointer}
+.jgc-portrait{text-align:center;padding:18px 10px 15px}
+.jgc-portrait-icon{display:grid;place-items:center;width:112px;height:112px;margin:0 auto 12px;border-radius:36px;background:linear-gradient(140deg,#efeaff,#d9d0ff);box-shadow:inset 0 0 0 3px #ffffffaa,0 12px 25px #7969ba2b;font-size:72px}
+.jgc-level{display:inline-block;padding:4px 11px;border-radius:100px;background:#6652d8;color:#fff;font-weight:800;font-size:12px}
+.jgc-portrait h2{font-size:23px;margin:8px 0 5px;line-height:1.4}
+.jgc-portrait p{font-size:12px;color:#77778d;margin:0;line-height:1.7}
+.jgc-xp-section{margin:13px 0 15px;padding:16px;border:1px solid #e5e0fd;background:#f9f8ff;border-radius:14px}
+.jgc-xp-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:11px;font-size:13px}
+.jgc-xp-heading span{color:#6958d8;font-weight:800}
+.jgc-large-track{height:12px}
+.jgc-xp-section p{margin:10px 0 0;color:#76758c;font-size:12px;line-height:1.7}
+.jgc-figures{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.jgc-figures>div{padding:14px 9px;text-align:center;border:1px solid #f0eef8;border-radius:12px;background:#fbfbff;display:flex;flex-direction:column;gap:6px}
+.jgc-figures small{color:#9290a2;font-size:11px}
+.jgc-figures strong{font-size:14px;color:#5543ba;white-space:nowrap}
+.jgc-choices{display:flex;flex-direction:column;gap:9px;margin-top:19px}
+.jgc-choices label,.jgc-choice-title{font-size:13px;font-weight:800}
+#jgc-name-input{width:100%;border:1px solid #dedaf2;border-radius:11px;padding:12px;color:#272443;background:#fff;font:inherit;font-size:15px}
+.jgc-choice-title{margin-top:8px}
+.jgc-avatar-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.jgc-avatar-option{border:1px solid #e7e4f1;background:#fff;border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font:inherit;color:#77738c}
+.jgc-avatar-option>span{font-size:31px}
+.jgc-avatar-option small{font-size:11px}
+.jgc-avatar-option.is-selected{background:#f3efff;border-color:#8b7de0;color:#5848bc;font-weight:800}
+.jgc-tip{margin:17px 0 0;font-size:11px;line-height:1.8;color:#8c899d}
+#jini-level-up-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:1000;padding:13px 20px;border-radius:13px;background:#5343bd;color:#fff;font-weight:800;box-shadow:0 12px 24px #3b32844d;text-align:center;max-width:90vw}
+#jini-level-up-toast[hidden]{display:none!important}
+.jgc-card:focus-visible,#jini-character-dialog button:focus-visible,#jini-character-dialog input:focus-visible{outline:3px solid #9687f5;outline-offset:3px}
+@media(max-width:760px){
+ .jgc-slot{margin-bottom:13px}
+ .jgc-card{padding:12px 13px;gap:12px}
+ .jgc-avatar{width:53px;height:53px;flex-basis:53px;font-size:33px;border-radius:17px}
+ .jgc-name{font-size:14px}
+ .jgc-card-arrow{display:none}
+ .jgc-dialog-content{padding:18px}
+ .jgc-figures strong{font-size:12px}
+ .jgc-figures small{font-size:10px}
+}
