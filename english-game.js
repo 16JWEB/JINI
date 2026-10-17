@@ -107,7 +107,7 @@ function home(){stop();active=false;game=null;dashboard();gotoTop();}
 window.JINI_ENGLISH_GAME_BACK=function(){if(section.hidden||!active)return false;home();return true;};
 function goHome(){if(window.history&&window.history.state&&window.history.state.jiniEnglishGame)window.history.back();else home();}
 function dashboard(){
- root.innerHTML='<div class="eg-stats"><div><small>누적 XP</small><b>'+memory.xp+'</b></div><div><small>성공률 (자가평가 포함)</small><b>'+(memory.tries?Math.round(memory.correct/memory.tries*100):0)+'%</b></div><div><small>복습할 문제</small><b>'+due().length+'</b></div></div>'+
+ root.innerHTML='<div class="eg-stats"><div><small>영어 게임 XP</small><b>'+memory.xp+'</b></div><div><small>성공률 (자가평가 포함)</small><b>'+(memory.tries?Math.round(memory.correct/memory.tries*100):0)+'%</b></div><div><small>복습할 문제</small><b>'+due().length+'</b></div></div>'+
  '<div class="eg-options"><label>난이도 <select id="eg-level">'+levels.map(t=>'<option '+(t===level?"selected ":"")+'value="'+t+'">'+t+'</option>').join("")+'</select></label>'+
  '<label>문제 수 <select id="eg-count">'+[10,20,30].map(n=>'<option '+(n===count?"selected ":"")+'value="'+n+'">'+n+'문제</option>').join("")+'</select></label>'+
  '<label>영어 발음 <select id="eg-accent"><option '+(accent==="en-US"?"selected ":"")+'value="en-US">🇺🇸 미국식</option><option '+(accent==="en-GB"?"selected ":"")+'value="en-GB">🇬🇧 영국식</option></select></label></div>'+
