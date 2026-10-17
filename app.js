@@ -26,6 +26,8 @@
   let currentStudy = "english";
   let currentPage = 1;
   let currentPageView = "";
+  // The screen the learner was on immediately before entering OPIc mock practice.
+  let mockReturnPage = "speaking";
   let selectedVocabularyIndex = -1;
   let restoringStudyState = false;
   let toastTimer;
@@ -1223,6 +1225,11 @@
 
   function setPage(page) {
     if (page === currentPageView) return;
+    // Capture before restore-state recursion so an Android back action returns to
+    // the actual previous screen rather than forcing the user to the home page.
+    if (page === "opic-mock" && currentPageView && currentPageView !== "opic-mock") {
+      mockReturnPage = currentPageView;
+    }
     if (!restoringStudyState) {
       saveStudyState();
       const savedPageState = studyStates.pages && studyStates.pages[page];
@@ -1356,6 +1363,19 @@
       select.appendChild(option);
     });
     select.disabled = playerWords.length === 0;
+  }
+
+  function leaveMockPractice() {
+    if (currentPageView !== "opic-mock") return false;
+    const destination = mockReturnPage && mockReturnPage !== "opic-mock" ?
+      mockReturnPage : "speaking";
+    setPage(destination);
+    return true;
+  }
+
+  const mockBackButton = document.getElementById("opic-mock-back");
+  if (mockBackButton) {
+    mockBackButton.addEventListener("click", function () { leaveMockPractice(); });
   }
 
   document.querySelectorAll("[data-page]").forEach(function (button) {
@@ -1517,6 +1537,12 @@
   updatePlayerCard();
   window.history.pushState({ jiniHome: true }, "", window.location.href);
   window.addEventListener("popstate", function () {
+    if (currentPageView === "opic-mock" && leaveMockPractice()) {
+      // The site's in-page navigation uses a history guard. Restore it so the
+      // next Android/browser Back press is still handled by JINI.
+      window.history.pushState({ jiniHome: true }, "", window.location.href);
+      return;
+    }
     if (currentPageView === "opic-basic" &&
         typeof window.JINI_OPIC_BACK === "function" &&
         window.JINI_OPIC_BACK()) return;
