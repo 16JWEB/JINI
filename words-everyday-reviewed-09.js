@@ -13,7 +13,7 @@ toll booth|toʊl buːθ|고속도로 요금소|We paid the toll at the toll boot
 parking space|ˈpɑːrkɪŋ speɪs|주차 공간|I couldn't find an empty parking space.|빈 주차 공간을 찾을 수 없었어요.|초등|noun
 parking ticket|ˈpɑːrkɪŋ ˈtɪkɪt|주차 위반 딱지|He got a parking ticket for leaving his car there.|그는 그곳에 차를 세웠다가 주차 위반 딱지를 받았어요.|중등|noun
 parking meter|ˈpɑːrkɪŋ ˈmiːtər|주차 요금계|I paid for one hour at the parking meter.|주차 요금계에서 한 시간 요금을 냈어요.|중등|noun
-parking fee|ˈpɑːrkɪŋ fiː|주차 요금|The parking fee is free for the first hour.|첫 한 시간은 주차 요금이 무료예요.|초등|noun
+parking fee|ˈpɑːrkɪŋ fiː|주차 요금|The parking fee is waived for the first hour.|첫 한 시간은 주차 요금이 면제돼요.|초등|noun
 fuel|ˈfjuːəl|연료|The car is almost out of fuel.|자동차 연료가 거의 떨어졌어요.|초등|noun
 gasoline|ˈɡæsəliːn|휘발유|Gasoline prices have gone up this week.|이번 주에 휘발유 가격이 올랐어요.|초등|noun
 diesel|ˈdiːzəl|경유, 디젤|This truck runs on diesel.|이 트럭은 경유를 사용해요.|중등|noun
@@ -25,7 +25,7 @@ seatbelt|ˈsiːtbelt|안전벨트|Always wear your seatbelt in the car.|차에�
 windshield|ˈwɪndʃiːld|자동차 앞유리|Rain covered the windshield.|빗물이 자동차 앞유리를 뒤덮었어요.|중등|noun
 wiper|ˈwaɪpər|와이퍼|My windshield wipers need to be replaced.|자동차 와이퍼를 교체해야 해요.|초등|noun
 rearview mirror|ˈrɪrvjuː ˈmɪrər|실내 후사경|Check the rearview mirror before changing lanes.|차선을 바꾸기 전에 실내 후사경을 확인하세요.|중등|noun
-dashboard|ˈdæʃbɔːrd|자동차 계기판|A warning light came on in the dashboard.|계기판에 경고등이 켜졌어요.|중등|noun
+dashboard|ˈdæʃbɔːrd|자동차 계기판|A warning light appeared on the dashboard.|계기판에 경고등이 켜졌어요.|중등|noun
 headlight|ˈhedlaɪt|전조등|Turn on the headlights when it gets dark.|어두워지면 전조등을 켜세요.|초등|noun
 taillight|ˈteɪllaɪt|후미등|One of the taillights is broken.|후미등 하나가 고장 났어요.|중등|noun
 turn signal|tɝːn ˈsɪɡnəl|방향지시등|Use your turn signal before changing lanes.|차선을 바꾸기 전에 방향지시등을 켜세요.|초등|noun
