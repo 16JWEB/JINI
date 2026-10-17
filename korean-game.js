@@ -9,7 +9,7 @@
   const DAY = 24 * 60 * 60 * 1000;
   const GAME_SIZE = 8;
   const words = (window.KOREAN_WORDS || []).filter(function (item) {
-    return item && item.word && item.meaning && item.word.trim().length >= 2;
+    return item && typeof item.word === "string" && item.word.trim().length > 0 && item.meaning;
   });
   const expressions = (window.KOREAN_EXPRESSIONS || []).filter(function (item) {
     return item && item.word && item.meaning;
