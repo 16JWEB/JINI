@@ -1379,38 +1379,75 @@
     mockBackButton.addEventListener("click", function () { leaveMockPractice(); });
   }
 
-  const speakingMenu = document.querySelector(".opic-menu-group");
-  const speakingMenuToggle = document.querySelector(".opic-menu-toggle");
-  function setSpeakingMenuOpen(open) {
-    if (!speakingMenu || !speakingMenuToggle) return;
-    speakingMenu.classList.toggle("is-open", open);
-    speakingMenuToggle.setAttribute("aria-expanded", String(open));
-    speakingMenuToggle.setAttribute("aria-label",
-      open ? "스피킹 대비 하위 메뉴 닫기" : "스피킹 대비 하위 메뉴 열기");
+  // All three study menus share the same responsive dropdown behavior.
+  const studyMenuGroups = Array.from(document.querySelectorAll(".opic-menu-group, .practice-menu-group"));
+  function setStudyMenuOpen(group, open) {
+    if (!group) return;
+    const toggle = group.querySelector(".opic-menu-toggle, .practice-menu-toggle");
+    if (!toggle) return;
+    group.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    const label = group.querySelector(".practice-menu-header .nav-item, .opic-menu-header .nav-item");
+    const name = label ? label.innerText.trim() : "하위 메뉴";
+    toggle.setAttribute("aria-label", name + (open ? " 하위 메뉴 닫기" : " 하위 메뉴 열기"));
   }
-  if (speakingMenuToggle) {
-    speakingMenuToggle.addEventListener("click", function () {
-      setSpeakingMenuOpen(!speakingMenu.classList.contains("is-open"));
+  function closeOtherStudyMenus(except) {
+    studyMenuGroups.forEach(function (group) {
+      if (group !== except) setStudyMenuOpen(group, false);
     });
   }
+  studyMenuGroups.forEach(function (group) {
+    const toggle = group.querySelector(".opic-menu-toggle, .practice-menu-toggle");
+    if (!toggle) return;
+    toggle.addEventListener("click", function () {
+      const open = !group.classList.contains("is-open");
+      closeOtherStudyMenus(group);
+      setStudyMenuOpen(group, open);
+    });
+  });
   document.querySelectorAll("[data-page]").forEach(function (button) {
     button.addEventListener("click", function () {
-      if (button.dataset.page === "speaking" && window.matchMedia("(max-width: 760px)").matches) {
-        setSpeakingMenuOpen(!speakingMenu.classList.contains("is-open"));
+      const group = button.closest(".opic-menu-group, .practice-menu-group");
+      const isHeader = button.parentElement && (button.parentElement.classList.contains("opic-menu-header") ||
+        button.parentElement.classList.contains("practice-menu-header"));
+      const mobile = window.matchMedia("(max-width: 760px)").matches;
+      if (group && isHeader && mobile) {
+        const open = !group.classList.contains("is-open");
+        closeOtherStudyMenus(group);
+        setStudyMenuOpen(group, open);
       } else {
-        setSpeakingMenuOpen(false);
+        closeOtherStudyMenus();
       }
       setPage(button.dataset.page);
+      const mode = button.dataset.gameMode;
+      if (mode) {
+        document.querySelectorAll(".practice-menu-child").forEach(function (child) {
+          child.classList.toggle("active", child === button);
+        });
+        if (button.dataset.page === "english-game" && typeof window.JINI_START_ENGLISH_GAME === "function") {
+          window.JINI_START_ENGLISH_GAME(mode);
+        } else if (button.dataset.page === "ko-game" && typeof window.JINI_START_KOREAN_GAME === "function") {
+          window.JINI_START_KOREAN_GAME(mode);
+        }
+      } else {
+        document.querySelectorAll(".practice-menu-child").forEach(function (child) {
+          child.classList.remove("active");
+        });
+      }
     });
   });
   document.addEventListener("click", function (event) {
-    if (speakingMenu && !speakingMenu.contains(event.target)) setSpeakingMenuOpen(false);
+    studyMenuGroups.forEach(function (group) {
+      if (!group.contains(event.target)) setStudyMenuOpen(group, false);
+    });
   });
   document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && speakingMenu && speakingMenu.classList.contains("is-open")) {
-      setSpeakingMenuOpen(false);
-      if (speakingMenuToggle) speakingMenuToggle.focus();
-    }
+    if (event.key !== "Escape") return;
+    const openGroup = studyMenuGroups.find(function (group) { return group.classList.contains("is-open"); });
+    if (!openGroup) return;
+    setStudyMenuOpen(openGroup, false);
+    const toggle = openGroup.querySelector(".opic-menu-toggle, .practice-menu-toggle");
+    if (toggle) toggle.focus();
   });
   document.querySelectorAll("[data-resume-study]").forEach(function (button) {
     button.addEventListener("click", function () {
