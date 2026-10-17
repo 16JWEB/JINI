@@ -119,12 +119,15 @@ function dashboard(){
  '<div class="eg-grid">'+modes.map(m=>'<button type="button" class="eg-mode" data-eg="start" data-mode="'+m[0]+'"><span>'+m[1]+'</span><strong>'+m[2]+'</strong><small>'+(m[0]==="review"?"현재 틀린 문제 "+wrongItems().length+"개":m[0]==="remind"?"전에 맞힌 문제 "+reminderItems().length+"개 · 0 XP":m[3])+'</small><b>시작 →</b></button>').join("")+'</div>'+
  '<p class="eg-note">기존 JINI 영어 단어와 검수 예문을 사용해요. 단어 뜻 맞히기에서 이미 맞힌 문제는 자동으로 제외되고 리마인드에서 다시 풀 수 있어요. 처음 맞힌 문제는 +10 XP, 리마인드에서는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 영어 음성은 미국식으로 재생해요. 실제 목소리는 기기에 설치된 음성 엔진에 따라 달라질 수 있어요.</p>';
 }
+function needsWordTyping(q){return q&&q.kind==="choice"&&String(q.id||"").startsWith("word:");}
+function spellingEqual(a,b){return String(a||"").trim().toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ")===String(b||"").trim().toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ");}
+function focusWordTyping(){const input=document.getElementById("eg-word-typing");if(input)input.focus();}
 function nav(bottom){
- const p=game.index,n=game.questions.length;
+ const p=game.index,n=game.questions.length,typing=!!(game.questions[p]&&game.questions[p].wordTypingPending);
  return '<div class="eg-nav'+(bottom?' eg-nav-bottom':'')+'" role="navigation" aria-label="'+(bottom?'아래쪽':'위쪽')+' 게임 이동">'+
  btn("← 게임 목록","home","eg-outline")+'<div class="eg-nav-controls">'+
  btn("← 이전 문제","previous","eg-outline",p===0?"disabled":"")+
- (p<n?btn(p===n-1?"결과 보기 →":"다음 문제 →","next","eg-outline"):"")+'</div></div>';
+ (p<n?btn(p===n-1?"결과 보기 →":"다음 문제 →","next","eg-outline",typing?"disabled":""):"")+'</div></div>';
 }
 function exerciseExample(q){
  if(q.example&&q.exampleKo)return {en:String(q.example),ko:String(q.exampleKo)};
@@ -179,13 +182,17 @@ function render(){
  '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term">'+
  (q.mode==="sentence"?
    esc(q.title).replace("______",'<span id="eg-cloze-word" class="eg-cloze-word'+(q.draft||q.response?" eg-cloze-filled":"")+'">'+(q.draft||q.response?esc(q.draft||q.response):"&#160;")+'</span>'):
-   esc(q.title))+'</div>';
+   esc(q.wordTypingPending?q.answer:q.title))+'</div>';
  if(q.mode==="listen")html+='<div class="eg-audio">'+btn("🔊 다시 듣기","listen","eg-main")+'</div>';
  else if(q.mode==="word"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
  if(q.kind==="choice"){
-  html+='<div class="eg-choices">'+q.options.map((o,i)=>btn('<span class="eg-number">'+(i+1)+'</span>'+esc(o)+(q.done&&o===q.answer?' ✓':""),"choose",
-     q.done&&o===q.answer?"eg-option eg-true":q.done&&o===q.response?"eg-option eg-false":"eg-option",
-     'data-index="'+i+'"'+(q.done?" disabled":""))).join("")+'</div>';
+  html+='<div class="eg-choices">'+q.options.map((o,i)=>btn('<span class="eg-number">'+(i+1)+'</span>'+esc(o)+((q.done||q.wordTypingPending)&&o===q.answer?' ✓':""),"choose",
+     (q.done||q.wordTypingPending)&&o===q.answer?"eg-option eg-true":q.done&&o===q.response?"eg-option eg-false":"eg-option",
+     'data-index="'+i+'"'+(q.done||q.wordTypingPending?" disabled":""))).join("")+'</div>';
+  if(q.wordTypingPending)html+='<div class="eg-word-typing"><strong>뜻을 맞혔어요! 이제 영어 단어를 직접 입력해 주세요.</strong>'+
+   '<p>정확히 타이핑해야 다음 문제로 넘어갈 수 있어요. 잘못 입력해도 다시 시도할 수 있어요.</p>'+
+   '<form id="eg-word-typing-form"><input id="eg-word-typing" type="text" aria-label="영어 단어 철자 입력" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="영어 단어 직접 입력" required>'+
+   '<button type="submit" class="eg-btn eg-main">철자 확인</button></form></div>';
  }else if(q.kind==="input"){
   html+='<div class="eg-hint">'+(q.mode==="spelling"?"섞인 철자: ":"문장 해석: ")+esc(q.hint||"")+'</div>';
   if(q.mode==="sentence" && Array.isArray(q.options)){
@@ -229,6 +236,9 @@ function begin(mode){
 function move(diff){
  if(!game)return;const next=game.index+diff;
  if(next<0||next>game.questions.length||next===game.index)return;
+ if(diff>0&&game.questions[game.index]&&game.questions[game.index].wordTypingPending){
+  status="영어 단어를 정확히 입력해야 다음으로 넘어갈 수 있어요.";render();focusWordTyping();return;
+ }
  stop();game.index=next;render();gotoTop();
 }
 function grade(q,good,response){
@@ -254,8 +264,22 @@ function grade(q,good,response){
 }
 function answerChoice(i){
  if(!game)return;const q=game.questions[game.index];
- if(!q||q.kind!=="choice"||q.done||!Number.isInteger(i)||i<0||i>=q.options.length)return;
- grade(q,q.options[i]===q.answer,q.options[i]);render();
+ if(!q||q.kind!=="choice"||q.done||q.wordTypingPending||!Number.isInteger(i)||i<0||i>=q.options.length)return;
+ const chosen=q.options[i];
+ if(needsWordTyping(q)&&chosen===q.answer){
+  q.wordTypingPending=true;status="";render();focusWordTyping();return;
+ }
+ grade(q,chosen===q.answer,chosen);render();
+}
+function answerTypedWord(){
+ if(!game)return;
+ const q=game.questions[game.index],input=document.getElementById("eg-word-typing");
+ if(!q||!q.wordTypingPending||!input)return;
+ if(!spellingEqual(input.value,q.voice||q.title)){
+  status="철자가 달라요. 다시 입력해 주세요.";render();focusWordTyping();return;
+ }
+ q.wordTypingPending=false;status="";
+ grade(q,true,q.answer);render();
 }
 function answerText(){
  if(!game)return;
@@ -373,7 +397,11 @@ root.addEventListener("click",e=>{
  else if(a==="stop-record"&&recorder&&recorder.state!=="inactive")recorder.stop();
  else if(a==="grade"&&game){const q=game.questions[game.index];if(q&&q.kind==="speak"&&!q.done){grade(q,b.dataset.good==="yes",b.dataset.good);move(1);}}
 });
-root.addEventListener("submit",e=>{if(e.target&&e.target.id==="eg-answer-form"){e.preventDefault();answerText();}});
+root.addEventListener("submit",e=>{
+ if(!e.target)return;
+ if(e.target.id==="eg-answer-form"){e.preventDefault();answerText();}
+ else if(e.target.id==="eg-word-typing-form"){e.preventDefault();answerTypedWord();}
+});
 root.addEventListener("input",e=>{if(e.target&&e.target.id==="eg-answer")updateSentenceDraft(e.target);});
 root.addEventListener("change",e=>{const t=e.target;if(!t)return;
  if(t.id==="eg-level"&&levels.includes(t.value)){level=t.value;dashboard();}
