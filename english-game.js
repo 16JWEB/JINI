@@ -92,7 +92,7 @@ function build(mode){
  });
  return [];
 }
-function persist(){try{localStorage.setItem(KEY,JSON.stringify(memory));}catch(e){status="학습 기록을 저장할 수 없어요.";}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(memory));if(window.JINI_CHARACTER)window.JINI_CHARACTER.refresh();}catch(e){status="학습 기록을 저장할 수 없어요.";}}
 function stop(){
  if(window.speechSynthesis)window.speechSynthesis.cancel();
  if(recognition){const old=recognition;recognition=null;try{old.abort();}catch(e){}}
