@@ -116,7 +116,7 @@
         (a.id === profile.avatar ? ' is-selected' : '') + '" data-jgc-action="avatar" data-avatar="' + a.id +
         '" aria-label="' + a.label + ' 캐릭터 선택" aria-pressed="' + (a.id === profile.avatar) + '">' +
         '<span aria-hidden="true">' + a.icon + '</span><small>' + a.label + '</small></button>').join("") + '</div></div>' +
-      '<p class="jgc-tip">정답 또는 말하기 완료(자가평가) 1회에 10 XP가 쌓여요. ' +
+      '<p class="jgc-tip">각 문제의 첫 정답 또는 첫 말하기 완료(자가평가)에만 10 XP가 쌓이고, 복습 정답은 +0 XP예요. ' +
       '영어 XP와 한글 XP는 서로 합산하지 않으며, 각각 100 XP마다 레벨업해요. ' +
       '기록은 현재 기기의 브라우저에 저장되고, 기존에 획득한 각 게임의 XP는 그대로 유지돼요.</p></div>';
   }
