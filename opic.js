@@ -6,7 +6,10 @@
   const section = document.getElementById("opic-basic-section");
   if (!root || !list || !questions || !questions.length) return;
   const KEY = "jini-opic-basic-v1";
-  const levels = { basic: "기초", intermediate: "중급", ih: "IH 목표" };
+  const levels = { il: "IL 목표", ih: "IH 목표" };
+  // Both targets start with a simple answer and then expand to their target.
+  const expandedAnswer = q => state.level === "ih" ? q.answers.ih : q.answers.intermediate.split(/(?<=[.!?])\s+/).slice(0, 3).join(" ");
+  const modelAnswer = q => expandedAnswer(q);
   // Natural Korean meanings for the short examples; these are study examples, not the learner's details.
   const basicTranslations = {
       "intro": "저는 지니이고 서울에 살아요. 퇴근 후에는 산책하는 걸 좋아해요.",
@@ -33,12 +36,13 @@
   const ids = new Set(questions.map(q => q.id));
   let storageFailed = false;
   function load() {
-    const clean = { lastId: questions[0].id, level: "basic", completed: [], answers: {} };
+    const clean = { lastId: questions[0].id, level: "il", completed: [], answers: {} };
     try {
       const saved = JSON.parse(localStorage.getItem(KEY) || "null");
       if (!saved || typeof saved !== "object") return clean;
       if (ids.has(saved.lastId)) clean.lastId = saved.lastId;
       if (Object.hasOwn(levels, saved.level)) clean.level = saved.level;
+      else if (saved.level === "basic" || saved.level === "intermediate") clean.level = "il";
       if (Array.isArray(saved.completed)) clean.completed = [...new Set(saved.completed.filter(id => ids.has(id)))];
       questions.forEach(q => {
         if (saved.answers && Object.hasOwn(saved.answers, q.id) && typeof saved.answers[q.id] === "string")
@@ -105,19 +109,33 @@
     const total = questions.length;
     const done = state.completed.length;
     const cards = [
-      { icon: "01", title: "기초 답변 훈련", summary: "예시 답변 듣기 → 확장 답변 → 직접 말하기", button: "이어서 연습하기", action: "basic" },
+      { icon: "01", title: "기초 답변 훈련", summary: "예시 답변 듣기 → 목표 수준별 확장 답변 → 직접 말하기", button: "이어서 연습하기", action: "basic" },
       { icon: "02", title: "주제별 답변 연습", summary: "일상·직장·여행 등 20개 질문", button: "질문 목록 보기", action: "topics" },
       { icon: "03", title: "질문 듣고 답하기", summary: "질문을 듣고 즉석에서 말하기", coming: true },
       { icon: "04", title: "롤플레이 연습", summary: "상황별 요청과 문제 해결", coming: true },
       { icon: "05", title: "실전 모의시험", summary: "OPIc · 토익스피킹 유형별 연습", coming: true },
       { icon: "06", title: "나의 학습 기록", summary: "완료한 질문과 작성한 답변 확인", button: "학습 기록 확인", action: "topics" }
     ];
-    hub.innerHTML = '<div class="op-hub-hero"><div><span class="eyebrow section-eyebrow">START SPEAKING, ONE STEP AT A TIME</span><h2>예시를 익힌 뒤, 직접 말하는 영어 연습</h2><p>처음에는 예시 답변을 듣고 뜻을 익혀요. 그다음 표현을 확장하고 내 경험으로 바꿔 말해 보세요.</p><span class="op-hub-availability">현재 이용 가능: OPIc 기초 질문 20개 · 토익스피킹 전용 문제는 준비 중</span></div><div class="op-hub-meter"><strong>' + done + '<small> / ' + total + '</small></strong><span>학습 완료</span><progress max="' + total + '" value="' + done + '"></progress></div></div>' +
+    hub.innerHTML = '<div class="op-hub-target"><label for="op-hub-level">🎯 목표 수준</label><select id="op-hub-level" aria-label="스피킹 목표 수준">' + Object.entries(levels).map(([key, label]) => '<option value="' + key + '"' + (key === state.level ? " selected" : "") + '>' + label + '</option>').join("") + '</select><p>IL: 짧고 명확하게 · IH: 이유와 경험까지 풍부하게</p></div>' + '<div class="op-hub-hero"><div><span class="eyebrow section-eyebrow">START SPEAKING, ONE STEP AT A TIME</span><h2>예시를 익힌 뒤, 직접 말하는 영어 연습</h2><p>처음에는 예시 답변을 듣고 뜻을 익혀요. 그다음 표현을 확장하고 내 경험으로 바꿔 말해 보세요.</p><span class="op-hub-availability">현재 이용 가능: OPIc 기초 질문 20개 · 토익스피킹 전용 문제는 준비 중</span></div><div class="op-hub-meter"><strong>' + done + '<small> / ' + total + '</small></strong><span>학습 완료</span><progress max="' + total + '" value="' + done + '"></progress></div></div>' +
       '<div class="op-hub-grid">' + cards.map(card =>
         '<article class="op-hub-card' + (card.coming ? ' op-hub-coming' : '') + '"><span class="op-hub-number">' + card.icon + '</span><h3>' + card.title + '</h3><p>' + card.summary + '</p>' +
         (card.coming ? '<span class="op-hub-upcoming">준비 중</span>' : '<button type="button" class="op-btn' + (card.action === "basic" ? ' op-primary' : '') + '" data-hub="' + card.action + '">' + card.button + ' →</button>') + '</article>'
       ).join("") + '</div><p class="op-note">진도는 현재 브라우저에 저장해요. 음성 인식은 기기 및 브라우저 지원 여부에 따라 사용 가능해요.</p>';
   }
+  function updateLevel(nextLevel) {
+    if (!Object.hasOwn(levels, nextLevel) || state.level === nextLevel) return;
+    stop();
+    state.level = nextLevel;
+    save();
+    const currentStep = activeStage;
+    renderQuestion();
+    setStage(currentStep);
+    renderHub();
+    status("목표 수준을 " + levels[state.level] + "로 바꿨어요.");
+  }
+  if (hub) hub.addEventListener("change", event => {
+    if (event.target.id === "op-hub-level") updateLevel(event.target.value);
+  });
   function setStage(next) {
     if (activeStage !== next && recognition) stopRecognition();
     if (activeStage !== next) stopSpeech();
@@ -132,7 +150,7 @@
     });
     const labels = {
       1: "기본 예시를 먼저 보고 들어 보세요. 뜻을 이해하고 한 문장씩 따라 말해 보세요.",
-      2: "짧은 예시가 어떻게 확장되는지 확인한 뒤 이유와 구체적인 경험을 덧붙여 보세요.",
+      2: state.level === "ih" ? "IH 목표: 이유와 경험을 자세히 연결한 답변을 연습해 보세요." : "IL 목표: 짧고 명확한 답변에 한두 가지 설명을 덧붙여 보세요.",
       3: "예시를 참고한 다음 내 경험에 맞춰 직접 말해 보세요. 말한 문장은 수정할 수 있어요."
     };
     const guide = document.getElementById("op-stage-guide");
@@ -163,7 +181,7 @@
     expanding.innerHTML = '<span class="op-stage-tag">STEP 02 · 문장 확장</span><h2>한 문장에 이유와 상황을 덧붙여 보세요</h2>' +
       '<p class="op-note">아래 문장은 외울 정답이 아니라 표현 방식의 예시예요. 내 경험에 맞는 단어로 바꿔 연습해 보세요.</p>' +
       '<div class="op-answer-example"><div class="op-card-heading"><strong>기본 답변</strong>' + button("🔊 듣기", "stage-basic-audio") + '</div><p lang="en">' + escape(q.answers.basic) + '</p><p class="op-sample-translation">' + escape(basicTranslations[q.id] || "") + '</p></div>' +
-      '<div class="op-answer-example"><div class="op-card-heading"><strong>확장 답변</strong>' + button("🔊 듣기", "stage-intermediate-audio") + '</div><p lang="en">' + escape(q.answers.intermediate) + '</p></div>' +
+      '<div class="op-answer-example"><div class="op-card-heading"><strong>확장 답변 (' + (state.level === "ih" ? "IH" : "IL") + ')</strong>' + button("🔊 듣기", "stage-intermediate-audio") + '</div><p lang="en">' + escape(expandedAnswer(q)) + '</p></div>' +
       '<div class="op-stage-hint"><strong>이렇게 확장해요</strong><p>' + escape(q.hint) + '</p><p>예: <strong>because</strong> (이유) · <strong>for example</strong> (구체적인 예) · <strong>usually</strong> (평소 습관)</p></div>';
     cards[2].before(expanding);
     const answer = document.getElementById("op-answer");
@@ -202,12 +220,12 @@
   function renderQuestion() {
     const q = current();
     const done = state.completed.includes(q.id);
-    root.innerHTML = '<div class="op-top"><div><span class="eyebrow section-eyebrow">SPEAKING · BASIC ANSWER PRACTICE</span><h1 class="page-title">기초 답변 훈련</h1><p>현재 주제 <strong>' + escape(q.topic) + '</strong></p></div><label class="op-level">모범답변 수준<select id="op-level">' + Object.entries(levels).map(([v, label]) => '<option value="' + v + '" ' + (v === state.level ? "selected" : "") + '>' + label + '</option>').join("") + '</select></label></div>' +
+    root.innerHTML = '<div class="op-top"><div><span class="eyebrow section-eyebrow">SPEAKING · BASIC ANSWER PRACTICE</span><h1 class="page-title">기초 답변 훈련</h1><p>현재 주제 <strong>' + escape(q.topic) + '</strong></p></div><label class="op-level">목표 수준<select id="op-level" aria-label="스피킹 목표 수준">' + Object.entries(levels).map(([v, label]) => '<option value="' + v + '" ' + (v === state.level ? "selected" : "") + '>' + label + '</option>').join("") + '</select></label></div>' +
       '<div class="op-progress"><span>문제 ' + (index + 1) + ' / 20</span><span>학습 완료 ' + state.completed.length + ' / 20 (' + Math.round(state.completed.length / questions.length * 100) + '%)</span></div><progress max="20" value="' + state.completed.length + '" aria-label="학습 완료 진행률"></progress>' +
       '<article class="op-card"><h2 id="op-question-heading" tabindex="-1">1. 질문 듣고 이해하기</h2><p class="op-question" lang="en">' + escape(q.en) + '</p><p>' + escape(q.ko) + '</p><div class="op-actions">' + button("🔊 질문 음성 재생", "question", true) + button("음성 멈추기", "stop-audio") + '</div><p id="op-audio-status" class="op-note" role="status">' + (canSpeak ? "미국 영어 음성을 우선 사용해요. 사용 가능한 음성은 기기 설정에 따라 달라요." : "이 브라우저는 음성 재생을 지원하지 않아요. 영어 문장으로 연습해 주세요.") + '</p></article>' +
       '<article class="op-card op-example-card"><div class="op-card-heading"><h2>2. 예시 답변 먼저 보고 듣기</h2>' + button("🔊 예시 답변 듣기", "stage-basic-audio", true) + '</div><div class="op-first-example"><p class="op-sample-text" lang="en">' + escape(q.answers.basic) + '</p><p class="op-sample-translation">' + escape(basicTranslations[q.id] || "") + '</p></div><p class="op-note">영어 문장을 듣고 한 문장씩 따라 읽어 보세요. 나중에는 자신의 경험으로 바꿔 말하면 돼요.</p><div class="op-example-hint"><div class="op-card-heading"><strong>어떤 표현을 쓰면 좋을까요?</strong>' + button("표현 힌트 보기", "hint", false, 'aria-expanded="false" aria-controls="op-hint"') + '</div><div id="op-hint" hidden><p>' + escape(q.hint) + '</p><h3>핵심 단어와 표현</h3><ul>' + q.expressions.map(e => '<li>' + escape(e) + '</li>').join("") + '</ul></div></div></article>' +
             '<article class="op-card"><h2>3. 나만의 영어 답변 연습하기</h2><label for="op-answer">앞에서 본 예시를 참고해 내 경험으로 바꿔 말하거나 써 보세요.</label><textarea id="op-answer" lang="en" rows="6" maxlength="10000" placeholder="Start with one or two sentences…" spellcheck="true"></textarea><div class="op-actions">' + (canRecognize ? button("🎤 말해서 입력", "mic", false, 'id="op-mic" aria-pressed="false"') : "") + '</div><p class="op-note" id="op-mic-status" role="status">' + (canRecognize ? "마이크를 허용하면 영어로 말한 내용을 답변 끝에 추가해요. 인식된 문장은 직접 고칠 수 있어요. 브라우저에 따라 음성 처리를 위해 인터넷 연결이 필요할 수 있어요." : "이 환경에서는 음성 인식을 사용할 수 없어요. 위 입력란에 직접 작성하며 연습해 주세요.") + '</p><p id="op-save-status" class="op-note" role="status">' + (storageFailed ? "브라우저 저장을 사용할 수 없어요. 중요한 답변은 복사해 주세요." : "답변과 학습 기록은 이 브라우저에 자동 저장돼요.") + '</p></article>' +
-      '<article class="op-card"><div class="op-card-heading"><h2>4. 모범 답변과 비교하기</h2>' + button("모범 답변 보기", "model", false, 'aria-expanded="false" aria-controls="op-model"') + '</div><div id="op-model" hidden><p class="op-note">' + levels[state.level] + ' 참고 답변 · 실제 등급이나 점수를 보장하는 답변이 아니에요. 내 경험에 맞게 바꿔 말해 보세요.</p><p class="op-model" lang="en">' + escape(q.answers[state.level]) + '</p>' + button("🔊 모범 답변 음성 듣기", "model-audio", true) + '</div></article>' +
+      '<article class="op-card"><div class="op-card-heading"><h2>4. 모범 답변과 비교하기</h2>' + button("모범 답변 보기", "model", false, 'aria-expanded="false" aria-controls="op-model"') + '</div><div id="op-model" hidden><p class="op-note">' + levels[state.level] + ' 참고 답변 · 실제 등급이나 점수를 보장하는 답변이 아니에요. 내 경험에 맞게 바꿔 말해 보세요.</p><p class="op-model" lang="en">' + escape(modelAnswer(q)) + '</p>' + button("🔊 모범 답변 음성 듣기", "model-audio", true) + '</div></article>' +
       '<div class="op-card op-finish">' + button(done ? "✓ 학습 완료 · 누르면 표시 취소" : "이 문제 학습 완료 표시", "complete", !done, 'aria-pressed="' + done + '"') + '<p class="op-note" id="op-complete-status" role="status">직접 연습하고 복습했다면 완료를 표시해 주세요. 다음 문제로 이동해도 작성한 답변은 저장돼요.</p>' + (state.completed.length === questions.length ? '<p>🎉 20문제를 모두 학습했어요! 목록에서 원하는 문제를 다시 연습할 수 있어요.</p>' : "") + '</div>' +
       '<nav class="op-bottom" aria-label="오픽 문제 이동">' + button("← 주제별 질문 목록", "list") + '<div class="op-actions">' + button("이전 문제", "previous", false, index === 0 ? "disabled" : "") + button("다음 문제 →", "next", true, index === questions.length - 1 ? "disabled" : "") + '</div></nav>';
     document.getElementById("op-answer").value = state.answers[q.id] || "";
@@ -270,12 +288,7 @@
   });
   root.addEventListener("change", event => {
     if (event.target.id !== "op-level" || !Object.hasOwn(levels, event.target.value)) return;
-    stop(); state.level = event.target.value; save();
-    // Keep the draft and sentence work when switching the model-answer level.
-    const model = document.getElementById("op-model");
-    model.querySelector(".op-model").textContent = current().answers[state.level];
-    model.querySelector(".op-note").textContent = levels[state.level] + " 참고 답변 · 실제 등급이나 점수를 보장하는 답변이 아니에요. 내 경험에 맞게 바꿔 말해 보세요.";
-    status("학습 난이도를 " + levels[state.level] + "로 바꿨어요.");
+    updateLevel(event.target.value);
   });
   root.addEventListener("click", event => {
     const control = event.target.closest("button");
@@ -288,13 +301,13 @@
       case "stage-prev": setStage(activeStage - 1); break;
       case "stage-next": setStage(activeStage + 1); break;
       case "stage-basic-audio": speak(q.answers.basic); break;
-      case "stage-intermediate-audio": speak(q.answers.intermediate); break;
+      case "stage-intermediate-audio": speak(expandedAnswer(q)); break;
       case "review": reviewDraft(); break;
       case "question": speak(q.en); break;
       case "stop-audio": stopSpeech(); status("재생을 멈췄어요."); break;
       case "hint": toggle("op-hint", control, "표현 힌트"); break;
       case "model": toggle("op-model", control, "모범 답변"); break;
-      case "model-audio": speak(q.answers[state.level]); break;
+      case "model-audio": speak(modelAnswer(q)); break;
       case "mic": recognize(); break;
       case "complete": {
         const done = state.completed.includes(q.id);
