@@ -273,7 +273,9 @@
     stopSpeech();
     recordings.forEach(url => URL.revokeObjectURL(url));
     recordings.clear();
+    const selectedGoal = state.level;
     state = emptyState();
+    state.level = selectedGoal;
     save();
     renderSetup();
   }
