@@ -47,7 +47,7 @@ function wordQuestion(w,mode,group){
  if(!choices)return null;
  return {id:mode+":"+w.level+":"+w.word,mode,kind:"choice",title:mode==="word"?w.word:"🎧 영어 소리를 들어 보세요",prompt:mode==="word"?"영어 단어의 뜻은?":"소리를 듣고 올바른 영어 단어를 고르세요.",answer,options:choices,voice:w.word,explanation:w.word+" — "+w.meaning,example:w.exampleReviewed?w.example:"",exampleKo:w.exampleReviewed?w.exampleKo:"",ipa:w.ipa||""};
 }
-function spelling(w){return {id:"spelling:"+w.level+":"+w.word,mode:"spelling",kind:"input",title:meaning(w),prompt:"한국어 뜻에 맞는 영어 단어를 입력하세요.",answer:w.word,voice:w.word,hint:random(w.word.split("")).join(" · "),explanation:w.word+" — "+w.meaning};}
+function spelling(w){return {id:"spelling:"+w.level+":"+w.word,mode:"spelling",kind:"input",title:meaning(w),prompt:"한국어 뜻에 맞는 영어 단어를 입력하세요.",answer:w.word,voice:w.word,hint:random(w.word.split("")).join(" · "),explanation:w.word+" — "+w.meaning,example:w.exampleReviewed?w.example:"",exampleKo:w.exampleReviewed?w.exampleKo:""};}
 function sentence(w, group){
  const text=String(w.example||"").trim();
  if(!w.exampleReviewed||!w.exampleKo||text.length>150)return null;
@@ -62,14 +62,14 @@ function sentence(w, group){
  if(!opts)return null;
  return {id:"sentence:"+w.level+":"+w.word,mode:"sentence",kind:"input",title:blank,
   prompt:"보기에서 단어를 골라 빈칸에 넣고 정답을 확인하세요. 직접 입력도 가능해요.",
-  answer:w.word,options:opts,voice:text,hint:w.exampleKo,explanation:text,exampleKo:w.exampleKo};
+  answer:w.word,options:opts,voice:text,hint:w.exampleKo,explanation:w.word+" — "+w.meaning,example:text,exampleKo:w.exampleKo};
 }
 function dialogue(row){
  const opt=random([row[3],row[5],row[6],row[7]]);
- return {id:"dialog:"+row[0]+":"+row[2],mode:"speaking",kind:"choice",title:row[2],prompt:"["+row[1]+"] 가장 자연스러운 대답을 선택하세요.",answer:row[3],voice:row[2],options:opt,explanation:row[3]+" — "+row[4]};
+ return {id:"dialog:"+row[0]+":"+row[2],mode:"speaking",kind:"choice",title:row[2],prompt:"["+row[1]+"] 가장 자연스러운 대답을 선택하세요.",answer:row[3],voice:row[2],options:opt,explanation:"",example:row[3],exampleKo:row[4]};
 }
 function speaking(row){
- return {id:"speak:"+row[0]+":"+row[1],mode:"speaking",kind:"speak",title:row[1],prompt:"영어 발음을 듣고 따라 말해 보세요.",answer:row[1],voice:row[1],explanation:row[2]};
+ return {id:"speak:"+row[0]+":"+row[1],mode:"speaking",kind:"speak",title:row[1],prompt:"영어 발음을 듣고 따라 말해 보세요.",answer:row[1],voice:row[1],explanation:"",example:row[1],exampleKo:row[2]};
 }
 function due(){return Object.keys(memory.items).filter(id=>{const p=memory.items[id];return p&&p.snapshot&&p.level===level&&Number(p.due)<=Date.now();});}
 function build(mode){
@@ -121,12 +121,43 @@ function nav(bottom){
  btn("← 이전 문제","previous","eg-outline",p===0?"disabled":"")+
  (p<n?btn(p===n-1?"결과 보기 →":"다음 문제 →","next","eg-outline"):"")+'</div></div>';
 }
+function exerciseExample(q){
+ if(q.example&&q.exampleKo)return {en:String(q.example),ko:String(q.exampleKo)};
+ // Older saved review questions do not always contain the new example fields.
+ if(q.mode==="sentence"&&q.exampleKo&&/^[A-Za-z]/.test(q.explanation||""))
+  return {en:String(q.explanation),ko:String(q.exampleKo)};
+ if(q.mode==="speaking"&&q.kind==="speak"&&q.answer&&q.explanation)
+  return {en:String(q.answer),ko:String(q.explanation)};
+ if(q.mode==="speaking"&&q.kind==="choice"&&q.answer&&
+    String(q.explanation||"").startsWith(q.answer+" — "))
+  return {en:String(q.answer),ko:String(q.explanation).slice((q.answer+" — ").length)};
+ const parts=/^(?:word|listen|spelling|sentence):([^:]+):([^:]+)$/.exec(q.id||"");
+ if(parts){
+  const w=words.find(item=>item.level===parts[1]&&item.word===parts[2]);
+  if(w&&w.exampleReviewed&&w.example&&w.exampleKo)
+   return {en:String(w.example),ko:String(w.exampleKo)};
+ }
+ return null;
+}
 function feedback(q){
  if(!q.done)return "";
- return '<div class="eg-feedback '+(q.good?"eg-ok":"eg-wrong")+'"><strong>'+
- (q.kind==="speak"?(q.good?"말하기 완료로 기록했어요.":"복습 대상으로 저장했어요."):(q.good?"정답이에요! +10 XP":"아쉬워요. 복습 목록에 추가했어요."))+
- '</strong>'+(q.kind==="speak"?"":'<p>정답: '+esc(q.answer)+'</p>')+
- '<p>'+esc(q.explanation||"")+'</p>'+(q.exampleKo?'<p>'+esc(q.exampleKo)+'</p>':"")+'</div>';
+ const sample=exerciseExample(q);
+ const description=String(q.explanation||"").trim();
+ const repeated=sample&&(description===sample.en||description===sample.ko||description===sample.en+" — "+sample.ko);
+ let html='<div class="eg-feedback '+(q.good?"eg-ok":"eg-wrong")+'"><strong>'+
+  (q.kind==="speak"?(q.good?"말하기 완료로 기록했어요.":"복습 대상으로 저장했어요."):(q.good?"정답이에요! +10 XP":"아쉬워요. 복습 목록에 추가했어요."))+
+  '</strong>'+(q.kind==="speak"?"":'<p>정답: '+esc(q.answer)+'</p>');
+ if(description&&!repeated)html+='<p>'+esc(description)+'</p>';
+ if(sample){
+  html+='<div class="eg-example"><div class="eg-example-label">영어 예문</div>'+
+   '<p class="eg-example-en" lang="en">'+esc(sample.en)+'</p>'+
+   btn("🔊 예문 듣기","listen-example","eg-outline eg-example-listen")+
+   '<div class="eg-example-label">한글 해석</div>'+
+   '<p class="eg-example-ko" lang="ko">'+esc(sample.ko)+'</p></div>';
+ }else{
+  html+='<p class="eg-example-empty">검수된 예문이 아직 준비되지 않았어요.</p>';
+ }
+ return html+'</div>';
 }
 function render(){
  if(!game){dashboard();return;}
@@ -242,11 +273,14 @@ function updateSentenceDraft(input){
    Boolean(q.draft)&&q.options[Number(b.dataset.index)]===q.draft);
  });
 }
-function speak(){
+function speak(exampleOnly){
  if(!game)return;const q=game.questions[game.index];if(!q)return;
+ const sample=exampleOnly?exerciseExample(q):null;
+ const phrase=exampleOnly?(sample&&sample.en):(q.voice||q.answer);
+ if(!phrase)return;
  if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){status="브라우저에서 영어 음성을 재생할 수 없어요.";render();return;}
  window.speechSynthesis.cancel();
- const u=new window.SpeechSynthesisUtterance(q.voice||q.answer);
+ const u=new window.SpeechSynthesisUtterance(phrase);
  u.lang=accent;u.rate=.88;
  const voices=window.speechSynthesis.getVoices();
  const exact=voices.find(v=>v.lang&&v.lang.toLowerCase()===accent.toLowerCase());
@@ -314,6 +348,7 @@ root.addEventListener("click",e=>{
  else if(a==="choose")answerChoice(Number(b.dataset.index));
  else if(a==="pick-sentence")pickSentence(Number(b.dataset.index));
  else if(a==="listen")speak();
+ else if(a==="listen-example")speak(true);
  else if(a==="recognize")recognize();
  else if(a==="record")record();
  else if(a==="stop-record"&&recorder&&recorder.state!=="inactive")recorder.stop();
