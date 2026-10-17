@@ -59,10 +59,6 @@
      const hue=tint[slot][equipped[slot]];
      if(hue)worn+='<span class="jgc-mascot-illustration jgc-gear-tint jgc-tint-'+slot+'" style="--gear-hue:'+hue+'" aria-hidden="true"></span>';
    });
-   ["hat","outfit","bag","book"].forEach(function(slot){
-     const icon=adorn[slot][equipped[slot]];
-     if(icon)worn+='<span class="jgc-worn jgc-worn-'+slot+'" aria-hidden="true">'+icon+'</span>';
-   });
    return '<span class="jgc-mascot jgc-mascot-stage-'+stage+extra+'" role="img" aria-label="'+text+'" style="--jgc-x:'+X[stage-1]+';--jgc-y:'+Y[animal]+';--jgc-halo:'+halo+'">'+
      '<span class="jgc-mascot-illustration" aria-hidden="true"></span>'+worn+'</span>';
  }
