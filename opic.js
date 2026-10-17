@@ -113,10 +113,10 @@
       { icon: "02", title: "주제별 답변 연습", summary: "일상·직장·여행 등 20개 질문", button: "질문 목록 보기", action: "topics" },
       { icon: "03", title: "질문 듣고 답하기", summary: "질문을 듣고 즉석에서 말하기", coming: true },
       { icon: "04", title: "롤플레이 연습", summary: "상황별 요청과 문제 해결", coming: true },
-      { icon: "05", title: "실전 모의시험", summary: "OPIc · 토익스피킹 유형별 연습", coming: true },
+      { icon: "05", title: "오픽 실전 연습", summary: "15문제 · 40분 · 질문 듣기와 녹음", button: "모의시험 시작하기", action: "mock" },
       { icon: "06", title: "나의 학습 기록", summary: "완료한 질문과 작성한 답변 확인", button: "학습 기록 확인", action: "topics" }
     ];
-    hub.innerHTML = '<div class="op-hub-target"><label for="op-hub-level">🎯 목표 수준</label><select id="op-hub-level" aria-label="스피킹 목표 수준">' + Object.entries(levels).map(([key, label]) => '<option value="' + key + '"' + (key === state.level ? " selected" : "") + '>' + label + '</option>').join("") + '</select><p>IL: 짧고 명확하게 · IH: 이유와 경험까지 풍부하게</p></div>' + '<div class="op-hub-hero"><div><span class="eyebrow section-eyebrow">START SPEAKING, ONE STEP AT A TIME</span><h2>예시를 익힌 뒤, 직접 말하는 영어 연습</h2><p>처음에는 예시 답변을 듣고 뜻을 익혀요. 그다음 표현을 확장하고 내 경험으로 바꿔 말해 보세요.</p><span class="op-hub-availability">현재 이용 가능: OPIc 기초 질문 20개 · 토익스피킹 전용 문제는 준비 중</span></div><div class="op-hub-meter"><strong>' + done + '<small> / ' + total + '</small></strong><span>학습 완료</span><progress max="' + total + '" value="' + done + '"></progress></div></div>' +
+    hub.innerHTML = '<div class="op-hub-target"><label for="op-hub-level">🎯 목표 수준</label><select id="op-hub-level" aria-label="스피킹 목표 수준">' + Object.entries(levels).map(([key, label]) => '<option value="' + key + '"' + (key === state.level ? " selected" : "") + '>' + label + '</option>').join("") + '</select><p>IL: 짧고 명확하게 · IH: 이유와 경험까지 풍부하게</p></div>' + '<div class="op-hub-hero"><div><span class="eyebrow section-eyebrow">START SPEAKING, ONE STEP AT A TIME</span><h2>예시를 익힌 뒤, 직접 말하는 영어 연습</h2><p>처음에는 예시 답변을 듣고 뜻을 익혀요. 그다음 표현을 확장하고 내 경험으로 바꿔 말해 보세요.</p><span class="op-hub-availability">현재 이용 가능: OPIc 기초 질문 20개와 실전 연습 15문제 · 토익스피킹 전용 문제는 준비 중</span></div><div class="op-hub-meter"><strong>' + done + '<small> / ' + total + '</small></strong><span>학습 완료</span><progress max="' + total + '" value="' + done + '"></progress></div></div>' +
       '<div class="op-hub-grid">' + cards.map(card =>
         '<article class="op-hub-card' + (card.coming ? ' op-hub-coming' : '') + '"><span class="op-hub-number">' + card.icon + '</span><h3>' + card.title + '</h3><p>' + card.summary + '</p>' +
         (card.coming ? '<span class="op-hub-upcoming">준비 중</span>' : '<button type="button" class="op-btn' + (card.action === "basic" ? ' op-primary' : '') + '" data-hub="' + card.action + '">' + card.button + ' →</button>') + '</article>'
@@ -210,7 +210,7 @@
   if (hub) hub.addEventListener("click", event => {
     const target = event.target.closest("[data-hub]");
     if (!target) return;
-    const dest = target.dataset.hub === "basic" ? "opic-basic" : "opic";
+    const dest = target.dataset.hub === "basic" ? "opic-basic" : target.dataset.hub === "mock" ? "opic-mock" : "opic";
     const nav = document.querySelector('.nav-item[data-page="' + dest + '"]');
     if (nav) nav.click();
   });
