@@ -116,6 +116,10 @@
 #eg-word-typing{flex:1 1 160px;min-height:45px;box-sizing:border-box;padding:10px 13px;border:1px solid #cfc5f3;border-radius:10px;font:inherit;font-size:15px;color:#2e2850;background:#fff}
 #eg-word-typing:focus-visible{outline:3px solid #9a92f5;outline-offset:2px}
 
+/* Expression question cards use the same tap-to-listen affordance as word and speaking games. */
+.eg-term.eg-expression-audio-card{font-size:clamp(17px,2.5vw,25px);overflow-wrap:anywhere}
+@media(max-width:740px){.eg-term.eg-expression-audio-card{padding-left:52px;padding-right:52px;font-size:18px}}
+
 /* Make longer conversation prompts tappable without crowding the speaker button. */
 .eg-term.eg-speaking-audio-card{font-size:clamp(17px,2.5vw,25px);overflow-wrap:anywhere}
 @media(max-width:740px){.eg-term.eg-speaking-audio-card{padding-left:52px;padding-right:52px;font-size:18px}}
