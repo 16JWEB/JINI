@@ -102,6 +102,15 @@
  .kg-btn { padding: 11px 12px; font-size: 12px; }
 }
 
+/* Word meaning quiz: the entire card and right-side speaker play 3 readings. */
+.kg-question-word.kg-word-audio-card{position:relative;display:flex;align-items:center;justify-content:center;padding-left:72px;padding-right:72px;cursor:pointer;transition:border-color .16s,background .16s}
+.kg-word-audio-card:hover{border-color:#b2a6f5;background:#f3efff}
+.kg-word-audio-card:focus-visible{outline:3px solid #9284f6;outline-offset:2px}
+.kg-word-text{overflow-wrap:anywhere;min-width:0}
+.kg-word-card-play{position:absolute;right:16px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:47px;height:47px;padding:0;border:1px solid #d7cef9;border-radius:12px;background:#fff;color:#6050cf;font-size:22px;cursor:pointer}
+.kg-word-card-play:hover,.kg-word-card-play:focus-visible{background:#ece7ff;border-color:#8879ed;outline-offset:2px}
+@media(max-width:740px){.kg-question-word.kg-word-audio-card{padding-left:54px;padding-right:54px}.kg-word-card-play{right:8px;width:42px;height:42px;font-size:20px}}
+
 /* Korean conversation: listen to each choice, select, then submit. */
 .kg-dialog-hint{margin:16px 0 0;color:#66678a;font-size:13px;line-height:1.8}
 .kg-dialog-choices{grid-template-columns:1fr}
