@@ -276,7 +276,7 @@
         (q.type === "sound" ? '<p>들려준 단어: <b>' + esc(q.target) + '</b></p>' : '') +
         (passed && q.type === "word" && q.example ?
           '<div class="kg-example"><div class="kg-example-label">한국어 예문</div><p class="kg-example-text" lang="ko">' + esc(q.example) + '</p>' +
-          button("🔊 예문 듣기", "listen-example", "kg-outline kg-example-listen") +
+          button("🔊 예문 2회 듣기", "listen-example", "kg-outline kg-example-listen") +
           (q.exampleVi ? '<div class="kg-example-label">베트남어 해석</div><p class="kg-example-translation" lang="vi">' + esc(q.exampleVi) + '</p>' : '') +
           '</div>' : '') + '</div>';
     }
@@ -386,8 +386,8 @@
     message="";
     storeResult(q,true);
     questionView();
-    // Play the completed word's Korean example only after accurate typing.
-    if(q.example)speak(q.example);
+    // Play the Korean example twice after accurate typing.
+    if(q.example)speakKoreanRepeated(q.example,2);
   }
   function selectDialogOption(idx) {
     if (!session) return;
@@ -442,12 +442,9 @@
       quizWordRepeatTimer = null;
     }
   }
-  // Audio on the word card and sound-listening quiz: repeat the Korean prompt three
-  // times, waiting two seconds AFTER the first and second readings.
-  function speakQuizWordThreeTimes() {
-    if (!session || section.hidden) return;
-    const q = session.queue[session.pos];
-    if (!q || (q.type !== "word" && q.type !== "sound") || !q.target) return;
+  // Repeat Korean text, stopping when a question changes or audio restarts.
+  function speakKoreanRepeated(text, repeatCount) {
+    if (!session || section.hidden || !String(text || "").trim()) return;
     if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
       message = "이 브라우저는 음성 재생을 지원하지 않아요.";
       questionView();
@@ -464,12 +461,12 @@
       session === sessionRef && session.pos === position && !section.hidden;
     function play(reading) {
       if (!valid()) return;
-      const u = new window.SpeechSynthesisUtterance(String(q.target));
+      const u = new window.SpeechSynthesisUtterance(String(text).trim());
       u.lang = "ko-KR"; u.rate = .86;
       if (voice) u.voice = voice;
       u.onend = function () {
         if (!valid()) return;
-        if (reading < 3) {
+        if (reading < repeatCount) {
           quizWordRepeatTimer = window.setTimeout(function () {
             quizWordRepeatTimer = null;
             if (valid()) play(reading + 1);
@@ -485,6 +482,12 @@
       synth.speak(u);
     }
     play(1);
+  }
+  function speakQuizWordThreeTimes() {
+    if (!session || section.hidden) return;
+    const q = session.queue[session.pos];
+    if (!q || (q.type !== "word" && q.type !== "sound") || !q.target) return;
+    speakKoreanRepeated(q.target,3);
   }
   // Correct word choice: Korean pronunciation, then Vietnamese translation.
   function speakCorrectWordAndMeaning(q) {
@@ -708,7 +711,7 @@
     }
     else if (action === "listen-example" && session) {
       const q=session.queue[session.pos];
-      if(q && q.type==="word" && Number.isInteger(q._answer) && q._answer===q.correct && q.example)speak(q.example);
+      if(q && q.type==="word" && Number.isInteger(q._answer) && q._answer===q.correct && q.example)speakKoreanRepeated(q.example,2);
     }
     else if (action === "record") beginRecord();
     else if (action === "stop-record" && recorder && recorder.state !== "inactive") recorder.stop();
