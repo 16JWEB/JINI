@@ -1,0 +1,19 @@
+/* Site-owned navigation field for installed JINI only. It is not browser chrome. */
+#jini-address-bar[hidden] { display: none !important; }
+.jini-address-bar { display: flex; align-items: center; gap: 7px; padding: 12px 0 10px; border-bottom: 1px solid #e5e8f1; }
+.jini-address-icon { border: 0; border-radius: 9px; flex: 0 0 36px; width: 36px; height: 38px; display: grid; place-items: center; color: #5f6483; background: #eff1f8; font-size: 17px; font-weight: 700; cursor: pointer; }
+.jini-address-icon:hover { background: #e4e7f2; }
+.jini-address-icon:focus-visible, .jini-address-field:focus-visible, .jini-address-go:focus-visible { outline: 3px solid #9a92f5; outline-offset: 2px; }
+.jini-address-form { display: flex; align-items: stretch; flex: 1 1 150px; min-width: 0; border: 1px solid #dfe3ee; border-radius: 11px; background: #fff; overflow: hidden; }
+.jini-address-field { box-sizing: border-box; flex: 1 1 0; min-width: 0; width: 100%; height: 38px; border: 0; outline-offset: -3px; background: transparent; padding: 0 10px; color: #384053; font-size: 12px; }
+.jini-address-go { flex: 0 0 auto; min-width: 39px; padding: 0 10px; border: 0; border-left: 1px solid #e8e9f2; background: #f4f3ff; color: #5f52c6; font-size: 12px; font-weight: 800; cursor: pointer; }
+.jini-address-go:hover { background: #eae7ff; }
+.jini-address-feedback { flex: 0 0 100%; font-size: 11px; color: #655ab1; margin: 0; }
+.jini-address-feedback:empty { display: none; }
+.jini-address-bar { flex-wrap: wrap; }
+@media (max-width: 760px) {
+  .jini-address-bar { padding: 8px 0; gap: 5px; }
+  .jini-address-icon { flex-basis: 34px; width: 34px; height: 37px; font-size: 15px; }
+  .jini-address-field { height: 37px; padding: 0 8px; font-size: 11px; }
+  .jini-address-go { min-width: 33px; padding: 0 7px; }
+}
