@@ -1,7 +1,7 @@
 /* Compact add-to-home shortcut, always visible even after installation. */
 #jini-install-panel[hidden], #jini-install-guide[hidden], .jini-install-copy[hidden] { display:none !important; }
 .jini-install-panel { display:flex; flex-direction:column; align-items:stretch; min-width:0; margin:0; padding:0; border:0; background:transparent; gap:7px; }
-.jini-install-button { box-sizing:border-box; width:100%; min-height:38px; padding:8px 9px; border:1px solid #a8d9ba; border-radius:9px; background:#f3fbf5; color:#28764d; font-size:12px; font-weight:800; cursor:pointer; }
+.jini-install-button { display:grid; grid-template-columns:22px minmax(0,1fr); align-items:center; width:100%; min-height:38px; padding:8px 9px; border:1px solid #a8d9ba; border-radius:9px; background:#f3fbf5; color:#28764d; font-size:12px; font-weight:800; cursor:pointer; }
 .jini-install-button:hover { background:#e6f6eb; }
 .jini-install-button:focus-visible { outline:3px solid #6fa984; outline-offset:2px; }
 .jini-install-copy { display:flex; flex-direction:column; gap:5px; padding:9px; border:1px solid #dcebdc; border-radius:9px; background:#f6fbf7; }
@@ -11,3 +11,6 @@
 .jini-install-guide p { margin:0; overflow-wrap:anywhere; }
 .jini-install-status { color:#3d7d59; font-size:11px; }
 @media(max-width:420px){ .jini-install-button { padding:7px; font-size:11px; } }
+
+.jini-install-button .jini-shortcut-number { text-align:left; }
+.jini-install-button .jini-shortcut-label { text-align:center; min-width:0; }
