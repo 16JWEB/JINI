@@ -164,13 +164,14 @@
 
       <section class="home-section" id="home-section">
         <div class="jini-home-wrap">
+          <div class="jini-home-tools" role="group" aria-label="브라우저 및 홈 화면 바로가기">
           <div id="jini-chrome-launch" class="jini-chrome-launch" hidden>
-            <div class="jini-chrome-intro">
+            <div class="jini-chrome-intro" hidden>
               <strong>🔊 음성 학습은 Chrome 브라우저를 권장해요</strong>
               <p>재생이 끊기거나 반복 횟수가 달라지면 Chrome에서 열어 보세요.</p>
               <p id="jini-kakao-notice" hidden>카카오톡 내부 브라우저에서는 음성 재생이 불안정할 수 있어요.</p>
             </div>
-            <a id="jini-open-chrome" class="jini-chrome-open" href="https://16jweb.github.io/JINI/" aria-label="JINI 사이트를 Chrome에서 열기">🌐 Chrome에서 열기 ↗</a>
+            <a id="jini-open-chrome" class="jini-chrome-open" href="https://16jweb.github.io/JINI/" aria-label="JINI 사이트를 Chrome에서 열기">🌐 Chrome에서 열기</a>
             <div id="jini-chrome-help" class="jini-chrome-help" hidden>
               <p>Chrome이 열리지 않나요? 카카오톡 화면의 <b>⋯ 메뉴 → 다른 브라우저로 열기</b>를 선택하거나, 링크를 복사해 Chrome 주소창에 붙여넣어 주세요.</p>
               <button id="jini-chrome-copy" class="jini-chrome-copy" type="button">🔗 링크 복사</button>
@@ -178,15 +179,16 @@
             </div>
           </div>
           <div id="jini-install-panel" class="jini-install-panel" hidden>
-            <div class="jini-install-copy">
+            <div class="jini-install-copy" hidden>
               <strong>📲 JINI를 휴대폰 홈 화면에 추가하세요</strong>
               <span>앱처럼 아이콘을 눌러 바로 공부할 수 있어요.</span>
             </div>
-            <button type="button" id="jini-install-button" class="jini-install-button">＋ 홈 화면에 추가</button>
+            <button type="button" id="jini-install-button" class="jini-install-button">＋ 홈에 추가</button>
             <div id="jini-install-guide" class="jini-install-guide" hidden>
               <p id="jini-install-guide-text"></p>
               <span id="jini-install-status" class="jini-install-status" role="status" aria-live="polite"></span>
             </div>
+          </div>
           </div>
           <strong class="jini-home-actions-title">공부 이어가기</strong>
           <div class="home-study-tabs" role="group" aria-label="공부할 언어 선택">
