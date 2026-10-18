@@ -1,0 +1,18 @@
+/* Chrome launch helper for Android; does not claim it can override KakaoTalk's policy. */
+#jini-chrome-launch[hidden], #jini-kakao-notice[hidden], #jini-chrome-help[hidden] { display: none !important; }
+.jini-chrome-launch { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 13px 20px; margin: 0 0 25px; padding: 15px 18px; border: 1px solid #dce3f6; border-radius: 15px; background: #f6f8ff; }
+.jini-chrome-intro { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.jini-chrome-intro strong { color: #354a88; font-size: 13px; }
+.jini-chrome-intro p { color: #626e95; margin: 0; font-size: 12px; line-height: 1.6; }
+.jini-chrome-open { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border: 1px solid #b4bef0; border-radius: 10px; padding: 10px 17px; background: #fff; color: #4b55ad; font-size: 13px; font-weight: 800; text-decoration: none; white-space: nowrap; }
+.jini-chrome-open:hover { background: #edf0ff; }
+.jini-chrome-open:focus-visible, .jini-chrome-copy:focus-visible { outline: 3px solid #8379e9; outline-offset: 2px; }
+.jini-chrome-help { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; grid-column: 1 / -1; border-top: 1px solid #e0e6f7; padding-top: 12px; font-size: 11px; line-height: 1.7; color: #606b92; }
+.jini-chrome-help p { margin: 0; flex: 1 1 220px; }
+.jini-chrome-copy { min-height: 36px; padding: 7px 12px; border: 1px solid #c8d0ec; background: white; color: #4d5a9d; border-radius: 9px; font: inherit; font-weight: 800; cursor: pointer; }
+.jini-chrome-copy-status { width: 100%; font-size: 11px; color: #3c688d; }
+@media (max-width: 580px) {
+ .jini-chrome-launch { grid-template-columns: 1fr; padding: 13px; gap: 12px; margin-bottom: 19px; }
+ .jini-chrome-open { justify-self: stretch; }
+ .jini-chrome-help { grid-column: 1; }
+}
