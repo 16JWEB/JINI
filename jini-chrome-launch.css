@@ -1,18 +1,15 @@
-/* Chrome launch helper for Android; does not claim it can override KakaoTalk's policy. */
-#jini-chrome-launch[hidden], #jini-kakao-notice[hidden], #jini-chrome-help[hidden] { display: none !important; }
-.jini-chrome-launch { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 13px 20px; margin: 0 0 25px; padding: 15px 18px; border: 1px solid #dce3f6; border-radius: 15px; background: #f6f8ff; }
-.jini-chrome-intro { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.jini-chrome-intro strong { color: #354a88; font-size: 13px; }
-.jini-chrome-intro p { color: #626e95; margin: 0; font-size: 12px; line-height: 1.6; }
-.jini-chrome-open { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; border: 1px solid #b4bef0; border-radius: 10px; padding: 10px 17px; background: #fff; color: #4b55ad; font-size: 13px; font-weight: 800; text-decoration: none; white-space: nowrap; }
-.jini-chrome-open:hover { background: #edf0ff; }
-.jini-chrome-open:focus-visible, .jini-chrome-copy:focus-visible { outline: 3px solid #8379e9; outline-offset: 2px; }
-.jini-chrome-help { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; grid-column: 1 / -1; border-top: 1px solid #e0e6f7; padding-top: 12px; font-size: 11px; line-height: 1.7; color: #606b92; }
-.jini-chrome-help p { margin: 0; flex: 1 1 220px; }
-.jini-chrome-copy { min-height: 36px; padding: 7px 12px; border: 1px solid #c8d0ec; background: white; color: #4d5a9d; border-radius: 9px; font: inherit; font-weight: 800; cursor: pointer; }
-.jini-chrome-copy-status { width: 100%; font-size: 11px; color: #3c688d; }
-@media (max-width: 580px) {
- .jini-chrome-launch { grid-template-columns: 1fr; padding: 13px; gap: 12px; margin-bottom: 19px; }
- .jini-chrome-open { justify-self: stretch; }
- .jini-chrome-help { grid-column: 1; }
-}
+/* Compact Chrome shortcut; details are shown only after a user tap. */
+#jini-chrome-launch[hidden], #jini-kakao-notice[hidden], #jini-chrome-help[hidden], .jini-chrome-intro[hidden] { display:none !important; }
+.jini-home-tools { display:grid; grid-template-columns:repeat(2,minmax(0,180px)); justify-content:start; align-items:start; gap:8px; margin:0 0 16px; }
+.jini-chrome-launch { display:flex; flex-direction:column; min-width:0; margin:0; padding:0; border:0; background:transparent; gap:7px; }
+.jini-chrome-open { display:flex; align-items:center; justify-content:center; box-sizing:border-box; min-height:38px; padding:8px 9px; border:1px solid #bbc5e8; border-radius:9px; background:#f5f7fe; color:#4b55ad; font-size:12px; font-weight:800; text-decoration:none; text-align:center; }
+.jini-chrome-open:hover { background:#e9edfe; }
+.jini-chrome-open:focus-visible, .jini-chrome-copy:focus-visible { outline:3px solid #8379e9; outline-offset:2px; }
+.jini-chrome-intro { display:flex; flex-direction:column; gap:5px; min-width:0; border:1px solid #e3e7f5; border-radius:9px; padding:9px; background:#f8f9ff; }
+.jini-chrome-intro strong { font-size:11px; line-height:1.5; color:#354a88; }
+.jini-chrome-intro p { margin:0; font-size:11px; line-height:1.6; color:#626e95; }
+.jini-chrome-help { display:flex; flex-direction:column; align-items:stretch; gap:8px; border:1px solid #e3e7f5; border-radius:9px; padding:9px; background:#f8f9ff; color:#626e95; font-size:11px; line-height:1.6; }
+.jini-chrome-help p { margin:0; }
+.jini-chrome-copy { min-height:33px; padding:6px 9px; border:1px solid #c8d0ec; border-radius:8px; background:#fff; color:#4d5a9d; font:inherit; font-weight:800; cursor:pointer; }
+.jini-chrome-copy-status { font-size:11px; overflow-wrap:anywhere; color:#3c688d; }
+@media(max-width:420px) { .jini-home-tools { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; } .jini-chrome-open { font-size:11px; padding:7px; } }
