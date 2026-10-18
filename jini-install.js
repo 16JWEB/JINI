@@ -3,10 +3,11 @@
 
   const panel = document.getElementById("jini-install-panel");
   const installButton = document.getElementById("jini-install-button");
+  const intro = panel && panel.querySelector(".jini-install-copy");
   const guide = document.getElementById("jini-install-guide");
   const guideText = document.getElementById("jini-install-guide-text");
   const status = document.getElementById("jini-install-status");
-  if (!panel || !installButton || !guide || !guideText || !status) return;
+  if (!panel || !intro || !installButton || !guide || !guideText || !status) return;
 
   const ua = navigator.userAgent || "";
   const isAndroid = /Android/i.test(ua);
@@ -21,12 +22,19 @@
   }
 
   function render() {
-    // The prompt only applies to browsers that can install this web app.
-    panel.hidden = installed || standalone() || !(isAndroid || isIOS);
+    // Keep the shortcut visible even after installation and inside the app.
+    panel.hidden = !(isAndroid || isIOS);
   }
 
   function showGuide(message) {
+    intro.hidden = false;
     guide.hidden = false;
+    installButton.setAttribute("aria-expanded", "true");
+    if (installed || standalone()) {
+      guideText.textContent = "이미 홈 화면에서 JINI 앱을 사용하고 있어요. 이 버튼은 계속 남아 있으며, Chrome에서 열면 ⋮ 메뉴로 홈 화면 바로가기를 관리할 수 있어요.";
+      status.textContent = message || "JINI가 홈 화면 앱으로 실행 중이에요.";
+      return;
+    }
     if (inKakao) {
       guideText.textContent = "먼저 위의 'Chrome에서 열기'를 누르거나 카카오톡의 ⋯ 메뉴에서 '다른 브라우저로 열기'를 선택하세요. 이후 Chrome의 ⋮ 메뉴 → '홈 화면에 추가' 또는 '앱 설치'를 누르세요.";
     } else if (isIOS) {
@@ -47,14 +55,14 @@
   window.addEventListener("appinstalled", function () {
     installed = true;
     deferredPrompt = null;
-    guide.hidden = true;
-    status.textContent = "";
+    showGuide("JINI를 홈 화면에 추가했어요.");
     render();
   });
 
   installButton.addEventListener("click", async function () {
-    if (standalone()) {
-      installed = true;
+    // Details expand only on tap; never hide this button afterwards.
+    showGuide("");
+    if (standalone() || installed) {
       render();
       return;
     }
@@ -67,7 +75,6 @@
         const outcome = await prompt.userChoice;
         if (outcome && outcome.outcome === "accepted") {
           status.textContent = "홈 화면 추가를 진행하고 있어요.";
-          guide.hidden = true;
         } else {
           showGuide("추가가 취소됐어요. 필요하면 다시 시도해 주세요.");
         }
