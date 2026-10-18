@@ -220,7 +220,7 @@
     session.answer = Number.isInteger(q._answer) ? q._answer : null;
     const fraction = Math.round(session.pos / Math.max(1, session.queue.length) * 100);
     const intro = q.type === "sound" ?
-      '<div class="kg-listen-center"><span class="kg-listen-icon">🎧</span>' + button("▶ 한국어 소리 듣기", "listen", "kg-primary") + '</div>' :
+      '<div class="kg-listen-center"><span class="kg-listen-icon">🎧</span>' + button("▶ 한국어 소리 듣기 (3회)", "listen", "kg-primary") + '</div>' :
       q.type === "word" ?
       '<div class="kg-question-word kg-word-audio-card" data-kg-action="listen-word" role="button" tabindex="0" aria-label="단어 카드를 눌러 한국어 발음 세 번 듣기">' +
       '<span class="kg-word-text" lang="ko">' + esc(q.text) + '</span>' +
@@ -357,7 +357,7 @@
     const q = session.queue[session.pos];
     if (!q || Number.isInteger(q._answer) || q.type === "pron" ||
         !Number.isInteger(idx) || idx < 0 || idx >= q.choices.length) return;
-    if(q.type==="word"){
+    if(q.type==="word" || q.type==="sound"){
       cancelQuizWordRepeat();
       if(window.speechSynthesis)window.speechSynthesis.cancel();
     }
@@ -442,12 +442,12 @@
       quizWordRepeatTimer = null;
     }
   }
-  // Audio on the word-question card: repeat only the Korean prompt three
+  // Audio on the word card and sound-listening quiz: repeat the Korean prompt three
   // times, waiting two seconds AFTER the first and second readings.
   function speakQuizWordThreeTimes() {
     if (!session || section.hidden) return;
     const q = session.queue[session.pos];
-    if (!q || q.type !== "word" || !q.target) return;
+    if (!q || (q.type !== "word" && q.type !== "sound") || !q.target) return;
     if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
       message = "이 브라우저는 음성 재생을 지원하지 않아요.";
       questionView();
@@ -479,7 +479,7 @@
       u.onerror = function (event) {
         if (!valid() || event.error === "canceled" || event.error === "interrupted") return;
         cancelQuizWordRepeat();
-        message = "단어 발음을 끝까지 재생하지 못했어요. 다시 눌러 주세요.";
+        message = "한국어 발음을 끝까지 재생하지 못했어요. 다시 눌러 주세요.";
         questionView();
       };
       synth.speak(u);
@@ -701,7 +701,11 @@
     else if (action === "next") advance();
     else if (action === "grade") finishPron(b.dataset.grade === "yes");
     else if (action === "listen-word") speakQuizWordThreeTimes();
-    else if (action === "listen" && session) speak(session.queue[session.pos].target);
+    else if (action === "listen" && session) {
+      const q = session.queue[session.pos];
+      if (q && q.type === "sound") speakQuizWordThreeTimes();
+      else if (q) speak(q.target);
+    }
     else if (action === "listen-example" && session) {
       const q=session.queue[session.pos];
       if(q && q.type==="word" && Number.isInteger(q._answer) && q._answer===q.correct && q.example)speak(q.example);
