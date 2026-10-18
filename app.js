@@ -1389,7 +1389,7 @@
     document.getElementById("player-heading-title").textContent = playingEnglishExpressions ? "영어 표현 재생" : koreanStudy ? "한국어 단어 재생" : "단어 재생";
     if (playingExpressions) document.getElementById("player-heading-title").textContent = "한국어 표현 재생";
     document.getElementById("player-heading-description").textContent = playingEnglishExpressions ?
-      "필수 표현 100개를 순서대로 들어 보세요. 재생을 누르면 표현·뜻·예문·해석을 이어서 들려줘요." : playingExpressions ?
+      "필수 표현 200개를 순서대로 들어 보세요. 재생을 누르면 표현·뜻·예문·해석을 이어서 들려줘요." : playingExpressions ?
       "일상생활 한국어 표현과 베트남어 뜻, 예문을 함께 익혀 보세요." : koreanStudy ?
       "한국어 단어를 듣고 베트남어 뜻과 함께 익혀 보세요." : "학년과 재생 내용을 선택하고 시작해 보세요.";
     document.getElementById("open-language-packs").hidden = !koreanStudy;
@@ -1411,7 +1411,7 @@
       playerIndex = 0;
       renderPlayerItemOptions();
       updatePlayerCard();
-      setPlaybackStatus(playingEnglishExpressions ? "재생을 누르면 영어 표현 100개를 순서대로 들을 수 있어요." :
+      setPlaybackStatus(playingEnglishExpressions ? "재생을 누르면 영어 표현 200개를 순서대로 들을 수 있어요." :
         playingExpressions ? "재생을 누르면 한국어 표현을 들을 수 있어요." :
         koreanStudy ? "재생을 누르면 한국어 단어를 들을 수 있어요." : "학년을 고르고 재생을 시작해 보세요.");
     }
