@@ -357,6 +357,10 @@
     const q = session.queue[session.pos];
     if (!q || Number.isInteger(q._answer) || q.type === "pron" ||
         !Number.isInteger(idx) || idx < 0 || idx >= q.choices.length) return;
+    if(q.type==="word"){
+      cancelQuizWordRepeat();
+      if(window.speechSynthesis)window.speechSynthesis.cancel();
+    }
     if(q.type==="word"&&idx===q.correct){
       q._typingPending=true;
       q._pendingChoice=idx;
