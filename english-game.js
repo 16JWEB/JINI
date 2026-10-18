@@ -207,17 +207,19 @@ function render(){
  const mode=modes.find(m=>m[0]===game.mode);
  let html=nav()+'<div class="eg-progress"><span>'+mode[1]+' '+mode[2]+'</span><span>'+(game.index+1)+' / '+game.questions.length+'</span></div>'+
  '<div class="eg-bar"><i style="width:'+(game.index/game.questions.length*100)+'%"></i></div>'+
- '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term'+(q.mode==="word"?" eg-term-word eg-word-audio-card":"")+'"'+
- (q.mode==="word"?' data-eg="listen-word" role="button" tabindex="0" aria-label="단어 카드를 눌러 영어 발음 세 번 듣기"':"")+'>'+
+ '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term'+(q.mode==="word"?" eg-term-word eg-word-audio-card":q.mode==="speaking"?" eg-word-audio-card eg-speaking-audio-card":"")+'"'+
+ (q.mode==="word"||q.mode==="speaking"?' data-eg="listen-word" role="button" tabindex="0" aria-label="'+(q.mode==="word"?"단어 카드":"문제 카드")+'를 눌러 영어 발음 세 번 듣기"':"")+'>'+
  (q.mode==="sentence"?
    esc(q.title).replace("______",'<span id="eg-cloze-word" class="eg-cloze-word'+(q.draft||q.response?" eg-cloze-filled":"")+'">'+(q.draft||q.response?esc(q.draft||q.response):"&#160;")+'</span>'):
    q.mode==="word"?
      '<span class="eg-term-text" lang="en">'+esc(q.title)+'</span>'+
      (questionIpa(q)?'<span class="eg-term-ipa" lang="en">'+esc(questionIpa(q))+'</span>':"")+
      '<button type="button" class="eg-word-card-play" data-eg="listen-word" aria-label="'+esc(q.title)+' 영어 발음 3회 듣기" title="단어 발음 3회 듣기">🔊</button>':
+   q.mode==="speaking"?
+     '<span lang="en">'+esc(q.title)+'</span><button type="button" class="eg-word-card-play" data-eg="listen-word" aria-label="문제 영어 발음 3회 듣기" title="영어 발음 3회 듣기">🔊</button>':
    esc(q.title))+'</div>';
  if(q.mode==="listen")html+='<div class="eg-audio">'+btn("🔊 다시 듣기","listen","eg-main")+'</div>';
- else if(q.mode==="expression"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
+ else if(q.mode==="expression"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn(q.mode==="speaking"?"🔊 영어 3회 듣기":"🔊 영어 듣기","listen","eg-outline")+'</div>';
  if(q.kind==="choice"){
   html+='<div class="eg-choices">'+q.options.map((o,i)=>btn('<span class="eg-number">'+(i+1)+'</span>'+esc(o)+((q.done||q.wordTypingPending)&&o===q.answer?' ✓':""),"choose",
      (q.done||q.wordTypingPending)&&o===q.answer?"eg-option eg-true":q.done&&o===q.response?"eg-option eg-false":"eg-option",
@@ -298,7 +300,7 @@ function grade(q,good,response){
 function answerChoice(i){
  if(!game)return;const q=game.questions[game.index];
  if(!q||q.kind!=="choice"||q.done||q.wordTypingPending||!Number.isInteger(i)||i<0||i>=q.options.length)return;
- if(q.mode==="word"){
+ if(q.mode==="word"||q.mode==="speaking"){
   cancelWordRepeat();
   if(window.speechSynthesis)window.speechSynthesis.cancel();
  }
@@ -387,7 +389,7 @@ function speakWordAnswerPair(q){
 function speakQuizWordThreeTimes(){
  if(!game||section.hidden)return;
  const q=game.questions[game.index];
- if(!q||q.mode!=="word"||!String(q.voice||q.title||"").trim())return;
+ if(!q||(q.mode!=="word"&&q.mode!=="speaking")||!String(q.voice||q.title||"").trim())return;
  if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){
   status="브라우저에서 영어 음성을 재생할 수 없어요.";render();return;
  }
@@ -416,7 +418,7 @@ function speakQuizWordThreeTimes(){
   u.onerror=e=>{
    if(!valid()||e.error==="canceled"||e.error==="interrupted")return;
    cancelWordRepeat();
-   status="단어 발음을 끝까지 들려주지 못했어요. 다시 눌러 주세요.";
+   status="영어 발음을 끝까지 들려주지 못했어요. 다시 눌러 주세요.";
    render();
   };
   synth.speak(u);
@@ -463,6 +465,8 @@ function recognize(){
  if(recording){status="먼저 녹음을 끝내고 발음 확인을 눌러 주세요.";speechStatus();return;}
  const API=window.SpeechRecognition||window.webkitSpeechRecognition;
  if(!API){status="음성 인식을 지원하지 않는 브라우저예요. Android Chrome에서 다시 열어 보세요.";speechStatus();return;}
+ cancelWordRepeat();
+ if(window.speechSynthesis)window.speechSynthesis.cancel();
  if(recognition){try{recognition.abort();}catch(e){}recognition=null;}
  const rec=new API(),session=game,pos=game.index;
  recognition=rec;status="🎙 듣고 있어요. 영어로 말해 주세요.";heard="";q.heard="";
@@ -499,7 +503,11 @@ root.addEventListener("click",e=>{
  else if(a==="choose")answerChoice(Number(b.dataset.index));
  else if(a==="pick-sentence")pickSentence(Number(b.dataset.index));
  else if(a==="listen-word")speakQuizWordThreeTimes();
- else if(a==="listen")speak();
+ else if(a==="listen"){
+  const q=game&&game.questions[game.index];
+  if(q&&q.mode==="speaking")speakQuizWordThreeTimes();
+  else speak();
+ }
  else if(a==="listen-example")speak(true);
  else if(a==="recognize")recognize();
  else if(a==="record")record();
