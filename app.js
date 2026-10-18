@@ -1413,9 +1413,11 @@
         button.parentElement.classList.contains("practice-menu-header"));
       const mobile = window.matchMedia("(max-width: 760px)").matches;
       if (group && isHeader && mobile) {
-        const open = !group.classList.contains("is-open");
+        // On mobile, the first tap navigates to the parent page without
+        // covering it with the submenu. Only a repeat tap toggles the list.
+        const alreadyOnPage = currentPageView === button.dataset.page;
         closeOtherStudyMenus(group);
-        setStudyMenuOpen(group, open);
+        setStudyMenuOpen(group, alreadyOnPage && !group.classList.contains("is-open"));
       } else {
         closeOtherStudyMenus();
       }
