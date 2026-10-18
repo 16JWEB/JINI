@@ -22,6 +22,7 @@
   let page = 1;
   let phraseQuery = "";
   let currentVoice = null;
+  let playbackToken = 0;
 
   try {
     const stored = JSON.parse(localStorage.getItem(STORE) || "[]");
@@ -47,31 +48,68 @@
     return el;
   }
 
-  function speak(text) {
-    if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
+  function cancelSpeech() {
+    playbackToken += 1;
+    currentVoice = null;
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  }
+
+  // Same four-part playback order as the 필수 단어 cards.
+  function speakSequence(parts) {
+    if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
       status.textContent = "이 브라우저는 음성 재생을 지원하지 않아요.";
       return;
     }
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    currentVoice = utterance;
-    utterance.lang = "en-US";
-    utterance.rate = 0.9;
-    const voices = window.speechSynthesis.getVoices();
-    const voice = voices.find(function (v) {
-      return v.lang && v.lang.toLowerCase() === "en-us";
-    }) || voices.find(function (v) {
-      return v.lang && v.lang.toLowerCase().startsWith("en");
-    });
-    if (voice) utterance.voice = voice;
-    utterance.onerror = function (event) {
-      if (event.error !== "canceled" && event.error !== "interrupted") status.textContent = "음성을 재생하지 못했어요. 다시 눌러 주세요.";
-    };
-    utterance.onend = function () {
-      if (currentVoice === utterance) currentVoice = null;
-    };
-    status.textContent = "영어 음성을 재생하고 있어요.";
-    window.speechSynthesis.speak(utterance);
+    cancelSpeech();
+    const token = playbackToken;
+    const synth = window.speechSynthesis;
+    const voices = typeof synth.getVoices === "function" ? synth.getVoices() : [];
+    const queue = parts.filter(function (part) { return part.text && String(part.text).trim(); });
+    if (!queue.length) return;
+    status.textContent = queue.length > 1 ?
+      "표현 → 한국어 뜻 → 영어 예문 → 해석을 순서대로 재생하고 있어요." :
+      "영어 음성을 재생하고 있어요.";
+
+    function next(index) {
+      if (token !== playbackToken || section.hidden) return;
+      if (index >= queue.length) {
+        currentVoice = null;
+        status.textContent = "재생을 완료했어요.";
+        return;
+      }
+      const part = queue[index];
+      const utterance = new window.SpeechSynthesisUtterance(part.text);
+      utterance.lang = part.lang;
+      utterance.rate = part.lang === "ko-KR" ? 0.94 : 0.9;
+      const locale = part.lang.toLowerCase();
+      const voice = voices.find(function (v) { return v.lang && v.lang.toLowerCase() === locale; }) ||
+        voices.find(function (v) { return v.lang && v.lang.toLowerCase().startsWith(locale.slice(0, 2)); });
+      if (voice) utterance.voice = voice;
+      currentVoice = utterance;
+      utterance.onend = function () {
+        if (token === playbackToken) next(index + 1);
+      };
+      utterance.onerror = function (event) {
+        if (token !== playbackToken || event.error === "canceled" || event.error === "interrupted") return;
+        cancelSpeech();
+        status.textContent = "음성을 끝까지 재생하지 못했어요. 다시 눌러 주세요.";
+      };
+      synth.speak(utterance);
+    }
+    next(0);
+  }
+
+  function speak(text) {
+    speakSequence([{ text: text, lang: "en-US" }]);
+  }
+
+  function speakCard(item) {
+    speakSequence([
+      { text: item.phrase, lang: "en-US" },
+      { text: item.meaning, lang: "ko-KR" },
+      { text: item.example, lang: "en-US" },
+      { text: item.translation, lang: "ko-KR" }
+    ]);
   }
 
   function persist() {
@@ -139,6 +177,17 @@
     }
     filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE).forEach(function (item) {
       const card = element("article", "ee-card");
+      card.tabIndex = 0;
+      card.setAttribute("aria-label", item.phrase + " 표현 카드. 눌러서 표현과 뜻, 예문과 해석 듣기");
+      card.addEventListener("click", function (event) {
+        if (event.target.closest("button, a, select, input, textarea")) return;
+        speakCard(item);
+      });
+      card.addEventListener("keydown", function (event) {
+        if (event.target !== card || (event.key !== "Enter" && event.key !== " ")) return;
+        event.preventDefault();
+        speakCard(item);
+      });
       const header = element("div", "ee-card-head");
       const heading = element("div", "ee-card-heading");
       heading.appendChild(element("span", "ee-index", String(item.id).padStart(2, "0") + " · " + item.category));
@@ -178,8 +227,7 @@
     search.focus();
   });
   window.JINI_STOP_ENGLISH_EXPRESSIONS = function () {
-    if (currentVoice && "speechSynthesis" in window) window.speechSynthesis.cancel();
-    currentVoice = null;
+    cancelSpeech();
     status.textContent = "";
   };
   window.JINI_SHOW_ENGLISH_EXPRESSIONS = function () { render(false); };
