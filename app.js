@@ -781,12 +781,10 @@
 
     function playWord(reading) {
       if (token !== playbackToken || playbackState !== "playing") return;
-      if (currentPageView === "ko-player") {
-        setPlaybackStatus("한국어 단어 " + reading + " / 3회 재생 중");
-      }
+      setPlaybackStatus((itemLabel === "표현" ? "표현" : "단어") + " " + reading + " / 3회 재생 중");
       createUtterance(item.word, function () {
-        if (currentPageView === "ko-player" && reading < 3) {
-          // Count two seconds from the end of the current pronunciation.
+        if (reading < 3) {
+          // Count two seconds from the end of the current pronunciation on every listening page.
           wordRepeatTimer = window.setTimeout(function () {
             wordRepeatTimer = null;
             if (token === playbackToken && playbackState === "playing") playWord(reading + 1);
@@ -940,9 +938,7 @@
     const button = card.querySelector(".play-button");
     card.tabIndex = 0;
     card.setAttribute("aria-label", itemNumber + "번 " + item.word +
-      (currentPageView === "ko-vocabulary" ?
-        " 한글 단어 카드. 단어를 2초 간격으로 세 번 들은 뒤 뜻과 예문 듣기" :
-        " 단어 카드. 눌러서 발음과 뜻, 예문 듣기"));
+      " 카드. 단어 또는 표현을 2초 간격으로 세 번 들은 뒤 뜻과 예문 듣기");
     card.addEventListener("click", function (event) {
       if (event.target.closest("button, a, select, input")) return;
       button.click();
@@ -964,18 +960,13 @@
       const token = cardSpeechToken;
       const wordLanguage = currentStudy === "korean" ? "ko-KR" : "en-US";
       const meaningLanguage = currentStudy === "korean" ? "vi-VN" : "ko-KR";
-      const isKoreanEssentialWord = currentPageView === "ko-vocabulary";
+      // Apply the same three-readings / two-second-pause pattern to Korean
+      // words/expressions and English words. Keep meaning/examples once each.
       const spokenParts = [
-        { text: item.word, language: wordLanguage, waitAfter: isKoreanEssentialWord }
+        { text: item.word, language: wordLanguage, waitAfter: true },
+        { text: item.word, language: wordLanguage, waitAfter: true },
+        { text: item.word, language: wordLanguage }
       ];
-      // On Korean essential-word cards only: 3 readings, with a two-second
-      // gap AFTER each of the first two readings. No extra delay after #3.
-      if (isKoreanEssentialWord) {
-        spokenParts.push(
-          { text: item.word, language: wordLanguage, waitAfter: true },
-          { text: item.word, language: wordLanguage }
-        );
-      }
       spokenParts.push(
         { text: item.meaning, language: meaningLanguage },
         { text: item.example, language: wordLanguage },
