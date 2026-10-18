@@ -123,8 +123,7 @@
     const portrait = window.JINI_CHARACTER_ART && typeof window.JINI_CHARACTER_ART.render === "function"
       ? window.JINI_CHARACTER_ART.render({ avatar: avatar, level: level, auraLevel: level })
       : '<span class="jgc-fallback" aria-hidden="true">' + avatarOf(avatar).icon + '</span>';
-    return
-      '<div class="jgc-reward-content">' +
+    return '<div class="jgc-reward-content">' +
       '<div class="jgc-reward-sparks" aria-hidden="true">✦ ✨ ✧</div>' +
       '<span class="jgc-reward-kicker">🎉 LEVEL UP · ' + STUDIES[study].label + ' 캐릭터</span>' +
       '<h2 id="' + escape(titleId || "jini-reward-title") + '">Lv.' + level + ' 달성!</h2>' +
