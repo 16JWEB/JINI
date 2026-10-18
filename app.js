@@ -812,7 +812,7 @@
     advanceTimer = window.setTimeout(advance, 500);
   }
 
-  function playExampleAt(item, exampleIndex, token) {
+  function playExampleAt(item, exampleIndex, token, reading) {
     const exampleLanguage = currentStudy === "korean" ? "ko-KR" : "en-US";
     const translationLanguage = currentStudy === "korean" ? "vi-VN" : "ko-KR";
     const examplesForItem = [
@@ -834,10 +834,23 @@
     if (example.isTranslation) {
       setPlaybackStatus(currentStudy === "korean" ? "베트남어 번역을 재생하고 있어요." : "한글 뜻을 재생하고 있어요.");
     } else {
-      setPlaybackStatus(exampleIndex < 2 ? "예문을 재생하고 있어요." : "다른 뜻의 예문을 재생하고 있어요.");
+      const prefix = exampleIndex < 2 ? "예문" : "다른 뜻의 예문";
+      setPlaybackStatus(prefix + " " + (reading || 1) + " / 2회 재생 중");
     }
     createUtterance(example.text, function () {
-      playExampleAt(item, exampleIndex + 1, token);
+      if (token !== playbackToken || playbackState !== "playing") return;
+      if (!example.isTranslation && reading !== 2) {
+        // Repeat each original-language example after a 2-second pause.
+        // Translated examples remain single-read.
+        wordRepeatTimer = window.setTimeout(function () {
+          wordRepeatTimer = null;
+          if (token === playbackToken && playbackState === "playing") {
+            playExampleAt(item, exampleIndex, token, 2);
+          }
+        }, 2000);
+      } else {
+        playExampleAt(item, exampleIndex + 1, token);
+      }
     }, playbackError, token, example.language);
   }
 
@@ -938,7 +951,7 @@
     const button = card.querySelector(".play-button");
     card.tabIndex = 0;
     card.setAttribute("aria-label", itemNumber + "번 " + item.word +
-      " 카드. 단어 또는 표현을 2초 간격으로 세 번 들은 뒤 뜻과 예문 듣기");
+      " 카드. 단어 또는 표현을 세 번, 예문을 두 번 들은 뒤 뜻과 해석 듣기");
     card.addEventListener("click", function (event) {
       if (event.target.closest("button, a, select, input")) return;
       button.click();
@@ -960,8 +973,8 @@
       const token = cardSpeechToken;
       const wordLanguage = currentStudy === "korean" ? "ko-KR" : "en-US";
       const meaningLanguage = currentStudy === "korean" ? "vi-VN" : "ko-KR";
-      // Apply the same three-readings / two-second-pause pattern to Korean
-      // words/expressions and English words. Keep meaning/examples once each.
+      // Repeat the headword 3 times and each original-language example 2 times.
+      // Definitions and translations remain single-read.
       const spokenParts = [
         { text: item.word, language: wordLanguage, waitAfter: true },
         { text: item.word, language: wordLanguage, waitAfter: true },
@@ -969,12 +982,14 @@
       ];
       spokenParts.push(
         { text: item.meaning, language: meaningLanguage },
+        { text: item.example, language: wordLanguage, waitAfter: true },
         { text: item.example, language: wordLanguage },
         { text: item.exampleKo, language: meaningLanguage }
       );
       (item.otherSenses || []).forEach(function (sense) {
         spokenParts.push(
           { text: sense.meaning, language: meaningLanguage },
+          { text: sense.example, language: wordLanguage, waitAfter: true },
           { text: sense.example, language: wordLanguage },
           { text: sense.exampleKo, language: meaningLanguage }
         );
