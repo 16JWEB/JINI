@@ -9,6 +9,16 @@
   const passwordInput = document.getElementById("ja-password");
   const error = document.getElementById("ja-error");
   if (!entry || !dialog || !loginView || !panel || !form || !passwordInput) return;
+  const growthPanel = document.getElementById("ja-preview-panel");
+  const rewardPanel = document.getElementById("ja-reward-panel");
+  const rewardPreview = document.getElementById("ja-reward-preview");
+  const rewardDemoDialog = document.getElementById("ja-reward-demo-dialog");
+  const rewardStudy = document.getElementById("ja-reward-study");
+  const rewardAvatar = document.getElementById("ja-reward-avatar");
+  const rewardLevel = document.getElementById("ja-reward-level");
+  const rewardOpenButton = document.getElementById("ja-reward-open");
+  if (!growthPanel || !rewardPanel || !rewardPreview || !rewardDemoDialog ||
+      !rewardStudy || !rewardAvatar || !rewardLevel || !rewardOpenButton) return;
   const EXPECTED_DIGEST = "d4758ff40ebce1b5d0980f165c14d660f4723e50cd8c59d25403cde2ad87edc6";
   const ANIMALS = [
     { id: "rabbit", name: "토끼", emoji: "🐰" },
@@ -19,6 +29,14 @@
   const PREVIEW_LEVELS = new Set([1].concat(Array.from({ length: 20 }, (_, i) => (i + 1) * 10)));
   let level = 100;
   function reset() {
+    if (rewardDemoDialog.open) rewardDemoDialog.close();
+    growthPanel.hidden = false;
+    rewardPanel.hidden = true;
+    dialog.querySelectorAll('[role="tab"]').forEach(function (button) {
+      const active = button.id === "ja-tab-preview";
+      button.setAttribute("aria-selected", String(active));
+      button.tabIndex = active ? 0 : -1;
+    });
     loginView.hidden = false;
     panel.hidden = true;
     dialog.classList.remove("ja-unlocked");
@@ -28,6 +46,7 @@
     error.textContent = "";
   }
   function close() {
+    if (rewardDemoDialog.open) rewardDemoDialog.close();
     if (typeof dialog.close === "function") dialog.close();
     else { dialog.removeAttribute("open"); reset(); }
   }
@@ -47,6 +66,41 @@
         target.classList.add("ja-fallback");
       }
     });
+  }
+
+  function rewardMarkup(titleId) {
+    const character = window.JINI_CHARACTER;
+    return character && typeof character.previewReward === "function"
+      ? character.previewReward({
+        study: rewardStudy.value,
+        avatar: rewardAvatar.value,
+        level: Number(rewardLevel.value),
+        titleId: titleId
+      }) : "";
+  }
+  function renderRewardPreview() {
+    if (panel.hidden || rewardPanel.hidden) return;
+    rewardPreview.innerHTML = rewardMarkup("ja-reward-inline-title") ||
+      '<p class="ja-intro">미리보기 화면을 불러올 수 없어요. 새로고침해 주세요.</p>';
+  }
+  function openRewardDemo() {
+    if (panel.hidden || rewardPanel.hidden || rewardDemoDialog.open) return;
+    const html = rewardMarkup("ja-reward-demo-title");
+    if (!html) return;
+    rewardDemoDialog.innerHTML = html;
+    if (typeof rewardDemoDialog.showModal === "function") rewardDemoDialog.showModal();
+    else rewardDemoDialog.setAttribute("open", "");
+  }
+  function switchTab(id) {
+    if (panel.hidden || (id !== "ja-tab-preview" && id !== "ja-tab-reward")) return;
+    growthPanel.hidden = id !== "ja-tab-preview";
+    rewardPanel.hidden = id !== "ja-tab-reward";
+    dialog.querySelectorAll('[role="tab"]').forEach(function (button) {
+      const selected = button.id === id;
+      button.setAttribute("aria-selected", String(selected));
+      button.tabIndex = selected ? 0 : -1;
+    });
+    if (id === "ja-tab-reward") renderRewardPreview();
   }
   async function digest(value) {
     const data = new TextEncoder().encode(value);
@@ -76,6 +130,7 @@
     panel.hidden = false;
     dialog.classList.remove("ja-auth");
     dialog.classList.add("ja-unlocked");
+    switchTab("ja-tab-preview");
     render();
   });
   dialog.querySelectorAll("[data-ja-close]").forEach(function (button) {
@@ -89,6 +144,35 @@
       level = selected;
       render();
     });
+  });
+
+  dialog.querySelectorAll('[role="tab"]').forEach(function (button) {
+    button.addEventListener("click", function () { switchTab(button.id); });
+    button.addEventListener("keydown", function (event) {
+      if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+      event.preventDefault();
+      const next = button.id === "ja-tab-preview" ? "ja-tab-reward" : "ja-tab-preview";
+      switchTab(next);
+      document.getElementById(next).focus();
+    });
+  });
+  [rewardStudy, rewardAvatar, rewardLevel].forEach(function (input) {
+    input.addEventListener("change", renderRewardPreview);
+  });
+  rewardOpenButton.addEventListener("click", openRewardDemo);
+  rewardPreview.addEventListener("click", function (event) {
+    if (event.target.closest("[data-jgc-reward-action]")) openRewardDemo();
+  });
+  rewardDemoDialog.addEventListener("click", function (event) {
+    if (event.target === rewardDemoDialog || event.target.closest("[data-jgc-reward-action]")) {
+      if (typeof rewardDemoDialog.close === "function") rewardDemoDialog.close();
+      else rewardDemoDialog.removeAttribute("open");
+    }
+  });
+  rewardDemoDialog.addEventListener("cancel", function (event) {
+    event.preventDefault();
+    if (typeof rewardDemoDialog.close === "function") rewardDemoDialog.close();
+    else rewardDemoDialog.removeAttribute("open");
   });
   dialog.addEventListener("close", reset);
   dialog.addEventListener("click", function (event) {
