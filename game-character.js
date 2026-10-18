@@ -114,6 +114,38 @@
     return currentLevel > previous && Math.floor(Math.min(200, currentLevel) / 10) >
       Math.floor(Math.min(200, previous) / 10);
   }
+  // Pure popup markup for both earned rewards and admin previews.
+  function renderRewardMarkup(study, level, avatar, titleId) {
+    if (!isRewardLevel(level)) return "";
+    const grew = level % 50 === 0;
+    const tier = growth(level);
+    const auraName = window.JINI_AURA ? window.JINI_AURA.rewardLabel(level, avatar) : "새 오라";
+    const portrait = window.JINI_CHARACTER_ART && typeof window.JINI_CHARACTER_ART.render === "function"
+      ? window.JINI_CHARACTER_ART.render({ avatar: avatar, level: level, auraLevel: level })
+      : '<span class="jgc-fallback" aria-hidden="true">' + avatarOf(avatar).icon + '</span>';
+    return
+      '<div class="jgc-reward-content">' +
+      '<div class="jgc-reward-sparks" aria-hidden="true">✦ ✨ ✧</div>' +
+      '<span class="jgc-reward-kicker">🎉 LEVEL UP · ' + STUDIES[study].label + ' 캐릭터</span>' +
+      '<h2 id="' + escape(titleId || "jini-reward-title") + '">Lv.' + level + ' 달성!</h2>' +
+      '<p class="jgc-reward-subtitle">' + (grew ? "캐릭터 성장과 새로운 오라를 획득했어요!" : "새로운 오라를 획득했어요!") + '</p>' +
+      '<div class="jgc-reward-portrait" aria-label="' + escape(avatarOf(avatar).label) + ' 캐릭터 보상 미리보기">' + portrait + '</div>' +
+      '<div class="jgc-reward-items">' +
+      (grew ? '<div class="jgc-reward-item jgc-reward-growth"><span aria-hidden="true">🌟</span><div><small>캐릭터 성장</small><strong>' + escape(tier.name) + '</strong><p>' + escape(tier.description) + '</p></div></div>' : '') +
+      '<div class="jgc-reward-item"><span aria-hidden="true">✨</span><div><small>새로운 오라 · Lv.' + level + '</small><strong>' + escape(auraName) + '</strong><p>획득한 오라는 캐릭터 설정에서 언제든 다시 선택할 수 있어요.</p></div></div>' +
+      '</div><div class="jgc-reward-actions">' +
+      '<button type="button" data-jgc-reward-action="confirm" class="jgc-reward-confirm">보상 확인</button>' +
+      '<button type="button" data-jgc-reward-action="customize" class="jgc-reward-customize">오라 꾸미기</button>' +
+      '</div></div>';
+  }
+  function previewReward(config) {
+    config = config || {};
+    const study = studyOf(config.study);
+    const level = Number(config.level);
+    if (!isRewardLevel(level)) return "";
+    const avatar = AVATARS.some(a => a.id === config.avatar) ? config.avatar : profiles[study].avatar;
+    return renderRewardMarkup(study, level, avatar, config.titleId || "ja-reward-inline-title");
+  }
   function showNextReward() {
     if (!rewardDialog || rewardDialog.open || showingReward || document.visibilityState === "hidden") return;
     // Don't hide the character customization dialog or another modal.
@@ -122,27 +154,7 @@
     const study = order.find(key => rewards[key].pending.length);
     if (!study) return;
     const level = rewards[study].pending[0];
-    const profile = profiles[study];
-    const grew = level % 50 === 0;
-    const tier = growth(level);
-    const auraName = window.JINI_AURA ? window.JINI_AURA.rewardLabel(level, profile.avatar) : "새 오라";
-    const portrait = window.JINI_CHARACTER_ART && typeof window.JINI_CHARACTER_ART.render === "function"
-      ? window.JINI_CHARACTER_ART.render({ avatar: profile.avatar, level: level, auraLevel: level })
-      : '<span class="jgc-fallback" aria-hidden="true">' + avatarOf(profile.avatar).icon + '</span>';
-    rewardDialog.innerHTML =
-      '<div class="jgc-reward-content">' +
-      '<div class="jgc-reward-sparks" aria-hidden="true">✦ ✨ ✧</div>' +
-      '<span class="jgc-reward-kicker">🎉 LEVEL UP · ' + STUDIES[study].label + ' 캐릭터</span>' +
-      '<h2 id="jini-reward-title">Lv.' + level + ' 달성!</h2>' +
-      '<p class="jgc-reward-subtitle">' + (grew ? "캐릭터 성장과 새로운 오라를 획득했어요!" : "새로운 오라를 획득했어요!") + '</p>' +
-      '<div class="jgc-reward-portrait" aria-label="' + escape(avatarOf(profile.avatar).label) + ' 캐릭터 보상 미리보기">' + portrait + '</div>' +
-      '<div class="jgc-reward-items">' +
-      (grew ? '<div class="jgc-reward-item jgc-reward-growth"><span aria-hidden="true">🌟</span><div><small>캐릭터 성장</small><strong>' + escape(tier.name) + '</strong><p>' + escape(tier.description) + '</p></div></div>' : '') +
-      '<div class="jgc-reward-item"><span aria-hidden="true">✨</span><div><small>새로운 오라 · Lv.' + level + '</small><strong>' + escape(auraName) + '</strong><p>획득한 오라는 캐릭터 설정에서 언제든 다시 선택할 수 있어요.</p></div></div>' +
-      '</div><div class="jgc-reward-actions">' +
-      '<button type="button" data-jgc-reward-action="confirm" class="jgc-reward-confirm">보상 확인</button>' +
-      '<button type="button" data-jgc-reward-action="customize" class="jgc-reward-customize">오라 꾸미기</button>' +
-      '</div></div>';
+    rewardDialog.innerHTML = renderRewardMarkup(study, level, profiles[study].avatar, "jini-reward-title");
     showingReward = { study, level };
     try {
       if (typeof rewardDialog.showModal === "function") rewardDialog.showModal();
@@ -395,6 +407,6 @@
       refresh();
     }
   });
-  window.JINI_CHARACTER = { refresh: refresh, open: open, getStatus: readScore };
+  window.JINI_CHARACTER = { refresh: refresh, open: open, getStatus: readScore, previewReward: previewReward };
   refresh();
 }());
