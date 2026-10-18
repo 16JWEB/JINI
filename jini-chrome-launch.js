@@ -13,7 +13,10 @@
   const ua = navigator.userAgent || "";
   const android = /Android/i.test(ua);
   const kakao = /KAKAOTALK/i.test(ua);
-  const chrome = /Chrome\//i.test(ua) &&
+  const inApp = window.matchMedia &&
+    (window.matchMedia("(display-mode: standalone)").matches ||
+      window.matchMedia("(display-mode: fullscreen)").matches);
+  const chrome = /Chrome\//i.test(ua) && !inApp &&
     !/KAKAOTALK|SamsungBrowser|EdgA|OPR\/|Firefox|;\s*wv[;) ]/i.test(ua);
 
   // Only Android can target the Chrome package through an intent link.
