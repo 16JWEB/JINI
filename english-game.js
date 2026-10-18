@@ -36,6 +36,7 @@ const words=(window.WORDS||[]).filter(w=>w&&levels.includes(w.level)&&/^[a-z][a-
 const essentialExpressions=(window.JINI_ESSENTIAL_EXPRESSIONS||[]).filter(item=>
  item&&Number.isInteger(item.id)&&item.phrase&&item.meaning&&item.example&&item.translation);
 let level="초등", count=10, game=null, active=false, status="", heard="", recognition=null, recorder=null, stream=null, audioUrl=null, recording=false;
+let wordRepeatTimer=null, wordRepeatToken=0;
 let memory={xp:0,tries:0,correct:0,items:{}};
 try{const saved=JSON.parse(localStorage.getItem(KEY)||"null");if(saved&&saved.items)memory=Object.assign(memory,saved);}catch(e){}
 function esc(x){return String(x==null?"":x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -114,7 +115,12 @@ function build(mode){
  return [];
 }
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(memory));if(window.JINI_CHARACTER)window.JINI_CHARACTER.refresh();}catch(e){status="학습 기록을 저장할 수 없어요.";}}
+function cancelWordRepeat(){
+ wordRepeatToken++;
+ if(wordRepeatTimer!==null){window.clearTimeout(wordRepeatTimer);wordRepeatTimer=null;}
+}
 function stop(){
+ cancelWordRepeat();
  if(window.speechSynthesis)window.speechSynthesis.cancel();
  if(recognition){const old=recognition;recognition=null;try{old.abort();}catch(e){}}
  if(recorder&&recorder.state!=="inactive"){try{recorder.stop();}catch(e){}}
@@ -201,15 +207,17 @@ function render(){
  const mode=modes.find(m=>m[0]===game.mode);
  let html=nav()+'<div class="eg-progress"><span>'+mode[1]+' '+mode[2]+'</span><span>'+(game.index+1)+' / '+game.questions.length+'</span></div>'+
  '<div class="eg-bar"><i style="width:'+(game.index/game.questions.length*100)+'%"></i></div>'+
- '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term'+(q.mode==="word"?" eg-term-word":"")+'">'+
+ '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term'+(q.mode==="word"?" eg-term-word eg-word-audio-card":"")+'"'+
+ (q.mode==="word"?' data-eg="listen-word" role="button" tabindex="0" aria-label="단어 카드를 눌러 영어 발음 세 번 듣기"':"")+'>'+
  (q.mode==="sentence"?
    esc(q.title).replace("______",'<span id="eg-cloze-word" class="eg-cloze-word'+(q.draft||q.response?" eg-cloze-filled":"")+'">'+(q.draft||q.response?esc(q.draft||q.response):"&#160;")+'</span>'):
    q.mode==="word"?
      '<span class="eg-term-text" lang="en">'+esc(q.title)+'</span>'+
-     (questionIpa(q)?'<span class="eg-term-ipa" lang="en">'+esc(questionIpa(q))+'</span>':""):
+     (questionIpa(q)?'<span class="eg-term-ipa" lang="en">'+esc(questionIpa(q))+'</span>':"")+
+     '<button type="button" class="eg-word-card-play" data-eg="listen-word" aria-label="'+esc(q.title)+' 영어 발음 3회 듣기" title="단어 발음 3회 듣기">🔊</button>':
    esc(q.title))+'</div>';
  if(q.mode==="listen")html+='<div class="eg-audio">'+btn("🔊 다시 듣기","listen","eg-main")+'</div>';
- else if(q.mode==="word"||q.mode==="expression"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
+ else if(q.mode==="expression"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
  if(q.kind==="choice"){
   html+='<div class="eg-choices">'+q.options.map((o,i)=>btn('<span class="eg-number">'+(i+1)+'</span>'+esc(o)+((q.done||q.wordTypingPending)&&o===q.answer?' ✓':""),"choose",
      (q.done||q.wordTypingPending)&&o===q.answer?"eg-option eg-true":q.done&&o===q.response?"eg-option eg-false":"eg-option",
@@ -358,6 +366,7 @@ function speakWordAnswerPair(q){
  const word=String(q.voice||q.title||"").trim();
  const meaning=String(q.answer||"").trim();
  if(!word||!meaning)return;
+ cancelWordRepeat();
  synth.cancel();
  try{
   const english=new window.SpeechSynthesisUtterance(word);
@@ -371,12 +380,52 @@ function speakWordAnswerPair(q){
   synth.speak(korean);
  }catch(e){status="음성 재생을 지원하지 않는 기기일 수 있어요.";}
 }
+function speakQuizWordThreeTimes(){
+ if(!game||section.hidden)return;
+ const q=game.questions[game.index];
+ if(!q||q.mode!=="word"||!String(q.voice||q.title||"").trim())return;
+ if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){
+  status="브라우저에서 영어 음성을 재생할 수 없어요.";render();return;
+ }
+ cancelWordRepeat();
+ const token=wordRepeatToken, gameRef=game, index=game.index;
+ const synth=window.speechSynthesis;
+ synth.cancel();
+ const voices=typeof synth.getVoices==="function"?synth.getVoices():[];
+ const voice=voices.find(v=>v.lang&&v.lang.toLowerCase()===ENGLISH_LOCALE.toLowerCase())||
+   voices.find(v=>v.lang&&v.lang.toLowerCase().startsWith("en"));
+ const valid=()=>token===wordRepeatToken&&game===gameRef&&game.index===index&&!section.hidden;
+ function play(reading){
+  if(!valid())return;
+  const u=new window.SpeechSynthesisUtterance(String(q.voice||q.title).trim());
+  u.lang=ENGLISH_LOCALE;u.rate=.88;
+  if(voice)u.voice=voice;
+  u.onend=()=>{
+   if(!valid())return;
+   if(reading<3){
+    wordRepeatTimer=window.setTimeout(()=>{
+     wordRepeatTimer=null;
+     if(valid())play(reading+1);
+    },2000);
+   }
+  };
+  u.onerror=e=>{
+   if(!valid()||e.error==="canceled"||e.error==="interrupted")return;
+   cancelWordRepeat();
+   status="단어 발음을 끝까지 들려주지 못했어요. 다시 눌러 주세요.";
+   render();
+  };
+  synth.speak(u);
+ }
+ play(1);
+}
 function speak(exampleOnly){
  if(!game)return;const q=game.questions[game.index];if(!q)return;
  const sample=exampleOnly?exerciseExample(q):null;
  const phrase=exampleOnly?(sample&&sample.en):(q.voice||q.answer);
  if(!phrase)return;
  if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){status="브라우저에서 영어 음성을 재생할 수 없어요.";render();return;}
+ cancelWordRepeat();
  window.speechSynthesis.cancel();
  const u=new window.SpeechSynthesisUtterance(phrase);
  u.lang=ENGLISH_LOCALE;u.rate=.88;
@@ -445,12 +494,19 @@ root.addEventListener("click",e=>{
  else if(a==="next")move(1);
  else if(a==="choose")answerChoice(Number(b.dataset.index));
  else if(a==="pick-sentence")pickSentence(Number(b.dataset.index));
+ else if(a==="listen-word")speakQuizWordThreeTimes();
  else if(a==="listen")speak();
  else if(a==="listen-example")speak(true);
  else if(a==="recognize")recognize();
  else if(a==="record")record();
  else if(a==="stop-record"&&recorder&&recorder.state!=="inactive")recorder.stop();
  else if(a==="grade"&&game){const q=game.questions[game.index];if(q&&q.kind==="speak"&&!q.done){grade(q,b.dataset.good==="yes",b.dataset.good);move(1);}}
+});
+root.addEventListener("keydown",e=>{
+ if((e.key!=="Enter"&&e.key!==" ")||!e.target||
+    !e.target.matches||!e.target.matches(".eg-word-audio-card"))return;
+ e.preventDefault();
+ speakQuizWordThreeTimes();
 });
 root.addEventListener("submit",e=>{
  if(!e.target)return;
