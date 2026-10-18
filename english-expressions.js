@@ -8,6 +8,7 @@
   const count = document.getElementById("ee-count");
   const nav = document.getElementById("ee-pagination");
   const categoryBar = document.getElementById("ee-categories");
+  const itemSelect = document.getElementById("ee-item-select");
   const status = document.getElementById("ee-status");
   const PER_PAGE = 10;
   const STORE = "jini-essential-expressions-bookmarks-v1";
@@ -20,6 +21,7 @@
   let saved = [];
   let category = "전체";
   let page = 1;
+  let selectedExpressionId = null;
   let phraseQuery = "";
   let currentVoice = null;
   let playbackToken = 0;
@@ -153,6 +155,24 @@
     });
   }
 
+  function renderItemOptions(filtered) {
+    itemSelect.replaceChildren();
+    const placeholder = element("option", "", "번호로 표현 이동");
+    placeholder.value = "";
+    itemSelect.appendChild(placeholder);
+    // Keep original 1–200 numbering, even in a filtered category/search.
+    filtered.forEach(function (item) {
+      const option = element("option", "", item.id + ". " + item.phrase);
+      option.value = String(item.id);
+      itemSelect.appendChild(option);
+    });
+    if (!filtered.some(function (item) { return item.id === selectedExpressionId; })) {
+      selectedExpressionId = null;
+    }
+    itemSelect.value = selectedExpressionId === null ? "" : String(selectedExpressionId);
+    itemSelect.disabled = filtered.length === 0;
+  }
+
   function renderPages(totalPages) {
     nav.replaceChildren();
     if (totalPages <= 1) return;
@@ -170,6 +190,7 @@
     const filtered = visibleItems();
     const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
     page = Math.min(page, totalPages);
+    renderItemOptions(filtered);
     count.textContent = filtered.length + "개 표현" + (filtered.length < EXPRESSIONS.length ? " / 전체 " + EXPRESSIONS.length + "개" : "");
     root.replaceChildren();
     if (!filtered.length) {
@@ -177,6 +198,7 @@
     }
     filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE).forEach(function (item) {
       const card = element("article", "ee-card");
+      card.dataset.expressionId = String(item.id);
       card.tabIndex = 0;
       card.setAttribute("aria-label", item.phrase + " 표현 카드. 눌러서 표현과 뜻, 예문과 해석 듣기");
       card.addEventListener("click", function (event) {
@@ -213,6 +235,19 @@
     renderPages(totalPages);
     if (scrollToTop) section.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+
+  itemSelect.addEventListener("change", function () {
+    const id = Number(itemSelect.value);
+    if (!Number.isInteger(id) || id < 1 || itemSelect.value === "") return;
+    const filtered = visibleItems();
+    const index = filtered.findIndex(function (item) { return item.id === id; });
+    if (index < 0) return;
+    selectedExpressionId = id;
+    page = Math.floor(index / PER_PAGE) + 1;
+    render(false);
+    const card = root.children[index % PER_PAGE];
+    if (card && card.scrollIntoView) card.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
 
   search.addEventListener("input", function () {
     phraseQuery = search.value;
