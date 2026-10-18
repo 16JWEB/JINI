@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261018-mobile-hide-w-1">
+  <link rel="stylesheet" href="styles.css?v=20261018-player-bookmark-nav-v1">
   <link rel="stylesheet" href="korean-game.css?v=20261018-example-autoplay-v2">
   <link rel="stylesheet" href="english-game.css?v=20261018-quiz-word-ipa-v1">
   <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
@@ -211,8 +211,7 @@
           <button class="player-level" data-player-level="중등">중등 <span id="player-count-middle">800개</span></button>
           <button class="player-level" data-player-level="고등">고등 <span id="player-count-high">800개</span></button>
         </div>
-        <div class="bookmark-toolbar player-bookmark-toolbar" aria-label="단어 재생 책갈피">
-          <button class="bookmark-button" id="bookmark-current-word" type="button">☆ 이 단어 책갈피</button>
+        <div class="bookmark-toolbar player-bookmark-toolbar" aria-label="저장한 단어·표현 책갈피" hidden>
           <div class="bookmark-list" id="player-bookmarks" aria-live="polite"></div>
         </div>
         <div class="player-mode-options" role="group" aria-label="단어 재생 내용 선택">
@@ -242,6 +241,7 @@
               <button class="control-button secondary" id="previous-word" type="button" aria-label="이전 단어">‹</button>
               <button class="control-button primary" id="toggle-playback" type="button">▶ <span>재생</span></button>
               <button class="control-button secondary" id="next-word" type="button" aria-label="다음 단어">›</button>
+              <button class="control-button secondary player-bookmark-control" id="bookmark-current-word" type="button" aria-label="현재 단어 책갈피 저장" aria-pressed="false" title="현재 단어 책갈피 저장">☆</button>
             </div>
             <div class="player-progress-track"><span id="player-progress-bar"></span></div>
           </div>
@@ -461,7 +461,7 @@
   <script src="words-everyday-reviewed-08.js?v=20261017-life-reviewed-2"></script>
   <script src="words-everyday-reviewed-09.js?v=20261017-life-reviewed-2"></script>
   <script src="words-everyday-reviewed-10.js?v=20261017-life-reviewed-2"></script>
-  <script src="app.js?v=20261018-home-on-launch-1"></script>
+  <script src="app.js?v=20261018-player-bookmark-nav-v1"></script>
   <script src="game-character-aura.js?v=20261018-aura-1"></script>
   <script src="game-character-art.js?v=20261018-growth-aura-1"></script>
   <script src="game-character.js?v=20261018-home-level-sort-v2"></script>
