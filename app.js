@@ -41,6 +41,7 @@
   let playbackToken = 0;
   let verbSpeechToken = 0;
   let advanceTimer;
+  let wordRepeatTimer = null;
   let verbAutoTimer;
   let verbAutoPlaying = false;
   let verbAutoRows = [];
@@ -733,6 +734,10 @@
     playbackToken += 1;
     cancelCardPlayback();
     window.clearTimeout(advanceTimer);
+    if (wordRepeatTimer !== null) {
+      window.clearTimeout(wordRepeatTimer);
+      wordRepeatTimer = null;
+    }
     if (speech) speech.cancel();
     playbackState = "stopped";
     updatePlaybackButton();
@@ -761,7 +766,9 @@
     setPlaybackStatus(itemLabel + objectParticle + " 재생하고 있어요.");
     updatePlayerCard();
     speech.cancel();
-    createUtterance(item.word, function () {
+
+    function playMeaning() {
+      if (token !== playbackToken || playbackState !== "playing") return;
       setPlaybackStatus("뜻을 재생하고 있어요.");
       createUtterance(item.meaning, function () {
         if (playerMode === "word-meaning-example") {
@@ -770,7 +777,27 @@
           finishPlayerItem(token);
         }
       }, playbackError, token, currentStudy === "korean" ? "vi-VN" : "ko-KR");
-    }, playbackError, token, currentStudy === "korean" ? "ko-KR" : "en-US");
+    }
+
+    function playWord(reading) {
+      if (token !== playbackToken || playbackState !== "playing") return;
+      if (currentPageView === "ko-player") {
+        setPlaybackStatus("한국어 단어 " + reading + " / 3회 재생 중");
+      }
+      createUtterance(item.word, function () {
+        if (currentPageView === "ko-player" && reading < 3) {
+          // Count two seconds from the end of the current pronunciation.
+          wordRepeatTimer = window.setTimeout(function () {
+            wordRepeatTimer = null;
+            if (token === playbackToken && playbackState === "playing") playWord(reading + 1);
+          }, 2000);
+        } else {
+          playMeaning();
+        }
+      }, playbackError, token, currentStudy === "korean" ? "ko-KR" : "en-US");
+    }
+
+    playWord(1);
   }
 
   function finishPlayerItem(token) {
