@@ -100,6 +100,14 @@
 .eg-option{min-height:58px}
 .eg-term{padding:20px 12px}
 }
+/* Word meaning quiz: tap the full card or its speaker on the right. */
+.eg-term.eg-word-audio-card{position:relative;cursor:pointer;padding-left:70px;padding-right:70px;transition:border-color .16s,background .16s}
+.eg-word-audio-card:hover{border-color:#b2a6f5;background:#f4f0ff}
+.eg-word-audio-card:focus-visible{outline:3px solid #9a92f5;outline-offset:2px}
+.eg-word-card-play{position:absolute;right:16px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:47px;height:47px;padding:0;border:1px solid #d7cef9;border-radius:12px;background:#fff;color:#6050cf;font-size:22px;cursor:pointer}
+.eg-word-card-play:hover,.eg-word-card-play:focus-visible{background:#ece7ff;border-color:#8879ed;outline-offset:2px}
+@media(max-width:740px){.eg-term.eg-word-audio-card{padding-left:55px;padding-right:55px}.eg-word-card-play{right:8px;width:42px;height:42px;font-size:20px}}
+
 /* Word quiz: choice verification is followed by a typed recall check. */
 .eg-word-typing{margin:17px 0 8px;padding:16px;border:1px solid #dcd5f8;border-radius:14px;background:#f8f5ff}
 .eg-word-typing strong{display:block;color:#5447a3;font-size:14px;line-height:1.65}
