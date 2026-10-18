@@ -207,16 +207,16 @@ function render(){
  const mode=modes.find(m=>m[0]===game.mode);
  let html=nav()+'<div class="eg-progress"><span>'+mode[1]+' '+mode[2]+'</span><span>'+(game.index+1)+' / '+game.questions.length+'</span></div>'+
  '<div class="eg-bar"><i style="width:'+(game.index/game.questions.length*100)+'%"></i></div>'+
- '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term'+(q.mode==="word"?" eg-term-word eg-word-audio-card":q.mode==="speaking"?" eg-word-audio-card eg-speaking-audio-card":"")+'"'+
- (q.mode==="word"||q.mode==="speaking"?' data-eg="listen-word" role="button" tabindex="0" aria-label="'+(q.mode==="word"?"단어 카드":"문제 카드")+'를 눌러 영어 발음 세 번 듣기"':"")+'>'+
+ '<p class="eg-prompt">'+esc(q.prompt)+'</p><div class="eg-term'+(q.mode==="word"?" eg-term-word eg-word-audio-card":q.mode==="speaking"?" eg-word-audio-card eg-speaking-audio-card":q.mode==="expression"?" eg-word-audio-card eg-expression-audio-card":"")+'"'+
+ (q.mode==="word"||q.mode==="speaking"||q.mode==="expression"?' data-eg="listen-word" role="button" tabindex="0" aria-label="'+(q.mode==="word"?"단어 카드":q.mode==="expression"?"필수 표현 카드":"문제 카드")+'를 눌러 영어 발음 세 번 듣기"':"")+'>'+
  (q.mode==="sentence"?
    esc(q.title).replace("______",'<span id="eg-cloze-word" class="eg-cloze-word'+(q.draft||q.response?" eg-cloze-filled":"")+'">'+(q.draft||q.response?esc(q.draft||q.response):"&#160;")+'</span>'):
    q.mode==="word"?
      '<span class="eg-term-text" lang="en">'+esc(q.title)+'</span>'+
      (questionIpa(q)?'<span class="eg-term-ipa" lang="en">'+esc(questionIpa(q))+'</span>':"")+
      '<button type="button" class="eg-word-card-play" data-eg="listen-word" aria-label="'+esc(q.title)+' 영어 발음 3회 듣기" title="단어 발음 3회 듣기">🔊</button>':
-   q.mode==="speaking"?
-     '<span lang="en">'+esc(q.title)+'</span><button type="button" class="eg-word-card-play" data-eg="listen-word" aria-label="문제 영어 발음 3회 듣기" title="영어 발음 3회 듣기">🔊</button>':
+   (q.mode==="speaking"||q.mode==="expression")?
+     '<span lang="en">'+esc(q.title)+'</span><button type="button" class="eg-word-card-play" data-eg="listen-word" aria-label="'+(q.mode==="expression"?"필수 표현":"문제")+' 영어 발음 3회 듣기" title="영어 발음 3회 듣기">🔊</button>':
    esc(q.title))+'</div>';
  if(q.mode==="listen")html+='<div class="eg-audio">'+btn("🔊 다시 듣기","listen","eg-main")+'</div>';
  else if(q.mode==="expression"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn(q.mode==="speaking"?"🔊 영어 3회 듣기":"🔊 영어 듣기","listen","eg-outline")+'</div>';
@@ -431,7 +431,7 @@ function speakTextThreeTimes(text){
 function speakQuizWordThreeTimes(){
  if(!game||section.hidden)return;
  const q=game.questions[game.index];
- if(!q||(q.mode!=="word"&&q.mode!=="speaking"))return;
+ if(!q||(q.mode!=="word"&&q.mode!=="speaking"&&q.mode!=="expression"))return;
  speakTextThreeTimes(q.voice||q.title);
 }
 function speak(exampleOnly){
