@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f7f8fc">
+  <meta name="theme-color" content="#6958e8">
+  <link rel="manifest" href="manifest.webmanifest?v=20261018-install-v1">
+  <link rel="icon" type="image/png" href="icons/jini-192.png">
   <title>JINI — 영어·한글 공부</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,6 +17,7 @@
   <link rel="stylesheet" href="game-character-aura.css?v=20261018-aura-2">
   <link rel="stylesheet" href="home-characters.css?v=20261018-home-study-top-v1">
   <link rel="stylesheet" href="jini-chrome-launch.css?v=20261018-kakao-chrome-launch-v1">
+  <link rel="stylesheet" href="jini-install.css?v=20261018-install-v1">
   <link rel="stylesheet" href="admin-preview.css?v=20261018-admin-topbar-1">
   <link rel="stylesheet" href="english-expressions.css?v=20261018-tap-full-audio-v1">
   <link rel="stylesheet" href="opic.css?v=20261017-game-submenus">
@@ -161,6 +164,17 @@
               <p>Chrome이 열리지 않나요? 카카오톡 화면의 <b>⋯ 메뉴 → 다른 브라우저로 열기</b>를 선택하거나, 링크를 복사해 Chrome 주소창에 붙여넣어 주세요.</p>
               <button id="jini-chrome-copy" class="jini-chrome-copy" type="button">🔗 링크 복사</button>
               <span id="jini-chrome-copy-status" class="jini-chrome-copy-status" role="status" aria-live="polite"></span>
+            </div>
+          </div>
+          <div id="jini-install-panel" class="jini-install-panel" hidden>
+            <div class="jini-install-copy">
+              <strong>📲 JINI를 휴대폰 홈 화면에 추가하세요</strong>
+              <span>앱처럼 아이콘을 눌러 바로 공부할 수 있어요.</span>
+            </div>
+            <button type="button" id="jini-install-button" class="jini-install-button">＋ 홈 화면에 추가</button>
+            <div id="jini-install-guide" class="jini-install-guide" hidden>
+              <p id="jini-install-guide-text"></p>
+              <span id="jini-install-status" class="jini-install-status" role="status" aria-live="polite"></span>
             </div>
           </div>
           <strong class="jini-home-actions-title">공부 이어가기</strong>
@@ -510,6 +524,7 @@
   <script src="words-everyday-reviewed-10.js?v=20261017-life-reviewed-2"></script>
   <script src="app.js?v=20261018-all-examples-twice-v1"></script>
   <script src="jini-chrome-launch.js?v=20261018-kakao-chrome-launch-v1"></script>
+  <script src="jini-install.js?v=20261018-install-v1"></script>
   <script src="english-expressions.js?v=20261018-example-twice-v1"></script>
   <script src="game-character-aura.js?v=20261018-aura-1"></script>
   <script src="game-character-art.js?v=20261018-growth-aura-1"></script>
