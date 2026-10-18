@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="game-character-aura.css?v=20261018-aura-2">
   <link rel="stylesheet" href="home-characters.css?v=20261018-home-study-top-v1">
   <link rel="stylesheet" href="admin-preview.css?v=20261018-admin-topbar-1">
+  <link rel="stylesheet" href="english-expressions.css?v=20261018-30-expressions-v1">
   <link rel="stylesheet" href="opic.css?v=20261017-game-submenus">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
 </head>
@@ -45,6 +46,9 @@
           </button>
           <button class="nav-item" data-page="player">
             <span class="nav-icon">♫</span><span>단어 재생</span>
+          </button>
+          <button class="nav-item" data-page="english-expressions" type="button">
+            <span class="nav-icon">❝</span><span>필수 표현</span><span class="nav-count">30</span>
           </button>
           <button class="nav-item" data-page="verb-forms">
             <span class="nav-icon">↻</span><span>동사 변화</span>
@@ -246,6 +250,25 @@
             <div class="player-progress-track"><span id="player-progress-bar"></span></div>
           </div>
         </div>
+      </section>
+
+      <section class="ee-section" id="english-expressions-section" hidden>
+        <div class="ee-heading">
+          <div>
+            <span class="eyebrow section-eyebrow">ESSENTIAL ENGLISH EXPRESSIONS</span>
+            <h1 class="page-title">필수 표현</h1>
+            <p>일상·직장·스피킹 답변에 바로 쓸 수 있는 표현 30개를 공부해요. 표현과 예문을 각각 들어 보세요.</p>
+          </div>
+          <span class="ee-count" id="ee-count">30개 표현</span>
+        </div>
+        <div class="ee-search-wrap">
+          <input id="ee-search" type="search" placeholder="표현·뜻·예문 검색" autocomplete="off" aria-label="필수 표현 검색">
+          <button id="ee-search-clear" type="button" aria-label="필수 표현 검색어 지우기">지우기</button>
+        </div>
+        <div id="ee-categories" class="ee-categories" role="group" aria-label="표현 분류"></div>
+        <p class="ee-status" id="ee-status" role="status" aria-live="polite"></p>
+        <div class="ee-list" id="jini-essential-expressions"></div>
+        <div class="ee-pagination" id="ee-pagination" aria-label="표현 페이지 이동"></div>
       </section>
 
       <section class="verb-forms-section" id="verb-forms-section" hidden>
@@ -461,7 +484,8 @@
   <script src="words-everyday-reviewed-08.js?v=20261017-life-reviewed-2"></script>
   <script src="words-everyday-reviewed-09.js?v=20261017-life-reviewed-2"></script>
   <script src="words-everyday-reviewed-10.js?v=20261017-life-reviewed-2"></script>
-  <script src="app.js?v=20261018-mobile-second-tap-submenu-v1"></script>
+  <script src="app.js?v=20261018-essential-expressions-v1"></script>
+  <script src="english-expressions.js?v=20261018-30-expressions-v1"></script>
   <script src="game-character-aura.js?v=20261018-aura-1"></script>
   <script src="game-character-art.js?v=20261018-growth-aura-1"></script>
   <script src="game-character.js?v=20261018-home-level-sort-v2"></script>
