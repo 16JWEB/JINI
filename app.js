@@ -541,6 +541,7 @@
       entry.append(button, remove);
       playerList.appendChild(entry);
     });
+    document.querySelector(".player-bookmark-toolbar").hidden = playerList.children.length === 0;
     updateVocabularyBookmarkControls();
     updatePlayerBookmarkControl();
     saveStudyState();
@@ -550,19 +551,19 @@
     const item = playerWords[playerIndex];
     const button = document.getElementById("bookmark-current-word");
     const expressionPlayer = currentPageView === "ko-expression-player";
-    if (!item) {
-      button.textContent = expressionPlayer ? "☆ 이 표현 책갈피" : "☆ 이 단어 책갈피";
-      button.classList.remove("selected");
-      return;
-    }
-    const saved = bookmarks.player.some(function (bookmark) {
+    const label = expressionPlayer ? "표현" : "단어";
+    const saved = !!item && bookmarks.player.some(function (bookmark) {
       return (bookmark.study || "english") === currentStudy &&
         bookmark.level === (expressionPlayer ? "일상 표현" : currentStudy === "korean" ? "기초" : playerLevel) &&
         (bookmark.type || "word") === (expressionPlayer ? "expression" : "word") && bookmark.word === item.word;
     });
-    button.textContent = saved ? expressionPlayer ? "★ 표현 책갈피 저장됨" : "★ 단어 책갈피 저장됨" :
-      expressionPlayer ? "☆ 이 표현 책갈피" : "☆ 이 단어 책갈피";
+    button.textContent = saved ? "★" : "☆";
     button.classList.toggle("selected", saved);
+    button.setAttribute("aria-pressed", saved ? "true" : "false");
+    const actionLabel = saved ? label + " 책갈피 해제" : "현재 " + label + " 책갈피 저장";
+    button.setAttribute("aria-label", actionLabel);
+    button.title = actionLabel;
+    button.disabled = !item;
   }
 
   function toggleVocabularyBookmark() {
