@@ -377,6 +377,7 @@
         "ko-expression-player": "표현 재생 · " + playerItemNumber + "번 " +
           (state.playerWord || playerItemNumber + "번째 표현"),
         "verb-forms": "동사 변화",
+        "english-expressions": "필수 표현",
         "english-game": "영어 연습 게임",
         "speaking": "스피킹 대비",
         "opic": "주제별 질문 목록",
