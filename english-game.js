@@ -5,6 +5,7 @@ if(!root||!section)return;
 const KEY="jini-english-game-v1", DAY=86400000, levels=["초등","중등","고등"], ENGLISH_LOCALE="en-US";
 const modes=[
 ["word","📘","단어 뜻 맞히기","영어 단어의 한국어 뜻 선택"],
+["expression","💬","필수 표현 맞히기","필수 영어 표현 30개의 뜻과 예문 연습"],
 ["listen","🎧","듣고 단어 맞히기","미국식 발음을 듣고 선택"],
 ["spelling","🔤","철자 완성하기","한국어 뜻을 보고 철자 입력"],
 ["sentence","🧩","문장 완성하기","4개 보기에서 선택하거나 철자를 입력해요"],
@@ -32,6 +33,8 @@ const phrases=[
 ["중등","Could you say that again?","다시 말씀해 주시겠어요?"],["중등","I'm looking forward to it.","기대하고 있어요."],["중등","Let me think about it.","생각해 볼게요."],["중등","I haven't decided yet.","아직 결정하지 않았어요."],
 ["고등","I'd appreciate your feedback.","의견을 주시면 감사하겠습니다."],["고등","Could you elaborate on that?","좀 더 자세히 설명해 주시겠어요?"],["고등","I understand your concerns.","걱정하시는 부분을 이해해요."],["고등","Let's consider another approach.","다른 방법을 고려해 봅시다."]];
 const words=(window.WORDS||[]).filter(w=>w&&levels.includes(w.level)&&/^[a-z][a-z' -]*$/i.test(w.word||"")&&String(w.meaning||"").trim());
+const essentialExpressions=(window.JINI_ESSENTIAL_EXPRESSIONS||[]).filter(item=>
+ item&&Number.isInteger(item.id)&&item.phrase&&item.meaning&&item.example&&item.translation);
 let level="초등", count=10, game=null, active=false, status="", heard="", recognition=null, recorder=null, stream=null, audioUrl=null, recording=false;
 let memory={xp:0,tries:0,correct:0,items:{}};
 try{const saved=JSON.parse(localStorage.getItem(KEY)||"null");if(saved&&saved.items)memory=Object.assign(memory,saved);}catch(e){}
@@ -47,6 +50,15 @@ function wordQuestion(w,mode,group){
  const choices=options(answer,group.map(x=>mode==="word"?meaning(x):x.word));
  if(!choices)return null;
  return {id:mode+":"+w.level+":"+w.word,mode,kind:"choice",title:mode==="word"?w.word:"🎧 영어 소리를 들어 보세요",prompt:mode==="word"?"영어 단어의 뜻은?":"소리를 듣고 올바른 영어 단어를 고르세요.",answer,options:choices,voice:w.word,explanation:w.word+" — "+w.meaning,example:w.exampleReviewed?w.example:"",exampleKo:w.exampleReviewed?w.exampleKo:"",ipa:w.ipa||""};
+}
+function expressionQuestion(item){
+ const choices=options(item.meaning,essentialExpressions.map(entry=>entry.meaning));
+ if(!choices)return null;
+ return {id:"expression:"+item.id,mode:"expression",kind:"choice",
+  title:item.phrase,prompt:"["+item.category+"] 영어 표현의 뜻을 고르세요.",
+  answer:item.meaning,options:choices,voice:item.phrase,
+  explanation:item.phrase+" — "+item.meaning,
+  example:item.example,exampleKo:item.translation};
 }
 function spelling(w){return {id:"spelling:"+w.level+":"+w.word,mode:"spelling",kind:"input",title:meaning(w),prompt:"한국어 뜻에 맞는 영어 단어를 입력하세요.",answer:w.word,voice:w.word,hint:random(w.word.split("")).join(" · "),explanation:w.word+" — "+w.meaning,example:w.exampleReviewed?w.example:"",exampleKo:w.exampleReviewed?w.exampleKo:""};}
 function sentence(w, group){
@@ -74,12 +86,15 @@ function speaking(row){
 }
 // A previously earned XP credit keeps a question in Remind, even if retried incorrectly.
 function hasEarnedXP(id){const p=memory.items[id];return !!(p&&(p.xpAwarded===true||(p.xpAwarded===undefined&&Number(p.streak)>0)));}
-function wrongItems(){return Object.keys(memory.items).filter(id=>{const p=memory.items[id];return p&&p.snapshot&&p.level===level&&Number(p.wrong)>0&&Number(p.streak)===0;});}
-function reminderItems(){return Object.keys(memory.items).filter(id=>{const p=memory.items[id];return p&&p.snapshot&&p.level===level&&hasEarnedXP(id);});}
+function inCurrentReviewScope(p){return p&&(p.level===level||p.level==="표현");}
+function wrongItems(){return Object.keys(memory.items).filter(id=>{const p=memory.items[id];return p&&p.snapshot&&inCurrentReviewScope(p)&&Number(p.wrong)>0&&Number(p.streak)===0;});}
+function reminderItems(){return Object.keys(memory.items).filter(id=>{const p=memory.items[id];return p&&p.snapshot&&inCurrentReviewScope(p)&&hasEarnedXP(id);});}
 function build(mode){
  const eligible=random(pool());
  if(mode==="word")return eligible.filter(w=>!hasEarnedXP("word:"+w.level+":"+w.word))
     .map(w=>wordQuestion(w,mode,eligible)).filter(Boolean).slice(0,count);
+ if(mode==="expression")return random(essentialExpressions).filter(item=>!hasEarnedXP("expression:"+item.id))
+    .map(expressionQuestion).filter(Boolean).slice(0,count);
  if(mode==="listen")return eligible.map(w=>wordQuestion(w,mode,eligible)).filter(Boolean).slice(0,count);
  if(mode==="spelling")return eligible.filter(w=>w.word.length<=18).slice(0,count).map(spelling);
  if(mode==="sentence")return eligible.map(w=>sentence(w,eligible)).filter(Boolean).slice(0,count);
@@ -116,8 +131,8 @@ function dashboard(){
  root.innerHTML='<div class="eg-stats"><div><small>영어 게임 XP</small><b>'+memory.xp+'</b></div><div><small>성공률 (자가평가 포함)</small><b>'+(memory.tries?Math.round(memory.correct/memory.tries*100):0)+'%</b></div><div><small>오답 복습</small><b>'+wrongItems().length+'</b></div></div>'+
  '<div class="eg-options"><label>난이도 <select id="eg-level">'+levels.map(t=>'<option '+(t===level?"selected ":"")+'value="'+t+'">'+t+'</option>').join("")+'</select></label>'+
  '<label>문제 수 <select id="eg-count">'+[10,20,30].map(n=>'<option '+(n===count?"selected ":"")+'value="'+n+'">'+n+'문제</option>').join("")+'</select></label></div>'+
- '<div class="eg-grid">'+modes.map(m=>'<button type="button" class="eg-mode" data-eg="start" data-mode="'+m[0]+'"><span>'+m[1]+'</span><strong>'+m[2]+'</strong><small>'+(m[0]==="review"?"현재 틀린 문제 "+wrongItems().length+"개":m[0]==="remind"?"전에 맞힌 문제 "+reminderItems().length+"개 · 0 XP":m[3])+'</small><b>시작 →</b></button>').join("")+'</div>'+
- '<p class="eg-note">기존 JINI 영어 단어와 검수 예문을 사용해요. 단어 뜻 맞히기에서 이미 맞힌 문제는 자동으로 제외되고 리마인드에서 다시 풀 수 있어요. 처음 맞힌 문제는 +10 XP, 리마인드에서는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 영어 음성은 미국식으로 재생해요. 실제 목소리는 기기에 설치된 음성 엔진에 따라 달라질 수 있어요.</p>';
+ '<div class="eg-grid">'+modes.map(m=>'<button type="button" class="eg-mode" data-eg="start" data-mode="'+m[0]+'"><span>'+m[1]+'</span><strong>'+m[2]+'</strong><small>'+(m[0]==="review"?"현재 틀린 문제 "+wrongItems().length+"개":m[0]==="remind"?"전에 맞힌 문제 "+reminderItems().length+"개 · 0 XP":m[0]==="expression"?"아직 맞히지 않은 표현 "+essentialExpressions.filter(item=>!hasEarnedXP("expression:"+item.id)).length+"개 · 전 난이도 공통":m[3])+'</small><b>시작 →</b></button>').join("")+'</div>'+
+ '<p class="eg-note">기존 JINI 영어 단어와 검수 예문, 필수 표현 30개를 사용해요. 단어 뜻 맞히기·필수 표현 맞히기에서 이미 맞힌 문제는 자동으로 제외되고 리마인드에서 다시 풀 수 있어요. 처음 맞힌 문제는 +10 XP, 리마인드에서는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 영어 음성은 미국식으로 재생해요. 실제 목소리는 기기에 설치된 음성 엔진에 따라 달라질 수 있어요.</p>';
 }
 function needsWordTyping(q){return q&&q.kind==="choice"&&String(q.id||"").startsWith("word:");}
 function spellingEqual(a,b){return String(a||"").trim().toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ")===String(b||"").trim().toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ");}
@@ -180,8 +195,8 @@ function render(){
  if(!game){dashboard();return;}
  const q=game.questions[game.index];
  if(!q){if(!game.questions.length){
-  const emptyTitle=game.mode==="review"?"현재 오답 복습할 문제가 없어요 🎉":game.mode==="remind"?"아직 리마인드할 문제가 없어요":game.mode==="word"?"아직 맞히지 않은 단어 시험 문제가 없어요 🎉":"지금 풀 문제가 없어요";
-  const emptyHint=game.mode==="review"?"틀린 문제가 생기면 여기에서 다시 풀 수 있어요.":game.mode==="remind"?"다른 게임에서 먼저 정답을 맞히면 리마인드에 추가돼요.":game.mode==="word"?"맞힌 단어는 리마인드에서 복습할 수 있어요. 다른 난이도도 선택해 보세요.":"다른 난이도나 게임을 선택해 보세요.";
+  const emptyTitle=game.mode==="review"?"현재 오답 복습할 문제가 없어요 🎉":game.mode==="remind"?"아직 리마인드할 문제가 없어요":game.mode==="word"?"아직 맞히지 않은 단어 시험 문제가 없어요 🎉":game.mode==="expression"?"필수 표현 30개를 모두 맞혔어요 🎉":"지금 풀 문제가 없어요";
+  const emptyHint=game.mode==="review"?"틀린 문제가 생기면 여기에서 다시 풀 수 있어요.":game.mode==="remind"?"다른 게임에서 먼저 정답을 맞히면 리마인드에 추가돼요.":game.mode==="word"?"맞힌 단어는 리마인드에서 복습할 수 있어요. 다른 난이도도 선택해 보세요.":game.mode==="expression"?"완료한 표현은 리마인드에서 다시 풀 수 있어요.":"다른 난이도나 게임을 선택해 보세요.";
   root.innerHTML='<div class="eg-card">'+nav()+'<h2>'+emptyTitle+'</h2><p>'+emptyHint+'</p>'+nav(true)+'</div>';return;}summary();return;}
  const mode=modes.find(m=>m[0]===game.mode);
  let html=nav()+'<div class="eg-progress"><span>'+mode[1]+' '+mode[2]+'</span><span>'+(game.index+1)+' / '+game.questions.length+'</span></div>'+
@@ -194,7 +209,7 @@ function render(){
      (questionIpa(q)?'<span class="eg-term-ipa" lang="en">'+esc(questionIpa(q))+'</span>':""):
    esc(q.title))+'</div>';
  if(q.mode==="listen")html+='<div class="eg-audio">'+btn("🔊 다시 듣기","listen","eg-main")+'</div>';
- else if(q.mode==="word"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
+ else if(q.mode==="word"||q.mode==="expression"||q.mode==="speaking"||(q.mode==="sentence"&&q.done))html+='<div class="eg-audio">'+btn("🔊 영어 듣기","listen","eg-outline")+'</div>';
  if(q.kind==="choice"){
   html+='<div class="eg-choices">'+q.options.map((o,i)=>btn('<span class="eg-number">'+(i+1)+'</span>'+esc(o)+((q.done||q.wordTypingPending)&&o===q.answer?' ✓':""),"choose",
      (q.done||q.wordTypingPending)&&o===q.answer?"eg-option eg-true":q.done&&o===q.response?"eg-option eg-false":"eg-option",
@@ -268,7 +283,7 @@ function grade(q,good,response){
  prev.xpAwarded=previouslyRewarded||good;
  prev.streak=good?Math.min(5,(prev.streak||0)+1):0;
  if(!good)prev.wrong++;
- prev.level=level;prev.due=Date.now()+(good?[1,3,7,14,30][prev.streak-1]*DAY:0);
+ prev.level=q.mode==="expression"?"표현":level;prev.due=Date.now()+(good?[1,3,7,14,30][prev.streak-1]*DAY:0);
  const snapshot={};["id","mode","kind","title","prompt","answer","voice","options","explanation","example","exampleKo","hint","ipa"].forEach(k=>{if(q[k]!==undefined)snapshot[k]=q[k];});
  prev.snapshot=snapshot;memory.items[q.id]=prev;persist();
 }
@@ -280,7 +295,9 @@ function answerChoice(i){
   q.wordTypingPending=true;status="";render();focusWordTyping();
   speakWordAnswerPair(q);return;
  }
- grade(q,chosen===q.answer,chosen);render();
+ const right=chosen===q.answer;
+ grade(q,right,chosen);render();
+ if(right&&q.mode==="expression")speak();
 }
 function answerTypedWord(){
  if(!game)return;
