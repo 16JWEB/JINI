@@ -1,6 +1,6 @@
 /* Compact Chrome shortcut; details are shown only after a user tap. */
 #jini-chrome-launch[hidden], #jini-kakao-notice[hidden], #jini-chrome-help[hidden], .jini-chrome-intro[hidden] { display:none !important; }
-.jini-home-tools { display:grid; grid-template-columns:repeat(2,minmax(0,180px)); justify-content:start; align-items:start; gap:8px; margin:0 0 16px; }
+.jini-home-tools { display:grid; grid-template-columns:repeat(2,minmax(0,180px)); justify-content:start; align-items:start; gap:8px; margin:-12px 0 16px; }
 .jini-chrome-launch { display:flex; flex-direction:column; min-width:0; margin:0; padding:0; border:0; background:transparent; gap:7px; }
 .jini-chrome-open { display:flex; align-items:center; justify-content:center; box-sizing:border-box; min-height:38px; padding:8px 9px; border:1px solid #bbc5e8; border-radius:9px; background:#f5f7fe; color:#4b55ad; font-size:12px; font-weight:800; text-decoration:none; text-align:center; }
 .jini-chrome-open:hover { background:#e9edfe; }
