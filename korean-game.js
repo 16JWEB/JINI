@@ -65,6 +65,8 @@
   let recognized = "";
   let recognitionStatus = "";
   let isRecording = false;
+  let quizWordRepeatTimer = null;
+  let quizWordRepeatToken = 0;
 
   function save() { try { localStorage.setItem(STORE, JSON.stringify(progress)); if (window.JINI_CHARACTER) window.JINI_CHARACTER.refresh(); } catch (e) { message = "기록 저장이 차단된 브라우저예요."; } }
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -217,7 +219,14 @@
     // Each question retains its own answer when moving backward and forward.
     session.answer = Number.isInteger(q._answer) ? q._answer : null;
     const fraction = Math.round(session.pos / Math.max(1, session.queue.length) * 100);
-    const intro = q.type === "sound" ? '<div class="kg-listen-center"><span class="kg-listen-icon">🎧</span>' + button("▶ 한국어 소리 듣기", "listen", "kg-primary") + '</div>' : '<div class="kg-question-word">' + esc(q.text) + '</div>';
+    const intro = q.type === "sound" ?
+      '<div class="kg-listen-center"><span class="kg-listen-icon">🎧</span>' + button("▶ 한국어 소리 듣기", "listen", "kg-primary") + '</div>' :
+      q.type === "word" ?
+      '<div class="kg-question-word kg-word-audio-card" data-kg-action="listen-word" role="button" tabindex="0" aria-label="단어 카드를 눌러 한국어 발음 세 번 듣기">' +
+      '<span class="kg-word-text" lang="ko">' + esc(q.text) + '</span>' +
+      '<button type="button" class="kg-word-card-play" data-kg-action="listen-word" aria-label="' + esc(q.text) +
+      ' 한국어 발음 3회 듣기" title="단어 발음 3회 듣기">🔊</button></div>' :
+      '<div class="kg-question-word">' + esc(q.text) + '</div>';
     let content = '<div class="kg-quiz-top"><span class="kg-pill">' + esc(q.label) + (q.scene ? ' · ' + esc(q.scene) : '') + '</span><span>' + (session.pos + 1) + ' / ' + session.queue.length + '</span></div>' +
       '<div class="kg-track"><span style="width:' + fraction + '%"></span></div><p class="kg-prompt">' + esc(q.prompt) + '</p>' + intro;
     if (q.type === "pron") {
@@ -231,7 +240,7 @@
           '</strong><p>이 문제의 평가는 이미 저장됐어요. 이전·다음 문제로 이동할 수 있어요.</p></div>' :
           '<div class="kg-rating">' + button("😊 잘 발음했어요", "grade", "kg-primary", ' data-grade="yes"') + button("🔁 더 연습할래요", "grade", "kg-outline", ' data-grade="no"') + '</div>');
     } else {
-      if (q.type !== "sound") content += '<div class="kg-small-listen">' + button("🔊 한국어 듣기", "listen", "kg-outline") + '</div>';
+      if (q.type !== "sound" && q.type !== "word") content += '<div class="kg-small-listen">' + button("🔊 한국어 듣기", "listen", "kg-outline") + '</div>';
       const dialog = q.type === "dialog";
       if (dialog) content += '<p class="kg-dialog-hint">🔊 각 보기를 들어본 뒤 답을 선택하고 <b>정답 제출</b>을 눌러 주세요.</p>';
       content += '<div class="kg-choices' + (dialog ? ' kg-dialog-choices' : '') + '">' + q.choices.map(function (option, i) {
@@ -422,12 +431,64 @@
   function advance() {
     moveQuestion(1);
   }
+  function cancelQuizWordRepeat() {
+    quizWordRepeatToken += 1;
+    if (quizWordRepeatTimer !== null) {
+      window.clearTimeout(quizWordRepeatTimer);
+      quizWordRepeatTimer = null;
+    }
+  }
+  // Audio on the word-question card: repeat only the Korean prompt three
+  // times, waiting two seconds AFTER the first and second readings.
+  function speakQuizWordThreeTimes() {
+    if (!session || section.hidden) return;
+    const q = session.queue[session.pos];
+    if (!q || q.type !== "word" || !q.target) return;
+    if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
+      message = "이 브라우저는 음성 재생을 지원하지 않아요.";
+      questionView();
+      return;
+    }
+    cancelQuizWordRepeat();
+    const token = quizWordRepeatToken, sessionRef = session, position = session.pos;
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const voices = typeof synth.getVoices === "function" ? synth.getVoices() : [];
+    const voice = voices.find(v => v.lang && v.lang.toLowerCase() === "ko-kr") ||
+      voices.find(v => v.lang && v.lang.toLowerCase().startsWith("ko"));
+    const valid = () => token === quizWordRepeatToken &&
+      session === sessionRef && session.pos === position && !section.hidden;
+    function play(reading) {
+      if (!valid()) return;
+      const u = new window.SpeechSynthesisUtterance(String(q.target));
+      u.lang = "ko-KR"; u.rate = .86;
+      if (voice) u.voice = voice;
+      u.onend = function () {
+        if (!valid()) return;
+        if (reading < 3) {
+          quizWordRepeatTimer = window.setTimeout(function () {
+            quizWordRepeatTimer = null;
+            if (valid()) play(reading + 1);
+          }, 2000);
+        }
+      };
+      u.onerror = function (event) {
+        if (!valid() || event.error === "canceled" || event.error === "interrupted") return;
+        cancelQuizWordRepeat();
+        message = "단어 발음을 끝까지 재생하지 못했어요. 다시 눌러 주세요.";
+        questionView();
+      };
+      synth.speak(u);
+    }
+    play(1);
+  }
   // Correct word choice: Korean pronunciation, then Vietnamese translation.
   function speakCorrectWordAndMeaning(q) {
     if(!q||q.type!=="word"||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
     const korean=String(q.target||"").trim();
     const vietnamese=String(q.choices[q.correct]||"").trim();
     if(!korean||!vietnamese)return;
+    cancelQuizWordRepeat();
     const synth=window.speechSynthesis;
     try {
       const voices=typeof synth.getVoices==="function"?synth.getVoices():[];
@@ -450,6 +511,7 @@
   }
   function speak(text) {
     if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) { message = "이 브라우저는 음성 재생을 지원하지 않아요."; questionView(); return; }
+    cancelQuizWordRepeat();
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "ko-KR";
@@ -459,6 +521,7 @@
     window.speechSynthesis.speak(utterance);
   }
   function stopMedia() {
+    cancelQuizWordRepeat();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     if (recognition) { try { recognition.abort(); } catch (e) {} recognition = null; }
     if (recorder && recorder.state !== "inactive") { try { recorder.stop(); } catch (e) {} }
@@ -633,6 +696,7 @@
     }
     else if (action === "next") advance();
     else if (action === "grade") finishPron(b.dataset.grade === "yes");
+    else if (action === "listen-word") speakQuizWordThreeTimes();
     else if (action === "listen" && session) speak(session.queue[session.pos].target);
     else if (action === "listen-example" && session) {
       const q=session.queue[session.pos];
@@ -641,6 +705,12 @@
     else if (action === "record") beginRecord();
     else if (action === "stop-record" && recorder && recorder.state !== "inactive") recorder.stop();
     else if (action === "recognize") recognize();
+  });
+  root.addEventListener("keydown",function(event){
+    if((event.key!=="Enter"&&event.key!==" ")||!event.target||
+       !event.target.matches||!event.target.matches(".kg-word-audio-card"))return;
+    event.preventDefault();
+    speakQuizWordThreeTimes();
   });
   root.addEventListener("submit",function(event){
     if(event.target&&event.target.id==="kg-word-typing-form"){
