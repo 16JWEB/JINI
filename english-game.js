@@ -182,7 +182,7 @@ function feedback(q){
  if(sample){
   html+='<div class="eg-example"><div class="eg-example-label">영어 예문</div>'+
    '<p class="eg-example-en" lang="en">'+esc(sample.en)+'</p>'+
-   btn("🔊 예문 듣기","listen-example","eg-outline eg-example-listen")+
+   btn(q.mode==="word"?"🔊 예문 2회 듣기":"🔊 예문 듣기","listen-example","eg-outline eg-example-listen")+
    '<div class="eg-example-label">한글 해석</div>'+
    '<p class="eg-example-ko" lang="ko">'+esc(sample.ko)+'</p></div>';
  }else{
@@ -322,8 +322,9 @@ function answerTypedWord(){
  }
  q.wordTypingPending=false;status="";
  grade(q,true,q.answer);render();
- // Read the existing verified English example as soon as the typed word passes.
- speak(true);
+ // Automatically read the reviewed English example twice when word typing passes.
+ const sample=exerciseExample(q);
+ if(sample&&sample.en)speakTextRepeated(sample.en,2);
 }
 function answerText(){
  if(!game)return;
@@ -391,7 +392,7 @@ function speakWordAnswerPair(q){
   synth.speak(korean);
  }catch(e){status="음성 재생을 지원하지 않는 기기일 수 있어요.";}
 }
-function speakTextThreeTimes(text){
+function speakTextRepeated(text,repeatCount){
  if(!game||section.hidden||!String(text||"").trim())return;
  if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){
   status="브라우저에서 영어 음성을 재생할 수 없어요.";render();return;
@@ -411,7 +412,7 @@ function speakTextThreeTimes(text){
   if(voice)u.voice=voice;
   u.onend=()=>{
    if(!valid())return;
-   if(reading<3){
+   if(reading<repeatCount){
     wordRepeatTimer=window.setTimeout(()=>{
      wordRepeatTimer=null;
      if(valid())play(reading+1);
@@ -427,6 +428,9 @@ function speakTextThreeTimes(text){
   synth.speak(u);
  }
  play(1);
+}
+function speakTextThreeTimes(text){
+ speakTextRepeated(text,3);
 }
 function speakQuizWordThreeTimes(){
  if(!game||section.hidden)return;
@@ -517,7 +521,12 @@ root.addEventListener("click",e=>{
   if(q&&q.mode==="speaking")speakQuizWordThreeTimes();
   else speak();
  }
- else if(a==="listen-example")speak(true);
+ else if(a==="listen-example"){
+  const q=game&&game.questions[game.index];
+  const sample=q&&exerciseExample(q);
+  if(q&&q.mode==="word"&&sample&&sample.en)speakTextRepeated(sample.en,2);
+  else speak(true);
+ }
  else if(a==="recognize")recognize();
  else if(a==="record")record();
  else if(a==="stop-record"&&recorder&&recorder.state!=="inactive")recorder.stop();
