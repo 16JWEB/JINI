@@ -12,7 +12,9 @@
 .ee-category{min-height:37px;padding:8px 13px;border:1px solid #e3e1ee;border-radius:100px;color:#73758b;background:#fff;font:inherit;font-size:12px;cursor:pointer}
 .ee-category.selected{color:#604fce;border-color:#bfb5f3;background:#f0edff;font-weight:800}
 .ee-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
-.ee-card{min-width:0;background:#fff;padding:21px;border:1px solid #eae9f3;border-radius:16px;box-shadow:0 5px 18px #2b284009}
+.ee-card{min-width:0;background:#fff;padding:21px;border:1px solid #eae9f3;border-radius:16px;box-shadow:0 5px 18px #2b284009;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.ee-card:hover{border-color:#c5bbf5;box-shadow:0 7px 20px #6958e817}
+.ee-card:focus-visible{outline:3px solid #9a92f5;outline-offset:3px}
 .ee-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .ee-card-heading{min-width:0}
 .ee-index{display:block;font-size:11px;font-weight:750;color:#8b81c5}
