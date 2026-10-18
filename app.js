@@ -33,6 +33,7 @@
   let toastTimer;
   let activeButton = null;
   let cardSpeechToken = 0;
+  let cardRepeatTimer = null;
   let playerLevel = "초등";
   let playerWords = [];
   let playerIndex = 0;
@@ -730,6 +731,7 @@
 
   function stopPlayback(message) {
     playbackToken += 1;
+    cancelCardPlayback();
     window.clearTimeout(advanceTimer);
     if (speech) speech.cancel();
     playbackState = "stopped";
@@ -860,6 +862,17 @@
     saveStudyState();
   }
 
+  function cancelCardPlayback() {
+    // Invalidate speech callbacks and any 2-second repeat waiting period.
+    cardSpeechToken += 1;
+    if (cardRepeatTimer !== null) {
+      window.clearTimeout(cardRepeatTimer);
+      cardRepeatTimer = null;
+    }
+    if (activeButton) activeButton.classList.remove("playing");
+    activeButton = null;
+  }
+
   function makeCard(item, itemNumber) {
     const card = document.createElement("article");
     card.className = "word-card";
@@ -899,7 +912,10 @@
       '</button>';
     const button = card.querySelector(".play-button");
     card.tabIndex = 0;
-    card.setAttribute("aria-label", itemNumber + "번 " + item.word + " 단어 카드. 눌러서 발음과 뜻, 예문 듣기");
+    card.setAttribute("aria-label", itemNumber + "번 " + item.word +
+      (currentPageView === "ko-vocabulary" ?
+        " 한글 단어 카드. 단어를 2초 간격으로 세 번 들은 뒤 뜻과 예문 듣기" :
+        " 단어 카드. 눌러서 발음과 뜻, 예문 듣기"));
     card.addEventListener("click", function (event) {
       if (event.target.closest("button, a, select, input")) return;
       button.click();
@@ -914,19 +930,30 @@
         showToast("이 브라우저에서는 음성 재생을 지원하지 않아요.");
         return;
       }
+      cancelCardPlayback();
       speech.cancel();
-      if (activeButton) activeButton.classList.remove("playing");
       activeButton = button;
       button.classList.add("playing");
-      const token = ++cardSpeechToken;
+      const token = cardSpeechToken;
       const wordLanguage = currentStudy === "korean" ? "ko-KR" : "en-US";
       const meaningLanguage = currentStudy === "korean" ? "vi-VN" : "ko-KR";
+      const isKoreanEssentialWord = currentPageView === "ko-vocabulary";
       const spokenParts = [
-        { text: item.word, language: wordLanguage },
+        { text: item.word, language: wordLanguage, waitAfter: isKoreanEssentialWord }
+      ];
+      // On Korean essential-word cards only: 3 readings, with a two-second
+      // gap AFTER each of the first two readings. No extra delay after #3.
+      if (isKoreanEssentialWord) {
+        spokenParts.push(
+          { text: item.word, language: wordLanguage, waitAfter: true },
+          { text: item.word, language: wordLanguage }
+        );
+      }
+      spokenParts.push(
         { text: item.meaning, language: meaningLanguage },
         { text: item.example, language: wordLanguage },
         { text: item.exampleKo, language: meaningLanguage }
-      ];
+      );
       (item.otherSenses || []).forEach(function (sense) {
         spokenParts.push(
           { text: sense.meaning, language: meaningLanguage },
@@ -944,12 +971,20 @@
         }
         const part = validSpokenParts[index];
         const utterance = createSpeechUtterance(part.text, part.language);
-        utterance.onend = function () { speakPart(index + 1); };
+        utterance.onend = function () {
+          if (token !== cardSpeechToken) return;
+          if (part.waitAfter) {
+            cardRepeatTimer = window.setTimeout(function () {
+              cardRepeatTimer = null;
+              speakPart(index + 1);
+            }, 2000);
+          } else {
+            speakPart(index + 1);
+          }
+        };
         utterance.onerror = function (event) {
           if (token !== cardSpeechToken) return;
-          cardSpeechToken += 1;
-          button.classList.remove("playing");
-          if (activeButton === button) activeButton = null;
+          cancelCardPlayback();
           if (event.error === "canceled" || event.error === "interrupted") return;
           speech.cancel();
           showToast("단어와 뜻을 모두 재생하지 못했어요. 다시 눌러 주세요.");
