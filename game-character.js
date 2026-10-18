@@ -64,6 +64,126 @@
   let activeStudy = "english";
   const lastLevels = { english: null, korean: null };
   let toastTimer;
+
+  // Keep reward notifications independent for English/Korean, and do not replay
+  // previously earned rewards when this feature is first installed.
+  const REWARD_KEY = "jini-character-reward-popups-v1";
+  const rewardDialog = document.getElementById("jini-reward-dialog");
+  let showingReward = null;
+  let preferredRewardStudy = null;
+  const isRewardLevel = level => Number.isInteger(level) && level >= 10 && level <= 200 && level % 10 === 0;
+  function loadRewardProgress() {
+    let stored = {};
+    try { stored = JSON.parse(localStorage.getItem(REWARD_KEY) || "null") || {}; }
+    catch (_) { stored = {}; }
+    const progress = {};
+    ["english", "korean"].forEach(function (study) {
+      const record = stored[study] && typeof stored[study] === "object" ? stored[study] : {};
+      const level = readScore(study).level;
+      const observed = Number.isSafeInteger(record.observedLevel) && record.observedLevel >= 1
+        ? record.observedLevel : level;
+      const pending = Array.isArray(record.pending) ? record.pending.filter(function (value) {
+        return isRewardLevel(value) && value <= level;
+      }) : [];
+      progress[study] = { observedLevel: observed, pending: Array.from(new Set(pending)).sort((a,b)=>a-b) };
+    });
+    return progress;
+  }
+  const rewards = loadRewardProgress();
+  function saveRewardProgress() {
+    try { localStorage.setItem(REWARD_KEY, JSON.stringify(rewards)); }
+    catch (_) { /* Rewards continue within the current tab when storage is disabled. */ }
+  }
+  function collectNewRewards(study, currentLevel) {
+    const progress = rewards[study];
+    const previous = progress.observedLevel;
+    if (currentLevel === previous) return false;
+    progress.observedLevel = currentLevel;
+    if (currentLevel < previous) {
+      // A reset character cannot claim a reward above its current level.
+      progress.pending = progress.pending.filter(level => level <= currentLevel);
+    } else {
+      for (let level = Math.max(10, Math.ceil((previous + 1) / 10) * 10);
+           level <= Math.min(200, currentLevel); level += 10) {
+        if (!progress.pending.includes(level)) progress.pending.push(level);
+      }
+      progress.pending.sort((a, b) => a - b);
+      if (progress.pending.length) preferredRewardStudy = study;
+    }
+    saveRewardProgress();
+    return currentLevel > previous && Math.floor(Math.min(200, currentLevel) / 10) >
+      Math.floor(Math.min(200, previous) / 10);
+  }
+  function showNextReward() {
+    if (!rewardDialog || rewardDialog.open || showingReward || document.visibilityState === "hidden") return;
+    // Don't hide the character customization dialog or another modal.
+    if (document.querySelector("dialog[open]")) return;
+    const order = preferredRewardStudy === "korean" ? ["korean", "english"] : ["english", "korean"];
+    const study = order.find(key => rewards[key].pending.length);
+    if (!study) return;
+    const level = rewards[study].pending[0];
+    const profile = profiles[study];
+    const grew = level % 50 === 0;
+    const tier = growth(level);
+    const auraName = window.JINI_AURA ? window.JINI_AURA.rewardLabel(level, profile.avatar) : "새 오라";
+    const portrait = window.JINI_CHARACTER_ART && typeof window.JINI_CHARACTER_ART.render === "function"
+      ? window.JINI_CHARACTER_ART.render({ avatar: profile.avatar, level: level, auraLevel: level })
+      : '<span class="jgc-fallback" aria-hidden="true">' + avatarOf(profile.avatar).icon + '</span>';
+    rewardDialog.innerHTML =
+      '<div class="jgc-reward-content">' +
+      '<div class="jgc-reward-sparks" aria-hidden="true">✦ ✨ ✧</div>' +
+      '<span class="jgc-reward-kicker">🎉 LEVEL UP · ' + STUDIES[study].label + ' 캐릭터</span>' +
+      '<h2 id="jini-reward-title">Lv.' + level + ' 달성!</h2>' +
+      '<p class="jgc-reward-subtitle">' + (grew ? "캐릭터 성장과 새로운 오라를 획득했어요!" : "새로운 오라를 획득했어요!") + '</p>' +
+      '<div class="jgc-reward-portrait" aria-label="' + escape(avatarOf(profile.avatar).label) + ' 캐릭터 보상 미리보기">' + portrait + '</div>' +
+      '<div class="jgc-reward-items">' +
+      (grew ? '<div class="jgc-reward-item jgc-reward-growth"><span aria-hidden="true">🌟</span><div><small>캐릭터 성장</small><strong>' + escape(tier.name) + '</strong><p>' + escape(tier.description) + '</p></div></div>' : '') +
+      '<div class="jgc-reward-item"><span aria-hidden="true">✨</span><div><small>새로운 오라 · Lv.' + level + '</small><strong>' + escape(auraName) + '</strong><p>획득한 오라는 캐릭터 설정에서 언제든 다시 선택할 수 있어요.</p></div></div>' +
+      '</div><div class="jgc-reward-actions">' +
+      '<button type="button" data-jgc-reward-action="confirm" class="jgc-reward-confirm">보상 확인</button>' +
+      '<button type="button" data-jgc-reward-action="customize" class="jgc-reward-customize">오라 꾸미기</button>' +
+      '</div></div>';
+    showingReward = { study, level };
+    try {
+      if (typeof rewardDialog.showModal === "function") rewardDialog.showModal();
+      else rewardDialog.setAttribute("open", "");
+    } catch (_) {
+      rewardDialog.setAttribute("open", "");
+    }
+  }
+  function acceptReward(openCustomization) {
+    if (!showingReward) return;
+    const received = showingReward;
+    showingReward = null;
+    rewards[received.study].pending = rewards[received.study].pending.filter(level => level !== received.level);
+    saveRewardProgress();
+    if (rewardDialog.open) {
+      if (typeof rewardDialog.close === "function") rewardDialog.close();
+      else rewardDialog.removeAttribute("open");
+    }
+    if (openCustomization) open(received.study);
+    else showNextReward();
+  }
+  if (rewardDialog) {
+    rewardDialog.addEventListener("click", function (event) {
+      const actionButton = event.target.closest("[data-jgc-reward-action]");
+      if (actionButton) {
+        acceptReward(actionButton.dataset.jgcRewardAction === "customize");
+      } else if (event.target === rewardDialog) {
+        acceptReward(false);
+      }
+    });
+    rewardDialog.addEventListener("cancel", function (event) {
+      event.preventDefault();
+      acceptReward(false);
+    });
+    rewardDialog.addEventListener("close", function () {
+      if (showingReward) acceptReward(false);
+      else showNextReward();
+    });
+  }
+  document.addEventListener("visibilitychange", showNextReward);
+  dialog.addEventListener("close", showNextReward);
   function equippedAuraLevel(study) {
     const selected = profiles[study].auraSelection;
     const level = readScore(study).level;
@@ -216,7 +336,8 @@
   function refresh() {
     ["english", "korean"].forEach(function (study) {
       const level = readScore(study).level;
-      if (lastLevels[study] !== null && level > lastLevels[study]) showLevelUp(study, level);
+      const newReward = collectNewRewards(study, level);
+      if (lastLevels[study] !== null && level > lastLevels[study] && !newReward) showLevelUp(study, level);
       lastLevels[study] = level;
     });
     renderPanels();
@@ -224,6 +345,7 @@
       const active = document.activeElement;
       if (!active || active.id !== "jgc-name-input") renderDialog();
     }
+    showNextReward();
     return { english: readScore("english"), korean: readScore("korean") };
   }
   document.addEventListener("click", function (event) {
