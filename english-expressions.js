@@ -25,6 +25,7 @@
   let phraseQuery = "";
   let currentVoice = null;
   let playbackToken = 0;
+  let repeatTimer = null;
 
   try {
     const stored = JSON.parse(localStorage.getItem(STORE) || "[]");
@@ -52,11 +53,16 @@
 
   function cancelSpeech() {
     playbackToken += 1;
+    if (repeatTimer !== null) {
+      window.clearTimeout(repeatTimer);
+      repeatTimer = null;
+    }
     currentVoice = null;
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }
 
-  // Same four-part playback order as the 필수 단어 cards.
+  // Full-card playback repeats the expression three times, then reads
+  // its meaning and example. The individual audio buttons still play once.
   function speakSequence(parts) {
     if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
       status.textContent = "이 브라우저는 음성 재생을 지원하지 않아요.";
@@ -69,7 +75,7 @@
     const queue = parts.filter(function (part) { return part.text && String(part.text).trim(); });
     if (!queue.length) return;
     status.textContent = queue.length > 1 ?
-      "표현 → 한국어 뜻 → 영어 예문 → 해석을 순서대로 재생하고 있어요." :
+      "표현 3회(2초 간격) → 한국어 뜻 → 영어 예문 → 해석 순서로 재생해요." :
       "영어 음성을 재생하고 있어요.";
 
     function next(index) {
@@ -89,7 +95,15 @@
       if (voice) utterance.voice = voice;
       currentVoice = utterance;
       utterance.onend = function () {
-        if (token === playbackToken) next(index + 1);
+        if (token !== playbackToken) return;
+        if (part.waitAfter) {
+          repeatTimer = window.setTimeout(function () {
+            repeatTimer = null;
+            if (token === playbackToken && !section.hidden) next(index + 1);
+          }, 2000);
+        } else {
+          next(index + 1);
+        }
       };
       utterance.onerror = function (event) {
         if (token !== playbackToken || event.error === "canceled" || event.error === "interrupted") return;
@@ -107,6 +121,8 @@
 
   function speakCard(item) {
     speakSequence([
+      { text: item.phrase, lang: "en-US", waitAfter: true },
+      { text: item.phrase, lang: "en-US", waitAfter: true },
       { text: item.phrase, lang: "en-US" },
       { text: item.meaning, lang: "ko-KR" },
       { text: item.example, lang: "en-US" },
@@ -200,7 +216,7 @@
       const card = element("article", "ee-card");
       card.dataset.expressionId = String(item.id);
       card.tabIndex = 0;
-      card.setAttribute("aria-label", item.phrase + " 표현 카드. 눌러서 표현과 뜻, 예문과 해석 듣기");
+      card.setAttribute("aria-label", item.phrase + " 표현 카드. 2초 간격으로 3번 들은 후 뜻과 예문, 해석 듣기");
       card.addEventListener("click", function (event) {
         if (event.target.closest("button, a, select, input, textarea")) return;
         speakCard(item);
