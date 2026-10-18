@@ -15,12 +15,12 @@
   <link rel="stylesheet" href="english-game.css?v=20261018-speaking-triple-v1">
   <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
   <link rel="stylesheet" href="game-character-aura.css?v=20261018-aura-2">
-  <link rel="stylesheet" href="game-character-reward.css?v=20261018-reward-popups-v1">
+  <link rel="stylesheet" href="game-character-reward.css?v=20261018-reward-demo-v1">
   <link rel="stylesheet" href="home-characters.css?v=20261018-home-study-top-v1">
   <link rel="stylesheet" href="jini-chrome-launch.css?v=20261018-number-left-v1">
   <link rel="stylesheet" href="jini-install.css?v=20261018-number-left-v1">
   <link rel="stylesheet" href="jini-address-bar.css?v=20261018-standalone-address-v1">
-  <link rel="stylesheet" href="admin-preview.css?v=20261018-admin-topbar-1">
+  <link rel="stylesheet" href="admin-preview.css?v=20261018-reward-demo-v1">
   <link rel="stylesheet" href="english-expressions.css?v=20261018-tap-full-audio-v1">
   <link rel="stylesheet" href="opic.css?v=20261017-game-submenus">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
@@ -473,6 +473,7 @@
     <div id="ja-panel" class="ja-panel" hidden>
       <div class="ja-tabs" role="tablist" aria-label="관리자 메뉴">
         <button class="ja-tab" type="button" role="tab" aria-selected="true" aria-controls="ja-preview-panel" id="ja-tab-preview">캐릭터 성장·오라 미리보기</button>
+        <button class="ja-tab" type="button" role="tab" aria-selected="false" aria-controls="ja-reward-panel" id="ja-tab-reward">🎉 보상 팝업 미리보기</button>
       </div>
       <section id="ja-preview-panel" role="tabpanel" aria-labelledby="ja-tab-preview">
         <p class="ja-intro">토끼·고양이·곰·여우의 성장 단계(50·100·150·200)와 10레벨마다 새로 얻는 오라를 함께 비교할 수 있어요. 여기서 레벨을 바꿔도 실제 XP는 바뀌지 않아요.</p>
@@ -507,8 +508,58 @@
         </div>
         <p class="ja-footnote">성장과 오라는 미리보기 전용이며 실제 이용자의 XP·오라 설정은 변경하지 않습니다. 150·200레벨 성장 연출은 기존 고화질 캐릭터 이미지 위에 추가 효과를 결합한 버전입니다. 공개 정적 사이트의 비밀번호는 강력한 접근 통제가 아닙니다.</p>
       </section>
+      <section id="ja-reward-panel" role="tabpanel" aria-labelledby="ja-tab-reward" hidden>
+        <p class="ja-intro">실제 보상 팝업 화면을 그대로 확인할 수 있어요. 영어·한글, 캐릭터 종류, 보상 레벨을 선택해 보세요.</p>
+        <div class="ja-reward-controls">
+          <label for="ja-reward-study">학습 언어
+            <select id="ja-reward-study">
+              <option value="english">📘 영어</option>
+              <option value="korean">📕 한글</option>
+            </select>
+          </label>
+          <label for="ja-reward-avatar">캐릭터
+            <select id="ja-reward-avatar">
+              <option value="rabbit">🐰 토끼</option>
+              <option value="cat">🐱 고양이</option>
+              <option value="bear">🐻 곰</option>
+              <option value="fox">🦊 여우</option>
+            </select>
+          </label>
+          <label for="ja-reward-level">보상 레벨
+            <select id="ja-reward-level">
+            <option value="10" selected>Lv.10 · 오라</option>
+            <option value="20">Lv.20 · 오라</option>
+            <option value="30">Lv.30 · 오라</option>
+            <option value="40">Lv.40 · 오라</option>
+            <option value="50">Lv.50 · 성장 + 오라</option>
+            <option value="60">Lv.60 · 오라</option>
+            <option value="70">Lv.70 · 오라</option>
+            <option value="80">Lv.80 · 오라</option>
+            <option value="90">Lv.90 · 오라</option>
+            <option value="100">Lv.100 · 성장 + 오라</option>
+            <option value="110">Lv.110 · 오라</option>
+            <option value="120">Lv.120 · 오라</option>
+            <option value="130">Lv.130 · 오라</option>
+            <option value="140">Lv.140 · 오라</option>
+            <option value="150">Lv.150 · 성장 + 오라</option>
+            <option value="160">Lv.160 · 오라</option>
+            <option value="170">Lv.170 · 오라</option>
+            <option value="180">Lv.180 · 오라</option>
+            <option value="190">Lv.190 · 오라</option>
+            <option value="200">Lv.200 · 성장 + 오라</option>
+            </select>
+          </label>
+        </div>
+        <div class="ja-reward-toolbar">
+          <strong>보상 팝업 예시</strong>
+          <button id="ja-reward-open" class="ja-primary" type="button">팝업으로 열어 보기 ↗</button>
+        </div>
+        <div id="ja-reward-preview" class="ja-reward-preview" aria-label="보상 팝업 미리보기"></div>
+        <p class="ja-footnote">관리자 미리보기에서는 XP·레벨·획득 오라·보상 확인 기록이 바뀌지 않아요. 버튼은 미리보기에서만 동작해요.</p>
+      </section>
     </div>
   </dialog>
+  <dialog id="ja-reward-demo-dialog" aria-labelledby="ja-reward-demo-title"></dialog>
   <dialog id="jini-character-dialog" aria-labelledby="jini-character-title"></dialog>
   <dialog id="jini-reward-dialog" aria-labelledby="jini-reward-title"></dialog>
   <div id="jini-level-up-toast" role="status" aria-live="polite" hidden></div>
@@ -546,8 +597,8 @@
   <script src="english-expressions.js?v=20261018-extra-100-v1"></script>
   <script src="game-character-aura.js?v=20261018-aura-1"></script>
   <script src="game-character-art.js?v=20261018-growth-aura-1"></script>
-  <script src="game-character.js?v=20261018-reward-popups-v1"></script>
-  <script src="admin-preview.js?v=20261018-growth-aura-pin-7410"></script>
+  <script src="game-character.js?v=20261018-reward-preview-api-v1"></script>
+  <script src="admin-preview.js?v=20261018-reward-demo-v1"></script>
   <script src="korean-game.js?v=20261018-sound-three-repeat-v1"></script>
   <script src="english-game.js?v=20261018-sentence-three-repeats-v1"></script>
   <script src="opic-data.js?v=20261017-opic"></script>
