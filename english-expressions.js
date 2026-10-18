@@ -230,6 +230,15 @@
     cancelSpeech();
     status.textContent = "";
   };
-  window.JINI_SHOW_ENGLISH_EXPRESSIONS = function () { render(false); };
+  window.JINI_SHOW_ENGLISH_EXPRESSIONS = function () {
+    // The listening player shares this bookmark store; reload on return.
+    try {
+      const stored = JSON.parse(localStorage.getItem(STORE) || "[]");
+      saved = Array.isArray(stored) ? stored.filter(function (id) {
+        return Number.isInteger(id) && id > 0 && id <= EXPRESSIONS.length;
+      }) : [];
+    } catch (error) { saved = []; }
+    render(false);
+  };
   render(false);
 }());
