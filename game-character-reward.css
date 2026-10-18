@@ -1,0 +1,59 @@
+/* JINI milestone reward popup. Uses the existing mascot and aura artwork. */
+#jini-reward-dialog {
+  position:fixed; inset:0; margin:auto;
+  box-sizing:border-box; width:min(92vw,460px); max-height:min(93dvh,830px);
+  overflow-y:auto; border:1px solid #e5defa; border-radius:26px; padding:0;
+  color:#2c264b; background:#fff; font:inherit;
+  box-shadow:0 22px 80px #2b1e5466;
+}
+#jini-reward-dialog::backdrop{background:#171232b8;backdrop-filter:blur(4px)}
+.jgc-reward-content {
+  position:relative; isolation:isolate; overflow:hidden; text-align:center;
+  padding:28px 25px 24px;
+  background:radial-gradient(ellipse at 50% 10%,#f2eaff 0%,#fff 57%);
+}
+.jgc-reward-sparks{color:#a48ae3;font-size:24px;letter-spacing:15px;pointer-events:none;opacity:.8}
+.jgc-reward-kicker{display:block;margin-top:6px;color:#7455d0;font-size:11px;font-weight:850;letter-spacing:1.2px}
+#jini-reward-title{margin:8px 0 4px;color:#413080;font-size:clamp(25px,6vw,33px);font-weight:900;line-height:1.25}
+.jgc-reward-subtitle{margin:0 auto 14px;color:#6c6487;font-size:13px;line-height:1.65}
+.jgc-reward-portrait {
+  box-sizing:border-box; width:min(100%,260px); aspect-ratio:1; margin:0 auto 15px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:26px;
+  background:radial-gradient(circle at 50% 55%,#ffffff 0%,#f9f4ff 52%,#ece4ff 100%);
+  box-shadow:inset 0 0 0 1px #e6dcff,0 10px 26px #7860b91c;
+}
+.jgc-reward-portrait .jgc-mascot{display:block;width:100%;height:100%}
+.jgc-reward-items{display:grid;gap:9px;text-align:left}
+.jgc-reward-item{
+  display:flex;align-items:flex-start;gap:12px;padding:12px 13px;
+  border:1px solid #e8e1fa;border-radius:15px;background:#fbf9ff;
+}
+.jgc-reward-growth{border-color:#eadbab;background:#fffaf0}
+.jgc-reward-item>span{font-size:24px;line-height:1.4;flex:none}
+.jgc-reward-item div{min-width:0}
+.jgc-reward-item small{display:block;font-size:10px;color:#81769c;font-weight:800}
+.jgc-reward-item strong{display:block;margin:3px 0;color:#49358d;font-size:15px;font-weight:850;overflow-wrap:anywhere}
+.jgc-reward-growth strong{color:#8f6630}
+.jgc-reward-item p{margin:4px 0 0;font-size:11px;line-height:1.55;color:#77718b}
+.jgc-reward-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:16px}
+.jgc-reward-actions button{min-height:46px;border-radius:12px;padding:10px 7px;cursor:pointer;font:inherit;font-size:12px;font-weight:850}
+.jgc-reward-confirm{border:1px solid #6750da;background:#6750da;color:#fff}
+.jgc-reward-confirm:hover{background:#5740c5}
+.jgc-reward-customize{border:1px solid #cdc3ed;background:#fff;color:#5946af}
+.jgc-reward-customize:hover{background:#f1ecff}
+#jini-reward-dialog button:focus-visible{outline:3px solid #9d85ef;outline-offset:2px}
+@media(max-width:420px){
+  .jgc-reward-content{padding:20px 17px 19px}
+  .jgc-reward-portrait{width:min(100%,220px)}
+  .jgc-reward-sparks{font-size:20px}
+  .jgc-reward-item{padding:10px}
+  .jgc-reward-actions button{font-size:11px}
+}
+@media(max-height:680px){.jgc-reward-portrait{width:160px}.jgc-reward-content{padding-top:14px}}
+@media(prefers-reduced-motion:no-preference){
+  #jini-reward-dialog[open] .jgc-reward-portrait{animation:jgc-reward-pop .45s cubic-bezier(.2,.7,.2,1) both}
+  #jini-reward-dialog[open] .jgc-reward-sparks{animation:jgc-reward-glimmer 1.7s ease-in-out infinite alternate}
+  @keyframes jgc-reward-pop{from{transform:scale(.88);opacity:.6}to{transform:scale(1);opacity:1}}
+  @keyframes jgc-reward-glimmer{from{opacity:.45}to{opacity:1}}
+}
