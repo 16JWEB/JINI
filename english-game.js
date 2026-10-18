@@ -298,6 +298,10 @@ function grade(q,good,response){
 function answerChoice(i){
  if(!game)return;const q=game.questions[game.index];
  if(!q||q.kind!=="choice"||q.done||q.wordTypingPending||!Number.isInteger(i)||i<0||i>=q.options.length)return;
+ if(q.mode==="word"){
+  cancelWordRepeat();
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+ }
  const chosen=q.options[i];
  if(needsWordTyping(q)&&chosen===q.answer){
   q.wordTypingPending=true;status="";render();focusWordTyping();
