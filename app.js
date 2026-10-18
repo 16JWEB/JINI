@@ -231,7 +231,7 @@
   function loadStudyStates() {
     try {
       const saved = JSON.parse(window.localStorage.getItem(STUDY_STATE_KEY) || "null");
-      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-game", "speaking", "opic", "opic-basic", "opic-mock"];
+      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-game", "speaking", "opic", "opic-basic", "opic-mock"];
       if (!saved) return { english: null, korean: null, lastStudy: null };
       function isValidState(state) {
         return state && validPages.includes(state.page);
@@ -273,7 +273,7 @@
   }
 
   function saveStudyState() {
-    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-game", "speaking", "opic", "opic-basic", "opic-mock"];
+    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-game", "speaking", "opic", "opic-basic", "opic-mock"];
     if (restoringStudyState || !validPages.includes(currentPageView)) return;
     try {
       const state = {
@@ -1240,6 +1240,9 @@
       }
     }
     selectedVocabularyIndex = -1;
+    if (page !== "english-expressions" && typeof window.JINI_STOP_ENGLISH_EXPRESSIONS === "function") {
+      window.JINI_STOP_ENGLISH_EXPRESSIONS();
+    }
     const leavingExpressions = currentPageView === "ko-expressions" || currentPageView === "ko-expression-player";
     stopPlayback("재생을 멈췄어요.");
     stopVerbAuto(true);
@@ -1261,6 +1264,7 @@
     }
     currentPageView = page;
     const showingHome = page === "home";
+    const showingEssentialExpressions = page === "english-expressions";
     const showingExpressions = page === "ko-expressions";
     const playingExpressions = page === "ko-expression-player";
     const showingVocabulary = page === "vocabulary" || page === "ko-vocabulary" || showingExpressions;
@@ -1275,6 +1279,7 @@
     document.getElementById("home-section").hidden = !showingHome;
     document.querySelector(".vocabulary-section").hidden = !showingVocabulary;
     playerSection.hidden = !showingPlayer;
+    document.getElementById("english-expressions-section").hidden = !showingEssentialExpressions;
     verbFormsSection.hidden = page !== "verb-forms";
     languagePacksSection.hidden = !showingLanguagePacks;
     document.getElementById("korean-game-section").hidden = !showingKoreanGame;
@@ -1293,9 +1298,9 @@
       "YOUR DAILY KOREAN<br><span>베트남어로 배우는 한국어</span>" :
       "YOUR DAILY ENGLISH<br><span>기초부터 차근차근</span>";
     document.getElementById("breadcrumb-section").textContent =
-      showingHome ? "홈" : koreanStudy ? "AI 한글공부" : (showingEnglishGame || showingSpeaking || showingOpic) ? "AI 영어공부" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
+      showingHome ? "홈" : koreanStudy ? "AI 한글공부" : (showingEnglishGame || showingSpeaking || showingOpic || showingEssentialExpressions) ? "AI 영어공부" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
     document.getElementById("breadcrumb-divider").hidden = showingHome;
-    breadcrumbLevel.textContent = showingHome ? "" : showingVocabulary ?
+    breadcrumbLevel.textContent = showingHome ? "" : showingEssentialExpressions ? "필수 표현" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
       showingPlayer ? (playingExpressions ? "표현 재생" : koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
       showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비" : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : page === "opic-mock" ? "스피킹 대비 / 실전 연습" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
@@ -1322,7 +1327,8 @@
       koreanStudy ? "한국어 + 베트남어 뜻" : "단어 + 뜻";
     document.querySelector(".player-mode-button[data-player-mode='word-meaning-example']").textContent =
       koreanStudy ? "한국어 + 베트남어 뜻 + 예문" : "단어 + 뜻 + 예문";
-    document.querySelector(".page-footer").textContent = showingExpressions || playingExpressions ?
+    document.querySelector(".page-footer").textContent = showingEssentialExpressions ?
+      "필수 영어 표현을 예문과 함께 듣고, 나만의 문장으로 말해 보세요." : showingExpressions || playingExpressions ?
       "일상생활에서 자주 쓰는 한국어 표현을 베트남어 번역과 함께 익혀 보세요." : koreanStudy ?
       "한국어 단어를 듣고 베트남어 뜻과 함께 익혀 보세요." :
       "단어를 듣고, 예문을 따라 읽으며 나만의 영어를 만들어 보세요.";
@@ -1337,6 +1343,9 @@
     }
     renderWords();
     renderBookmarkLists();
+    if (showingEssentialExpressions && typeof window.JINI_SHOW_ENGLISH_EXPRESSIONS === "function") {
+      window.JINI_SHOW_ENGLISH_EXPRESSIONS();
+    }
     saveStudyState();
   }
 
