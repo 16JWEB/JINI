@@ -258,6 +258,10 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
 .player-controls { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 17px; }
 .control-button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border: 1px solid #e9eaf1; border-radius: 9px; background: white; color: #77798d; cursor: pointer; font-size: 12px; transition: all .16s ease; }
 .control-button.secondary { width: 40px; padding: 0; font-size: 23px; }
+.player-bookmark-toolbar[hidden] { display: none; }
+.player-bookmark-control { font-family: inherit; line-height: 1; }
+.player-bookmark-control.selected { border-color: var(--purple); background: var(--purple-soft); color: var(--purple); }
+.player-bookmark-control:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; }
 .control-button.primary { min-width: 124px; border-color: var(--purple); background: var(--purple); color: white; font-weight: 700; }
 .control-button:disabled { cursor: default; opacity: .72; }
 .control-button:hover { border-color: #bdb5f0; color: var(--purple); }
