@@ -335,7 +335,12 @@ function answerText(){
  const right=clean(value)===clean(q.answer);
  grade(q,right,value);
  render();
- if(right)speak(true);
+ if(right){
+  // In sentence completion, read the fully restored sentence three times.
+  // Other typed-answer activities retain their original single example playback.
+  if(q.mode==="sentence")speakTextThreeTimes(q.example||String(q.title).replace("______",q.answer));
+  else speak(true);
+ }
 }
 function pickSentence(i){
  if(!game)return;
@@ -386,10 +391,8 @@ function speakWordAnswerPair(q){
   synth.speak(korean);
  }catch(e){status="음성 재생을 지원하지 않는 기기일 수 있어요.";}
 }
-function speakQuizWordThreeTimes(){
- if(!game||section.hidden)return;
- const q=game.questions[game.index];
- if(!q||(q.mode!=="word"&&q.mode!=="speaking")||!String(q.voice||q.title||"").trim())return;
+function speakTextThreeTimes(text){
+ if(!game||section.hidden||!String(text||"").trim())return;
  if(!window.speechSynthesis||!window.SpeechSynthesisUtterance){
   status="브라우저에서 영어 음성을 재생할 수 없어요.";render();return;
  }
@@ -403,7 +406,7 @@ function speakQuizWordThreeTimes(){
  const valid=()=>token===wordRepeatToken&&game===gameRef&&game.index===index&&!section.hidden;
  function play(reading){
   if(!valid())return;
-  const u=new window.SpeechSynthesisUtterance(String(q.voice||q.title).trim());
+  const u=new window.SpeechSynthesisUtterance(String(text).trim());
   u.lang=ENGLISH_LOCALE;u.rate=.88;
   if(voice)u.voice=voice;
   u.onend=()=>{
@@ -424,6 +427,12 @@ function speakQuizWordThreeTimes(){
   synth.speak(u);
  }
  play(1);
+}
+function speakQuizWordThreeTimes(){
+ if(!game||section.hidden)return;
+ const q=game.questions[game.index];
+ if(!q||(q.mode!=="word"&&q.mode!=="speaking"))return;
+ speakTextThreeTimes(q.voice||q.title);
 }
 function speak(exampleOnly){
  if(!game)return;const q=game.questions[game.index];if(!q)return;
