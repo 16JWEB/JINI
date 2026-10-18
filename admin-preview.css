@@ -21,7 +21,9 @@
 .ja-error{color:#ba3f59!important;font-size:12px!important;margin:10px 0 0!important}
 .ja-panel{padding:20px 22px 25px}
 .ja-tabs{display:flex;gap:9px;flex-wrap:wrap;border-bottom:1px solid #e9e5f1;padding-bottom:11px;margin-bottom:16px}
-.ja-tab{border:1px solid #c9bff1;border-radius:10px;padding:10px 13px;background:#f2eeff;color:#5945b5;font:inherit;font-size:13px;font-weight:800}
+.ja-tab{border:1px solid #e0dbea;border-radius:10px;padding:10px 13px;background:#fff;color:#746d88;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.ja-tab[aria-selected="true"]{border-color:#aa99eb;background:#f2eeff;color:#5945b5}
+.ja-tab:focus-visible{outline:3px solid #9988f2;outline-offset:2px}
 .ja-intro{margin:0 0 15px;color:#666076;font-size:13px;line-height:1.7}
 .ja-stages{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:17px}
 .ja-stage{border:1px solid #e0dbea;border-radius:11px;padding:9px 14px;background:#fff;color:#595265;font:inherit;font-weight:750;font-size:12px;cursor:pointer}
@@ -41,3 +43,16 @@
 
 /* Scrollable all-level aura preview controls. */
 .ja-stages{max-height:124px;overflow-y:auto;align-content:flex-start;padding-bottom:5px}
+
+/* A separate read-only reward preview tab reuses the real popup's markup. */
+.ja-reward-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.ja-reward-controls label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:800;color:#5d5579;min-width:0}
+.ja-reward-controls select{box-sizing:border-box;width:100%;min-height:42px;border:1px solid #dad2ed;border-radius:10px;background:#fff;color:#393048;font:inherit;font-size:12px;padding:8px}
+.ja-reward-toolbar{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap;margin:12px 0}
+.ja-reward-toolbar strong{font-size:13px}
+.ja-reward-preview{box-sizing:border-box;width:min(100%,460px);margin:0 auto 14px;border:1px solid #e5defa;border-radius:26px;overflow:hidden;box-shadow:0 13px 32px #33295b26;background:#fff}
+.ja-reward-preview .jgc-reward-content{padding-top:23px}
+.ja-reward-preview .jgc-reward-actions button{cursor:pointer}
+#ja-reward-demo-dialog[open] .jgc-reward-content{isolation:isolate}
+@media(max-width:600px){.ja-reward-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.ja-reward-controls label:last-child{grid-column:1/-1}}
+@media(max-width:360px){.ja-reward-controls{grid-template-columns:1fr}.ja-reward-controls label:last-child{grid-column:auto}}
