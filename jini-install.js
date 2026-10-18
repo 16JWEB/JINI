@@ -36,7 +36,7 @@
       return;
     }
     if (inKakao) {
-      guideText.textContent = "먼저 위의 '1 크롬에서 열기'를 누르거나 카카오톡의 ⋯ 메뉴에서 '다른 브라우저로 열기'를 선택하세요. 이후 Chrome의 ⋮ 메뉴 → '홈 화면에 추가' 또는 '앱 설치'를 누르세요.";
+      guideText.textContent = "먼저 위의 '1. 크롬에서 열기'를 누르거나 카카오톡의 ⋯ 메뉴에서 '다른 브라우저로 열기'를 선택하세요. 이후 Chrome의 ⋮ 메뉴 → '홈 화면에 추가' 또는 '앱 설치'를 누르세요.";
     } else if (isIOS) {
       guideText.textContent = "Safari에서 JINI를 연 뒤 공유 버튼(□↑) → '홈 화면에 추가'를 선택하세요.";
     } else {
