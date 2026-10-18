@@ -61,8 +61,8 @@
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }
 
-  // Full-card playback repeats the expression three times, then reads
-  // its meaning and example. The individual audio buttons still play once.
+  // Full-card playback repeats the expression three times and example twice.
+  // The expression-only audio button still plays once.
   function speakSequence(parts) {
     if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
       status.textContent = "이 브라우저는 음성 재생을 지원하지 않아요.";
@@ -75,7 +75,7 @@
     const queue = parts.filter(function (part) { return part.text && String(part.text).trim(); });
     if (!queue.length) return;
     status.textContent = queue.length > 1 ?
-      "표현 3회(2초 간격) → 한국어 뜻 → 영어 예문 → 해석 순서로 재생해요." :
+      "표현 3회 → 한국어 뜻 → 영어 예문 2회 → 해석을 2초 간격 반복으로 재생해요." :
       "영어 음성을 재생하고 있어요.";
 
     function next(index) {
@@ -119,12 +119,20 @@
     speakSequence([{ text: text, lang: "en-US" }]);
   }
 
+  function speakExample(text) {
+    speakSequence([
+      { text: text, lang: "en-US", waitAfter: true },
+      { text: text, lang: "en-US" }
+    ]);
+  }
+
   function speakCard(item) {
     speakSequence([
       { text: item.phrase, lang: "en-US", waitAfter: true },
       { text: item.phrase, lang: "en-US", waitAfter: true },
       { text: item.phrase, lang: "en-US" },
       { text: item.meaning, lang: "ko-KR" },
+      { text: item.example, lang: "en-US", waitAfter: true },
       { text: item.example, lang: "en-US" },
       { text: item.translation, lang: "ko-KR" }
     ]);
@@ -216,7 +224,7 @@
       const card = element("article", "ee-card");
       card.dataset.expressionId = String(item.id);
       card.tabIndex = 0;
-      card.setAttribute("aria-label", item.phrase + " 표현 카드. 2초 간격으로 3번 들은 후 뜻과 예문, 해석 듣기");
+      card.setAttribute("aria-label", item.phrase + " 표현 카드. 표현 3회, 뜻, 예문 2회, 해석 순서로 듣기");
       card.addEventListener("click", function (event) {
         if (event.target.closest("button, a, select, input, textarea")) return;
         speakCard(item);
@@ -243,7 +251,7 @@
       exampleArea.appendChild(element("span", "ee-example-label", "예문"));
       exampleArea.appendChild(element("p", "ee-example-en", item.example));
       exampleArea.appendChild(element("p", "ee-example-ko", item.translation));
-      exampleArea.appendChild(button("▶ 예문 듣기", "ee-listen ee-listen-example", function () { speak(item.example); }, item.phrase + " 영어 예문 듣기"));
+      exampleArea.appendChild(button("▶ 예문 듣기", "ee-listen ee-listen-example", function () { speakExample(item.example); }, item.phrase + " 영어 예문 두 번 듣기"));
       card.appendChild(phraseListen);
       card.appendChild(exampleArea);
       root.appendChild(card);
