@@ -1,0 +1,49 @@
+/* English essential expressions: compact cards using the JINI palette. */
+#english-expressions-section[hidden]{display:none!important}
+.ee-section{max-width:1050px;padding:24px 0 50px}
+.ee-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.ee-heading h1{margin:7px 0}
+.ee-heading p{color:#77788f;font-size:13px;line-height:1.8;margin:5px 0}
+.ee-count{color:#6958e8;font-weight:800;font-size:13px;background:#f0edff;border-radius:12px;padding:10px 14px}
+.ee-search-wrap{display:flex;gap:8px;align-items:center;margin:24px 0 13px;max-width:540px}
+.ee-search-wrap input{min-width:0;flex:1;padding:12px 15px;border:1px solid #dedbea;border-radius:11px;color:#25243e;background:#fff;font:inherit;font-size:13px}
+.ee-search-wrap button{border:1px solid #dedbea;border-radius:9px;background:#fff;color:#7265b8;cursor:pointer;min-height:42px;padding:0 14px}
+.ee-categories{display:flex;flex-wrap:wrap;gap:8px;margin:13px 0 21px}
+.ee-category{min-height:37px;padding:8px 13px;border:1px solid #e3e1ee;border-radius:100px;color:#73758b;background:#fff;font:inherit;font-size:12px;cursor:pointer}
+.ee-category.selected{color:#604fce;border-color:#bfb5f3;background:#f0edff;font-weight:800}
+.ee-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.ee-card{min-width:0;background:#fff;padding:21px;border:1px solid #eae9f3;border-radius:16px;box-shadow:0 5px 18px #2b284009}
+.ee-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.ee-card-heading{min-width:0}
+.ee-index{display:block;font-size:11px;font-weight:750;color:#8b81c5}
+.ee-phrase{font-size:clamp(17px,2.4vw,22px);line-height:1.5;overflow-wrap:anywhere;margin:7px 0 3px;letter-spacing:-.3px}
+.ee-meaning{font-size:13px;color:#61637d;line-height:1.7;margin:0 0 13px}
+.ee-bookmark{width:38px;height:38px;flex:0 0 38px;border:1px solid #e8e6f5;border-radius:10px;background:#fff;color:#8686a0;font:inherit;font-size:24px;cursor:pointer}
+.ee-bookmark.selected{border-color:#c3b7fa;color:#6958e8;background:#f0edff}
+.ee-listen{background:#f4f1ff;color:#5d4bc9;border:1px solid #e2dafa;border-radius:9px;padding:8px 11px;font-size:12px;font-weight:750;cursor:pointer}
+.ee-listen:hover{background:#e9e4ff}
+.ee-example{margin-top:18px;padding:16px;background:#faf9ff;border-radius:12px;min-height:150px}
+.ee-example-label{font-weight:800;color:#8b7cd2;font-size:11px}
+.ee-example-en{font-size:14px;font-weight:750;color:#303047;line-height:1.65;margin:9px 0 4px}
+.ee-example-ko{font-size:12px;line-height:1.8;color:#73758b;margin:0 0 13px}
+.ee-listen-example{background:#fff}
+.ee-status{min-height:18px;margin:10px 0;color:#7b6dc8;font-size:12px}
+.ee-pagination{display:flex;align-items:center;justify-content:center;gap:15px;margin:25px 0}
+.ee-page-button{min-height:41px;padding:9px 16px;color:#5947d5;border:1px solid #dad4f7;border-radius:10px;background:#fff;cursor:pointer;font-size:12px;font-weight:750}
+.ee-page-button:disabled{opacity:.42;cursor:default}
+.ee-page-status{color:#74748e;font-size:12px}
+.ee-empty{padding:42px 15px;text-align:center;border:1px dashed #dcd9ed;border-radius:12px;background:#fff;color:#85869a;grid-column:1/-1}
+.ee-section button:focus-visible,.ee-section input:focus-visible{outline:3px solid #9a92f5;outline-offset:2px}
+@media(max-width:760px){
+.ee-section{padding:20px 0 83px}
+.ee-heading{gap:10px}
+.ee-heading h1{font-size:25px}
+.ee-heading p{font-size:12px}
+.ee-count{font-size:11px}
+.ee-list{grid-template-columns:1fr;gap:10px}
+.ee-card{padding:17px}
+.ee-phrase{font-size:20px}
+.ee-example{min-height:0}
+.ee-categories{gap:6px}
+.ee-category{padding:7px 10px;font-size:11px}
+}
