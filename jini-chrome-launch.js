@@ -3,11 +3,12 @@
 
   const bar = document.getElementById("jini-chrome-launch");
   const link = document.getElementById("jini-open-chrome");
+  const intro = bar && bar.querySelector(".jini-chrome-intro");
   const kakaoNotice = document.getElementById("jini-kakao-notice");
   const help = document.getElementById("jini-chrome-help");
   const copyButton = document.getElementById("jini-chrome-copy");
   const copyStatus = document.getElementById("jini-chrome-copy-status");
-  if (!bar || !link || !kakaoNotice || !help || !copyButton || !copyStatus) return;
+  if (!bar || !intro || !link || !kakaoNotice || !help || !copyButton || !copyStatus) return;
 
   const ua = navigator.userAgent || "";
   const android = /Android/i.test(ua);
@@ -33,7 +34,9 @@
   if (chrome) link.title = "현재 Chrome으로 열려 있으면 다시 실행할 필요가 없어요.";
 
   link.addEventListener("click", function (event) {
+    intro.hidden = false;
     help.hidden = false;
+    link.setAttribute("aria-expanded", "true");
     if (chrome) {
       event.preventDefault();
       copyStatus.textContent = "이미 Chrome에서 보고 있어요.";
