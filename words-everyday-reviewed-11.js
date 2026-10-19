@@ -26,7 +26,7 @@
 중등|verb|declutter|diːˈklʌtər|불필요한 물건을 정리하다|I try to declutter my desk every Friday.|매주 금요일 책상 위의 불필요한 물건을 정리하려고 해요.
 초등|noun|soap dispenser|soʊp dɪˈspensər|비누 디스펜서|The soap dispenser in the bathroom is empty.|욕실 비누 디스펜서가 비었어요.
 초등|noun|water filter|ˈwɔːtər ˈfɪltər|정수 필터|It's time to replace the water filter.|정수 필터를 교체할 때가 됐어요.
-초등|noun|boarding pass|ˈbɔːrdɪŋ pæs|탑승권|I saved my boarding pass on my phone.|휴대전화에 탑승권을 저장했어요.
+초등|noun|commuter|kəˈmjuːtər|통근자, 출퇴근하는 사람|The train was full of commuters this morning.|오늘 아침 기차는 출퇴근하는 사람들로 가득했어요.
 중등|noun|security checkpoint|sɪˈkjʊrəti ˈtʃekpɔɪnt|보안 검색대|We waited twenty minutes at the security checkpoint.|보안 검색대에서 20분을 기다렸어요.
 중등|verb|carpool|ˈkɑːrpuːl|차를 함께 타고 이동하다|I carpool with a coworker twice a week.|일주일에 두 번 동료와 차를 함께 타고 출근해요.
 초등|noun|rest area|rest ˈeriə|고속도로 휴게소|We stopped at a rest area to get some coffee.|커피를 사려고 고속도로 휴게소에 들렀어요.
