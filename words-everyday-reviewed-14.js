@@ -113,7 +113,7 @@
     const key = word.toLowerCase();
     if (known.has(key)) throw Error("Duplicate word in essential batch 14: " + word);
     known.add(key);
-    added.push({level,partOfSpeech,word,ipa:"/"+ipa+"/",meaning,example,exampleKo,exampleReviewed:true,otherSenses:[]});
+    added.push({level,partOfSpeech,word,ipa:"/"+ipa+"/",meaning,example,exampleKo,exampleReviewed:true,otherSenses:[],sourceBatch:14});
   });
   if (added.length !== 100) throw Error("Expected 100 new essential words");
   list.push(...added);
