@@ -86,7 +86,7 @@
 초등|adverb|anymore|ˌeniˈmɔːr|더 이상, 이제는|I don't use that old phone anymore.|저는 이제 그 오래된 휴대전화를 사용하지 않아요.
 중등|adverb|otherwise|ˈʌðərwaɪz|그렇지 않으면|Take an umbrella; otherwise, you might get wet.|우산을 챙기세요. 그렇지 않으면 비를 맞을 수도 있어요.
 초등|adverb|either|ˈiːðər|또한 ~아니다|I don't like the cold weather either.|저도 추운 날씨를 좋아하지 않아요.
-중등|adverb|neither|ˈniːðər|둘 중 어느 쪽도 아니다|Neither of us was ready for the sudden rain.|우리 둘 다 갑자기 내린 비에 대비하지 못했어요.
+중등|adverb|neither|ˈniːðər|또한 ~않다|I don't like horror movies, and neither does my sister.|저는 공포 영화를 좋아하지 않고 제 여동생도 마찬가지예요.
 초등|adverb|anywhere|ˈeniwer|어디든, 어느 곳에도|I couldn't find my keys anywhere.|열쇠를 어디에서도 찾을 수 없었어요.
 초등|adverb|somewhere|ˈsʌmwer|어딘가에|Let's find somewhere quiet to talk.|조용히 이야기할 수 있는 곳을 찾아요.
 초등|adverb|anyway|ˈeniweɪ|어쨌든|It was raining, but we went for a walk anyway.|비가 왔지만 그래도 우리는 산책하러 갔어요.
