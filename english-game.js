@@ -5,7 +5,7 @@ if(!root||!section)return;
 const KEY="jini-english-game-v1", DAY=86400000, levels=["초등","중등","고등"], ENGLISH_LOCALE="en-US";
 const modes=[
 ["word","📘","단어 뜻 맞히기","영어 단어의 한국어 뜻 선택"],
-["expression","💬","필수 표현 맞히기","필수 영어 표현 300개의 뜻과 예문 연습"],
+["expression","💬","필수 표현 맞히기","필수 영어 표현 350개의 뜻과 예문 연습"],
 ["listen","🎧","듣고 단어 맞히기","미국식 발음을 듣고 선택"],
 ["spelling","🔤","철자 완성하기","한국어 뜻을 보고 철자 입력"],
 ["sentence","🧩","문장 완성하기","4개 보기에서 선택하거나 철자를 입력해요"],
@@ -138,7 +138,7 @@ function dashboard(){
  '<div class="eg-options"><label>난이도 <select id="eg-level">'+levels.map(t=>'<option '+(t===level?"selected ":"")+'value="'+t+'">'+t+'</option>').join("")+'</select></label>'+
  '<label>문제 수 <select id="eg-count">'+[10,20,30].map(n=>'<option '+(n===count?"selected ":"")+'value="'+n+'">'+n+'문제</option>').join("")+'</select></label></div>'+
  '<div class="eg-grid">'+modes.map(m=>'<button type="button" class="eg-mode" data-eg="start" data-mode="'+m[0]+'"><span>'+m[1]+'</span><strong>'+m[2]+'</strong><small>'+(m[0]==="review"?"현재 틀린 문제 "+wrongItems().length+"개":m[0]==="remind"?"전에 맞힌 문제 "+reminderItems().length+"개 · 0 XP":m[0]==="expression"?"아직 맞히지 않은 표현 "+essentialExpressions.filter(item=>!hasEarnedXP("expression:"+item.id)).length+"개 · 전 난이도 공통":m[3])+'</small><b>시작 →</b></button>').join("")+'</div>'+
- '<p class="eg-note">기존 JINI 영어 단어와 검수 예문, 필수 표현 300개를 사용해요. 단어 뜻 맞히기·필수 표현 맞히기에서 이미 맞힌 문제는 자동으로 제외되고 리마인드에서 다시 풀 수 있어요. 처음 맞힌 문제는 +10 XP, 리마인드에서는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 영어 음성은 미국식으로 재생해요. 실제 목소리는 기기에 설치된 음성 엔진에 따라 달라질 수 있어요.</p>';
+ '<p class="eg-note">기존 JINI 영어 단어와 검수 예문, 필수 표현 350개를 사용해요. 단어 뜻 맞히기·필수 표현 맞히기에서 이미 맞힌 문제는 자동으로 제외되고 리마인드에서 다시 풀 수 있어요. 처음 맞힌 문제는 +10 XP, 리마인드에서는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 영어 음성은 미국식으로 재생해요. 실제 목소리는 기기에 설치된 음성 엔진에 따라 달라질 수 있어요.</p>';
 }
 function needsWordTyping(q){return q&&q.kind==="choice"&&String(q.id||"").startsWith("word:");}
 function spellingEqual(a,b){return String(a||"").trim().toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ")===String(b||"").trim().toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g," ");}
@@ -201,7 +201,7 @@ function render(){
  if(!game){dashboard();return;}
  const q=game.questions[game.index];
  if(!q){if(!game.questions.length){
-  const emptyTitle=game.mode==="review"?"현재 오답 복습할 문제가 없어요 🎉":game.mode==="remind"?"아직 리마인드할 문제가 없어요":game.mode==="word"?"아직 맞히지 않은 단어 시험 문제가 없어요 🎉":game.mode==="expression"?"필수 표현 300개를 모두 맞혔어요 🎉":"지금 풀 문제가 없어요";
+  const emptyTitle=game.mode==="review"?"현재 오답 복습할 문제가 없어요 🎉":game.mode==="remind"?"아직 리마인드할 문제가 없어요":game.mode==="word"?"아직 맞히지 않은 단어 시험 문제가 없어요 🎉":game.mode==="expression"?"필수 표현 350개를 모두 맞혔어요 🎉":"지금 풀 문제가 없어요";
   const emptyHint=game.mode==="review"?"틀린 문제가 생기면 여기에서 다시 풀 수 있어요.":game.mode==="remind"?"다른 게임에서 먼저 정답을 맞히면 리마인드에 추가돼요.":game.mode==="word"?"맞힌 단어는 리마인드에서 복습할 수 있어요. 다른 난이도도 선택해 보세요.":game.mode==="expression"?"완료한 표현은 리마인드에서 다시 풀 수 있어요.":"다른 난이도나 게임을 선택해 보세요.";
   root.innerHTML='<div class="eg-card">'+nav()+'<h2>'+emptyTitle+'</h2><p>'+emptyHint+'</p>'+nav(true)+'</div>';return;}summary();return;}
  const mode=modes.find(m=>m[0]===game.mode);
