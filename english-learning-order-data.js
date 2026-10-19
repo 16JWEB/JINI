@@ -240,13 +240,118 @@
       console.warn("JINI curriculum v2 bookmark migration was skipped:", error);
     }
   }
+  const expressionNeighbors = new Map(String.raw`head out|on my way to
+get home safely|on my way to
+have a quick look|look up
+run a little late|be pressed for time
+keep the place tidy|do the dishes
+get some rest|take a break
+have a busy day|be short on
+be out of town|on my way to
+get back on track|get back into a routine
+pick up where I left off|get around to
+set an alarm for|turn in early
+warm up before exercising|get in shape
+cool down after a workout|get in shape
+check the weather forecast|get some fresh air
+take out the trash|do the dishes
+stock up on groceries|pick up groceries
+grab a cup of coffee|take a break
+be in the middle of something|be short on
+put on a jacket|get ready for
+take off my shoes|get ready for
+check the status of|follow up on
+work through an issue|figure out
+share the latest update|keep someone updated
+keep to the schedule|stay on track
+set a clear deadline|meet a deadline
+bring someone into the discussion|bring up
+go through the checklist|go over
+sign off on|get approval for
+get a second opinion|get feedback on
+take action on|flag an issue
+make a quick change|make an adjustment
+keep the discussion focused|touch on
+handle a customer complaint|deal with
+roll out a new feature|move forward with
+follow the instructions|follow the procedure
+be out of the office|fill in for
+prioritize the urgent tasks|set priorities
+be scheduled for|ahead of schedule
+hand over the task to|take over
+keep a record of|take notes
+let me think for a second|that's a good question
+to start with|first of all
+I tend to agree that|to some extent
+if you think about it|come to think of it
+it was a turning point for me|looking back
+I wasn't expecting that|I couldn't believe how
+the biggest advantage is|the best part is that
+I'd rather do that than|compared to
+it wasn't until then that|back then
+what I found interesting was|one thing I noticed is
+that's exactly why|that's why
+I can see both sides|on the other hand
+I have noticed that|one thing I noticed is
+it really depends on|it depends on
+I guess you could say|I would say that
+a good example would be|for example
+to sum it up|all things considered
+there is no doubt that|in my opinion
+at least in my experience|from my experience
+the thing I remember most is|it reminds me of
+show my passport at|go through security
+collect my baggage|pick up my luggage
+take a connecting flight|miss a connection
+ask about the baggage allowance|drop off my bags
+buy a round-trip ticket|book in advance
+find the nearest exit|find my way to
+take the subway instead|transfer to
+use a translation app|ask for directions
+check the departure board|check the train schedule
+get through customs|get through immigration
+ask for the Wi-Fi password|ask for a recommendation
+report a lost item|leave something behind
+request a room change|change my reservation
+ask for a quieter room|request an early check-in
+pay in local currency|exchange some currency
+take the airport shuttle|get around
+avoid the rush hour|get stuck in traffic
+check the bus stop|get off at
+look for the platform number|take the wrong train
+confirm the pickup location|confirm a booking
+introduce myself to|break the ice
+make someone smile|make someone laugh
+apologize for being late|make amends
+thank someone in person|show appreciation for
+be happy for someone|cheer for
+worry about someone|look out for
+ask how someone's doing|check in on someone
+make a good first impression|get to know
+feel comfortable around|make someone feel at ease
+share a common interest|have a lot in common
+be thoughtful of others|put yourself in someone's shoes
+support someone through|be there for someone
+spend more time together|spend quality time with
+work things out with|talk things through
+give someone some advice|give someone a hand
+take time to listen|hear someone out
+respect someone's boundaries|set boundaries
+make plans to meet up|make plans with someone
+check if someone is okay|check in on someone
+make time for each other|spend quality time with`.split(/\n/).map(line => {
+    const separator = line.indexOf("|");
+    return [line.slice(0, separator).toLowerCase(), line.slice(separator + 1).toLowerCase()];
+  }));
   function reorganizeExpressions(items) {
     if (!Array.isArray(items)) return;
     if (new Set(items.map(item => item.id)).size !== items.length) throw Error("English expression IDs must remain unique");
     const byCategory = Object.fromEntries(topicOrder.map(category => [category, indexList(priorityExpressions[category], true)]));
     const rank = new Map(topicOrder.map((category, index) => [category, index]));
-    // IDs are the permanent references for bookmarks, earned XP and review questions.
-    items.sort(function (a, b) {
+    // The saved ID is immutable. Reorganize source records only, never renumber IDs.
+    const existing = items.filter(item => item.id <= 400);
+    const additions = items.filter(item => item.id > 400);
+    existing.sort(function (a, b) {
       const categoryDifference = (rank.get(a.category) ?? 99) - (rank.get(b.category) ?? 99);
       if (categoryDifference) return categoryDifference;
       const pri = byCategory[a.category] || new Map();
@@ -257,6 +362,28 @@
       const bLength = String(b.phrase).trim().split(/\s+/).length;
       return aLength - bLength || a.id - b.id;
     });
+    const arranged = [];
+    topicOrder.forEach(function (category) {
+      const old = existing.filter(item => item.category === category);
+      const next = additions.filter(item => item.category === category);
+      const positions = new Map();
+      const oldRanks = new Map(old.map((item, index) => [normalize(item.phrase), index]));
+      next.forEach(function (item, index) {
+        const anchor = expressionNeighbors.get(normalize(item.phrase));
+        // New phrases sit beside related older expressions, not at the end.
+        const position = oldRanks.has(anchor) ? oldRanks.get(anchor) + 1
+          : Math.min(old.length, Math.floor((index + 1) * old.length / (next.length + 1)));
+        if (!positions.has(position)) positions.set(position, []);
+        positions.get(position).push(item);
+      });
+      for (let i = 0; i <= old.length; i++) {
+        if (i > 0) arranged.push(old[i - 1]);
+        if (positions.has(i)) arranged.push(...positions.get(i));
+      }
+    });
+    existing.concat(additions).filter(item => !topicOrder.includes(item.category)).forEach(item => arranged.push(item));
+    if (arranged.length !== items.length || new Set(arranged).size !== items.length) throw Error("English expression merge integrity failed");
+    items.splice(0, items.length, ...arranged);
     items.forEach((item, index) => { item.studyNumber = index + 1; });
     return items;
   }
