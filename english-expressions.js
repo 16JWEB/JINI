@@ -63,8 +63,8 @@
     if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   }
 
-  // Full-card playback repeats the expression three times and example twice.
-  // The expression-only audio button still plays once.
+  // Both the full card and its '표현 듣기' button use the same sequence:
+  // expression three times, Korean meaning, example twice, then translation.
   function speakSequence(parts) {
     if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
       status.textContent = "이 브라우저는 음성 재생을 지원하지 않아요.";
@@ -115,10 +115,6 @@
       synth.speak(utterance);
     }
     next(0);
-  }
-
-  function speak(text) {
-    speakSequence([{ text: text, lang: "en-US" }]);
   }
 
   function speakExample(text) {
@@ -248,7 +244,7 @@
       mark.setAttribute("aria-pressed", String(saved.includes(item.id)));
       header.appendChild(mark);
       card.appendChild(header);
-      const phraseListen = button("▶ 표현 듣기", "ee-listen", function () { speak(item.phrase); }, item.phrase + " 영어 발음 듣기");
+      const phraseListen = button("▶ 표현 듣기", "ee-listen", function () { speakCard(item); }, item.phrase + " 표현 3회, 한국어 뜻, 영어 예문 2회, 해석 순서로 듣기");
       const exampleArea = element("div", "ee-example");
       exampleArea.appendChild(element("span", "ee-example-label", "예문"));
       exampleArea.appendChild(element("p", "ee-example-en", item.example));
