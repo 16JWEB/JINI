@@ -33,10 +33,51 @@
   function filteredWords(items, level, query) {
     return items.filter(item => vocabularyMatches(item, level || "all", String(query || "").trim()));
   }
-  function reorganizeVocabulary() {
-    const words = window.WORDS;
-    if (!Array.isArray(words) || !words.length) return;
-    const previous = words.slice();
+  // Pair added vocabulary with already-studied words that share a real learning context.
+  // These references are not display-only: they determine the canonical WORDS array order.
+  const nearby = {
+    access: "account website internet permission", attraction: "museum tourist landmark",
+    boundary: "limit border", celebration: "party festival", content: "article information",
+    convenience: "convenient comfort", equipment: "device machine tool",
+    facility: "building gym", household: "family home", humidity: "weather temperature",
+    image: "picture photo", income: "salary money", interaction: "conversation communication",
+    introduction: "meeting name", landscape: "mountain scenery", pattern: "habit routine",
+    position: "place location", possibility: "chance possible", protection: "safety protect",
+    savings: "money bank", slippers: "shoes socks", adapter: "charger outlet",
+    mug: "cup coffee", fan: "air conditioner", wall: "door window",
+    escalator: "stairs elevator", downtown: "city town", suburb: "neighborhood city",
+    serving: "portion meal", beverage: "drink water", texture: "taste flavor",
+    packaging: "package box", container: "bottle box", souvenir: "gift trip",
+    pronunciation: "word language", convert: "change transform",
+    decrease: "reduce increase", filter: "sort remove", rearrange: "arrange organize",
+    detach: "remove attach", recheck: "check confirm", recharge: "charge battery",
+    stroll: "walk", notify: "tell inform", unwind: "relax rest",
+    skim: "read", snooze: "wake sleep", settle: "move stay", bump: "hit",
+    tidy: "clean organize", unbox: "open", scan: "check read",
+    recap: "review summarize", revisit: "visit", untangle: "fix",
+    disconnect: "connect", inspect: "check test", rehearse: "practice",
+    retry: "try", iron: "wash fold", actual: "real",
+    firm: "hard soft", informal: "casual formal", official: "formal",
+    overwhelming: "difficult hard", recommended: "useful popular",
+    related: "similar different", stable: "safe steady",
+    suitable: "appropriate good", unavailable: "available",
+    unusual: "strange different", spacious: "big wide",
+    oversized: "large big", snug: "tight comfortable",
+    lightweight: "light heavy", durable: "strong reliable",
+    fragile: "weak delicate", pricey: "expensive cheap",
+    stylish: "nice fashionable", relieved: "happy relaxed",
+    briefly: "quickly", gradually: "slowly", anymore: "still now",
+    otherwise: "instead", either: "also", neither: "either",
+    anywhere: "everywhere somewhere", somewhere: "anywhere there",
+    anyway: "actually", meanwhile: "simultaneously",
+    finally: "eventually last", upstairs: "downstairs",
+    downstairs: "upstairs", nearby: "near", abroad: "overseas",
+    overnight: "night", beforehand: "early", aloud: "clearly",
+    perhaps: "probably maybe", luckily: "fortunately happy"
+  };
+  // Reconstruct the prior 3,060-word curriculum exactly, so old references can
+  // be migrated even after the new batch has been installed.
+  function legacyOrganize(previous) {
     const arranged = [];
     levels.forEach(function (level) {
       const group = previous.filter(item => item.level === level);
@@ -57,23 +98,92 @@
         if (!queue) break;
         mixed.push(queue.shift());
       }
-      const organized = top.concat(mixed);
-      organized.forEach((item, i) => { item.studyOrder = i + 1; });
+      arranged.push(...top, ...mixed);
+    });
+    previous.filter(item => !levels.includes(item.level)).forEach(item => arranged.push(item));
+    return arranged;
+  }
+  function naturalMerge(base, additions) {
+    if (!additions.length) return base.slice();
+    const anchors = new Map();
+    base.forEach(function (item, index) {
+      if (!anchors.has(normalize(item.word))) anchors.set(normalize(item.word), index);
+    });
+    const gaps = new Map();
+    additions.forEach(function (item) {
+      const related = (nearby[normalize(item.word)] || "").split(" ").filter(Boolean);
+      let pos = -1;
+      for (const term of related) {
+        if (anchors.has(term) && base[anchors.get(term)].partOfSpeech === item.partOfSpeech) {
+          pos = anchors.get(term) + 1;
+          break;
+        }
+      }
+      if (pos === -1) {
+        for (const term of related) {
+          if (anchors.has(term)) { pos = anchors.get(term) + 1; break; }
+        }
+      }
+      if (pos === -1) {
+        // For a future batch without a curated neighbor, distribute entries
+        // throughout the matching level rather than collecting them at its end.
+        let hash = 0;
+        for (const char of item.word) hash = (hash * 31 + char.charCodeAt(0)) % 100003;
+        const target = Math.floor(base.length * (0.08 + 0.84 * (hash % 997) / 997));
+        const samePart = base
+          .map((word, index) => word.partOfSpeech === item.partOfSpeech ? index : -1)
+          .filter(index => index >= 0);
+        pos = samePart.length
+          ? samePart.reduce((closest, index) => Math.abs(index - target) < Math.abs(closest - target) ? index : closest, samePart[0]) + 1
+          : target;
+      }
+      if (!gaps.has(pos)) gaps.set(pos, []);
+      gaps.get(pos).push(item);
+    });
+    const combined = [];
+    for (let index = 0; index <= base.length; index++) {
+      if (index > 0) combined.push(base[index - 1]);
+      if (gaps.has(index)) combined.push(...gaps.get(index));
+    }
+    return combined;
+  }
+  function reorganizeVocabulary() {
+    const words = window.WORDS;
+    if (!Array.isArray(words) || !words.length) return;
+    const previous = words.slice();
+    const isAdditional = item => Number(item.sourceBatch) >= 14;
+    const legacy = previous.filter(item => !isAdditional(item));
+    const newlyAdded = previous.filter(isAdditional);
+    const previouslySorted = legacyOrganize(legacy);
+    const arranged = [];
+    levels.forEach(function (level) {
+      const core = previouslySorted.filter(item => item.level === level);
+      const additions = newlyAdded.filter(item => item.level === level);
+      const organized = naturalMerge(core, additions);
+      organized.forEach((item, index) => { item.studyOrder = index + 1; });
       arranged.push(...organized);
     });
     previous.filter(item => !levels.includes(item.level)).forEach(item => arranged.push(item));
-    if (arranged.length !== previous.length || new Set(arranged).size !== previous.length) throw Error("Vocabulary integrity check failed");
+    if (arranged.length !== previous.length || new Set(arranged).size !== previous.length) {
+      throw Error("Vocabulary curriculum integrity check failed");
+    }
     words.splice(0, words.length, ...arranged);
-    migrateVocabularyReferences(previous, words);
+    migrateVocabularyReferences(previous, previouslySorted, words);
     window.JINI_CURRICULUM_COUNTS = {
       words: words.length,
       levels: Object.fromEntries(levels.map(level => [level, words.filter(item => item.level === level).length]))
     };
   }
-  function migrateVocabularyReferences(previous, sorted) {
-    const flag = "jini-vocabulary-order-migration-v1";
+  function migrateVocabularyReferences(original, priorCurriculum, sorted) {
+    const flag = "jini-vocabulary-order-migration-v2";
     try {
       if (localStorage.getItem(flag)) return;
+      // Users who have already used curriculum v1 saved page indexes in its
+      // 3,060-word ordering; other users still have original source-order indexes.
+      const base = localStorage.getItem("jini-vocabulary-order-migration-v1")
+        ? priorCurriculum : original;
+      const locate = (word, level, query) => filteredWords(sorted, level, query)
+        .findIndex(item => normalize(item.word) === normalize(word));
       const bookmarkKey = "jini-learning-bookmarks";
       const rawBookmarks = localStorage.getItem(bookmarkKey);
       if (rawBookmarks) {
@@ -82,14 +192,14 @@
         if (Array.isArray(bookmarks.vocabulary)) {
           bookmarks.vocabulary.forEach(function (entry) {
             if (!entry || (entry.study || "english") !== "english" || !Number.isInteger(entry.page) || entry.page < 1) return;
-            const before = filteredWords(previous, entry.level, entry.query);
+            const before = filteredWords(base, entry.level, entry.query);
             const anchor = before[(entry.page - 1) * PAGE_SIZE];
-            if (!anchor) return;
-            const after = filteredWords(sorted, entry.level, entry.query);
-            const newIndex = after.indexOf(anchor);
+            const intended = entry.anchorWord || (anchor && anchor.word);
+            if (!intended) return;
+            const newIndex = locate(intended, entry.level, entry.query);
             if (newIndex < 0) return;
-            entry.legacyPage = entry.page;
-            entry.anchorWord = anchor.word;
+            entry.previousPageV2 = entry.page;
+            entry.anchorWord = intended;
             entry.page = Math.floor(newIndex / PAGE_SIZE) + 1;
             touched = true;
           });
@@ -106,15 +216,16 @@
           if (!state || typeof state !== "object" || visited.has(state) || state.page !== "vocabulary") return;
           visited.add(state);
           if (state.study === "korean") return;
-          const before = filteredWords(previous, state.level, state.query);
-          const wanted = Number.isInteger(state.selectedVocabularyIndex) && state.selectedVocabularyIndex >= 0
+          const before = filteredWords(base, state.level, state.query);
+          const requested = Number.isInteger(state.selectedVocabularyIndex) && state.selectedVocabularyIndex >= 0
             ? state.selectedVocabularyIndex : (Math.max(1, state.pageNumber || 1) - 1) * PAGE_SIZE;
-          const anchor = before[wanted];
-          if (!anchor) return;
-          const after = filteredWords(sorted, state.level, state.query);
-          const newIndex = after.indexOf(anchor);
+          const item = before[requested];
+          const intended = state.vocabularyAnchorWord || (item && item.word);
+          if (!intended) return;
+          const newIndex = locate(intended, state.level, state.query);
           if (newIndex < 0) return;
-          state.legacyPageNumber = state.pageNumber;
+          state.previousPageV2 = state.pageNumber;
+          state.vocabularyAnchorWord = intended;
           state.pageNumber = Math.floor(newIndex / PAGE_SIZE) + 1;
           state.selectedVocabularyIndex = newIndex;
           touched = true;
@@ -126,8 +237,7 @@
       }
       localStorage.setItem(flag, "1");
     } catch (error) {
-      // Never interrupt learning or reset a learner's records if browser storage is unavailable.
-      console.warn("JINI curriculum bookmark migration was skipped:", error);
+      console.warn("JINI curriculum v2 bookmark migration was skipped:", error);
     }
   }
   function reorganizeExpressions(items) {
