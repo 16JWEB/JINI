@@ -17,9 +17,9 @@
 };
   const PAGE_SIZE = 10;
   const normalize = value => String(value || "").trim().toLowerCase();
-  function indexList(text) {
+  function indexList(text, phrases) {
     const rank = new Map();
-    String(text).split(/[\s,]+/).filter(Boolean).forEach(function (term, index) {
+    String(text).split(phrases ? "," : /[\s,]+/).map(term => term.trim()).filter(Boolean).forEach(function (term, index) {
       if (!rank.has(normalize(term))) rank.set(normalize(term), index);
     });
     return rank;
@@ -133,7 +133,7 @@
   function reorganizeExpressions(items) {
     if (!Array.isArray(items)) return;
     if (new Set(items.map(item => item.id)).size !== items.length) throw Error("English expression IDs must remain unique");
-    const byCategory = Object.fromEntries(topicOrder.map(category => [category, indexList(priorityExpressions[category])]));
+    const byCategory = Object.fromEntries(topicOrder.map(category => [category, indexList(priorityExpressions[category], true)]));
     const rank = new Map(topicOrder.map((category, index) => [category, index]));
     // IDs are the permanent references for bookmarks, earned XP and review questions.
     items.sort(function (a, b) {
