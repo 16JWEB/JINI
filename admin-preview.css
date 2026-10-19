@@ -56,3 +56,28 @@
 #ja-reward-demo-dialog[open] .jgc-reward-content{isolation:isolate}
 @media(max-width:600px){.ja-reward-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.ja-reward-controls label:last-child{grid-column:1/-1}}
 @media(max-width:360px){.ja-reward-controls{grid-template-columns:1fr}.ja-reward-controls label:last-child{grid-column:auto}}
+
+/* JINI data safety guide: read-only admin reference tab. */
+.ja-data-lead{display:flex;align-items:flex-start;gap:12px;padding:15px;border-radius:14px;background:#f7f5ff;border:1px solid #e4def8;margin-bottom:15px}
+.ja-data-lead-icon{font-size:23px;line-height:1.1}
+.ja-data-lead strong{display:block;font-size:14px;color:#423471;margin-bottom:4px}
+.ja-data-lead p{margin:0;font-size:12px;line-height:1.7;color:#5f5776}
+.ja-data-section{margin:18px 0 0}
+.ja-data-section h3{font-size:15px;line-height:1.5;color:#342e4e;margin:0 0 10px}
+.ja-data-section>p{font-size:12px;line-height:1.7;color:#615b6f;margin:0 0 11px}
+.ja-data-table-wrap{overflow-x:auto;border:1px solid #e8e4f1;border-radius:12px}
+.ja-data-table{width:100%;border-collapse:collapse;font-size:12px;line-height:1.55;text-align:left}
+.ja-data-table th{background:#f7f6fb;color:#554c70;font-weight:800}
+.ja-data-table th,.ja-data-table td{padding:11px 12px;vertical-align:top;border-bottom:1px solid #ece9f3}
+.ja-data-table tr:last-child td{border-bottom:0}
+.ja-data-table td:first-child{font-weight:700;color:#463f58}
+.ja-data-risk{white-space:nowrap;font-weight:800}
+.ja-data-risk.low{color:#278565}.ja-data-risk.medium{color:#a36b1f}.ja-data-risk.high{color:#b64755}
+.ja-data-checks{padding:12px 15px 12px 34px;margin:0;background:#fbfafc;border:1px solid #eae6f0;border-radius:12px}
+.ja-data-checks li{font-size:12px;line-height:1.75;color:#544f63;margin:4px 0}
+.ja-data-plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ja-data-plan{border:1px solid #e8e4f1;background:#fff;border-radius:12px;padding:12px;min-width:0}
+.ja-data-plan strong{display:block;font-size:13px;color:#483b73;margin-bottom:5px}
+.ja-data-plan p{margin:0;color:#676070;font-size:12px;line-height:1.65}
+.ja-data-legal{font-size:11px;line-height:1.7;color:#817989;margin:15px 0 0}
+@media(max-width:600px){.ja-data-plans{grid-template-columns:1fr}.ja-data-table{font-size:11px}.ja-data-table th,.ja-data-table td{padding:9px 8px}.ja-data-lead{padding:12px;gap:9px}}
