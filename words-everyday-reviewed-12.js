@@ -34,7 +34,7 @@
 중등|verb|pretend|prɪˈtend|~인 척하다|He pretended not to hear his alarm.|그는 알람 소리를 못 들은 척했어요.
 중등|verb|reassure|ˌriːəˈʃʊr|안심시키다|The staff reassured us that our reservation was confirmed.|직원이 예약이 확정됐다고 말해 우리를 안심시켰어요.
 고등|verb|suspect|səˈspekt|의심하다, 짐작하다|I suspect the battery is causing the problem.|배터리가 문제의 원인인 것 같아요.
-초등|verb|browse|braʊz|둘러보다, 찾아보다|I like to browse bookstores when I have free time.|시간이 날 때 서점을 둘러보는 걸 좋아해요.
+초등|verb|sip|sɪp|조금씩 마시다|I like to sip warm tea while reading.|책을 읽으면서 따뜻한 차를 조금씩 마시는 걸 좋아해요.
 초등|verb|shave|ʃeɪv|면도하다|I usually shave before going to work.|저는 보통 출근하기 전에 면도해요.
 초등|verb|grab|ɡræb|재빨리 집다, 간단히 먹다|Let's grab a sandwich before the movie starts.|영화 시작하기 전에 샌드위치 하나 먹어요.
 중등|verb|swap|swɑːp|서로 바꾸다|Can we swap seats so I can sit next to my friend?|친구 옆에 앉을 수 있게 자리 좀 바꿔도 될까요?
