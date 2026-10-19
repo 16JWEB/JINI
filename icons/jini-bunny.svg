@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="책 읽는 윙크 토끼 JINI 아이콘">
+<defs><radialGradient id="bg" cx=".47" cy=".38" r=".8"><stop stop-color="#fff5af"/><stop offset=".65" stop-color="#ffdf7c"/><stop offset="1" stop-color="#ffb23f"/></radialGradient><radialGradient id="fur" cx=".35" cy=".23" r=".9"><stop stop-color="#fff"/><stop offset=".76" stop-color="#fffafa"/><stop offset="1" stop-color="#e8e1ee"/></radialGradient><linearGradient id="pink" x2=".4" y2="1"><stop stop-color="#ffa8b7"/><stop offset="1" stop-color="#ff6e82"/></linearGradient><linearGradient id="book" x2=".15" y2="1"><stop stop-color="#248dff"/><stop offset="1" stop-color="#0644ce"/></linearGradient><filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+<rect width="512" height="512" rx="110" fill="url(#bg)"/><ellipse cx="260" cy="459" rx="196" ry="26" fill="#bf731c" opacity=".14" filter="url(#shadow)"/>
+<g transform="rotate(-33 169 150)"><ellipse cx="169" cy="150" rx="63" ry="119" fill="url(#fur)"/><ellipse cx="169" cy="146" rx="30" ry="82" fill="url(#pink)"/></g>
+<g transform="rotate(8 313 130)"><ellipse cx="313" cy="130" rx="58" ry="117" fill="url(#fur)"/><ellipse cx="313" cy="127" rx="28" ry="82" fill="url(#pink)"/></g>
+<g fill="#ffca15" stroke="#fff19f" stroke-width="4"><rect x="417" y="131" width="23" height="70" rx="12" transform="rotate(26 428 166)"/><rect x="450" y="184" width="23" height="67" rx="12" transform="rotate(48 462 217)"/><rect x="458" y="248" width="20" height="56" rx="10" transform="rotate(75 468 276)"/></g>
+<ellipse cx="265" cy="301" rx="204" ry="160" fill="url(#fur)"/>
+<ellipse cx="111" cy="349" rx="42" ry="43" fill="url(#fur)"/><ellipse cx="429" cy="339" rx="42" ry="44" fill="url(#fur)"/>
+<ellipse cx="151" cy="338" rx="43" ry="36" fill="#ffaeba" opacity=".75"/><ellipse cx="388" cy="330" rx="41" ry="36" fill="#ffaeba" opacity=".75"/>
+<path d="M164 290q25-32 53 0" fill="none" stroke="#2e1421" stroke-width="15" stroke-linecap="round"/>
+<ellipse cx="338" cy="276" rx="32" ry="47" fill="#32131f"/><ellipse cx="344" cy="265" rx="21" ry="34" fill="#481c25"/><ellipse cx="348" cy="255" rx="12" ry="15" fill="#fff"/><circle cx="325" cy="278" r="5" fill="#fff"/>
+<path d="M246 338q20 14 40-1 16 16 31-1-4 56-36 60-31-3-35-58Z" fill="#cf2441"/><ellipse cx="281" cy="377" rx="29" ry="15" fill="#ff6a7e"/><path d="M263 326q18-14 36 0-7 14-19 14-12 0-17-14Z" fill="#ff788d"/>
+<path d="M132 435q58-64 139-24 81-39 134 25l-16 76H126Z" fill="#172e83"/>
+<path d="M274 411l-26-17-15 16 21 16-20 22 36-7 35 7-19-23 22-16-17-17Z" fill="#ef303d"/><circle cx="271" cy="424" r="9" fill="#b71833"/>
+<path d="M61 433q91-31 202 30v65q-96-52-202-29Z" fill="url(#book)" stroke="#1253e3" stroke-width="7"/><path d="M263 463q93-62 188-31l-12 67q-96-22-176 29Z" fill="url(#book)" stroke="#1253e3" stroke-width="7"/><path d="M76 426q90-30 187 33 90-56 174-34" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M263 462v56" stroke="#0041b6" stroke-width="8"/>
+<ellipse cx="112" cy="479" rx="41" ry="39" fill="url(#fur)"/><ellipse cx="417" cy="473" rx="40" ry="40" fill="url(#fur)"/>
+</svg>
