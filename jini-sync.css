@@ -1,0 +1,47 @@
+/* JINI 학습정보 동기화 페이지 */
+.jsy-section[hidden]{display:none!important}
+.jsy-section{max-width:930px;margin:25px auto 45px;color:#302f48}
+.jsy-head h1{font-size:27px;line-height:1.3;margin:0 0 8px}
+.jsy-head p{color:#777a91;font-size:14px;margin:0 0 22px;line-height:1.7}
+.jsy-card{border:1px solid #e6e5f0;background:#fff;border-radius:16px;padding:20px 22px;margin:0 0 17px;box-shadow:0 4px 20px rgba(40,31,86,.025)}
+.jsy-card h2{font-size:17px;margin:0 0 14px;color:#34324f}
+.jsy-info{background:#f5f5ff;border-color:#e4e2ff}
+.jsy-info p{font-size:14px;line-height:1.75;margin:7px 0}
+.jsy-list{padding-left:21px;margin:13px 0 0;color:#616680;font-size:13px;line-height:1.9}
+.jsy-status-row{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #f1f0f6;padding:10px 0;font-size:14px}
+.jsy-status-row:last-of-type{border:0}
+.jsy-label{color:#6f7389}
+.jsy-pill{display:inline-block;font-size:12px;background:#f1f0f5;color:#6d6c80;border-radius:50px;padding:5px 11px;font-weight:700}
+.jsy-pill.is-connected{background:#e4f4eb;color:#227653}
+.jsy-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:15px 0 0}
+.jsy-btn{border:1px solid #dcd9ec;border-radius:10px;padding:13px 9px;background:white;font-size:13px;font-family:inherit;font-weight:700;color:#4e4a65;cursor:pointer;min-height:45px}
+.jsy-btn:disabled{opacity:.46;cursor:not-allowed}
+.jsy-btn.primary{background:#6958e8;border-color:#6958e8;color:#fff}
+.jsy-btn.danger{color:#b93e50;border-color:#eed2d6;width:100%;margin-top:10px}
+.jsy-btn:focus-visible{outline:3px solid #b6aeff;outline-offset:2px}
+.jsy-path{background:#f8f8fc;border:1px solid #ededf4;padding:14px;border-radius:11px;font-size:14px;line-height:1.7;word-break:break-word}
+.jsy-path strong{color:#5142bf}
+.jsy-path-file{color:#73778a;font-size:13px;margin-top:7px}
+.jsy-muted{color:#828397;font-size:12px;line-height:1.7;margin:9px 0 0}
+.jsy-link{display:inline-block;font-size:13px;color:#5948ce;margin-top:12px;font-weight:700}
+.jsy-message{border-radius:11px;background:#f2f3f8;color:#43455c;padding:13px 15px;font-size:13px;line-height:1.7;margin-top:14px}
+.jsy-message[hidden],.jsy-conflict[hidden],.jsy-confirm[hidden]{display:none!important}
+.jsy-message.is-error{background:#fff0f1;color:#963747}
+.jsy-confirm{border:1px solid #edcdd0;border-radius:12px;background:#fffafa;padding:15px;margin-top:12px;font-size:13px;line-height:1.7}
+.jsy-confirm .jsy-buttons{margin-top:10px}
+.jsy-conflict{border:1px solid #e9d1a3;background:#fffaf0;border-radius:12px;padding:15px;font-size:13px;line-height:1.7;margin-top:12px}
+.jsy-conflict p{margin:5px 0 0}
+.jsy-config{color:#78582f;background:#fff8e8;border:1px solid #f3e1b4;border-radius:10px;padding:12px 14px;margin-top:14px;font-size:12px;line-height:1.7}
+.jsy-config[hidden]{display:none!important}
+.jsy-local-tools{padding:10px 0 0;border-top:1px solid #efedf6;margin-top:18px}
+.jsy-local-tools summary{font-size:13px;cursor:pointer;color:#6b648d;font-weight:600}
+.jsy-local-tools .jsy-buttons{margin-top:10px}
+@media(max-width:760px){
+ .jsy-section{margin:18px auto 28px}
+ .jsy-head h1{font-size:23px}
+ .jsy-card{border-radius:14px;padding:17px 15px}
+ .jsy-btn{font-size:12px;padding:12px 6px}
+ .home-nav .home-study-sync-link{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:0 0 auto;min-width:74px;min-height:43px;padding:6px 4px;font-size:9px}
+ .home-nav .home-study-sync-link .nav-icon{width:auto;font-size:15px;line-height:1.1}
+ .sidebar[data-study="home"] .home-nav{gap:1px}
+}
