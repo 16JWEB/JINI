@@ -643,19 +643,27 @@
         </div>
         <div class="jsy-card jsy-info">
           <h2>☁ Google Drive 자동 동기화</h2>
-          <p><strong>동기화 하기를 눌러 연결하면</strong> JINI의 학습 데이터가 Google Drive에 자동으로 저장됩니다. PC와 모바일에서 같은 Google 계정으로 연결하면 동일한 학습정보를 불러와 이용할 수 있습니다.</p>
+          <p><strong>시험 운영 중:</strong> Google 연결 성공과 학습정보 백업·복원 성공은 별개입니다. 연결 후 아래의 XP·학습시간 비교를 확인하세요. 기존 기기에서 먼저 백업한 뒤 새 기기에서 복원해야 합니다.</p>
           <ul class="jsy-list">
             <li>영어·한글 학습 진도 및 일별·월별 학습시간</li>
             <li>캐릭터 레벨, XP, 보상 및 꾸미기 정보</li>
             <li>크롬 사이트 데이터를 삭제해도 Drive에 백업된 기록 복원 가능</li>
           </ul>
-          <p class="jsy-muted">인터넷 연결 중 JINI가 열려 있을 때 동기화합니다. 인증이 만료되면 Google 재연결이 필요할 수 있습니다. 서로 다른 기기의 기록이 동시에 변경되면 덮어쓰기 전에 확인합니다.</p>
+          <p class="jsy-muted">동기화는 관리자 시험 운영 탭을 열어 둔 동안만 수행합니다. 인증이 만료되면 Google 재연결이 필요할 수 있습니다. 다른 기기의 기록을 덮어쓰기 전에 충돌을 확인합니다.</p>
         </div>
         <div class="jsy-card">
           <h2>동기화 연결 상태</h2>
           <div class="jsy-status-row"><span class="jsy-label">Google Drive</span><span id="jsy-state" class="jsy-pill">연결 안 됨</span></div>
           <div class="jsy-status-row"><span class="jsy-label">자동 동기화</span><strong id="jsy-auto">비활성화</strong></div>
           <div class="jsy-status-row"><span class="jsy-label">마지막 동기화</span><strong id="jsy-last">기록 없음</strong></div>
+          <div class="jsy-data-audit" aria-label="Google Drive 데이터 비교">
+            <strong>학습정보 실제 저장 상태 확인</strong>
+            <p>연결됨은 Google 로그인 상태예요. 아래에서 XP·레벨·학습시간·캐릭터를 비교해야 복원 여부를 알 수 있어요.</p>
+            <div class="jsy-audit-item"><span>이 기기의 학습기록</span><div id="jsy-local-summary">확인 중</div></div>
+            <div class="jsy-audit-item"><span>Google Drive 백업</span><div id="jsy-remote-summary">Google 연결 후 확인</div></div>
+            <p id="jsy-compare-note" class="jsy-muted">기존 기기에서 기록이 보이는지 먼저 확인하세요.</p>
+            <button id="jsy-refresh" class="jsy-btn" type="button" disabled>↻ Drive 백업 다시 확인</button>
+          </div>
           <div class="jsy-buttons">
             <button id="jsy-connect" class="jsy-btn primary" type="button">↻ 동기화 하기</button>
             <button id="jsy-disconnect" class="jsy-btn" type="button" disabled>⤬ 동기화 해제</button>
@@ -757,7 +765,7 @@
   <script src="opic-mock.js?v=20261017-mock-v2"></script>
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="jini-sync.js?v=20261020-admin-only-v5"></script>
+  <script src="jini-sync.js?v=20261020-study-full-restore-v6"></script>
 </body>
 </html>
 
