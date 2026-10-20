@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="game-character-aura.css?v=20261018-aura-2">
   <link rel="stylesheet" href="game-character-reward.css?v=20261018-reward-demo-v1">
   <link rel="stylesheet" href="home-characters.css?v=20261018-home-study-top-v1">
+  <link rel="stylesheet" href="study-time.css?v=20261020-calendar-v1">
   <link rel="stylesheet" href="jini-chrome-launch.css?v=20261018-number-left-v1">
   <link rel="stylesheet" href="jini-install.css?v=20261018-number-left-v1">
   <link rel="stylesheet" href="jini-address-bar.css?v=20261018-standalone-address-v1">
@@ -201,12 +202,20 @@
               <button class="home-start-button" id="start-korean-learning" type="button" data-resume-study="korean">📕 AI 한글공부 시작 ›</button>
               <button class="home-resume-button" id="resume-korean-study" type="button" data-resume-study="korean">마지막 한글 공부 화면</button>
             </div>
+            <div class="home-study-choice">
+              <button class="home-start-button" id="open-study-info" type="button" data-page="study-info">📊 나의 학습정보 ›</button>
+              <button class="home-resume-button" type="button" data-page="study-info">공부시간 · 학습 달력</button>
+            </div>
           </div>
           <div class="jini-home-character-grid" aria-label="나의 영어·한글 캐릭터">
             <div class="jgc-home-slot" id="jini-home-character-english" data-jini-character-panel="english" data-jini-character-home="true"></div>
             <div class="jgc-home-slot" id="jini-home-character-korean" data-jini-character-panel="korean" data-jini-character-home="true"></div>
           </div>
         </div>
+      </section>
+
+      <section class="jst-section" id="jini-study-info-section" hidden>
+        <div id="jini-study-time-root" aria-live="polite"></div>
       </section>
 
       <section class="vocabulary-section" hidden>
@@ -655,7 +664,8 @@
   <script src="words-everyday-reviewed-13.js?v=20261020-daily-common-100-batch13-v1"></script>
   <script src="words-everyday-reviewed-14.js?v=20261020-essential-100-merged-v3"></script>
   <script src="english-learning-order-data.js?v=20261020-500-expressions-merge-v1"></script>
-  <script src="app.js?v=20261020-expressions-500-v1"></script>
+  <script src="study-time.js?v=20261020-calendar-v1"></script>
+  <script src="app.js?v=20261020-study-time-v1"></script>
   <script src="jini-chrome-launch.js?v=20261018-compact-shortcuts-v2"></script>
   <script src="jini-install.js?v=20261018-number-left-v1"></script>
   <script src="jini-address-bar.js?v=20261018-standalone-address-v1"></script>
