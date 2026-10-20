@@ -169,7 +169,7 @@
   function applyRecords(records) {
     const existing = snapshot();
     // 복원 전에 현재 기록을 파일로 별도 저장해 실수로 잃지 않게 합니다.
-    if (Object.keys(existing).length) download(existing);
+    if (meaningful(existing)) download(existing);
     // Preserve the authorized browser-tab session across this reload.
     if (validToken()) keepTabToken();
     Object.keys(existing).forEach(function (key) { localStorage.removeItem(key); });
@@ -249,7 +249,14 @@
   async function readFile(id) {
     const data = await request(API + "/" + encodeURIComponent(id) + "?alt=media");
     const parsed = typeof data === "string" ? JSON.parse(data) : data;
-    return validate(parsed);
+    const saved = validate(parsed);
+    // Older JINI backups may include a volatile last-open page key.
+    // Keep progress data only, or a brand-new PC will appear "different".
+    const records = {};
+    Object.keys(saved).sort().forEach(function (key) {
+      if (included(key)) records[key] = saved[key];
+    });
+    return records;
   }
   async function writeFile(records, existing) {
     let id = existing && existing.id;
@@ -271,6 +278,7 @@
   function markSynced(records, remote) {
     meta.lastHash = fingerprint(records);
     meta.lastRemoteVersion = String(remote.version || "");
+    meta.lastRemoteFileId = remote.id || "";
     meta.lastSyncedAt = new Date().toISOString();
     meta.deleted = false;
     saveMeta();
@@ -281,7 +289,10 @@
     conflict = { local: local, remote: remote, remoteMeta: remoteMeta };
     $("jsy-conflict-text").textContent = "이 기기와 Google Drive 양쪽에 서로 다른 학습기록이 있습니다. 안전을 위해 자동 덮어쓰기를 중지했어요. 어느 기록을 사용할지 선택해 주세요. Drive 기록을 사용하면 현재 기록이 JSON 파일로 별도 다운로드됩니다.";
     render();
-    status("기기 간 기록 충돌로 자동 동기화가 일시 중지되었습니다.", true);
+    status("두 기기에서 학습기록이 발견됐어요. 아래에서 'Drive 기록 사용' 또는 '이 기기 기록 사용'을 선택해 주세요. 선택 전에는 기존 기록을 덮어쓰지 않아요.", true);
+    if (!root.hidden) {
+      try { $("jsy-conflict").scrollIntoView({ behavior: "smooth", block: "center" }); } catch (_) {}
+    }
   }
   async function syncCycle() {
     if (!validToken() || busy || conflict || document.hidden) return;
@@ -291,6 +302,14 @@
       const local = snapshot();
       const localHash = fingerprint(local);
       const remoteMeta = await findFile();
+      // Never reuse sync baselines from a different Drive file/account.
+      if (remoteMeta && meta.lastRemoteFileId &&
+          meta.lastRemoteFileId !== remoteMeta.id) {
+        meta.lastHash = "";
+        meta.lastRemoteVersion = "";
+        meta.lastRemoteFileId = "";
+        saveMeta();
+      }
       if (!remoteMeta) {
         // 다른 기기에서 백업을 삭제했으면 자동으로 다시 만들지 않습니다.
         if (meta.lastRemoteVersion || meta.deleted) {
@@ -332,9 +351,10 @@
       } else if (!meaningful(local) || (meta.lastHash && localHash === meta.lastHash)) {
         meta.lastHash = remoteHash;
         meta.lastRemoteVersion = remoteVersion;
+        meta.lastRemoteFileId = remoteMeta.id;
         meta.lastSyncedAt = new Date().toISOString();
         saveMeta();
-        status("다른 기기의 최신 학습정보를 불러옵니다.");
+        status("Drive에서 기존 학습기록을 찾았습니다. 이 기기로 복원하고 있어요.");
         applyRecords(remote);
       } else {
         showConflict(local, remote, remoteMeta);
@@ -432,6 +452,7 @@
       const data = await readFile(found.id);
       meta.lastHash = fingerprint(data);
       meta.lastRemoteVersion = String(found.version || "");
+      meta.lastRemoteFileId = found.id;
       meta.lastSyncedAt = new Date().toISOString();
       saveMeta();
       status("Drive 기록을 복원하고 페이지를 새로 고칩니다.");
@@ -445,6 +466,7 @@
       if (found) await request(API + "/" + encodeURIComponent(found.id), { method: "DELETE" });
       meta.deleted = true;
       meta.lastRemoteVersion = "";
+      meta.lastRemoteFileId = "";
       meta.lastHash = "";
       saveMeta();
       clearTabToken();
