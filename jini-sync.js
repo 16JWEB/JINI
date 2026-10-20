@@ -250,7 +250,9 @@
   function validToken() { return !!token && Date.now() < expiresAt - 30000; }
   function render() {
     const on = validToken();
-    $("jsy-state").textContent = on ? "Google 연결됨" : "연결 안 됨";
+    const reconnectNeeded = !on && !!meta.previouslyConnected;
+    $("jsy-state").textContent = on ? "Google 연결됨" :
+      reconnectNeeded ? "Google 재연결 필요" : "연결 안 됨";
     $("jsy-state").classList.toggle("is-connected", on);
     const equalRecords = on && driveSnapshot &&
       fingerprint(snapshot()) === fingerprint(driveSnapshot);
@@ -260,6 +262,7 @@
       equalRecords ? "학습기록 일치" : "학습기록 다름";
     $("jsy-last").textContent = dateTime(meta.lastSyncedAt);
     $("jsy-connect").disabled = on || busy;
+    $("jsy-connect").textContent = reconnectNeeded ? "↻ Google 다시 연결" : "↻ 동기화 하기";
     $("jsy-disconnect").disabled = !on || busy;
     $("jsy-backup").disabled = !on || busy;
     $("jsy-restore").disabled = !on || busy;
@@ -485,6 +488,9 @@
           token = response.access_token;
           expiresAt = Date.now() + (Number(response.expires_in) || 3600) * 1000;
           keepTabToken();
+          // Reconnect intent is not a credential. Never persist tokens in localStorage.
+          meta.previouslyConnected = true;
+          saveMeta();
           conflict = null;
           status("Google Drive에 연결했습니다. 기존 백업과 학습기록을 비교합니다.");
           render();
@@ -495,7 +501,9 @@
             (error && error.type ? " (" + error.type + ")" : ""), true);
         }
       });
-      client.requestAccessToken({ prompt: "consent" });
+      // Keep account selection to avoid uploading to a different Google Drive,
+      // but do not force a repeated consent screen at every connection.
+      client.requestAccessToken({ prompt: "select_account" });
     } catch (e) { status(e.message, true); }
   }
   function disconnect() {
@@ -503,6 +511,8 @@
       try { google.accounts.oauth2.revoke(token, function () {}); } catch (_) {}
     }
     clearTabToken();
+    meta.previouslyConnected = false;
+    saveMeta();
     conflict = null;
     status("이 기기의 동기화를 해제했어요. Drive 백업과 기기 학습기록은 그대로 유지됩니다.");
     render();
@@ -590,6 +600,8 @@
       meta.lastHash = "";
       saveMeta();
       clearTabToken();
+      meta.previouslyConnected = false;
+      saveMeta();
       conflict = null;
       status("Drive의 JINI 백업을 삭제했습니다. 이 기기의 학습기록은 유지됩니다. 다른 기기에서는 기존 연결을 해제해 주세요.");
     });
@@ -670,10 +682,12 @@
   render();
   if (validToken()) {
     status("Google Drive 연결은 이 탭에 유지되어 있습니다. 관리자 동기화 탭을 열면 기록을 확인합니다.");
+  } else if (meta.previouslyConnected) {
+    status("이전 Google 연결의 인증이 필요합니다. 기기와 Drive 학습기록은 유지되어 있으며, 'Google 다시 연결'을 누르면 이어서 확인할 수 있습니다.");
   }
   setInterval(function () {
     if (validToken() && adminOpen()) syncCycle();
-    else if (token) { clearTabToken(); status("Google 인증 시간이 만료되었어요. 다시 동기화 해 주세요.", true); render(); }
+    else if (token) { clearTabToken(); status("Google 인증이 만료되었습니다. 기기와 Drive 기록은 유지됩니다. Google 다시 연결을 눌러 주세요.", true); render(); }
   }, 45000);
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden && validToken() && adminOpen()) syncCycle();
