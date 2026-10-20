@@ -54,3 +54,12 @@
  #ja-sync-panel .jsy-card{padding:14px 12px}
  #ja-sync-panel .jsy-btn{min-height:42px;font-size:12px}
 }
+
+/* Study-data audit: verify actual Drive records, not just OAuth connection. */
+.jsy-data-audit{margin:14px 0;border:1px solid #dce3fa;border-radius:13px;padding:14px;background:#f7f9ff}
+.jsy-data-audit>strong{font-size:13px;color:#3f397b;display:block;margin-bottom:6px}
+.jsy-data-audit>p{font-size:12px;line-height:1.65;margin:6px 0 11px;color:#68607c}
+.jsy-audit-item{margin-top:10px;padding:11px 12px;border:1px solid #e6e5f1;background:white;border-radius:10px}
+.jsy-audit-item>span{display:block;font-size:11px;font-weight:750;color:#74698b;margin-bottom:4px}
+.jsy-audit-item>div{font-size:12px;line-height:1.7;overflow-wrap:anywhere;color:#30294b}
+.jsy-data-audit .jsy-btn{margin-top:4px}
