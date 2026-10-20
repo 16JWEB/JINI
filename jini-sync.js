@@ -329,6 +329,23 @@
       }
       fileId = remoteMeta.id;
       const remoteVersion = String(remoteMeta.version || "");
+      // Previously saved sync metadata may have been calculated with a different
+      // set of keys. Never interpret an empty/new device as a newer snapshot.
+      // Read Drive progress first, before the "same version -> upload" branch.
+      if (!meaningful(local)) {
+        const remoteExisting = await readFile(remoteMeta.id);
+        if (meaningful(remoteExisting) &&
+            fingerprint(remoteExisting) !== localHash) {
+          meta.lastHash = fingerprint(remoteExisting);
+          meta.lastRemoteVersion = remoteVersion;
+          meta.lastRemoteFileId = remoteMeta.id;
+          meta.lastSyncedAt = new Date().toISOString();
+          saveMeta();
+          status("Drive의 학습기록을 우선 복원합니다. 빈 기기 정보로 백업을 덮어쓰지 않아요.");
+          applyRecords(remoteExisting);
+          return;
+        }
+      }
       if (meta.lastRemoteVersion && remoteVersion === String(meta.lastRemoteVersion)) {
         if (localHash !== meta.lastHash) {
           const now = await findFile();
