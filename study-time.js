@@ -5,7 +5,6 @@
   const KEY = "jini-study-time-v1";
   const IDLE_MS = 90 * 1000;
   const MAX_TICK_MS = 20 * 1000;
-  const DAY_MS = 86400000;
   const ENGLISH = new Set(["vocabulary", "player", "english-expressions",
     "english-expression-player", "verb-forms", "english-game",
     "speaking", "opic", "opic-basic", "opic-mock"]);
@@ -84,10 +83,10 @@
         !window.speechSynthesis.paused);
     } catch (_) { return false; }
   }
-  function settle() {
+  function settle(forceVisible) {
     const now = Date.now();
     const study = languageFor(page);
-    if (study && !document.hidden) {
+    if (study && (!document.hidden || forceVisible)) {
       // Do not credit large gaps when mobile browsers sleep in the background.
       const start = Math.max(lastTick, now - MAX_TICK_MS);
       const until = voicePlaying() ? now : Math.min(now, lastActivity + IDLE_MS);
@@ -291,11 +290,11 @@
     document.addEventListener(name, markActivity, { passive: true });
   });
   document.addEventListener("visibilitychange", function () {
-    if (document.hidden) settle();
+    if (document.hidden) settle(true);
     lastTick = Date.now();
     if (!document.hidden) lastActivity = lastTick;
   });
-  window.addEventListener("pagehide", settle);
+  window.addEventListener("pagehide", function () { settle(true); });
   window.addEventListener("storage", function (event) {
     if (event.key === KEY && page === "study-info") render();
   });
