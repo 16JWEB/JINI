@@ -135,6 +135,57 @@
       return true;
     });
   }
+  // Summaries allow the learner to tell "Google connected" from
+  // "actual XP and study history saved/restored".
+  function summary(records) {
+    function json(k) {
+      try { return JSON.parse(records[k] || "null") || {}; } catch (_) { return {}; }
+    }
+    const en = json("jini-english-game-v1");
+    const ko = json("jini-korean-games-v1");
+    const study = json("jini-study-time-v1");
+    const days = study.days && typeof study.days === "object" ? Object.values(study.days) : [];
+    const minutes = Math.floor(days.reduce(function (sum, d) {
+      return sum + Math.max(0, Number(d.englishMs || 0)) + Math.max(0, Number(d.koreanMs || 0));
+    }, 0) / 60000);
+    const enProfile = json("jini-game-character-english-v1");
+    const koProfile = json("jini-game-character-korean-v1");
+    const legacyProfile = json("jini-game-character-v1");
+    const englishName = enProfile.name || legacyProfile.name || "기본 캐릭터";
+    const koreanName = koProfile.name || legacyProfile.name || "기본 캐릭터";
+    const enXp = Math.max(0, Number(en.xp || 0));
+    const koXp = Math.max(0, Number(ko.xp || 0));
+    return {
+      enXp: enXp, koXp: koXp, minutes: minutes,
+      enLevel: Math.floor(enXp / 100) + 1, koLevel: Math.floor(koXp / 100) + 1,
+      englishName: englishName, koreanName: koreanName,
+      keys: Object.keys(records).length, hasProgress: meaningful(records)
+    };
+  }
+  function description(records) {
+    const x = summary(records);
+    return "영어 Lv." + x.enLevel + " (" + x.enXp + " XP), 한글 Lv." +
+      x.koLevel + " (" + x.koXp + " XP) · 학습시간 " + x.minutes + "분 · 캐릭터 " +
+      x.englishName + " / " + x.koreanName +
+      (x.hasProgress ? "" : " · 실제 학습기록 없음");
+  }
+  let driveSnapshot = null;
+  let driveChecked = false;
+  function showDataComparison(remote, note) {
+    $("jsy-local-summary").textContent = description(snapshot());
+    if (remote === null) {
+      $("jsy-remote-summary").textContent = "백업 파일 없음";
+      driveChecked = true;
+      driveSnapshot = null;
+    } else if (remote) {
+      $("jsy-remote-summary").textContent = description(remote);
+      driveChecked = true;
+      driveSnapshot = remote;
+    } else if (!driveChecked) {
+      $("jsy-remote-summary").textContent = "아직 확인 전";
+    }
+    if (note) $("jsy-compare-note").textContent = note;
+  }
   function fingerprint(records) {
     const value = JSON.stringify(records);
     let n = 2166136261;
@@ -154,12 +205,17 @@
     }
     const data = value.data;
     if (Object.keys(data).length > 1000) throw new Error("백업 항목이 너무 많습니다.");
-    for (const k of Object.keys(data)) {
-      if (!included(k) || typeof data[k] !== "string" || data[k].length > 2000000) {
-        throw new Error("백업파일에 허용되지 않는 데이터가 포함되어 있습니다.");
+    const restored = {};
+    // Legacy backups created before Oct 20 may contain jini-last-study-state
+    // and unrelated localStorage entries. Filter those out; do not reject
+    // legitimate XP, character, study-time and bookmark data because of them.
+    for (const k of Object.keys(data).sort()) {
+      if (typeof data[k] !== "string" || data[k].length > 2000000) {
+        throw new Error("백업파일에 잘못된 학습정보가 포함되어 있습니다.");
       }
+      if (included(k)) restored[k] = data[k];
     }
-    return data;
+    return restored;
   }
   function download(records) {
     const blob = new Blob([JSON.stringify(payload(records), null, 2)], { type: "application/json" });
@@ -205,6 +261,9 @@
     $("jsy-delete").disabled = !on || busy;
     $("jsy-config").hidden = !!CONFIG_ID;
     $("jsy-conflict").hidden = !conflict;
+    $("jsy-refresh").disabled = !on || busy;
+    $("jsy-local-summary").textContent = description(snapshot());
+    if (!driveChecked && !on) $("jsy-remote-summary").textContent = "Google 연결 후 확인";
   }
   async function request(url, opts) {
     if (!validToken()) {
@@ -255,14 +314,7 @@
   async function readFile(id) {
     const data = await request(API + "/" + encodeURIComponent(id) + "?alt=media");
     const parsed = typeof data === "string" ? JSON.parse(data) : data;
-    const saved = validate(parsed);
-    // Older JINI backups may include a volatile last-open page key.
-    // Keep progress data only, or a brand-new PC will appear "different".
-    const records = {};
-    Object.keys(saved).sort().forEach(function (key) {
-      if (included(key)) records[key] = saved[key];
-    });
-    return records;
+    return validate(parsed);
   }
   async function writeFile(records, existing) {
     let id = existing && existing.id;
@@ -319,6 +371,7 @@
         saveMeta();
       }
       if (!remoteMeta) {
+        showDataComparison(null, "Google Drive에서 JINI 백업파일을 찾지 못했습니다.");
         // 다른 기기에서 백업을 삭제했으면 자동으로 다시 만들지 않습니다.
         if (meta.lastRemoteVersion || meta.deleted) {
           clearTabToken();
@@ -326,31 +379,41 @@
           render();
           return;
         }
-        if (Object.keys(local).length) {
+        if (meaningful(local)) {
           const saved = await writeFile(local, null);
           markSynced(local, saved);
-          status("Google Drive에 첫 백업을 저장했습니다.");
+          showDataComparison(local, "첫 백업 생성 및 업로드 완료.");
+          status("Google Drive에 첫 학습기록 백업을 저장했습니다.");
         } else {
-          status("아직 저장할 학습기록이 없습니다. 학습을 시작하면 백업을 생성합니다.");
+          status("이 기기에 실제 학습기록이 없어 빈 백업을 만들지 않았습니다.", true);
         }
         return;
       }
       fileId = remoteMeta.id;
       const remoteVersion = String(remoteMeta.version || "");
+      // Always inspect the remote payload. Version equality alone does not
+      // prove that the file contains the latest character and study progress.
+      const remoteData = await readFile(remoteMeta.id);
+      showDataComparison(remoteData, "Drive 파일 수정: " + dateTime(remoteMeta.modifiedTime) +
+        " · 버전 " + (remoteVersion || "확인 불가"));
+      if (!meaningful(remoteData)) {
+        status("Google Drive에 백업파일은 있지만 실제 학습기록이 없습니다. 기록이 있는 원래 기기에서 '지금 백업하기'로 저장해 주세요.", true);
+        // Do not silently overwrite an existing backup using test devices.
+        if (meaningful(local)) showConflict(local, remoteData, remoteMeta);
+        return;
+      }
       // Previously saved sync metadata may have been calculated with a different
       // set of keys. Never interpret an empty/new device as a newer snapshot.
       // Read Drive progress first, before the "same version -> upload" branch.
       if (!meaningful(local)) {
-        const remoteExisting = await readFile(remoteMeta.id);
-        if (meaningful(remoteExisting) &&
-            fingerprint(remoteExisting) !== localHash) {
-          meta.lastHash = fingerprint(remoteExisting);
+        if (fingerprint(remoteData) !== localHash) {
+          meta.lastHash = fingerprint(remoteData);
           meta.lastRemoteVersion = remoteVersion;
           meta.lastRemoteFileId = remoteMeta.id;
           meta.lastSyncedAt = new Date().toISOString();
           saveMeta();
           status("Drive의 학습기록을 우선 복원합니다. 빈 기기 정보로 백업을 덮어쓰지 않아요.");
-          applyRecords(remoteExisting);
+          applyRecords(remoteData);
           return;
         }
       }
@@ -358,21 +421,22 @@
         if (localHash !== meta.lastHash) {
           const now = await findFile();
           if (!now || String(now.version) !== remoteVersion) {
-            const remote = now ? await readFile(now.id) : {};
+            const remote = now ? await readFile(now.id) : remoteData;
             showConflict(local, remote, now || remoteMeta);
             return;
           }
           const saved = await writeFile(local, remoteMeta);
           markSynced(local, saved);
+          showDataComparison(local, "기기 변경사항을 Drive에 업로드했습니다.");
           status("이 기기에서 바뀐 학습정보를 Drive에 저장했습니다.");
         }
         return;
       }
-      const remote = await readFile(remoteMeta.id);
+      const remote = remoteData;
       const remoteHash = fingerprint(remote);
       if (remoteHash === localHash) {
         markSynced(local, remoteMeta);
-        status("학습정보가 최신 상태입니다.");
+        status("기기와 Google Drive의 학습정보가 일치합니다.");
       } else if (!meaningful(local) || (meta.lastHash && localHash === meta.lastHash)) {
         meta.lastHash = remoteHash;
         meta.lastRemoteVersion = remoteVersion;
@@ -446,6 +510,22 @@
     catch (e) { status(e.message || "작업을 완료하지 못했습니다.", true); }
     finally { busy = false; render(); }
   }
+  async function checkDrive() {
+    if (!adminOpen() || !validToken()) return status("먼저 관리자 화면에서 Google Drive에 연결해 주세요.", true);
+    await withBusy(async function () {
+      const found = await findFile();
+      if (!found) {
+        showDataComparison(null, "Drive에 JINI 백업 파일이 없습니다.");
+        status("Drive에 백업파일이 없습니다. 실제 기록이 있는 기기에서 첫 백업을 생성하세요.", true);
+        return;
+      }
+      const records = await readFile(found.id);
+      showDataComparison(records, "Drive 파일 수정: " + dateTime(found.modifiedTime));
+      status(meaningful(records) ?
+        "Drive 학습기록을 확인했습니다. 아래 XP와 학습시간을 비교하세요." :
+        "Drive 백업에 학습 진도나 캐릭터 기록이 없습니다. 원래 기기에서 새 백업이 필요합니다.", !meaningful(records));
+    });
+  }
   async function manualBackup(force) {
     if (!validToken()) return status("먼저 동기화 하기를 눌러 연결해 주세요.", true);
     await withBusy(async function () {
@@ -463,11 +543,12 @@
         }
       }
       const local = snapshot();
-      if (!Object.keys(local).length) throw new Error("저장할 학습기록이 없습니다. 빈 백업으로 기존 기록을 덮어쓰지 않아요.");
+      if (!meaningful(local)) throw new Error("이 기기에 실제 학습기록이 없습니다. 빈 백업으로 기존 기록을 덮어쓰지 않아요.");
       const result = await writeFile(local, now);
       conflict = null;
       markSynced(local, result);
-      status("Google Drive / JINI / jini-backup.json에 백업을 저장했습니다.");
+      showDataComparison(local, "직접 백업 완료 · " + dateTime(new Date().toISOString()));
+      status("Google Drive / JINI / jini-backup.json에 실제 학습정보를 백업했습니다.");
     });
   }
   async function restore() {
@@ -476,6 +557,8 @@
       const found = await findFile();
       if (!found) throw new Error("Google Drive에서 복원할 JINI 백업을 찾지 못했습니다.");
       const data = await readFile(found.id);
+      showDataComparison(data, "백업 복원 전 확인.");
+      if (!meaningful(data)) throw new Error("Drive 백업에 실제 학습기록이 없습니다. 빈 데이터로 덮어쓰지 않았습니다.");
       meta.lastHash = fingerprint(data);
       meta.lastRemoteVersion = String(found.version || "");
       meta.lastRemoteFileId = found.id;
@@ -501,6 +584,7 @@
     });
   }
   $("jsy-connect").addEventListener("click", beginConnect);
+  $("jsy-refresh").addEventListener("click", checkDrive);
   $("jsy-disconnect").addEventListener("click", function () {
     ask("disconnect", "동기화를 해제할까요?", "이 기기에서 자동 동기화만 중단됩니다. 기기와 Google Drive에 저장된 학습정보는 삭제되지 않습니다.");
   });
