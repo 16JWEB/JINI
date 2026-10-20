@@ -3,6 +3,9 @@
   "use strict";
   const CONFIG_ID = (window.JINI_GOOGLE_CLIENT_ID || "").trim();
   const META_KEY = "jini-drive-sync-meta-v1";
+  // One-time session handoff across an automatic reload after Drive restore.
+  // Never keep Google access tokens in localStorage or inside a backup file.
+  const HANDOFF_KEY = "jini-drive-reload-token-once-v1";
   const FOLDER_NAME = "JINI";
   const FILE_NAME = "jini-backup.json";
   const SCOPE = "https://www.googleapis.com/auth/drive.file";
@@ -18,6 +21,18 @@
   let conflict = null;
   let confirmAction = null;
   let meta = readMeta();
+  // A restored remote snapshot must reload the app to refresh game/character state.
+  // Reclaim a short-lived access token only for that one automatic reload.
+  try {
+    const handoff = JSON.parse(sessionStorage.getItem(HANDOFF_KEY) || "null");
+    sessionStorage.removeItem(HANDOFF_KEY);
+    if (handoff && typeof handoff.token === "string" &&
+        Number(handoff.expiresAt) > Date.now() + 60000) {
+      token = handoff.token;
+      expiresAt = Number(handoff.expiresAt);
+    }
+  } catch (_) { }
+
 
   function readMeta() {
     try {
@@ -91,6 +106,15 @@
     const existing = snapshot();
     // 복원 전에 현재 기록을 파일로 별도 저장해 실수로 잃지 않게 합니다.
     if (Object.keys(existing).length) download(existing);
+    // Keep only one short-lived token handoff for this reload. This is removed
+    // immediately on the next page load and is never included in backups.
+    if (validToken()) {
+      try {
+        sessionStorage.setItem(HANDOFF_KEY, JSON.stringify({
+          token: token, expiresAt: expiresAt
+        }));
+      } catch (_) {}
+    }
     Object.keys(existing).forEach(function (key) { localStorage.removeItem(key); });
     Object.keys(records).forEach(function (key) { localStorage.setItem(key, records[key]); });
     window.location.reload();
@@ -275,7 +299,9 @@
         client_id: CONFIG_ID, scope: SCOPE,
         callback: function (response) {
           if (!response || !response.access_token) {
-            status("Google Drive 연결이 취소되었거나 거부되었습니다.", true);
+            const detail = response && (response.error_description || response.error) || "";
+            status("Google Drive 연결이 취소되었거나 거부되었습니다." +
+              (detail ? " (" + detail + ")" : ""), true);
             return;
           }
           token = response.access_token;
@@ -285,7 +311,10 @@
           render();
           syncCycle();
         },
-        error_callback: function () { status("Google 로그인 창을 열지 못했습니다. 팝업 설정을 확인해 주세요.", true); }
+        error_callback: function (error) {
+          status("Google 로그인 창을 열지 못했습니다. 팝업 설정을 확인해 주세요." +
+            (error && error.type ? " (" + error.type + ")" : ""), true);
+        }
       });
       client.requestAccessToken({ prompt: "consent" });
     } catch (e) { status(e.message, true); }
@@ -435,6 +464,10 @@
     }
   }, true);
   render();
+  if (validToken()) {
+    status("Google Drive 연결을 복원했습니다. 최신 학습기록을 확인합니다.");
+    syncCycle();
+  }
   setInterval(function () {
     if (validToken()) syncCycle();
     else if (token) { token = ""; status("Google 인증 시간이 만료되었어요. 다시 동기화 해 주세요.", true); render(); }
