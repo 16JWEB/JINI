@@ -3,9 +3,11 @@
   "use strict";
   const CONFIG_ID = (window.JINI_GOOGLE_CLIENT_ID || "").trim();
   const META_KEY = "jini-drive-sync-meta-v1";
-  // One-time session handoff across an automatic reload after Drive restore.
-  // Never keep Google access tokens in localStorage or inside a backup file.
-  const HANDOFF_KEY = "jini-drive-reload-token-once-v1";
+  // Google browser-tab session only. Never include access tokens in localStorage
+  // or Drive backups. Google OAuth tokens still expire and must be renewed by
+  // an explicit user click after expiry (no server-side refresh token here).
+  const SESSION_KEY = "jini-drive-tab-session-v2";
+  const LEGACY_HANDOFF_KEY = "jini-drive-reload-token-once-v1";
   const FOLDER_NAME = "JINI";
   const FILE_NAME = "jini-backup.json";
   const SCOPE = "https://www.googleapis.com/auth/drive.file";
@@ -21,17 +23,34 @@
   let conflict = null;
   let confirmAction = null;
   let meta = readMeta();
-  // A restored remote snapshot must reload the app to refresh game/character state.
-  // Reclaim a short-lived access token only for that one automatic reload.
+  // Restore only within the same browser tab, not as a stored site login.
   try {
-    const handoff = JSON.parse(sessionStorage.getItem(HANDOFF_KEY) || "null");
-    sessionStorage.removeItem(HANDOFF_KEY);
-    if (handoff && typeof handoff.token === "string" &&
-        Number(handoff.expiresAt) > Date.now() + 60000) {
-      token = handoff.token;
-      expiresAt = Number(handoff.expiresAt);
+    const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) ||
+      sessionStorage.getItem(LEGACY_HANDOFF_KEY) || "null");
+    sessionStorage.removeItem(LEGACY_HANDOFF_KEY);
+    if (saved && typeof saved.token === "string" &&
+        Number(saved.expiresAt) > Date.now() + 30000) {
+      token = saved.token;
+      expiresAt = Number(saved.expiresAt);
+    } else {
+      sessionStorage.removeItem(SESSION_KEY);
     }
   } catch (_) { }
+  function keepTabToken() {
+    try {
+      if (token && expiresAt > Date.now() + 30000)
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify({ token: token, expiresAt: expiresAt }));
+      else sessionStorage.removeItem(SESSION_KEY);
+    } catch (_) {}
+  }
+  function clearTabToken() {
+    token = "";
+    expiresAt = 0;
+    try {
+      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(LEGACY_HANDOFF_KEY);
+    } catch (_) {}
+  }
 
 
   function readMeta() {
@@ -44,7 +63,8 @@
     try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (_) {}
   }
   function included(key) {
-    return key !== META_KEY && !key.startsWith("jini-drive-") &&
+    return key.startsWith("jini-") && key !== META_KEY &&
+      key !== "jini-last-study-state" && !key.startsWith("jini-drive-") &&
       !/oauth|access.?token|refresh.?token|client.?secret|admin.?pass/i.test(key);
   }
   function snapshot() {
@@ -60,9 +80,53 @@
     keys.forEach(function (k) { sorted[k] = records[k]; });
     return sorted;
   }
+  // Merely opening JINI can create a level-1 character, a device ID and
+  // empty game records. These must NOT block first-time Drive restoration.
   function meaningful(records) {
     return Object.keys(records).some(function (key) {
-      return key !== "jini-last-study-state";
+      const raw = records[key];
+      let o;
+      try { o = JSON.parse(raw); } catch (_) { return true; }
+      if (!o || typeof o !== "object") return !!String(raw).trim();
+      if (key === "jini-study-time-v1") {
+        return Object.values(o.days || {}).some(function (d) {
+          return Number(d.englishMs || 0) > 0 || Number(d.koreanMs || 0) > 0;
+        });
+      }
+      if (key === "jini-english-game-v1" || key === "jini-korean-games-v1") {
+        return Number(o.xp || 0) > 0 || Number(o.tries || o.attempts || 0) > 0 ||
+          Object.keys(o.items || {}).length > 0;
+      }
+      if (key === "jini-character-reward-popups-v1") {
+        return Object.keys(o).some(function (k) {
+          const entry = o[k] || {};
+          return Number(entry.observedLevel || 1) > 1 ||
+            (Array.isArray(entry.pending) && entry.pending.length > 0);
+        });
+      }
+      if (key === "jini-opic-basic-v1") {
+        return (o.completed || []).length > 0 ||
+          Object.values(o.answers || {}).some(function (answer) { return !!String(answer || "").trim(); });
+      }
+      if (key === "jini-learning-bookmarks") {
+        return Object.values(o).some(function (v) { return Array.isArray(v) && v.length > 0; });
+      }
+      if (key === "jini-essential-expressions-bookmarks-v1") {
+        return Array.isArray(o) && o.length > 0;
+      }
+      if (key === "jini-game-character-english-v1" ||
+          key === "jini-game-character-korean-v1" || key === "jini-game-character-v1") {
+        const isEn = key.includes("english");
+        const isKo = key.includes("korean");
+        const defaultName = isEn ? "영어 모험가" : "한글 모험가";
+        const defaultAvatar = isEn ? "fox" : "rabbit";
+        if (!isEn && !isKo) return true; // Legacy customisation: protect it.
+        return (o.name && o.name !== defaultName) ||
+          (o.avatar && o.avatar !== defaultAvatar) ||
+          (o.auraSelection && o.auraSelection !== "auto");
+      }
+      // Unknown app data is treated as meaningful, never silently overwritten.
+      return true;
     });
   }
   function fingerprint(records) {
@@ -106,15 +170,8 @@
     const existing = snapshot();
     // 복원 전에 현재 기록을 파일로 별도 저장해 실수로 잃지 않게 합니다.
     if (Object.keys(existing).length) download(existing);
-    // Keep only one short-lived token handoff for this reload. This is removed
-    // immediately on the next page load and is never included in backups.
-    if (validToken()) {
-      try {
-        sessionStorage.setItem(HANDOFF_KEY, JSON.stringify({
-          token: token, expiresAt: expiresAt
-        }));
-      } catch (_) {}
-    }
+    // Preserve the authorized browser-tab session across this reload.
+    if (validToken()) keepTabToken();
     Object.keys(existing).forEach(function (key) { localStorage.removeItem(key); });
     Object.keys(records).forEach(function (key) { localStorage.setItem(key, records[key]); });
     window.location.reload();
@@ -145,7 +202,7 @@
   }
   async function request(url, opts) {
     if (!validToken()) {
-      token = "";
+      clearTabToken();
       render();
       throw new Error("Google 연결이 만료되었습니다. '동기화 하기'를 다시 눌러 주세요.");
     }
@@ -153,7 +210,7 @@
     options.headers = Object.assign({ Authorization: "Bearer " + token }, options.headers || {});
     const res = await fetch(url, options);
     if (res.status === 401) {
-      token = "";
+      clearTabToken();
       render();
       throw new Error("Google 인증이 만료되었습니다. 다시 동기화를 연결해 주세요.");
     }
@@ -237,7 +294,7 @@
       if (!remoteMeta) {
         // 다른 기기에서 백업을 삭제했으면 자동으로 다시 만들지 않습니다.
         if (meta.lastRemoteVersion || meta.deleted) {
-          token = "";
+          clearTabToken();
           status("Drive에서 기존 백업이 사라졌습니다. 자동 재업로드를 막기 위해 연결을 중지했어요.", true);
           render();
           return;
@@ -306,6 +363,7 @@
           }
           token = response.access_token;
           expiresAt = Date.now() + (Number(response.expires_in) || 3600) * 1000;
+          keepTabToken();
           conflict = null;
           status("Google Drive에 연결했습니다. 기존 백업과 학습기록을 비교합니다.");
           render();
@@ -323,8 +381,7 @@
     if (token && window.google && google.accounts && google.accounts.oauth2) {
       try { google.accounts.oauth2.revoke(token, function () {}); } catch (_) {}
     }
-    token = "";
-    expiresAt = 0;
+    clearTabToken();
     conflict = null;
     status("이 기기의 동기화를 해제했어요. Drive 백업과 기기 학습기록은 그대로 유지됩니다.");
     render();
@@ -390,8 +447,7 @@
       meta.lastRemoteVersion = "";
       meta.lastHash = "";
       saveMeta();
-      token = "";
-      expiresAt = 0;
+      clearTabToken();
       conflict = null;
       status("Drive의 JINI 백업을 삭제했습니다. 이 기기의 학습기록은 유지됩니다. 다른 기기에서는 기존 연결을 해제해 주세요.");
     });
@@ -470,7 +526,7 @@
   }
   setInterval(function () {
     if (validToken()) syncCycle();
-    else if (token) { token = ""; status("Google 인증 시간이 만료되었어요. 다시 동기화 해 주세요.", true); render(); }
+    else if (token) { clearTabToken(); status("Google 인증 시간이 만료되었어요. 다시 동기화 해 주세요.", true); render(); }
   }, 45000);
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden && validToken()) syncCycle();
