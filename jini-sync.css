@@ -41,7 +41,16 @@
  .jsy-head h1{font-size:23px}
  .jsy-card{border-radius:14px;padding:17px 15px}
  .jsy-btn{font-size:12px;padding:12px 6px}
- .home-nav .home-study-sync-link{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:0 0 auto;min-width:74px;min-height:43px;padding:6px 4px;font-size:9px}
- .home-nav .home-study-sync-link .nav-icon{width:auto;font-size:15px;line-height:1.1}
- .sidebar[data-study="home"] .home-nav{gap:1px}
+}
+
+/* Admin dialog is the sole entry point while Drive sync remains experimental. */
+#ja-sync-panel .jsy-section{margin:0 auto 6px;max-width:100%}
+#ja-sync-panel .jsy-head h1{font-size:21px}
+#ja-sync-panel .jsy-head p{margin-bottom:16px}
+#ja-sync-panel .jsy-card{box-shadow:none}
+@media(max-width:760px){
+ #ja-sync-panel .jsy-section{margin:0}
+ #ja-sync-panel .jsy-head h1{font-size:19px}
+ #ja-sync-panel .jsy-card{padding:14px 12px}
+ #ja-sync-panel .jsy-btn{min-height:42px;font-size:12px}
 }
