@@ -107,3 +107,30 @@
  .jst-calendar-weekdays,.jst-calendar{gap:3px}
  .jst-legend{font-size:9px}
 }
+
+
+/* Always accessible from the mobile bottom bar; on Home it follows
+   English study and Korean study. */
+@media(max-width:760px){
+ .home-nav .home-study-info-link{
+   display:flex;
+   flex-direction:column;
+   align-items:center;
+   justify-content:center;
+   gap:2px;
+   flex:0 0 auto;
+   min-width:68px;
+   min-height:43px;
+   padding:6px 5px;
+   font-size:9px;
+ }
+ .home-nav .home-study-info-link .nav-icon{
+   width:auto;
+   font-size:15px;
+   line-height:1.1;
+ }
+ .home-nav .home-study-info-link.active{
+   color:#207656;
+   background:#e4f4eb;
+ }
+}
