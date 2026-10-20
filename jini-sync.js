@@ -15,7 +15,13 @@
   const UPLOAD_API = "https://www.googleapis.com/upload/drive/v3/files";
   const $ = function (id) { return document.getElementById(id); };
   const root = $("jini-sync-section");
-  if (!root) return;
+  const adminDialog = $("jini-admin-dialog");
+  const adminPanel = $("ja-panel");
+  const adminSyncTab = $("ja-sync-panel");
+  if (!root || !adminDialog || !adminPanel || !adminSyncTab) return;
+  function adminOpen() {
+    return adminDialog.open && !adminPanel.hidden && !adminSyncTab.hidden;
+  }
   let token = "";
   let expiresAt = 0;
   let busy = false;
@@ -290,12 +296,14 @@
     $("jsy-conflict-text").textContent = "이 기기와 Google Drive 양쪽에 서로 다른 학습기록이 있습니다. 안전을 위해 자동 덮어쓰기를 중지했어요. 어느 기록을 사용할지 선택해 주세요. Drive 기록을 사용하면 현재 기록이 JSON 파일로 별도 다운로드됩니다.";
     render();
     status("두 기기에서 학습기록이 발견됐어요. 아래에서 'Drive 기록 사용' 또는 '이 기기 기록 사용'을 선택해 주세요. 선택 전에는 기존 기록을 덮어쓰지 않아요.", true);
-    if (!root.hidden) {
+    if (adminOpen()) {
       try { $("jsy-conflict").scrollIntoView({ behavior: "smooth", block: "center" }); } catch (_) {}
     }
   }
   async function syncCycle() {
-    if (!validToken() || busy || conflict || document.hidden) return;
+    // Experimental Drive activity is confined to the unlocked admin tab.
+    // Ordinary users opening JINI must not initiate background sync writes.
+    if (!adminOpen() || !validToken() || busy || conflict || document.hidden) return;
     busy = true;
     render();
     try {
@@ -380,6 +388,7 @@
     finally { busy = false; render(); }
   }
   async function beginConnect() {
+    if (!adminOpen()) return;
     if (!CONFIG_ID) {
       status("Google Drive 연동을 사용하려면 사이트 관리자가 Google OAuth 클라이언트 ID를 먼저 등록해야 해요. 현재 학습기록은 변경되지 않습니다.", true);
       return;
@@ -558,16 +567,19 @@
       manualBackup(true);
     }
   }, true);
+  window.JINI_SYNC_ADMIN_OPEN = function () {
+    render();
+    if (validToken()) syncCycle();
+  };
   render();
   if (validToken()) {
-    status("Google Drive 연결을 복원했습니다. 최신 학습기록을 확인합니다.");
-    syncCycle();
+    status("Google Drive 연결은 이 탭에 유지되어 있습니다. 관리자 동기화 탭을 열면 기록을 확인합니다.");
   }
   setInterval(function () {
-    if (validToken()) syncCycle();
+    if (validToken() && adminOpen()) syncCycle();
     else if (token) { clearTabToken(); status("Google 인증 시간이 만료되었어요. 다시 동기화 해 주세요.", true); render(); }
   }, 45000);
   document.addEventListener("visibilitychange", function () {
-    if (!document.hidden && validToken()) syncCycle();
+    if (!document.hidden && validToken() && adminOpen()) syncCycle();
   });
 })();
