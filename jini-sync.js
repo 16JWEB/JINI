@@ -250,9 +250,14 @@
   function validToken() { return !!token && Date.now() < expiresAt - 30000; }
   function render() {
     const on = validToken();
-    $("jsy-state").textContent = on ? "연결됨" : "연결 안 됨";
+    $("jsy-state").textContent = on ? "Google 연결됨" : "연결 안 됨";
     $("jsy-state").classList.toggle("is-connected", on);
-    $("jsy-auto").textContent = on && !conflict ? "활성화" : "비활성화";
+    const equalRecords = on && driveSnapshot &&
+      fingerprint(snapshot()) === fingerprint(driveSnapshot);
+    $("jsy-auto").textContent = !on ? "확인 불가" :
+      conflict ? "기록 충돌" : !driveChecked ? "백업 확인 전" :
+      driveSnapshot === null ? "백업 없음" :
+      equalRecords ? "학습기록 일치" : "학습기록 다름";
     $("jsy-last").textContent = dateTime(meta.lastSyncedAt);
     $("jsy-connect").disabled = on || busy;
     $("jsy-disconnect").disabled = !on || busy;
