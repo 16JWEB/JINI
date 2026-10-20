@@ -300,7 +300,7 @@ function grade(q,good,response){
 function answerChoice(i){
  if(!game)return;const q=game.questions[game.index];
  if(!q||q.kind!=="choice"||q.done||q.wordTypingPending||!Number.isInteger(i)||i<0||i>=q.options.length)return;
- if(q.mode==="word"||q.mode==="speaking"){
+ if(q.mode==="word"||q.mode==="speaking"||q.mode==="expression"){
   cancelWordRepeat();
   if(window.speechSynthesis)window.speechSynthesis.cancel();
  }
@@ -311,7 +311,7 @@ function answerChoice(i){
  }
  const right=chosen===q.answer;
  grade(q,right,chosen);render();
- if(right&&q.mode==="expression")speak();
+ if(right&&q.mode==="expression")speakWordAnswerPair(q);
 }
 function answerTypedWord(){
  if(!game)return;
@@ -368,9 +368,9 @@ function updateSentenceDraft(input){
    Boolean(q.draft)&&q.options[Number(b.dataset.index)]===q.draft);
  });
 }
-// Play the answer in both languages after the meaning is selected correctly.
+// Play a correct word or expression and its Korean meaning in sequence.
 function speakWordAnswerPair(q){
- if(!q||!needsWordTyping(q)||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
+ if(!q||(!needsWordTyping(q)&&q.mode!=="expression")||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
  const synth=window.speechSynthesis;
  const available=synth.getVoices?synth.getVoices():[];
  const chooseVoice=locale=>available.find(v=>v.lang&&v.lang.toLowerCase()===locale.toLowerCase())
