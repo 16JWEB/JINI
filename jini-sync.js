@@ -345,9 +345,15 @@
   }
   function showConflict(local, remote, remoteMeta) {
     conflict = { local: local, remote: remote, remoteMeta: remoteMeta };
-    $("jsy-conflict-text").textContent = "이 기기와 Google Drive 양쪽에 서로 다른 학습기록이 있습니다. 안전을 위해 자동 덮어쓰기를 중지했어요. 어느 기록을 사용할지 선택해 주세요. Drive 기록을 사용하면 현재 기록이 JSON 파일로 별도 다운로드됩니다.";
+    const remoteHasProgress = meaningful(remote);
+    $("jsy-use-drive").disabled = !remoteHasProgress;
+    $("jsy-conflict-text").textContent = remoteHasProgress ?
+      "이 기기와 Google Drive에 서로 다른 실제 학습기록이 있어요. 어느 기록을 사용할지 선택하세요. Drive 기록을 사용하면 기기의 현재 기록을 먼저 JSON 파일로 백업합니다." :
+      "Drive 백업파일에 학습기록이 없습니다. 기존 기기의 XP·캐릭터·학습시간을 보관하려면 '이 기기 기록 사용'을 선택하세요. 비어 있는 Drive 기록으로 이 기기를 복원할 수는 없습니다.";
     render();
-    status("두 기기에서 학습기록이 발견됐어요. 아래에서 'Drive 기록 사용' 또는 '이 기기 기록 사용'을 선택해 주세요. 선택 전에는 기존 기록을 덮어쓰지 않아요.", true);
+    status(remoteHasProgress ?
+      "기기와 Drive 기록이 서로 달라 안전을 위해 자동 동기화를 중단했습니다. 기록을 비교한 뒤 선택해 주세요." :
+      "Drive 백업파일이 비어 있어 자동 복원을 중지했습니다. 실제 학습기록이 있는 기기에서 백업해 주세요.", true);
     if (adminOpen()) {
       try { $("jsy-conflict").scrollIntoView({ behavior: "smooth", block: "center" }); } catch (_) {}
     }
@@ -625,6 +631,7 @@
       if (!confirm("현재 학습정보를 별도 파일로 백업한 후 선택한 파일로 복원할까요?")) return;
       meta.lastHash = "";
       meta.lastRemoteVersion = "";
+      meta.lastRemoteFileId = "";
       saveMeta();
       applyRecords(records);
     } catch (e) { status(e.message, true); }
@@ -647,7 +654,7 @@
       saveMeta();
       applyRecords(item.remote);
     } else {
-      download(item.remote);
+      if (meaningful(item.remote)) download(item.remote);
       manualBackup(true);
     }
   }, true);
