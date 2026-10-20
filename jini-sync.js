@@ -45,6 +45,11 @@
     keys.forEach(function (k) { sorted[k] = records[k]; });
     return sorted;
   }
+  function meaningful(records) {
+    return Object.keys(records).some(function (key) {
+      return key !== "jini-last-study-state";
+    });
+  }
   function fingerprint(records) {
     const value = JSON.stringify(records);
     let n = 2166136261;
@@ -243,7 +248,7 @@
       if (remoteHash === localHash) {
         markSynced(local, remoteMeta);
         status("학습정보가 최신 상태입니다.");
-      } else if (!Object.keys(local).length || (meta.lastHash && localHash === meta.lastHash)) {
+      } else if (!meaningful(local) || (meta.lastHash && localHash === meta.lastHash)) {
         meta.lastHash = remoteHash;
         meta.lastRemoteVersion = remoteVersion;
         meta.lastSyncedAt = new Date().toISOString();
@@ -390,9 +395,6 @@
     ask("conflict-upload", "현재 기기의 데이터를 사용할까요?", "Google Drive에 있는 다른 기기의 학습기록이 이 기기 기록으로 덮어써집니다. 복구를 위해 Drive 기록을 먼저 파일로 다운로드합니다.");
   });
   // 충돌 선택은 별도로 확인을 거쳐서만 실행합니다.
-  $("jsy-confirm-yes").addEventListener("click", function () {
-    if (!window.__jiniSyncChoice) return;
-  });
   $("jsy-save-local").addEventListener("click", function () {
     try { download(snapshot()); status("학습정보 JSON 파일을 다운로드했습니다."); }
     catch (e) { status(e.message, true); }
@@ -413,11 +415,6 @@
   });
   // 사용자가 두 기기에서 동시에 공부한 경우 자동 병합하지 않고 선택권을 줍니다.
   const confirmButton = $("jsy-confirm-yes");
-  confirmButton.addEventListener("click", function () {
-    // 별도 버튼 콜백 안에서 진행해야 하는 충돌 처리 예약은 아래의 이벤트로 전달됩니다.
-  });
-  // 위 확인 버튼의 충돌 액션은 가장 먼저 저장한 선택 값을 활용합니다.
-  const originalAsk = ask;
   // 충돌 전용 확인 이벤트: capture 단계에서 중복 실행을 방지합니다.
   confirmButton.addEventListener("click", function (e) {
     const choice = confirmAction;
@@ -442,4 +439,7 @@
     if (validToken()) syncCycle();
     else if (token) { token = ""; status("Google 인증 시간이 만료되었어요. 다시 동기화 해 주세요.", true); render(); }
   }, 45000);
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden && validToken()) syncCycle();
+  });
 })();
