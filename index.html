@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="english-expressions.css?v=20261018-tap-full-audio-v1">
   <link rel="stylesheet" href="opic.css?v=20261017-game-submenus">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
+  <link rel="stylesheet" href="jini-sync.css?v=20261020-sync-v1">
 </head>
 <body>
   <div class="app-shell">
@@ -46,6 +47,9 @@
         </button>
         <button class="nav-item home-study-info-link" data-page="study-info" type="button" aria-label="나의 학습정보 열기">
           <span class="nav-icon">▤</span><span>학습정보</span>
+        </button>
+        <button class="nav-item home-study-sync-link" data-page="study-sync" type="button" aria-label="학습정보 동기화 열기">
+          <span class="nav-icon">↻</span><span>학습정보 동기화</span>
         </button>
       </nav>
       <div class="menu-label study-menu-label" id="english-menu-label">AI 영어공부</div>
@@ -219,6 +223,68 @@
 
       <section class="jst-section" id="jini-study-info-section" hidden>
         <div id="jini-study-time-root"></div>
+      </section>
+
+      <section class="jsy-section" id="jini-sync-section" aria-labelledby="jsy-title" hidden>
+        <div class="jsy-head">
+          <h1 id="jsy-title">↻ 학습정보 동기화</h1>
+          <p>Google Drive를 통해 휴대폰과 컴퓨터의 학습기록을 안전하게 보관하고 이어서 공부하세요.</p>
+        </div>
+        <div class="jsy-card jsy-info">
+          <h2>☁ Google Drive 자동 동기화</h2>
+          <p><strong>동기화 하기를 눌러 연결하면</strong> JINI의 학습 데이터가 Google Drive에 자동으로 저장됩니다. PC와 모바일에서 같은 Google 계정으로 연결하면 동일한 학습정보를 불러와 이용할 수 있습니다.</p>
+          <ul class="jsy-list">
+            <li>영어·한글 학습 진도 및 일별·월별 학습시간</li>
+            <li>캐릭터 레벨, XP, 보상 및 꾸미기 정보</li>
+            <li>크롬 사이트 데이터를 삭제해도 Drive에 백업된 기록 복원 가능</li>
+          </ul>
+          <p class="jsy-muted">인터넷 연결 중 JINI가 열려 있을 때 동기화합니다. 인증이 만료되면 Google 재연결이 필요할 수 있습니다. 서로 다른 기기의 기록이 동시에 변경되면 덮어쓰기 전에 확인합니다.</p>
+        </div>
+        <div class="jsy-card">
+          <h2>동기화 연결 상태</h2>
+          <div class="jsy-status-row"><span class="jsy-label">Google Drive</span><span id="jsy-state" class="jsy-pill">연결 안 됨</span></div>
+          <div class="jsy-status-row"><span class="jsy-label">자동 동기화</span><strong id="jsy-auto">비활성화</strong></div>
+          <div class="jsy-status-row"><span class="jsy-label">마지막 동기화</span><strong id="jsy-last">기록 없음</strong></div>
+          <div class="jsy-buttons">
+            <button id="jsy-connect" class="jsy-btn primary" type="button">↻ 동기화 하기</button>
+            <button id="jsy-disconnect" class="jsy-btn" type="button" disabled>⤬ 동기화 해제</button>
+          </div>
+          <div id="jsy-config" class="jsy-config">Google Drive 자동 동기화는 <strong>Google OAuth 클라이언트 ID 설정 후</strong> 사용할 수 있습니다. 현재 기기의 학습기록은 그대로 유지됩니다.</div>
+        </div>
+        <div class="jsy-card">
+          <h2>📁 Google Drive 저장 위치</h2>
+          <div class="jsy-path">내 드라이브 &gt; <strong>JINI</strong><div class="jsy-path-file">📄 jini-backup.json</div></div>
+          <p class="jsy-muted">동기화 연결 후 Google Drive의 '내 드라이브/JINI' 폴더에 저장합니다.</p>
+          <a class="jsy-link" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener noreferrer">Google Drive 열기 ↗</a>
+        </div>
+        <div class="jsy-card">
+          <h2>데이터 백업 관리</h2>
+          <p class="jsy-muted">백업 데이터는 연결된 Google Drive에 저장됩니다.</p>
+          <div class="jsy-buttons">
+            <button id="jsy-backup" class="jsy-btn primary" type="button" disabled>☁ 지금 백업하기</button>
+            <button id="jsy-restore" class="jsy-btn" type="button" disabled>↓ 백업 복원</button>
+          </div>
+          <button id="jsy-delete" class="jsy-btn danger" type="button" disabled>🗑 백업 데이터 삭제</button>
+          <div id="jsy-conflict" class="jsy-conflict" hidden>
+            <strong>기기 간 학습기록이 달라요</strong>
+            <p id="jsy-conflict-text">어느 기록을 사용할지 선택하세요.</p>
+            <div class="jsy-buttons">
+              <button id="jsy-use-drive" class="jsy-btn" type="button">Drive 기록 사용</button>
+              <button id="jsy-use-local" class="jsy-btn" type="button">이 기기 기록 사용</button>
+            </div>
+          </div>
+          <div id="jsy-confirm" class="jsy-confirm" hidden>
+            <strong id="jsy-confirm-title">확인</strong>
+            <p id="jsy-confirm-body"></p>
+            <div class="jsy-buttons"><button id="jsy-cancel" class="jsy-btn" type="button">취소</button><button id="jsy-confirm-yes" class="jsy-btn danger" type="button">확인</button></div>
+          </div>
+          <div id="jsy-message" class="jsy-message" role="status" aria-live="polite" hidden></div>
+          <details class="jsy-local-tools">
+            <summary>인터넷 없이 파일로 직접 백업·복원</summary>
+            <p class="jsy-muted">Google Drive 연결과 관계없이 현재 기기 학습정보를 파일로 내려받거나, 이전에 저장한 JSON 백업을 불러올 수 있습니다.</p>
+            <div class="jsy-buttons"><button id="jsy-save-local" class="jsy-btn" type="button">JSON 파일 저장</button><label class="jsy-btn" style="text-align:center" for="jsy-load-local">JSON 파일 불러오기</label><input id="jsy-load-local" type="file" accept=".json,application/json" hidden></div>
+          </details>
+        </div>
       </section>
 
       <section class="vocabulary-section" hidden>
@@ -687,6 +753,9 @@
   <script src="opic.js?v=20261017-level-il-ih"></script>
   <script src="opic-mock-data.js?v=20261017-mock-v1"></script>
   <script src="opic-mock.js?v=20261017-mock-v2"></script>
+  <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="jini-sync.js?v=20261020-sync-v1"></script>
 </body>
 </html>
 
