@@ -1387,7 +1387,7 @@
     stopPlayback("재생을 멈췄어요.");
     stopVerbAuto(true);
     if (speech) speech.cancel();
-    const nextStudy = page === "home" || page === "study-info" ?
+    const nextStudy = page === "home" || page === "study-info" || page === "study-sync" ?
       currentStudy : page.indexOf("ko-") === 0 ? "korean" : "english";
     const studyChanged = currentStudy !== nextStudy;
     currentStudy = nextStudy;
@@ -1406,6 +1406,7 @@
     currentPageView = page;
     const showingHome = page === "home";
     const showingStudyInfo = page === "study-info";
+    const showingSync = page === "study-sync";
     const showingEssentialExpressions = page === "english-expressions";
     const playingEnglishExpressions = page === "english-expression-player";
     const showingExpressions = page === "ko-expressions";
@@ -1418,9 +1419,10 @@
     const showingSpeaking = page === "speaking";
     const showingOpic = page === "opic" || page === "opic-basic" || page === "opic-mock";
     const koreanStudy = currentStudy === "korean";
-    document.querySelector(".sidebar").dataset.study = (showingHome || showingStudyInfo) ? "home" : currentStudy;
+    document.querySelector(".sidebar").dataset.study = (showingHome || showingStudyInfo || showingSync) ? "home" : currentStudy;
     document.getElementById("home-section").hidden = !showingHome;
     document.getElementById("jini-study-info-section").hidden = !showingStudyInfo;
+    document.getElementById("jini-sync-section").hidden = !showingSync;
     document.querySelector(".vocabulary-section").hidden = !showingVocabulary;
     playerSection.hidden = !showingPlayer;
     document.getElementById("english-expressions-section").hidden = !showingEssentialExpressions;
@@ -1433,7 +1435,7 @@
     document.getElementById("opic-list-section").hidden = page !== "opic";
     document.getElementById("opic-basic-section").hidden = page !== "opic-basic";
     document.getElementById("opic-mock-section").hidden = page !== "opic-mock";
-    document.querySelector(".page-footer").hidden = showingHome || showingStudyInfo || showingSpeaking || showingOpic;
+    document.querySelector(".page-footer").hidden = showingHome || showingStudyInfo || showingSync || showingSpeaking || showingOpic;
     document.querySelectorAll(".nav-item[data-page]").forEach(function (button) {
       button.classList.toggle("active", button.dataset.page === page ||
         (button.dataset.page === "speaking" && showingOpic));
@@ -1442,9 +1444,9 @@
       "YOUR DAILY KOREAN<br><span>베트남어로 배우는 한국어</span>" :
       "YOUR DAILY ENGLISH<br><span>기초부터 차근차근</span>";
     document.getElementById("breadcrumb-section").textContent =
-      showingHome ? "홈" : showingStudyInfo ? "나의 학습정보" : koreanStudy ? "AI 한글공부" : (showingEnglishGame || showingSpeaking || showingOpic || showingEssentialExpressions || playingEnglishExpressions) ? "AI 영어공부" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
-    document.getElementById("breadcrumb-divider").hidden = showingHome || showingStudyInfo;
-    breadcrumbLevel.textContent = (showingHome || showingStudyInfo) ? "" : showingEssentialExpressions ? "필수 표현" : showingVocabulary ?
+      showingHome ? "홈" : showingStudyInfo ? "나의 학습정보" : showingSync ? "학습정보 동기화" : koreanStudy ? "AI 한글공부" : (showingEnglishGame || showingSpeaking || showingOpic || showingEssentialExpressions || playingEnglishExpressions) ? "AI 영어공부" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
+    document.getElementById("breadcrumb-divider").hidden = showingHome || showingStudyInfo || showingSync;
+    breadcrumbLevel.textContent = (showingHome || showingStudyInfo || showingSync) ? "" : showingEssentialExpressions ? "필수 표현" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
       showingPlayer ? (playingExpressions || playingEnglishExpressions ? "표현 재생" : koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
       showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비" : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : page === "opic-mock" ? "스피킹 대비 / 실전 연습" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
