@@ -109,11 +109,10 @@
 }
 
 
-/* Always accessible from the mobile bottom bar; on Home it follows
-   English study and Korean study. */
+/* Mobile study-info shortcut is visible only while Home is open. */
 @media(max-width:760px){
  .home-nav .home-study-info-link{
-   display:flex;
+   display:none;
    flex-direction:column;
    align-items:center;
    justify-content:center;
@@ -123,6 +122,9 @@
    min-height:43px;
    padding:6px 5px;
    font-size:9px;
+ }
+ body:has(#home-section:not([hidden])) .home-nav .home-study-info-link{
+   display:flex;
  }
  .home-nav .home-study-info-link .nav-icon{
    width:auto;
