@@ -241,12 +241,34 @@
     try { localStorage.setItem(PROFILE_KEYS[study], JSON.stringify(profiles[study])); }
     catch (_) { /* Still active in this tab. */ }
   }
+  function todayStudyLabel(study) {
+    return window.JINI_STUDY_TIME && typeof window.JINI_STUDY_TIME.getToday === "function"
+      ? window.JINI_STUDY_TIME.getToday(study).label : "0분";
+  }
+  function homePanelLabel(study, score, profile, today) {
+    return STUDIES[study].label + " 캐릭터 " + profile.name + ", 레벨 " + score.level +
+      ", 오늘 " + STUDIES[study].label + " 학습시간 " + today + ", 상세보기 열기";
+  }
+  function updateHomeTimes() {
+    panels.forEach(function (panel) {
+      if (panel.dataset.jiniCharacterHome !== "true") return;
+      const field = panel.querySelector("[data-jgc-today-study]");
+      const card = panel.querySelector(".jgc-home-card");
+      if (!field || !card) return;
+      const study = studyOf(panel.dataset.jiniCharacterPanel), today = todayStudyLabel(study);
+      if (field.textContent !== today) field.textContent = today;
+      const label = homePanelLabel(study, readScore(study), profiles[study], today);
+      if (card.getAttribute("aria-label") !== label) card.setAttribute("aria-label", label);
+    });
+  }
+  window.addEventListener("jini-study-time-updated", updateHomeTimes);
   function renderHomePanel(study, score, profile, tier) {
     const meta=STUDIES[study], auraLevel=equippedAuraLevel(study);
     const auraName=auraLevel && window.JINI_AURA ? window.JINI_AURA.rewardLabel(auraLevel,profile.avatar) : "오라 없음";
     const unlocked=Math.min(20,Math.floor(score.level/10));
+    const today=todayStudyLabel(study);
     return '<button type="button" class="jgc-home-card jgc-home-card-'+study+'" data-jgc-action="open" data-jgc-study="'+study+
-      '" aria-label="'+meta.label+' 캐릭터 '+escape(profile.name)+', 레벨 '+score.level+', 상세보기 열기">'+
+      '" aria-label="'+escape(homePanelLabel(study,score,profile,today))+'">'+
       '<span class="jgc-home-copy">'+
       '<span class="jgc-home-label"><span class="jgc-home-label-icon" aria-hidden="true">'+(study==="english"?"📘":"📕")+'</span>'+meta.label+' 캐릭터</span>'+
       '<span class="jgc-home-name">'+escape(profile.name)+'</span>'+
@@ -256,7 +278,8 @@
       '<span class="jgc-home-track"><span style="width:'+score.percent+'%"></span></span>'+
       '<span class="jgc-home-progress-count">'+score.inLevel+' / 100 XP</span>'+
       '<span class="jgc-home-stats"><span><small>누적 XP</small><strong>'+score.xp.toLocaleString()+'</strong></span>'+
-      '<span><small>해금한 오라</small><strong>'+unlocked+' / 20</strong></span></span>'+
+      '<span><small>해금한 오라</small><strong>'+unlocked+' / 20</strong></span>'+
+      '<span class="jgc-home-study-time"><small>오늘 학습시간</small><strong data-jgc-today-study="'+study+'">'+escape(today)+'</strong></span></span>'+
       '<span class="jgc-home-aura" title="'+escape(auraName)+'">✨ '+escape(auraName)+'</span>'+
       '<span class="jgc-home-view">캐릭터 상세보기 <span aria-hidden="true">›</span></span>'+
       '</span><span class="jgc-home-illustration" aria-hidden="true">'+illustration(study)+'</span></button>';
@@ -423,3 +446,4 @@
     previewReward: previewReward, adoptSyncedLevels: adoptSyncedLevels };
   refresh();
 }());
+
