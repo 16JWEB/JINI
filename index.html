@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261021-compact-study-sync-v6">
+  <link rel="stylesheet" href="styles.css?v=20261021-study-sync-status-v7">
   <link rel="stylesheet" href="korean-game.css?v=20261018-word-quiz-card-audio-v1">
   <link rel="stylesheet" href="english-game.css?v=20261018-expression-card-tap-v1">
   <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
@@ -169,7 +169,7 @@
           <div class="breadcrumb"><span class="breadcrumb-root" id="breadcrumb-section">홈</span><span id="breadcrumb-divider" hidden> / </span><strong id="breadcrumb-level"></strong></div>
         </div>
         <div class="top-actions">
-          <button class="study-sync-link" data-page="sync" type="button" aria-label="학습정보 동기화 (테스트 중) 열기"><span aria-hidden="true">☁</span> 동기화</button>
+          <button class="study-sync-link" data-page="sync" type="button" data-sync-state="disconnected" aria-label="학습정보 동기화 (테스트 중) 열기"><span>☁ 동기화</span><small id="study-sync-status" class="home-sync-status" aria-live="polite">연결 안 됨</small></button>
           <span class="voice-status"><i></i> 기기 기본 음성</span>
           <button class="profile" aria-label="프로필">J</button>
         </div>
@@ -789,6 +789,7 @@
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="jini-sync.js?v=20261021-one-minute-batch-v21"></script>
+  <script src="study-sync-status.js?v=20261021-v1"></script>
 </body>
 </html>
 

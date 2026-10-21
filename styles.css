@@ -452,3 +452,11 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
   .app-shell:has(.sidebar:not([data-study="home"])) .breadcrumb { font-size: 11px; }
   .app-shell:has(.sidebar:not([data-study="home"])) .breadcrumb span { margin: 0 4px; }
 }
+.study-sync-link { flex-direction: column; gap: 0; line-height: 1.2; }
+.study-sync-link .home-sync-status { margin-top: 2px; font-size: 9px; }
+.study-sync-link[data-sync-state="connected"] .home-sync-status,
+.study-sync-link[data-sync-state="synced"] .home-sync-status { color: #16714e; }
+.study-sync-link[data-sync-state="syncing"] .home-sync-status { color: #4d59c5; }
+.study-sync-link[data-sync-state="expired"] .home-sync-status { color: #ce273f; }
+.study-sync-link[data-sync-state="pending"] .home-sync-status,
+.study-sync-link[data-sync-state="attention"] .home-sync-status { color: #aa670b; }
