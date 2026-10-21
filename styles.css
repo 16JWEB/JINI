@@ -437,3 +437,18 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
   .home-nav .home-sync-status{font-size:9px;margin-top:2px;line-height:1.1}
   .home-sync-quicklink{margin:17px auto 0}
 }
+
+/* Compact study breadcrumb and shortcut to the existing sync screen. */
+.app-shell:has(.sidebar[data-study="english"]) .topbar,
+.app-shell:has(.sidebar[data-study="korean"]) .topbar { height: auto; min-height: 46px; padding: 5px 0; gap: 8px; }
+.topbar-start { min-width: 0; }
+.study-sync-link { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 32px; padding: 5px 9px; border: 1px solid #e4dff9; border-radius: 8px; background: #f7f5ff; color: var(--purple); font: inherit; font-size: 11px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.study-sync-link:hover { background: #eeebff; }
+.study-sync-link:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; }
+.app-shell:has(.sidebar[data-study="home"]) .study-sync-link { display: none; }
+@media (max-width: 700px) {
+  .app-shell:has(.sidebar:not([data-study="home"])) .top-actions { gap: 8px; flex-shrink: 0; }
+  .app-shell:has(.sidebar:not([data-study="home"])) .voice-status { display: none; }
+  .app-shell:has(.sidebar:not([data-study="home"])) .breadcrumb { font-size: 11px; }
+  .app-shell:has(.sidebar:not([data-study="home"])) .breadcrumb span { margin: 0 4px; }
+}
