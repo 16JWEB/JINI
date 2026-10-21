@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="english-expressions.css?v=20261018-tap-full-audio-v1">
   <link rel="stylesheet" href="opic.css?v=20261017-game-submenus">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
-  <link rel="stylesheet" href="jini-sync.css?v=20261021-home-sync-menu-v3">
+  <link rel="stylesheet" href="jini-sync.css?v=20261021-sync-buttons-status-v4">
 </head>
 <body>
   <div class="app-shell">
@@ -258,8 +258,14 @@
             <button id="jsy-refresh" class="jsy-btn" type="button" disabled>↻ Drive 백업 다시 확인</button>
           </div>
           <div class="jsy-buttons">
-            <button id="jsy-connect" class="jsy-btn primary" type="button">↻ 동기화 하기</button>
-            <button id="jsy-disconnect" class="jsy-btn" type="button" disabled>⤬ 동기화 해제</button>
+            <button id="jsy-connect" class="jsy-btn primary" type="button">
+              <span id="jsy-connect-label">↻ 동기화 하기</span>
+              <small id="jsy-connect-progress" class="jsy-btn-progress" role="status" aria-live="polite" hidden>동기화 중…</small>
+            </button>
+            <button id="jsy-disconnect" class="jsy-btn" type="button" disabled>
+              <span>⤬ 동기화 해제</span>
+              <small id="jsy-disconnect-progress" class="jsy-btn-progress" role="status" aria-live="polite" hidden>해제 중…</small>
+            </button>
           </div>
           <div id="jsy-config" class="jsy-config">Google Drive 자동 동기화는 <strong>Google OAuth 클라이언트 ID 설정 후</strong> 사용할 수 있습니다. 현재 기기의 학습기록은 그대로 유지됩니다.</div>
         </div>
@@ -772,7 +778,7 @@
   <script src="opic-mock.js?v=20261017-mock-v2"></script>
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="jini-sync.js?v=20261021-home-sync-menu-v16"></script>
+  <script src="jini-sync.js?v=20261021-sync-buttons-status-v17"></script>
 </body>
 </html>
 
