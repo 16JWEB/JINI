@@ -114,7 +114,7 @@ function build(mode){
  });
  return [];
 }
-function persist(){try{localStorage.setItem(KEY,JSON.stringify(memory));if(window.JINI_CHARACTER)window.JINI_CHARACTER.refresh();}catch(e){status="학습 기록을 저장할 수 없어요.";}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(memory));if(window.JINI_CHARACTER)window.JINI_CHARACTER.refresh();window.dispatchEvent(new Event("jini-learning-progress-changed"));}catch(e){status="학습 기록을 저장할 수 없어요.";}}
 function cancelWordRepeat(){
  wordRepeatToken++;
  if(wordRepeatTimer!==null){window.clearTimeout(wordRepeatTimer);wordRepeatTimer=null;}
