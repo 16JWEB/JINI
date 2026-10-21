@@ -16,6 +16,11 @@
 .jsy-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:15px 0 0}
 .jsy-btn{border:1px solid #dcd9ec;border-radius:10px;padding:13px 9px;background:white;font-size:13px;font-family:inherit;font-weight:700;color:#4e4a65;cursor:pointer;min-height:45px}
 .jsy-btn:disabled{opacity:.46;cursor:not-allowed}
+.jsy-btn-progress{display:block;margin-top:4px;font-size:10px;font-weight:600;line-height:1.35;opacity:.9}
+.jsy-btn-progress[hidden]{display:none!important}
+.jsy-btn.primary .jsy-btn-progress{color:#f5f2ff}
+.jsy-btn:not(.primary) .jsy-btn-progress{color:#776d9c}
+
 .jsy-btn.primary{background:#6958e8;border-color:#6958e8;color:#fff}
 .jsy-btn.danger{color:#b93e50;border-color:#eed2d6;width:100%;margin-top:10px}
 .jsy-btn:focus-visible{outline:3px solid #b6aeff;outline-offset:2px}
