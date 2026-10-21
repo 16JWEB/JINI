@@ -92,14 +92,17 @@
 .op-hub-meter small{font-size:15px;color:#9390aa}
 .op-hub-meter span{color:#66677f;font-size:12px;margin:4px 0 8px}
 .op-hub-meter progress{margin:0}
-.op-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin:0 0 17px}
-.op-hub-card{display:flex;flex-direction:column;align-items:flex-start;min-height:206px;padding:23px;background:var(--card);border:1px solid var(--line);border-radius:18px}
-.op-hub-card h3{font-size:17px;margin:7px 0 4px;line-height:1.45}
-.op-hub-card p{color:#77788d;line-height:1.7;margin:0 0 20px}
-.op-hub-card .op-btn,.op-hub-upcoming{margin-top:auto}
-.op-hub-number{font-size:12px;letter-spacing:1px;font-weight:800;color:var(--purple)}
+.op-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:14px 0 17px}
+.op-hub-card{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:14px;min-height:88px;min-width:0;padding:16px;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:16px}
+button.op-hub-card{cursor:pointer;transition:transform .15s,border-color .15s}
+button.op-hub-card:hover{transform:translateY(-2px);border-color:#aaa0f4}
+.op-hub-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:13px;background:#f0edff;font-size:26px}
+.op-hub-copy{display:flex;flex-direction:column;gap:5px;min-width:0;overflow-wrap:anywhere}
+.op-hub-copy strong{font-size:16px;line-height:1.5}
+.op-hub-copy small{color:#77798f;font-size:12px;line-height:1.7}
+.op-hub-arrow{font-size:26px;line-height:1;color:#6958e8}
 .op-hub-coming{background:#fafafe}
-.op-hub-upcoming{display:inline-block;padding:6px 11px;border-radius:20px;background:#edecf3;font-weight:700;color:#85869a;font-size:12px}
+.op-hub-upcoming{display:inline-block;padding:4px 7px;border-radius:20px;background:#edecf3;font-weight:700;color:#77788d;font-size:11px;white-space:nowrap}
 .op-stepper{margin:12px 0 19px;padding:18px 20px 15px;border:1px solid #e4e0fc;background:#f8f7ff;border-radius:17px}
 .op-stepper-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
 .op-stepper-head strong{font-size:15px}
@@ -126,8 +129,9 @@
 @media(max-width:760px){
  .op-hub-hero{flex-direction:column;align-items:stretch;padding:21px;gap:16px}
  .op-hub-meter{flex-basis:auto;width:100%}
- .op-hub-grid{grid-template-columns:1fr;gap:11px}
- .op-hub-card{min-height:158px;padding:18px}
+ .op-hub-grid{grid-template-columns:1fr;gap:9px}
+ .op-hub-card{grid-template-columns:44px minmax(0,1fr) auto;gap:12px;min-height:84px;padding:14px}
+ .op-hub-icon{width:44px;height:44px;font-size:25px}
  .op-stepper{padding:13px 12px}
  .op-stepper-head span{display:none}
  .op-step-tabs{gap:5px}
@@ -162,12 +166,12 @@
 
 
 /* IL / IH goal selector on the speaking home */
-.op-hub-target{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:22px 0 0;padding:16px 20px;border-radius:15px;border:1px solid #e4dfff;background:#fff}
+.op-hub-target{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:18px 0 0;padding:12px 14px;border-radius:15px;border:1px solid #e4dfff;background:#fff}
 .op-hub-target label{font-size:14px;font-weight:800;color:var(--ink)}
-.op-hub-target select{min-height:43px;min-width:126px;padding:8px 12px;font:inherit;font-weight:700;border-radius:10px;border:1px solid #c8c0fb;background:#faf9ff;color:#5240b9;cursor:pointer}
+.op-hub-target select{min-height:44px;min-width:112px;padding:8px 10px;font:inherit;font-size:14px;font-weight:700;border-radius:10px;border:1px solid #c8c0fb;background:#faf9ff;color:#5240b9;cursor:pointer}
 .op-hub-target p{flex:1;min-width:185px;margin:0;font-size:12px;color:#72738c;line-height:1.6}
 .op-hub-target+.op-hub-hero{margin-top:12px}
-@media(max-width:760px){.op-hub-target{padding:14px;gap:10px}.op-hub-target p{flex-basis:100%}}
+@media(max-width:760px){.op-hub-target{padding:12px;gap:8px}.op-hub-target p{flex-basis:100%}}
 
 /* Type-specific English and Korean practice game menus. */
 .practice-menu-group{margin:8px 0 0}
@@ -197,3 +201,4 @@
   flex-direction:row;gap:4px;min-height:44px;min-width:75px;padding:6px 2px 6px 6px;font-size:10px
  }
 }
+

@@ -107,16 +107,17 @@
   function renderHub() {
     if (!hub) return;
     const cards = [
-      { icon: "01", title: "기초 답변 훈련", summary: "예시 답변 듣기 → 목표 수준별 확장 답변 → 직접 말하기", button: "이어서 연습하기", action: "basic" },
-      { icon: "02", title: "주제별 답변 연습", summary: "일상·직장·여행 등 20개 질문", button: "질문 목록 보기", action: "topics" },
-      { icon: "03", title: "질문 듣고 답하기", summary: "질문을 듣고 즉석에서 말하기", coming: true },
-      { icon: "04", title: "롤플레이 연습", summary: "상황별 요청과 문제 해결", coming: true },
-      { icon: "05", title: "오픽 실전 연습", summary: "15문제 · 40분 · 질문 듣기와 녹음", button: "모의시험 시작하기", action: "mock" },
-      { icon: "06", title: "나의 학습 기록", summary: "완료한 질문과 작성한 답변 확인", button: "학습 기록 확인", action: "topics" }
+      { icon: "📘", title: "기초 답변 훈련", summary: "예시 듣기·답변 확장·직접 말하기", action: "basic" },
+      { icon: "💬", title: "주제별 답변 연습", summary: "일상·직장·여행 등 20개 질문", action: "topics" },
+      { icon: "🎧", title: "질문 듣고 답하기", summary: "질문을 듣고 즉석에서 말하기", coming: true },
+      { icon: "🎭", title: "롤플레이 연습", summary: "상황별 요청과 문제 해결", coming: true },
+      { icon: "🎤", title: "오픽 실전 연습", summary: "15문제·40분·질문 듣기와 녹음", action: "mock" },
+      { icon: "📊", title: "나의 학습 기록", summary: "완료한 질문과 작성한 답변 확인", action: "topics" }
     ];
     hub.innerHTML = '<div class="op-hub-target"><label for="op-hub-level">🎯 목표 수준</label><select id="op-hub-level" aria-label="스피킹 목표 수준">' + Object.entries(levels).map(([key, label]) => '<option value="' + key + '"' + (key === state.level ? " selected" : "") + '>' + label + '</option>').join("") + '</select><p>IL: 짧고 명확하게 · IH: 이유와 경험까지 풍부하게</p></div>' + '<div class="op-hub-grid">' + cards.map(card =>
-        '<article class="op-hub-card' + (card.coming ? ' op-hub-coming' : '') + '"><span class="op-hub-number">' + card.icon + '</span><h3>' + card.title + '</h3><p>' + card.summary + '</p>' +
-        (card.coming ? '<span class="op-hub-upcoming">준비 중</span>' : '<button type="button" class="op-btn' + (card.action === "basic" ? ' op-primary' : '') + '" data-hub="' + card.action + '">' + card.button + ' →</button>') + '</article>'
+        (card.coming ? '<article class="op-hub-card op-hub-coming">' : '<button type="button" class="op-hub-card" data-hub="' + card.action + '">') +
+        '<span class="op-hub-icon" aria-hidden="true">' + card.icon + '</span><span class="op-hub-copy"><strong>' + card.title + '</strong><small>' + card.summary + '</small></span>' +
+        (card.coming ? '<span class="op-hub-upcoming">준비 중</span></article>' : '<span class="op-hub-arrow" aria-hidden="true">›</span></button>')
       ).join("") + '</div><p class="op-note">진도는 현재 브라우저에 저장해요. 음성 인식은 기기 및 브라우저 지원 여부에 따라 사용 가능해요.</p>';
   }
   function updateLevel(nextLevel) {
@@ -342,3 +343,4 @@
   };
   renderQuestion(); renderList(); renderHub();
 }());
+
