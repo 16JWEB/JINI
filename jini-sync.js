@@ -26,6 +26,8 @@
   let expiresAt = 0;
   let busy = false;
   let fileId = "";
+  // undefined: not checked yet, null: no backup, number: exact Drive file bytes.
+  let driveSizeBytes;
   let conflict = null;
   let confirmAction = null;
   let meta = readMeta();
@@ -248,6 +250,17 @@
     try { return new Date(value).toLocaleString("ko-KR"); } catch (_) { return "기록 없음"; }
   }
   function validToken() { return !!token && Date.now() < expiresAt - 30000; }
+  function setDriveSize(file) {
+    if (!file) { driveSizeBytes = null; return; }
+    const value = Number(file.size);
+    driveSizeBytes = file.size !== undefined && file.size !== null && file.size !== "" &&
+      Number.isFinite(value) && value >= 0 ? value : NaN;
+  }
+  function formatDriveSize(bytes) {
+    if (bytes < 1024) return bytes.toLocaleString("ko-KR") + " B";
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / 1048576).toFixed(2) + " MB";
+  }
   function render() {
     const on = validToken();
     const reconnectNeeded = !on && !!meta.previouslyConnected;
@@ -261,6 +274,10 @@
       driveSnapshot === null ? "백업 없음" :
       equalRecords ? "학습기록 일치" : "학습기록 다름";
     $("jsy-last").textContent = dateTime(meta.lastSyncedAt);
+    $("jsy-backup-size").textContent = !on ? "Google 연결 후 확인" :
+      driveSizeBytes === undefined ? "백업 확인 전" :
+      driveSizeBytes === null ? "백업 없음" :
+      Number.isFinite(driveSizeBytes) ? formatDriveSize(driveSizeBytes) : "용량 확인 불가";
     $("jsy-connect").disabled = on || busy;
     $("jsy-connect").textContent = reconnectNeeded ? "↻ Google 다시 연결" : "↻ 동기화 하기";
     $("jsy-disconnect").disabled = !on || busy;
@@ -299,7 +316,7 @@
     return API + "?" + new URLSearchParams(params);
   }
   async function list(q) {
-    const result = await request(query({ q: q, pageSize: "100", fields: "nextPageToken,files(id,name,mimeType,version,modifiedTime)", spaces: "drive" }));
+    const result = await request(query({ q: q, pageSize: "100", fields: "nextPageToken,files(id,name,mimeType,version,modifiedTime,size)", spaces: "drive" }));
     return (result.files || []);
   }
   function escapeQuery(s) { return s.replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
@@ -338,10 +355,11 @@
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload(records))
     });
-    const info = await request(API + "/" + encodeURIComponent(id) + "?fields=id,version,modifiedTime");
+    const info = await request(API + "/" + encodeURIComponent(id) + "?fields=id,version,modifiedTime,size");
     return info;
   }
   function markSynced(records, remote) {
+    setDriveSize(remote);
     meta.lastHash = fingerprint(records);
     meta.lastRemoteVersion = String(remote.version || "");
     meta.lastRemoteFileId = remote.id || "";
@@ -377,6 +395,7 @@
       const local = snapshot();
       const localHash = fingerprint(local);
       const remoteMeta = await findFile();
+      setDriveSize(remoteMeta);
       // Never reuse sync baselines from a different Drive file/account.
       if (remoteMeta && meta.lastRemoteFileId &&
           meta.lastRemoteFileId !== remoteMeta.id) {
@@ -536,6 +555,7 @@
     if (!adminOpen() || !validToken()) return status("먼저 관리자 화면에서 Google Drive에 연결해 주세요.", true);
     await withBusy(async function () {
       const found = await findFile();
+      setDriveSize(found);
       if (!found) {
         showDataComparison(null, "Drive에 JINI 백업 파일이 없습니다.");
         status("Drive에 백업파일이 없습니다. 실제 기록이 있는 기기에서 첫 백업을 생성하세요.", true);
@@ -552,6 +572,7 @@
     if (!validToken()) return status("먼저 동기화 하기를 눌러 연결해 주세요.", true);
     await withBusy(async function () {
       const now = await findFile();
+      setDriveSize(now);
       if (now && !force && meta.lastRemoteVersion &&
           String(now.version) !== String(meta.lastRemoteVersion)) {
         showConflict(snapshot(), await readFile(now.id), now);
@@ -577,6 +598,7 @@
     if (!validToken()) return status("먼저 동기화 하기를 눌러 연결해 주세요.", true);
     await withBusy(async function () {
       const found = await findFile();
+      setDriveSize(found);
       if (!found) throw new Error("Google Drive에서 복원할 JINI 백업을 찾지 못했습니다.");
       const data = await readFile(found.id);
       showDataComparison(data, "백업 복원 전 확인.");
@@ -595,6 +617,7 @@
     await withBusy(async function () {
       const found = await findFile();
       if (found) await request(API + "/" + encodeURIComponent(found.id), { method: "DELETE" });
+      setDriveSize(null);
       meta.deleted = true;
       meta.lastRemoteVersion = "";
       meta.lastRemoteFileId = "";
