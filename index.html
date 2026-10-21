@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261021-study-sync-status-v7">
+  <link rel="stylesheet" href="styles.css?v=20261021-study-hubs-v8">
   <link rel="stylesheet" href="korean-game.css?v=20261018-word-quiz-card-audio-v1">
   <link rel="stylesheet" href="english-game.css?v=20261018-expression-card-tap-v1">
   <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
@@ -39,10 +39,10 @@
         <button class="nav-item active" data-page="home">
           <span class="nav-icon">⌂</span><span>홈</span>
         </button>
-        <button class="nav-item home-study-shortcut" data-resume-study="english" type="button">
+        <button class="nav-item home-study-shortcut" data-page="study-menu" type="button">
           <span class="nav-icon">▦</span><span>영어공부</span>
         </button>
-        <button class="nav-item home-study-shortcut" data-resume-study="korean" type="button">
+        <button class="nav-item home-study-shortcut" data-page="ko-study-menu" type="button">
           <span class="nav-icon">가</span><span>한글공부</span>
         </button>
         <button class="nav-item home-study-info-link" data-page="study-info" type="button" aria-label="나의 학습정보 열기">
@@ -206,11 +206,11 @@
           <strong class="jini-home-actions-title">공부 이어가기</strong>
           <div class="home-study-tabs" role="group" aria-label="공부할 언어 선택">
             <div class="home-study-choice">
-              <button class="home-start-button" id="start-learning" type="button" data-resume-study="english">📘 AI 영어공부 시작 ›</button>
+              <button class="home-start-button" id="start-learning" type="button" data-page="study-menu">📘 AI 영어공부 시작 ›</button>
               <button class="home-resume-button" id="resume-english-study" type="button" data-resume-study="english">마지막 영어 공부 화면</button>
             </div>
             <div class="home-study-choice">
-              <button class="home-start-button" id="start-korean-learning" type="button" data-resume-study="korean">📕 AI 한글공부 시작 ›</button>
+              <button class="home-start-button" id="start-korean-learning" type="button" data-page="ko-study-menu">📕 AI 한글공부 시작 ›</button>
               <button class="home-resume-button" id="resume-korean-study" type="button" data-resume-study="korean">마지막 한글 공부 화면</button>
             </div>
             <div class="home-study-choice">
@@ -232,6 +232,30 @@
         </div>
       </section>
 
+<section class="study-hub" id="english-study-hub" aria-label="영어공부 학습 메뉴" hidden>
+  <button class="bookmark-button" data-page="home" type="button">← 홈</button>
+  <p class="study-hub-eyebrow">📘 영어공부</p>
+  <h1>무엇을 공부할까요?</h1>
+  <p class="study-hub-intro">원하는 메뉴를 골라 시작하세요. 마지막 학습 위치는 그대로 기억해요.</p>
+  <div class="study-hub-grid"><button class="study-hub-card" data-page="vocabulary" type="button"><span class="study-hub-icon" aria-hidden="true">📘</span><span class="study-hub-copy"><strong>필수 단어</strong><small>전체·초등·중등·고등 단어 공부</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+<button class="study-hub-card" data-page="player" type="button"><span class="study-hub-icon" aria-hidden="true">♫</span><span class="study-hub-copy"><strong>단어 재생</strong><small>학년별 단어를 듣고 따라 하기</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+<button class="study-hub-card" data-page="english-expressions" type="button"><span class="study-hub-icon" aria-hidden="true">💬</span><span class="study-hub-copy"><strong>필수 표현</strong><small>상황별 표현과 예문 공부</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+<button class="study-hub-card" data-page="english-expression-player" type="button"><span class="study-hub-icon" aria-hidden="true">▶</span><span class="study-hub-copy"><strong>표현 재생</strong><small>표현·뜻·예문을 순서대로 듣기</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+<button class="study-hub-card" data-page="verb-forms" type="button"><span class="study-hub-icon" aria-hidden="true">↻</span><span class="study-hub-copy"><strong>동사 변화</strong><small>기본형부터 과거·과거분사까지</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+<button class="study-hub-card" data-page="english-game" type="button"><span class="study-hub-icon" aria-hidden="true">🎮</span><span class="study-hub-copy"><strong>연습 게임</strong><small>뜻·듣기·철자·회화 연습</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+<button class="study-hub-card" data-page="speaking" type="button"><span class="study-hub-icon" aria-hidden="true">🎤</span><span class="study-hub-copy"><strong>스피킹 대비</strong><small>기초 답변·주제별 질문·실전 연습</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button></div>
+</section>
+<section class="study-hub" id="korean-study-hub" aria-label="한글공부 학습 메뉴" hidden>
+  <button class="bookmark-button" data-page="home" type="button">← 홈</button>
+  <p class="study-hub-eyebrow">📕 한글공부</p>
+  <h1>무엇을 공부할까요?</h1>
+  <p class="study-hub-intro">원하는 메뉴를 골라 시작하세요. 마지막 학습 위치는 그대로 기억해요.</p>
+  <div class="study-hub-grid"><button class="study-hub-card" data-page="ko-vocabulary" type="button"><span class="study-hub-icon" aria-hidden="true">📕</span><span class="study-hub-copy"><strong>필수 단어</strong><small>한국어 단어와 베트남어 뜻 공부</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+<button class="study-hub-card" data-page="ko-player" type="button"><span class="study-hub-icon" aria-hidden="true">♫</span><span class="study-hub-copy"><strong>단어 재생</strong><small>한국어 발음을 듣고 따라 하기</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+<button class="study-hub-card" data-page="ko-expressions" type="button"><span class="study-hub-icon" aria-hidden="true">💬</span><span class="study-hub-copy"><strong>일상생활 표현</strong><small>생활 속 한국어 표현과 번역 공부</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+<button class="study-hub-card" data-page="ko-expression-player" type="button"><span class="study-hub-icon" aria-hidden="true">▶</span><span class="study-hub-copy"><strong>표현 재생</strong><small>한국어 표현을 순서대로 듣기</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+<button class="study-hub-card" data-page="ko-game" type="button"><span class="study-hub-icon" aria-hidden="true">🎮</span><span class="study-hub-copy"><strong>연습 게임</strong><small>단어·발음·회화 연습</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button></div>
+</section>
       <section class="jst-section" id="jini-study-info-section" hidden>
         <div id="jini-study-time-root"></div>
       </section>
@@ -768,7 +792,7 @@
   <script src="words-everyday-reviewed-14.js?v=20261020-essential-100-merged-v3"></script>
   <script src="english-learning-order-data.js?v=20261020-500-expressions-merge-v1"></script>
   <script src="study-time.js?v=20261020-calendar-v1"></script>
-  <script src="app.js?v=20261021-sync-back-v4"></script>
+  <script src="app.js?v=20261021-study-hubs-v5"></script>
   <script src="jini-chrome-launch.js?v=20261018-compact-shortcuts-v2"></script>
   <script src="jini-install.js?v=20261018-number-left-v1"></script>
   <script src="jini-address-bar.js?v=20261018-standalone-address-v1"></script>

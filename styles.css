@@ -460,3 +460,23 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
 .study-sync-link[data-sync-state="expired"] .home-sync-status { color: #ce273f; }
 .study-sync-link[data-sync-state="pending"] .home-sync-status,
 .study-sync-link[data-sync-state="attention"] .home-sync-status { color: #aa670b; }
+/* Language landing pages keep study choices visible before entering a lesson. */
+.study-hub { margin: 24px auto 40px; max-width: 980px; }
+.study-hub[hidden] { display: none; }
+.study-hub-eyebrow { margin: 25px 0 8px; color: var(--purple); font-size: 14px; font-weight: 800; }
+.study-hub h1 { margin: 0 0 10px; font-size: clamp(25px, 3vw, 34px); }
+.study-hub-intro { margin: 0 0 25px; color: #77798d; font-size: 13px; line-height: 1.7; }
+.study-hub-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.study-hub-card { display: flex; align-items: center; gap: 15px; width: 100%; min-height: 108px; padding: 22px; border: 1px solid #e9e5fa; border-radius: 15px; background: #fff; color: var(--ink); text-align: left; cursor: pointer; font: inherit; transition: background .15s, border-color .15s; }
+.study-hub-card:hover { background: #f8f6ff; border-color: #b9aff0; }
+.study-hub-card:focus-visible { outline: 2px solid var(--purple); outline-offset: 3px; }
+.study-hub-icon { display: grid; place-items: center; flex: 0 0 44px; height: 44px; border-radius: 12px; background: var(--purple-soft); color: var(--purple); font-size: 24px; }
+.study-hub-copy { display: grid; gap: 7px; }
+.study-hub-copy strong { font-size: 16px; }
+.study-hub-copy small { color: #77798d; font-size: 11px; line-height: 1.5; }
+.study-hub-arrow { margin-left: auto; color: var(--purple); font-size: 26px; }
+@media (max-width: 600px) {
+  .study-hub { margin-top: 18px; }
+  .study-hub-grid { grid-template-columns: 1fr; gap: 10px; }
+  .study-hub-card { min-height: 88px; padding: 16px; gap: 12px; }
+}
