@@ -117,3 +117,21 @@
 @keyframes jal-b-sparkle{0%,100%{opacity:.65}50%{opacity:1}}
 /* Reduced-motion, hidden panels and nonselected preview cards remain still. */
 @media(prefers-reduced-motion:reduce){#ja-aura-panel .jal-variant-b .jal-b-core,#ja-aura-panel .jal-variant-b .jal-b-plume,#ja-aura-panel .jal-variant-b .jal-b-sparks,#ja-aura-panel .jal-variant-b .jal-b-crown{animation:none!important}}
+
+
+/* C design: gentle light around (not over) the original mascot. */
+#ja-aura-panel .jal-variant-c{isolation:isolate}
+#ja-aura-panel .jal-variant-c .jal-c-svg{filter:none}
+#ja-aura-panel .jal-variant-c .jal-sprite{z-index:4}
+#ja-aura-panel .jal-variant-c .jal-c-background{transform-origin:200px 200px;animation:jal-c-breathe 6.5s ease-in-out infinite}
+#ja-aura-panel .jal-variant-c .jal-c-sparkles{transform-origin:200px 200px;animation:jal-c-sparkle 4.1s ease-in-out infinite}
+#ja-aura-panel .jal-variant-c .jal-c-details{transform-origin:200px 200px;animation:jal-c-drift 7.5s ease-in-out infinite}
+#ja-aura-panel .jal-variant-c.jal-cyber .jal-c-details{animation-duration:9s}
+#ja-aura-panel .jal-variant-c.jal-time .jal-c-details{animation-duration:15s}
+#ja-aura-panel .jal-variant-c.jal-galaxy .jal-c-details{animation-duration:13s}
+#ja-aura-panel .jal-variant-c .jal-c-orbit{transform-origin:200px 200px;animation:jal-c-orbit 20s linear infinite}
+@keyframes jal-c-breathe{0%,100%{opacity:.7;transform:scale(.98)}50%{opacity:1;transform:scale(1.025)}}
+@keyframes jal-c-sparkle{0%,100%{opacity:.67}50%{opacity:1}}
+@keyframes jal-c-drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes jal-c-orbit{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#ja-aura-panel .jal-variant-c *,#ja-aura-panel .jal-variant-c *::before,#ja-aura-panel .jal-variant-c *::after{animation:none!important}}
