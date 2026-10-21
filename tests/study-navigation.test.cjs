@@ -46,6 +46,9 @@ function harness(initial = {}) {
   const levels = ['초등', '중등', '고등'].map(playerLevel => Object.assign(new Element(), {dataset: {playerLevel}}));
   const modes = ['word-meaning', 'word-meaning-example'].map(playerMode => Object.assign(new Element(), {dataset: {playerMode}}));
   const selectors = new Map();
+  const windowListeners = {};
+  const historyEntries = [null];
+  let historyIndex = 0;
   const document = {getElementById: element, createElement: () => new Element(),
     createTextNode: text => Object.assign(new Element(), {_text: text}), addEventListener() {},
     querySelector: selector => {
@@ -60,8 +63,17 @@ function harness(initial = {}) {
       return [];
     }};
   const window = {document, localStorage: storage, navigator: {userAgent: ''},
-    location: {href: 'https://jini.test/', hash: ''}, history: {pushState() {}},
-    addEventListener() {}, setTimeout() {}, clearTimeout() {}, scrollY: 0,
+    location: {href: 'https://jini.test/', hash: ''}, history: {
+      get state() {return historyEntries[historyIndex];},
+      get length() {return historyEntries.length;},
+      pushState(state) {historyEntries.splice(++historyIndex); historyEntries.push(state);},
+      back() {
+        if (!historyIndex) return;
+        historyIndex--;
+        (windowListeners.popstate || []).forEach(fn => fn({state: historyEntries[historyIndex]}));
+      }
+    },
+    addEventListener(name, fn) {(windowListeners[name] ||= []).push(fn);}, setTimeout() {}, clearTimeout() {}, scrollY: 0,
     requestAnimationFrame: fn => fn(), scrollTo() {}, matchMedia: () => ({matches: false})};
   const context = vm.createContext({window, document, localStorage: storage, console});
   const scripts = [...read('index.html').matchAll(/<script src="([^"?]+)(?:\?[^\"]*)?"/g)].map(m => m[1]);
@@ -82,6 +94,7 @@ function harness(initial = {}) {
     if (file.startsWith('english-expressions')) vm.runInContext(read(file), context, {filename: file});
   }
   return {api: window.testAPI, window, element, entries, snapshot: () => Object.fromEntries(entries),
+    back: () => window.history.back(),
     category: name => element('ee-categories').children.find(c => c.textContent.startsWith(name + ' ')),
     playerCategory: name => element('player-categories').children.find(c => c.dataset.expressionCategory === name)};
 }
@@ -206,4 +219,90 @@ test('HTML has unique IDs and all local scripts and styles exist', () => {
     if (/^https?:/.test(match[1])) continue;
     assert(fs.existsSync(path.join(root, match[1].split('?')[0])), match[1]);
   }
+});
+
+test('English learning pages return to the English menu before Home', () => {
+  const h = harness();
+  for (const page of ['vocabulary', 'player', 'english-expressions', 'english-expression-player', 'verb-forms', 'english-game', 'speaking']) {
+    h.api.setPage(page); h.back();
+    assert.equal(h.api.state().currentPageView, 'study-menu', page);
+    assert.equal(h.element('english-study-hub').hidden, false);
+    h.back(); assert.equal(h.api.state().currentPageView, 'home');
+    assert.equal(h.window.history.length, 2, 'repeated in-app Back must not grow the history guard');
+  }
+});
+
+test('Korean learning pages return to the Korean menu before Home', () => {
+  const h = harness();
+  for (const page of ['ko-vocabulary', 'ko-player', 'ko-expressions', 'ko-expression-player', 'ko-game']) {
+    h.api.setPage(page); h.back();
+    assert.equal(h.api.state().currentPageView, 'ko-study-menu', page);
+    assert.equal(h.element('korean-study-hub').hidden, false);
+    h.back(); assert.equal(h.api.state().currentPageView, 'home');
+  }
+});
+
+test('speaking practice returns one parent at a time even without a child back hook', () => {
+  const h = harness(); h.api.setPage('opic-basic');
+  for (const parent of ['opic', 'speaking', 'study-menu', 'home']) {
+    h.back(); assert.equal(h.api.state().currentPageView, parent);
+  }
+  h.back();
+  assert.equal(h.api.state().currentPageView, 'home');
+  assert.equal(h.window.history.state, null, 'Back at Home must not reinsert a guard indefinitely');
+});
+
+test('the speaking child back hook preserves the guard for the next parent', () => {
+  const h = harness();
+  h.window.JINI_OPIC_BACK = () => {h.api.setPage('opic'); return true;};
+  h.api.setPage('opic-basic'); h.back();
+  assert.equal(h.api.state().currentPageView, 'opic');
+  assert.equal(h.window.history.state.jiniHome, true);
+  h.back(); assert.equal(h.api.state().currentPageView, 'speaking');
+  h.back(); assert.equal(h.api.state().currentPageView, 'study-menu');
+});
+
+test('active exercises retain their game-list back step before the language menu', () => {
+  const h = harness();
+  for (const [page, hook, flag, parent] of [
+    ['english-game', 'JINI_ENGLISH_GAME_BACK', 'jiniEnglishGame', 'study-menu'],
+    ['ko-game', 'JINI_KOREAN_GAME_BACK', 'jiniKoreanGame', 'ko-study-menu']]) {
+    let active = true;
+    h.window[hook] = () => {if (!active) return false; active = false; return true;};
+    h.api.setPage(page);
+    h.window.history.pushState({jiniHome: true, [flag]: true});
+    h.back(); assert.equal(h.api.state().currentPageView, page);
+    h.back(); assert.equal(h.api.state().currentPageView, parent);
+    h.back(); assert.equal(h.api.state().currentPageView, 'home');
+  }
+});
+
+test('mock practice returns to Speaking from both browser Back and its page button', () => {
+  const h = harness();
+  h.api.setPage('vocabulary'); h.api.setPage('opic-mock'); h.back();
+  assert.equal(h.api.state().currentPageView, 'speaking');
+  h.api.setPage('home'); h.api.setPage('opic-mock'); h.element('opic-mock-back').click();
+  assert.equal(h.api.state().currentPageView, 'speaking');
+});
+
+test('sync and Korean voice installation return to their contextual parent', () => {
+  const h = harness();
+  h.api.setPage('ko-expressions'); h.api.setPage('sync'); h.back();
+  assert.equal(h.api.state().currentPageView, 'ko-expressions');
+  h.back(); assert.equal(h.api.state().currentPageView, 'ko-study-menu');
+  h.api.setPage('ko-language-packs');
+  for (const parent of ['ko-player', 'ko-study-menu', 'home']) {
+    h.back(); assert.equal(h.api.state().currentPageView, parent);
+  }
+});
+
+test('returning through a parent menu preserves the saved learning page', () => {
+  const h = harness();
+  h.api.setPage('vocabulary'); h.api.setLevel('중등'); h.api.goToPage(4);
+  h.back(); assert.equal(h.api.state().currentPageView, 'study-menu');
+  h.api.setPage('vocabulary');
+  assert.equal(h.api.state().activeLevel, '중등'); assert.equal(h.api.state().currentPage, 4);
+  h.api.setPage('ko-expressions'); h.api.goToPage(3); h.back();
+  assert.equal(h.api.state().currentPageView, 'ko-study-menu');
+  h.api.setPage('ko-expressions'); assert.equal(h.api.state().currentPage, 3);
 });
