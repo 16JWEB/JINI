@@ -697,12 +697,12 @@
       render();
     }
   }
-  async function disconnect() {
+  function disconnect() {
     if (disconnecting || connecting || busy) return;
     disconnecting = true;
-    render();
-    const oldToken = token;
-    // Stop this tab's authorization first; remote records and local XP stay intact.
+    // Disconnect JINI immediately, without a confirmation or network request.
+    // This is an auto-sync toggle, not a Google account permission revocation;
+    // keeping consent also makes reconnecting less cumbersome.
     clearTabToken();
     meta.previouslyConnected = false;
     saveMeta();
@@ -711,30 +711,15 @@
     driveSnapshot = null;
     driveSizeBytes = undefined;
     $("jsy-remote-summary").textContent = "Google 연결 후 확인";
-    status("이 기기의 Google Drive 동기화를 해제하고 있습니다.");
+    status("이 기기의 Google Drive 자동 동기화를 해제하고 있습니다.");
     render();
-    try {
-      if (oldToken && window.google && google.accounts && google.accounts.oauth2) {
-        // Google's revoke callback can be delayed or absent if the network is
-        // offline. Never leave the button showing '해제 중' indefinitely.
-        await new Promise(function (resolve) {
-          const timeout = window.setTimeout(resolve, 5000);
-          try {
-            google.accounts.oauth2.revoke(oldToken, function () {
-              window.clearTimeout(timeout);
-              resolve();
-            });
-          } catch (_) {
-            window.clearTimeout(timeout);
-            resolve();
-          }
-        });
-      }
-    } finally {
+    // Briefly paint '해제 중…' beneath the button; disconnect itself is
+    // already complete and no Google reply is required.
+    window.setTimeout(function () {
       disconnecting = false;
-      status("동기화를 해제했어요. 기기 학습기록과 Google Drive 백업은 삭제되지 않았습니다.");
+      status("동기화 해제 완료 · 기기의 XP와 Google Drive 백업은 그대로 유지됩니다.");
       render();
-    }
+    }, 350);
   }
   function ask(action, title, body) {
     confirmAction = action;
