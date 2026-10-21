@@ -48,13 +48,16 @@
 #ja-aura-panel .jal-turn-rev{transform-origin:200px 200px;animation:jal-reverse 21s linear infinite}
 #ja-aura-panel .jal-crest{animation:jal-twinkle 4.5s ease-in-out infinite}
 #ja-aura-panel .jal-imperial{animation:jal-twinkle 4.2s ease-in-out infinite}
-#ja-aura-panel .jal-stage.jal-strength-1 .jal-stars{opacity:.35}
-#ja-aura-panel .jal-stage.jal-strength-2 .jal-stars{opacity:.52}
-#ja-aura-panel .jal-stage.jal-strength-3 .jal-stars{opacity:.7}
-#ja-aura-panel .jal-stage.jal-strength-4 .jal-stars{opacity:.84}
-#ja-aura-panel .jal-stage.jal-strength-5 .jal-stars{opacity:1}
-#ja-aura-panel .jal-stage.jal-strength-5 .jal-halo{filter:blur(10px) brightness(1.18)}
-#ja-aura-panel .jal-stage.jal-strength-5 .jal-aura-svg{filter:drop-shadow(0 0 4px var(--jal-color))}
+/* Milestone unlocks persist when the next 50-level chapter begins.
+   Do not style only strength-5: that caused Lv.60 to look weaker than Lv.50. */
+#ja-aura-panel .jal-stage.jal-milestone-50 .jal-halo{filter:blur(10px) brightness(1.18)}
+#ja-aura-panel .jal-stage.jal-milestone-50 .jal-aura-svg{filter:drop-shadow(0 0 4px var(--jal-color))}
+#ja-aura-panel .jal-stage.jal-milestone-100 .jal-halo{filter:blur(10px) brightness(1.25)}
+#ja-aura-panel .jal-stage.jal-milestone-150 .jal-halo{filter:blur(11px) brightness(1.29)}
+#ja-aura-panel .jal-stage.jal-milestone-200 .jal-halo{filter:blur(11px) brightness(1.35)}
+#ja-aura-panel .jal-stage.jal-milestone-250 .jal-halo{filter:blur(12px) brightness(1.38)}
+/* New particles accumulate with the total level rather than resetting at 60/110/etc. */
+#ja-aura-panel .jal-stars{opacity:.88}
 #ja-aura-panel .jal-frost .jal-aura-svg{filter:drop-shadow(0 0 3px #6fdbff55)}
 #ja-aura-panel .jal-cyber .jal-aura-svg{filter:drop-shadow(0 0 3px #38ffd055)}
 #ja-aura-panel .jal-time .jal-aura-svg{filter:drop-shadow(0 0 3px #ffc96744)}
