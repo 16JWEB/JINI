@@ -406,6 +406,20 @@
       refresh();
     }
   });
-  window.JINI_CHARACTER = { refresh: refresh, open: open, getStatus: readScore, previewReward: previewReward };
+  // Cloud-merging existing XP is not a newly earned reward. Update the
+  // observed levels without enqueueing extra aura popups or level-up toasts.
+  function adoptSyncedLevels() {
+    ["english", "korean"].forEach(function (study) {
+      const level = readScore(study).level;
+      rewards[study].observedLevel = level;
+      rewards[study].pending = rewards[study].pending.filter(value => value <= level);
+      lastLevels[study] = level;
+    });
+    saveRewardProgress();
+    renderPanels();
+    if (dialog.open) renderDialog();
+  }
+  window.JINI_CHARACTER = { refresh: refresh, open: open, getStatus: readScore,
+    previewReward: previewReward, adoptSyncedLevels: adoptSyncedLevels };
   refresh();
 }());
