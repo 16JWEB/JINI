@@ -83,83 +83,100 @@
     return s;
   }
 
-  // Version A: each earned feather is an independent, shaded surface.
-  // Its geometry never changes on later levels; newly earned feathers grow outwards.
-  // A design: broad three-tier wings. Every 10-level upgrade adds one whole
-  // new feather to EACH of the upper, middle and lower banks on BOTH sides.
-  // Previously earned feathers keep their position, shape and opacity.
+  // Version A: continuous, directional plumage instead of dozens of
+  // fat shapes radiating from the same point. Each level adds ONE feather,
+  // distributed across three distinct flows. Older feathers never disappear.
   function growingFeathers(spec,m,id){
     const earned=Math.min(10,Math.max(0,m.tier-15));
-    if(!earned)return "";
-    const prism=spec.key==="frost"||spec.key==="cyber";
-    const color="url(#"+id+"-feather)",shine="url(#"+id+"-feather-glint)";
     const banks=[
-      {name:"upper",count:4+earned,x:i=>20+117*Math.exp(-i/5.1),
-       y:i=>22+139*Math.exp(-i/5.3),baseX:164,baseY:223,width:24},
-      {name:"middle",count:3+earned,x:i=>22+117*Math.exp(-i/5.0),
-       y:i=>82+130*Math.exp(-i/5.4),baseX:161,baseY:241,width:21},
-      {name:"lower",count:3+earned,x:i=>23+116*Math.exp(-i/5.1),
-       y:i=>357-91*Math.exp(-i/5.8),baseX:165,baseY:255,width:22}
+      {name:"high",count:4+Math.ceil(earned/3),root:[171,219],rootStep:[-5.3,-7.2],
+        tip:[135,163],tipStep:[-15.2,-15.4],width:9.9,bend:-6.5},
+      {name:"mid",count:4+Math.floor((earned+1)/3),root:[173,239],rootStep:[-5.2,-2.2],
+        tip:[137,220],tipStep:[-15.0,-11.3],width:9,bend:5},
+      {name:"low",count:3+Math.floor(earned/3),root:[173,248],rootStep:[-5.3,5.1],
+        tip:[138,274],tipStep:[-15.4,12.7],width:9.6,bend:7.5}
     ];
     const pt=(x,y)=>fmt(x)+" "+fmt(y);
-    let wing="";
+    const ink="url(#"+id+"-feather)",light="url(#"+id+"-feather-glint)";
+    let left="";
     for(const bank of banks){
-      let feathers="";
-      // Render the newest, outermost feathers first to keep inner plumage in front.
+      let plume="";
+      // Narrow tapered feathers point in a consistent direction; the
+      // transparent edges and curved shafts read as ONE wing from afar.
       for(let i=bank.count-1;i>=0;i--){
-        const x=bank.x(i),y=bank.y(i);
-        const bx=bank.baseX+(i%3)*1.6,by=bank.baseY+(i%2)*1.8;
-        const dx=x-bx,dy=y-by,len=Math.hypot(dx,dy)||1;
-        const nx=-dy/len,ny=dx/len;
-        const w=(prism?bank.width*.79:bank.width)+(i%4)*1.55;
-        const move=(t,side)=>pt(bx+dx*t+nx*w*side,by+dy*t+ny*w*side);
-        const body='M'+pt(bx,by)+'C'+move(.18,.65)+' '+move(.69,1.04)+' '+pt(x,y)+
-          'C'+move(.82,-.32)+' '+move(.38,-.88)+' '+pt(bx+7,by+5)+'Z';
-        // Broad satin highlight, not a visible straight outline.
-        const highlight='M'+move(.16,.21)+'C'+move(.36,.68)+' '+move(.77,.69)+' '+move(.94,.06)+
-          'C'+move(.79,.05)+' '+move(.36,-.12)+' '+move(.16,.21)+'Z';
-        let facets="";
-        if(prism){
-          facets='<path d="M'+move(.19,-.05)+'L'+move(.77,-.45)+' '+pt(x,y)+
-            ' '+move(.48,.13)+'Z" fill="'+spec.deep+'" opacity=".19"/>';
-        }else{
-          facets='<path d="M'+move(.32,-.29)+'Q'+move(.73,-.09)+' '+move(.89,-.04)+
-            'Q'+move(.61,-.44)+' '+move(.32,-.29)+'Z" fill="'+spec.light+'" opacity=".13"/>';
+        const x0=bank.root[0]+bank.rootStep[0]*i,
+          y0=bank.root[1]+bank.rootStep[1]*i,
+          x1=bank.tip[0]+bank.tipStep[0]*i,
+          y1=bank.tip[1]+bank.tipStep[1]*i;
+        const vx=x1-x0,vy=y1-y0,length=Math.hypot(vx,vy)||1;
+        const nx=-vy/length,ny=vx/length;
+        const w=bank.width*(1+.07*Math.sin(i*1.7));
+        const p=(t,n)=>pt(x0+vx*t+nx*n+bank.bend*Math.sin(t*Math.PI),
+                          y0+vy*t+ny*n);
+        const contour="M"+p(.03,w*.18)+
+          " C"+p(.28,w*.97)+" "+p(.74,w*.82)+" "+p(1,0)+
+          " C"+p(.81,-w*.39)+" "+p(.39,-w*.88)+" "+p(.02,-w*.2)+
+          " Q"+p(-.035,-w*.03)+" "+p(.03,w*.18)+"Z";
+        const vein="M"+p(.11,0)+" C"+p(.39,w*.03)+" "+p(.75,w*.13)+" "+p(.94,0);
+        const glaze="M"+p(.18,w*.24)+" C"+p(.39,w*.55)+" "+p(.72,w*.46)+
+          " "+p(.91,w*.11)+" C"+p(.7,w*.15)+" "+p(.4,w*.09)+" "+p(.18,w*.24)+"Z";
+        // Short, softened barbs suggest real plumage without outlines,
+        // polygon facets, or intersecting contour strokes.
+        let grain="";
+        if(i%2===0){
+          for(let j=0;j<3;j++){
+            const t=.38+j*.145;
+            grain+='<path d="M'+p(t,-w*.02)+' Q'+p(t+.06,w*.28)+
+              ' '+p(t+.10,w*(.44-j*.07))+
+              '" fill="none" stroke="'+spec.light+
+              '" stroke-width=".7" stroke-linecap="round" opacity=".32"/>';
+          }
         }
-        const glimmer=(i%4===2)?
-          '<circle cx="'+fmt(x+dx*.05)+'" cy="'+fmt(y+dy*.05)+'" r="'+fmt(1.8+(i%3)*.35)+
-          '" fill="'+spec.light+'" opacity=".82"/>':"";
-        feathers+='<g class="jal-feather jal-feather-'+bank.name+'-'+i+'">'+
-          '<path d="'+body+'" fill="'+color+'" opacity=".89"/>'+
-          '<path d="'+highlight+'" fill="'+shine+'" opacity="'+(prism?".68":".55")+'"/>'+
-          facets+glimmer+'</g>';
+        plume+='<g class="jal-feather jal-feather-'+bank.name+'-'+i+'">'+
+          '<path d="'+contour+'" fill="'+ink+'" opacity=".88"/>'+
+          '<path d="'+glaze+'" fill="'+light+'" opacity=".48"/>'+
+          '<path d="'+vein+'" fill="none" stroke="'+spec.light+
+          '" stroke-width=".85" stroke-linecap="round" opacity=".42"/>'+
+          grain+'</g>';
       }
-      wing+='<g class="jal-feather-bank jal-bank-'+bank.name+'">'+feathers+'</g>';
+      // A single soft leading edge unifies each feather bank without
+      // piling filled shapes on top of one another.
+      const last=bank.count-1;
+      const lx=bank.tip[0]+bank.tipStep[0]*last;
+      const ly=bank.tip[1]+bank.tipStep[1]*last;
+      const rootX=bank.root[0],rootY=bank.root[1];
+      left+='<g class="jal-feather-bank jal-bank-'+bank.name+'">'+plume+
+        '<path d="M'+pt(rootX+3,rootY)+' Q'+
+        pt((rootX+lx)/2+12,(rootY+ly)/2+bank.bend)+' '+pt(lx,ly)+
+        '" fill="none" stroke="'+spec.light+
+        '" stroke-width="1.15" stroke-linecap="round" opacity=".22"/></g>';
     }
-    const rootGlow='<ellipse cx="164" cy="240" rx="46" ry="63" fill="url(#'+id+'-mist)" opacity=".32"/>';
-    return '<g class="jal-crest jal-feather-array jal-feather-three-banks">'+rootGlow+
-      '<g class="jal-wing-left">'+wing+'</g>'+
-      '<g class="jal-wing-right" transform="translate(400 0) scale(-1 1)">'+wing+'</g></g>';
+    const base='<ellipse cx="171" cy="236" rx="27" ry="43" fill="url(#'+id+'-mist)" opacity=".24"/>';
+    return '<g class="jal-crest jal-feather-array jal-organic-wings">'+
+      '<g class="jal-wing-left">'+base+left+'</g>'+
+      '<g class="jal-wing-right" transform="translate(400 0) scale(-1 1)">'+base+left+'</g></g>';
   }
-  // Lv.110–150: each step adds a new curved light ribbon, retained thereafter.
+
+  // Slim strokes of moving light, not seven overlapping opaque ribbons.
   function growingRibbons(spec,m,id){
     const count=Math.min(7,Math.max(0,m.tier-8));
-    const faceted=spec.key==="frost"||spec.key==="cyber";
-    let ribbons="";
-    for(let i=count-1;i>=0;i--){
-      const tx=fmt(130-i*16.5),ty=fmt(315-i*26.5);
-      const body=faceted?
-        'M159 280Q'+fmt(140-i*2)+' '+fmt(291-i*3)+' '+fmt(tx+35)+' '+fmt(ty+24)+
-        'L'+tx+' '+ty+'L'+fmt(tx+19)+' '+fmt(ty+19)+'Q137 288 159 280Z':
-        'M159 280C'+fmt(146-i*.9)+' '+fmt(293-i*1.4)+' '+fmt(tx+38)+' '+fmt(ty+40)+' '+tx+' '+ty+
-        'C'+fmt(tx+26)+' '+fmt(ty+18)+' '+fmt(tx+36)+' '+fmt(ty+33)+' 159 280Z';
-      const highlight='M157 279Q'+fmt(tx+37)+' '+fmt(ty+30)+' '+tx+' '+ty+
-        'Q'+fmt(tx+24)+' '+fmt(ty+18)+' 157 279Z';
-      ribbons+='<path d="'+body+'" fill="url(#'+id+'-silk)" opacity=".7"/>'+
-        '<path d="'+highlight+'" fill="url(#'+id+'-feather-glint)" opacity=".31"/>';
+    let flow="";
+    for(let i=0;i<count;i++){
+      const endX=143-i*12.8,endY=308-i*26;
+      const startX=165-i*1.9,startY=277-i*2.1;
+      const path="M"+fmt(startX)+" "+fmt(startY)+
+        " C"+fmt(114-i*2)+" "+fmt(282-i*4)+
+        " "+fmt(endX+37)+" "+fmt(endY+24)+
+        " "+fmt(endX)+" "+fmt(endY);
+      const op=fmt(.27+(i%3)*.07);
+      flow+='<path d="'+path+'" fill="none" stroke="'+spec.color+
+        '" stroke-width="4" stroke-linecap="round" opacity=".13"/>'+
+        '<path d="'+path+'" fill="none" stroke="url(#'+id+'-feather-glint)"'+
+        ' stroke-width="'+fmt(1.1+(i%3)*.32)+
+        '" stroke-linecap="round" opacity="'+op+'"/>';
     }
-    return '<g class="jal-flow jal-growing-ribbons"><g>'+ribbons+'</g>'+
-      '<g transform="translate(400 0) scale(-1 1)">'+ribbons+'</g></g>';
+    return '<g class="jal-flow jal-growing-ribbons"><g>'+flow+'</g>'+
+      '<g transform="translate(400 0) scale(-1 1)">'+flow+'</g></g>';
   }
 
   function chapterEffects(spec,m,fxId){
@@ -172,9 +189,9 @@
     // Every 50 levels adds a visually distinct family of geometry.
     if(c>=1){
       const amp=strengthOf(1);
-      s+='<g class="jal-turn-rev"><ellipse cx="200" cy="200" rx="'+(157+c*4)+'" ry="'+(151+c*3)+'" fill="none" stroke="'+light+'" stroke-width="'+(1.4+amp*.35)+'" stroke-dasharray="'+(spec.key==="cyber"?"18 8":spec.key==="time"?"3 11":"5 13")+'" opacity=".83"/>';
-      for(let i=0;i<8+amp;i++){
-        const [x,y]=polar(160+c*3,i*360/(8+amp)-90);
+      s+='<g class="jal-turn-rev" opacity=".47"><ellipse cx="200" cy="200" rx="'+(157+c*4)+'" ry="'+(151+c*3)+'" fill="none" stroke="'+light+'" stroke-width="'+(0.75+amp*.12)+'" stroke-dasharray="'+(spec.key==="cyber"?"24 16":spec.key==="time"?"2 17":"1 23")+'" opacity=".58"/>';
+      for(let i=0;i<3+amp;i++){
+        const [x,y]=polar(160+c*3,i*360/(3+amp)-90);
         s+=motif(spec,x,y,6+amp*.6,i*45);
       }
       if(spec.key==="time")s+=clockFace(spec,false);
@@ -224,13 +241,13 @@
   function artwork(spec,lvl,large){
     const m=info(lvl),n=++serial;
     const grad="jal-grad-"+n;
-    const ringCount=1+(m.chapter>=1?1:0)+(m.chapter>=3?1:0);
+    const ringCount=1+(m.chapter>=1?1:0)+(m.chapter>=3?1:0); // retained but subdued
     let rings='';
     for(let i=0;i<ringCount;i++){
       const ringChapter=i===0?0:i===1?1:3;
       const power=m.chapter>ringChapter?5:m.strength;
       const r=120+i*20+power*2.4;
-      rings+='<circle cx="200" cy="200" r="'+fmt(r)+'" fill="none" stroke="'+(i%2?spec.light:spec.color)+'" stroke-width="'+fmt(1.6+power*.35+i*.25)+'" opacity="'+fmt(.3+power*.085)+'" stroke-dasharray="'+(i===0?'3 12':i%2?'5 14':'none')+'"/>';
+      rings+='<circle cx="200" cy="200" r="'+fmt(r)+'" fill="none" stroke="'+(i%2?spec.light:spec.color)+'" stroke-width="'+fmt(.8+power*.12+i*.1)+'" opacity="'+fmt(.13+power*.038)+'" stroke-dasharray="'+(i===0?'2 19':i%2?'1 22':'1 27')+'"/>';
     }
     const sigil=chapterEffects(spec,m,grad);
     const art='<svg class="jal-aura-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
@@ -259,7 +276,7 @@
   }
   function render(){
     const spec=THEMES.find(x=>x.key===theme)||THEMES[0],m=info(level);
-    els.designs.innerHTML='<button type="button" class="jal-switch'+(design==="a"?' is-selected':'')+'" data-jal-design="a" aria-pressed="'+(design==="a")+'">A · 1안 개선 (기본)</button>'+
+    els.designs.innerHTML='<button type="button" class="jal-switch'+(design==="a"?' is-selected':'')+'" data-jal-design="a" aria-pressed="'+(design==="a")+'">A · 자연스러운 날개 (개선)</button>'+
       '<button type="button" class="jal-switch'+(design==="b"?' is-selected':'')+'" data-jal-design="b" aria-pressed="'+(design==="b")+'">B · 이전 시안</button>'+
       '<button type="button" class="jal-switch'+(design==="c"?' is-selected':'')+'" data-jal-design="c" aria-pressed="'+(design==="c")+'">C · 부드러운 빛</button>';
     els.avatars.innerHTML=AVATARS.map(a=>'<button type="button" class="jal-switch'+(a.id===avatar?' is-selected':'')+
@@ -276,10 +293,10 @@
         '<span class="jal-card-art">'+renderArt(spec,lvl,false)+'</span>'+
         '<span class="jal-card-copy"><span class="jal-level">LV.'+lvl+' · '+(m.chapter*5+i+1)+'/25</span>'+
         '<strong>'+(i===4?spec.gifts[m.chapter]:STEPS[i])+'</strong>'+
-        '<small>'+(design==="a"?(i===4?'이번 구간의 효과가 쌓였어요':'날개·빛결·장식이 하나씩 추가돼요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
+        '<small>'+(design==="a"?(i===4?'자연스러운 날개 윤곽이 성장했어요':'분리된 깃털과 부드러운 빛이 누적돼요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
     }).join('');
     els.focus.innerHTML=renderArt(spec,level,true);
-    els.detail.textContent=(design==="c"?"[C · 자연스러운 빛] ":design==="b"?"[B · 이전 시안] ":"[A · 1안 개선] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
+    els.detail.textContent=(design==="c"?"[C · 자연스러운 빛] ":design==="b"?"[B · 이전 시안] ":"[A · 자연스러운 날개] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
       ' (전체 '+m.tier+'/25단계). 캐릭터 원본은 동일하며 오라만 바뀝니다.';
     els.prev.disabled=level===10;
     els.next.disabled=level===250;
