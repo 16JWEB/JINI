@@ -28,6 +28,40 @@
   let currentVoice = null;
   let playbackToken = 0;
   let repeatTimer = null;
+  const POSITION_STORE = "jini-essential-expressions-positions-v1";
+  const CATEGORIES = ["전체", "일상", "직장", "답변", "여행", "관계", "책갈피"];
+  let categoryPositions = {};
+  try {
+    const stored = JSON.parse(localStorage.getItem(POSITION_STORE) || "{}") || {};
+    CATEGORIES.forEach(function (name) {
+      const state = stored.categories && stored.categories[name];
+      if (state && Number.isInteger(state.page) && state.page > 0) categoryPositions[name] = state;
+    });
+    if (CATEGORIES.includes(stored.category)) category = stored.category;
+  } catch (error) { /* Keep the default position if storage is unavailable. */ }
+
+  function savePosition() {
+    categoryPositions[category] = { page: page, query: phraseQuery, selectedExpressionId: selectedExpressionId };
+    try { localStorage.setItem(POSITION_STORE, JSON.stringify({ category: category, categories: categoryPositions })); }
+    catch (error) { /* Position storage must not interrupt learning. */ }
+  }
+
+  function restorePosition() {
+    const state = categoryPositions[category];
+    page = state ? state.page : 1;
+    phraseQuery = state && typeof state.query === "string" ? state.query : "";
+    selectedExpressionId = state && Number.isInteger(state.selectedExpressionId) ? state.selectedExpressionId : null;
+    search.value = phraseQuery;
+  }
+
+  function setCategory(name) {
+    if (name === category) return;
+    savePosition();
+    category = name;
+    restorePosition();
+    render();
+  }
+  restorePosition();
 
   try {
     const stored = JSON.parse(localStorage.getItem(STORE) || "[]");
@@ -125,6 +159,8 @@
   }
 
   function speakCard(item) {
+    selectedExpressionId = item.id;
+    savePosition();
     speakSequence([
       { text: item.phrase, lang: "en-US", waitAfter: true },
       { text: item.phrase, lang: "en-US", waitAfter: true },
@@ -165,12 +201,10 @@
 
   function renderCategories() {
     categoryBar.replaceChildren();
-    ["전체", "일상", "직장", "답변", "여행", "관계", "책갈피"].forEach(function (name) {
+    CATEGORIES.forEach(function (name) {
       const label = name === "전체" ? "전체 " + EXPRESSIONS.length : name === "책갈피" ? "책갈피 " + saved.length : name;
       const el = button(label, "ee-category" + (category === name ? " selected" : ""), function () {
-        category = name;
-        page = 1;
-        render();
+        setCategory(name);
       });
       el.setAttribute("aria-pressed", String(category === name));
       categoryBar.appendChild(el);
@@ -255,6 +289,7 @@
       root.appendChild(card);
     });
     renderPages(totalPages);
+    savePosition();
     if (scrollToTop) section.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 

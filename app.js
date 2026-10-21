@@ -55,6 +55,8 @@
   const STUDY_STATE_KEY = "jini-last-study-state";
   const VOCABULARY_LEVEL_STATE_KEY = "jini-vocabulary-level-state-v1";
   let vocabularyLevelStates = {};
+  const PLAYER_LEVEL_STATE_KEY = "jini-player-level-state-v1";
+  let playerLevelStates = {};
 
   function essentialExpressionItems() {
     return (window.JINI_ESSENTIAL_EXPRESSIONS || []).map(function (item) {
@@ -321,6 +323,23 @@
     return states;
   }
 
+  function loadPlayerLevelStates() {
+    let saved = {};
+    try { saved = JSON.parse(window.localStorage.getItem(PLAYER_LEVEL_STATE_KEY) || "{}") || {}; }
+    catch (error) { /* Keep studying if preferences cannot be read. */ }
+    const states = {};
+    ["초등", "중등", "고등"].forEach(function (level) {
+      const state = saved[level];
+      if (state && state.page === "player" && state.playerLevel === level &&
+          Number.isInteger(state.playerIndex) && state.playerIndex >= 0) states[level] = state;
+    });
+    const previous = studyStates.pages && studyStates.pages.player;
+    if (previous && ["초등", "중등", "고등"].includes(previous.playerLevel) && !states[previous.playerLevel]) {
+      states[previous.playerLevel] = previous;
+    }
+    return states;
+  }
+
   function saveStudyState() {
     const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-expression-player", "english-game", "speaking", "opic", "opic-basic", "opic-mock"];
     if (restoringStudyState || !validPages.includes(currentPageView)) return;
@@ -348,6 +367,10 @@
       if (currentPageView === "vocabulary") {
         vocabularyLevelStates[activeLevel] = state;
         window.localStorage.setItem(VOCABULARY_LEVEL_STATE_KEY, JSON.stringify(vocabularyLevelStates));
+      }
+      if (currentPageView === "player") {
+        playerLevelStates[playerLevel] = state;
+        window.localStorage.setItem(PLAYER_LEVEL_STATE_KEY, JSON.stringify(playerLevelStates));
       }
       updateResumeStudyButtons();
     } catch (error) {
@@ -1532,17 +1555,22 @@
   }
 
   function setPlayerLevel(level) {
+    if (level === playerLevel) return;
+    saveStudyState();
     if (playbackState !== "stopped") stopPlayback("학년을 변경했어요.");
     playerLevel = level;
     playerWords = words.filter(function (item) { return item.level === playerLevel; });
-    playerIndex = 0;
+    const saved = playerLevelStates[level];
+    const savedWordIndex = saved ? playerWords.findIndex(function (item) { return item.word === saved.playerWord; }) : -1;
+    const requestedIndex = saved && Number.isInteger(saved.playerIndex) ? saved.playerIndex : 0;
+    playerIndex = savedWordIndex >= 0 ? savedWordIndex : Math.max(0, Math.min(requestedIndex, playerWords.length - 1));
     renderPlayerItemOptions();
     document.querySelectorAll(".player-level").forEach(function (button) {
       button.classList.toggle("selected", button.dataset.playerLevel === level);
     });
     breadcrumbLevel.textContent = playerLevel + " 단어 재생";
     updatePlayerCard();
-    setPlaybackStatus("재생을 누르면 " + playerLevel + " 단어를 처음부터 들려드려요.");
+    setPlaybackStatus("재생을 누르면 " + playerLevel + " 단어를 현재 위치부터 들려드려요.");
     updatePlaybackButton();
   }
 
@@ -1787,6 +1815,7 @@
   updateVerbAutoButton();
   studyStates = loadStudyStates();
   vocabularyLevelStates = loadVocabularyLevelStates();
+  playerLevelStates = loadPlayerLevelStates();
   updateResumeStudyButtons();
   // Always open JINI on Home. Saved study screens remain available through
   // the separate "마지막 공부 화면" buttons; do not auto-resume on startup.
