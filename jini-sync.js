@@ -45,6 +45,7 @@
   let syncAfterXP = null;
   let xpBatchDueAt = 0;
   let meta = readMeta();
+  let accountHintChecked = false;
   // Restore only within the same browser tab, not as a stored site login.
   try {
     const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) ||
@@ -554,6 +555,20 @@
     const parsed = typeof data === "string" ? JSON.parse(data) : data;
     return validate(parsed);
   }
+  async function rememberGoogleAccount() {
+    if (accountHintChecked) return;
+    accountHintChecked = true;
+    // Drive's existing drive.file permission identifies the connected account;
+    // no extra profile scope or stored credentials are needed.
+    try {
+      const about = await request("https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)");
+      const email = about && about.user && about.user.emailAddress;
+      if (typeof email === "string" && /^[^\s@]+@[^\s@]+$/.test(email)) {
+        meta.accountEmail = email;
+        saveMeta();
+      }
+    } catch (_) { /* A missing account hint must not prevent Drive backup. */ }
+  }
   async function writeFile(records, existing) {
     let id = existing && existing.id;
     if (!id) {
@@ -625,6 +640,7 @@
     busy = true;
     render();
     try {
+      if (!meta.accountEmail) await rememberGoogleAccount();
       const remoteMeta = await findFile();
       setDriveSize(remoteMeta);
       // Never reuse sync baselines from a different Drive file/account.
@@ -760,6 +776,8 @@
     connectionStage = "Google 인증 중…";
     render();
     try {
+      const accountEmail = typeof meta.accountEmail === "string" ? meta.accountEmail : "";
+      const reuseAccount = !!(meta.previouslyConnected && !meta.manuallyDisconnected && accountEmail);
       const client = google.accounts.oauth2.initTokenClient({
         client_id: CONFIG_ID, scope: SCOPE,
         callback: async function (response) {
@@ -775,6 +793,16 @@
           token = response.access_token;
           expiresAt = Date.now() + (Number(response.expires_in) || 3600) * 1000;
           keepTabToken();
+          accountHintChecked = false;
+          if (!reuseAccount) delete meta.accountEmail;
+          await rememberGoogleAccount();
+          if (!validToken()) {
+            connecting = false;
+            connectionStage = "";
+            status("Google 인증이 만료되었습니다. Google 다시 연결을 눌러 주세요.", true);
+            render();
+            return;
+          }
           // Reconnect intent is not a credential. Never persist tokens in localStorage.
           meta.previouslyConnected = true;
           meta.manuallyDisconnected = false;
@@ -797,9 +825,10 @@
           render();
         }
       });
-      // Keep account selection to avoid uploading to a different Google Drive,
-      // but do not force a repeated consent screen at every connection.
-      client.requestAccessToken({ prompt: "select_account" });
+      // After expiry, prefer the last connected account. A first connection or
+      // deliberate disconnect still allows choosing a different Google account.
+      client.requestAccessToken(reuseAccount ? { prompt: "", login_hint: accountEmail } :
+        { prompt: "select_account" });
     } catch (e) {
       connecting = false;
       connectionStage = "";

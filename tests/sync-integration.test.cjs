@@ -6,8 +6,9 @@ const {test} = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '../jini-sync.js'), 'utf8')
   .replace('  render();\n  if (validToken()) {', `
-  window.testAPI = {snapshot, validate, meaningful, fingerprint, syncCycle, checkDrive, manualBackup,
+  window.testAPI = {snapshot, validate, meaningful, fingerprint, syncCycle, checkDrive, manualBackup, beginConnect, disconnect,
     getConflict: () => conflict, getMeta: () => meta,
+    expireToken: () => {expiresAt = 0;},
     setBaseline: records => {meta.lastHash = fingerprint(records); meta.lastRemoteVersion = '1'; meta.lastRemoteFileId = 'backup';},
     setToken: () => {token = 'test'; expiresAt = Date.now() + 1000000;}};
   return;
@@ -20,12 +21,18 @@ function storage(initial = {}) {
     getItem: key => data.get(key) ?? null, setItem: (key, value) => data.set(key, String(value)),
     removeItem: key => data.delete(key)};
 }
-function harness(local, remote, {version = '2', failRead = false, onRead} = {}) {
+function harness(local, remote, {version = '2', failRead = false, onRead, accountEmail = 'learner@example.test',
+    failAccountRead = false, accountUnauthorized = false} = {}) {
   const fields = new Map();
   const localStorage = storage(local);
   const requests = [];
   let cloud = structuredClone(remote), cloudVersion = Number(version);
   let reloads = 0;
+  const oauthRequests = [], oauthClients = [];
+  const google = {accounts: {oauth2: {initTokenClient(config) {
+    oauthClients.push(config);
+    return {requestAccessToken(options) {oauthRequests.push(options);}};
+  }}}};
   function element(id) {
     if (!fields.has(id)) fields.set(id, {hidden: false, textContent: '',
       addEventListener() {}, classList: {toggle() {}}, scrollIntoView() {}});
@@ -34,13 +41,18 @@ function harness(local, remote, {version = '2', failRead = false, onRead} = {}) 
   const metadata = () => ({id: 'backup', version: String(cloudVersion), size: '96000', modifiedTime: '2026-10-21T09:50:08Z'});
   const context = {URLSearchParams, Event, document: {hidden: false,
     getElementById: element, querySelector() {return null;}},
-    window: {addEventListener() {}, dispatchEvent() {}, setTimeout() {}, clearTimeout() {}, location: {reload() {reloads++;}}},
+    google,
+    window: {google, JINI_GOOGLE_CLIENT_ID: 'test-client', addEventListener() {}, dispatchEvent() {}, setTimeout() {}, clearTimeout() {}, location: {reload() {reloads++;}}},
     localStorage, sessionStorage: storage(),
     fetch: async (url, options = {}) => {
       requests.push({url, ...options});
       let data;
       const parsed = new URL(url);
-      if (parsed.searchParams.get('alt') === 'media') {
+      if (parsed.pathname.endsWith('/about')) {
+        if (failAccountRead) throw new Error('Account info temporarily unavailable');
+        if (accountUnauthorized) return {ok: false, status: 401};
+        data = {user: {emailAddress: accountEmail}};
+      } else if (parsed.searchParams.get('alt') === 'media') {
         if (failRead) throw new Error('Drive unavailable');
         if (onRead) onRead(localStorage);
         data = {app: 'JINI', schema: 1, data: cloud};
@@ -58,7 +70,7 @@ function harness(local, remote, {version = '2', failRead = false, onRead} = {}) 
   const api = context.window.testAPI;
   assert(api, 'test hooks must be installed');
   api.setToken();
-  return {api, localStorage, element, requests, cloud: () => cloud, reloads: () => reloads,
+  return {api, localStorage, element, requests, oauthRequests, oauthClients, cloud: () => cloud, reloads: () => reloads,
     setCloud: value => {cloud = structuredClone(value); cloudVersion++;},
     failReads: value => {failRead = value;},
     uploads: () => requests.filter(r => r.method === 'PATCH')};
@@ -250,4 +262,68 @@ test('compare the current local record after awaiting the Drive read', async () 
   assert(h.api.getConflict(), 'a change during the request must not be declared synced');
   assert.equal(h.element('jsy-auto').textContent, '기록 충돌');
   assert.equal(h.uploads().length, 0);
+});
+
+test('first Google connection selects an account and remembers its email without persisting tokens', async () => {
+  const local = records();
+  const h = harness(local, local);
+  await h.api.beginConnect();
+  assert.equal(h.oauthRequests[0].prompt, 'select_account');
+  assert.equal(h.oauthRequests[0].login_hint, undefined);
+  await h.oauthClients[0].callback({access_token: 'temporary-google-token', expires_in: 3600});
+  const meta = JSON.parse(h.localStorage.getItem('jini-drive-sync-meta-v1'));
+  assert.equal(meta.accountEmail, 'learner@example.test');
+  assert.equal(meta.previouslyConnected, true);
+  assert(!JSON.stringify(meta).includes('temporary-google-token'));
+  assert.equal(h.api.snapshot()['jini-drive-sync-meta-v1'], undefined);
+});
+
+test('Google reconnect after expiry uses the prior account hint without forcing account selection', async () => {
+  const local = records();
+  local['jini-drive-sync-meta-v1'] = JSON.stringify({previouslyConnected: true, accountEmail: 'previous@example.test'});
+  const h = harness(local, records());
+  h.api.expireToken();
+  await h.api.beginConnect();
+  assert.equal(h.oauthRequests[0].prompt, '');
+  assert.equal(h.oauthRequests[0].login_hint, 'previous@example.test');
+});
+
+test('a deliberate Google disconnect permits changing accounts on the next connection', async () => {
+  const local = records();
+  local['jini-drive-sync-meta-v1'] = JSON.stringify({previouslyConnected: true, manuallyDisconnected: true,
+    accountEmail: 'previous@example.test'});
+  const h = harness(local, records());
+  await h.api.beginConnect();
+  assert.equal(h.oauthRequests[0].prompt, 'select_account');
+  assert.equal(h.oauthRequests[0].login_hint, undefined);
+  await h.oauthClients[0].callback({access_token: 'temporary-token', expires_in: 3600});
+  assert.equal(h.api.getMeta().accountEmail, 'learner@example.test');
+});
+
+test('existing browser sessions learn an account hint during the next Drive check', async () => {
+  const local = records();
+  const h = harness(local, local);
+  await h.api.checkDrive();
+  assert.equal(h.api.getMeta().accountEmail, 'learner@example.test');
+  assert.equal(h.api.getConflict(), null);
+  await h.api.checkDrive();
+  assert.equal(h.requests.filter(r => new URL(r.url).pathname.endsWith('/about')).length, 1);
+});
+
+test('unavailable account hints do not prevent a successful Drive backup check', async () => {
+  const local = records();
+  const h = harness(local, local, {failAccountRead: true});
+  await h.api.checkDrive();
+  assert.equal(h.api.getConflict(), null);
+  assert.equal(h.element('jsy-auto').textContent, '학습기록 일치');
+});
+
+test('authorization expiry while identifying the account leaves reconnect available', async () => {
+  const local = records();
+  const h = harness(local, local, {accountUnauthorized: true});
+  await h.api.beginConnect();
+  await h.oauthClients[0].callback({access_token: 'expired-token', expires_in: 3600});
+  assert(h.element('jsy-message').textContent.includes('Google 인증이 만료'));
+  await h.api.beginConnect();
+  assert.equal(h.oauthClients.length, 2, 'the failed account check must not leave connecting latched');
 });

@@ -114,6 +114,9 @@ test('Korean word and expression lists keep separate queries and pages', () => {
   assert.equal(h.element('korean-list-count').textContent, h.window.KOREAN_EXPRESSIONS.length + '개');
   h.api.goToPage(2); h.api.setPage('ko-vocabulary'); assert.equal(h.api.state().currentPage, 3);
   h = harness(h.snapshot()); h.api.setPage('ko-expressions'); assert.equal(h.api.state().currentPage, 2);
+  const positions = JSON.parse(h.entries.get('jini-last-study-state')).pages;
+  assert.equal(positions['ko-vocabulary'].koreanOrderVersion, 1);
+  assert.equal(positions['ko-expressions'].koreanOrderVersion, 1);
 });
 
 test('word playback restores the position and mode of each grade', () => {
