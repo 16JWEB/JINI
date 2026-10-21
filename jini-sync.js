@@ -230,6 +230,26 @@
     a.remove();
     setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
   }
+  // Imported XP is existing progress, not a new level-up. Discard only
+  // pending reward notifications, while keeping XP, character outfits and auras.
+  function restoredRewardProgress(records) {
+    const key = "jini-character-reward-popups-v1";
+    let saved = {};
+    try { saved = JSON.parse(records[key] || "null") || {}; } catch (_) {}
+    const progress = {};
+    [["english", "jini-english-game-v1"], ["korean", "jini-korean-games-v1"]]
+      .forEach(function (entry) {
+        const study = entry[0], scoreKey = entry[1];
+        let score = {};
+        try { score = JSON.parse(records[scoreKey] || "null") || {}; } catch (_) {}
+        const xp = Number(score.xp);
+        const level = Number.isSafeInteger(xp) && xp >= 0 ? Math.floor(xp / 100) + 1 : 1;
+        const previous = saved[study] && typeof saved[study] === "object" &&
+          !Array.isArray(saved[study]) ? saved[study] : {};
+        progress[study] = Object.assign({}, previous, { observedLevel: level, pending: [] });
+      });
+    return JSON.stringify(progress);
+  }
   function applyRecords(records) {
     const existing = snapshot();
     // 복원 전에 현재 기록을 파일로 별도 저장해 실수로 잃지 않게 합니다.
@@ -238,6 +258,9 @@
     if (validToken()) keepTabToken();
     Object.keys(existing).forEach(function (key) { localStorage.removeItem(key); });
     Object.keys(records).forEach(function (key) { localStorage.setItem(key, records[key]); });
+    // Replace stale notification state only after the imported data is saved.
+    // All restore paths (Drive, conflict resolution, JSON) run through here.
+    localStorage.setItem("jini-character-reward-popups-v1", restoredRewardProgress(records));
     window.location.reload();
   }
   function status(message, isError) {
