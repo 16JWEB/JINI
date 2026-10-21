@@ -203,73 +203,122 @@
   function mergeStudyTimes(primaryRaw, otherRaw) {
     if (!primaryRaw) return otherRaw || undefined;
     if (!otherRaw || primaryRaw === otherRaw) return primaryRaw;
-    let primary, other;
-    try { primary = JSON.parse(primaryRaw); other = JSON.parse(otherRaw); }
-    catch (_) { return null; }
-    if (!primary || !other || primary.schema !== 1 || other.schema !== 1 ||
-        !primary.days || !other.days || typeof primary.days !== "object" ||
-        typeof other.days !== "object" || Array.isArray(primary.days) ||
-        Array.isArray(other.days)) return null;
+    let a, b;
+    try { a = JSON.parse(primaryRaw); b = JSON.parse(otherRaw); } catch (_) { return null; }
+    if (!a || !b || a.schema !== 1 || b.schema !== 1 ||
+        !a.days || !b.days || typeof a.days !== "object" || typeof b.days !== "object" ||
+        Array.isArray(a.days) || Array.isArray(b.days)) return null;
     const days = {};
-    for (const day of Array.from(new Set(Object.keys(primary.days)
-        .concat(Object.keys(other.days)))).sort()) {
-      const a = primary.days[day] || {}, b = other.days[day] || {};
-      const en = Math.max(Number(a.englishMs || 0), Number(b.englishMs || 0));
-      const ko = Math.max(Number(a.koreanMs || 0), Number(b.koreanMs || 0));
+    for (const date of Array.from(new Set(Object.keys(a.days).concat(Object.keys(b.days)))).sort()) {
+      const rowA = a.days[date] || {}, rowB = b.days[date] || {};
+      const en = Math.max(Number(rowA.englishMs || 0), Number(rowB.englishMs || 0));
+      const ko = Math.max(Number(rowA.koreanMs || 0), Number(rowB.koreanMs || 0));
       if (![en, ko].every(n => Number.isFinite(n) && n >= 0)) return null;
-      days[day] = { englishMs: en, koreanMs: ko };
+      days[date] = { englishMs: en, koreanMs: ko };
     }
-    return JSON.stringify(Object.assign({}, primary, { days: days }));
+    // Stable metadata prevents two devices from repeatedly uploading different
+    // deviceId values even if their merged durations are identical.
+    const deviceIds = [a.deviceId, b.deviceId].filter(id => typeof id === "string").sort();
+    const merged = Object.assign({}, a, b, { days: days });
+    if (deviceIds.length) merged.deviceId = deviceIds[0];
+    return JSON.stringify(merged);
   }
-  // A higher XP value alone is not enough to overwrite another device.
-  // Only auto-advance when the newer game history contains every remote result,
-  // and all non-game settings are unchanged. Merge per-day study time by max
-  // rather than silently replacing a larger recorded duration.
-  function safeXPAdvance(local, remote) {
-    const gameKeys = ["jini-english-game-v1", "jini-korean-games-v1"];
-    const timeKey = "jini-study-time-v1";
-    const parse = raw => {
-      try { return JSON.parse(raw || "null"); } catch (_) { return null; }
-    };
-    let gainedXP = false;
-    for (const key of gameKeys) {
-      const before = parse(remote[key]), after = parse(local[key]);
-      if (!before && !after) continue;
-      if (!before || !after || typeof before !== "object" || typeof after !== "object") return null;
-      const oldXP = Number(before.xp), newXP = Number(after.xp);
-      if (!Number.isSafeInteger(oldXP) || !Number.isSafeInteger(newXP) ||
-          oldXP < 0 || newXP < oldXP) return null;
-      if (newXP > oldXP) gainedXP = true;
-      const oldItems = before.items || {}, newItems = after.items || {};
-      if (typeof oldItems !== "object" || !oldItems || Array.isArray(oldItems) ||
-          typeof newItems !== "object" || !newItems || Array.isArray(newItems)) return null;
-      for (const id of Object.keys(oldItems)) {
-        if (!Object.prototype.hasOwnProperty.call(newItems, id)) return null;
-        const a = oldItems[id], b = newItems[id];
-        if (!a || !b || typeof a !== "object" || typeof b !== "object") return null;
-        const awarded = item => item.xpAwarded === true ||
-          (item.xpAwarded === undefined && Number(item.streak) > 0);
-        if (awarded(a) && !awarded(b)) return null;
+  function creditedQuestion(row) {
+    return !!(row && typeof row === "object" &&
+      (row.xpAwarded === true || (row.xpAwarded === undefined && Number(row.streak) > 0)));
+  }
+  function mergeGameHistory(localRaw, remoteRaw, english) {
+    if (!localRaw) return remoteRaw || undefined;
+    if (!remoteRaw || localRaw === remoteRaw) return localRaw;
+    let local, remote;
+    try { local = JSON.parse(localRaw); remote = JSON.parse(remoteRaw); } catch (_) { return null; }
+    if (!local || !remote || typeof local !== "object" || typeof remote !== "object" ||
+        !local.items || !remote.items || typeof local.items !== "object" ||
+        typeof remote.items !== "object" || Array.isArray(local.items) || Array.isArray(remote.items)) return null;
+    const lp = Number(local.xp), rp = Number(remote.xp);
+    if (![lp, rp].every(n => Number.isSafeInteger(n) && n >= 0)) return null;
+    const localCount = Object.values(local.items).filter(creditedQuestion).length;
+    const remoteCount = Object.values(remote.items).filter(creditedQuestion).length;
+    const items = {};
+    for (const id of Array.from(new Set(Object.keys(local.items).concat(Object.keys(remote.items)))).sort()) {
+      const a = local.items[id], b = remote.items[id];
+      if ((a && (typeof a !== "object" || Array.isArray(a))) ||
+          (b && (typeof b !== "object" || Array.isArray(b)))) return null;
+      if (!a || !b) { items[id] = a || b; continue; }
+      if (JSON.stringify(a) === JSON.stringify(b)) { items[id] = a; continue; }
+      // Preserve both devices' XP credit for the same question only once.
+      // For retry/scheduling state choose the more recent attempt when known.
+      const timestamp = row => Number(english ? row.due : row.lastAt) || 0;
+      const newest = timestamp(a) >= timestamp(b) ? a : b;
+      const older = newest === a ? b : a;
+      const merged = Object.assign({}, older, newest);
+      merged.wrong = Math.max(Number(a.wrong || 0), Number(b.wrong || 0));
+      if (creditedQuestion(a) || creditedQuestion(b)) merged.xpAwarded = true;
+      if (!merged.snapshot && (a.snapshot || b.snapshot)) merged.snapshot = a.snapshot || b.snapshot;
+      items[id] = merged;
+    }
+    // XP comes from unique credited question IDs. Preserve the larger legacy
+    // XP remainder for old records that lack item-level credit information.
+    const uniqueCredits = Object.values(items).filter(creditedQuestion).length;
+    const legacy = Math.max(0, lp - localCount * 10, rp - remoteCount * 10);
+    const xp = Math.max(lp, rp, uniqueCredits * 10 + legacy);
+    const attemptsKey = english ? "tries" : "attempts";
+    const localAttempts = Number(local[attemptsKey] || 0), remoteAttempts = Number(remote[attemptsKey] || 0);
+    const localCorrect = Number(local.correct || 0), remoteCorrect = Number(remote.correct || 0);
+    if (![localAttempts, remoteAttempts, localCorrect, remoteCorrect].every(n =>
+        Number.isSafeInteger(n) && n >= 0)) return null;
+    const mergedGame = Object.assign({}, remote, local, {
+      xp: xp,
+      [attemptsKey]: Math.max(localAttempts, remoteAttempts, uniqueCredits),
+      correct: Math.max(localCorrect, remoteCorrect, uniqueCredits),
+      items: items
+    });
+    // Unknown future schema fields must agree; never silently lose new data.
+    for (const k of Object.keys(local).filter(k => !["xp", attemptsKey, "correct", "items"].includes(k))) {
+      if (k in remote && JSON.stringify(local[k]) !== JSON.stringify(remote[k])) return null;
+    }
+    return JSON.stringify(mergedGame);
+  }
+  // Merge distinct answered questions, deduplicate XP for questions solved on
+  // both devices, and keep unrelated settings untouched when they agree.
+  // Unknown conflicting profile/bookmark values still require manual review.
+  function mergeIndependentProgress(local, remote) {
+    const en = "jini-english-game-v1", ko = "jini-korean-games-v1", time = "jini-study-time-v1";
+    const merged = {};
+    for (const key of Array.from(new Set(Object.keys(local).concat(Object.keys(remote)))).sort()) {
+      const a = local[key], b = remote[key];
+      let result;
+      if (key === en || key === ko) result = mergeGameHistory(a, b, key === en);
+      else if (key === time) result = mergeStudyTimes(a, b);
+      else if (a === undefined) result = b;
+      else if (b === undefined || a === b) result = a;
+      else return null;
+      if (result === null) return null;
+      if (result !== undefined) merged[key] = result;
+    }
+    return merged;
+  }
+  // Integrate cloud-side answers without interrupting a running quiz.
+  // Game modules reload their cached progress via an explicit event.
+  function applyMergedLocally(cloudRecords) {
+    const current = snapshot();
+    const next = mergeIndependentProgress(current, cloudRecords);
+    if (!next) return false;
+    let changedGame = false;
+    try {
+      for (const key of Object.keys(next)) {
+        if (current[key] === next[key]) continue;
+        localStorage.setItem(key, next[key]);
+        if (key === "jini-english-game-v1" || key === "jini-korean-games-v1")
+          changedGame = true;
       }
-      const attemptKey = key === gameKeys[0] ? "tries" : "attempts";
-      if (Number(after[attemptKey] || 0) < Number(before[attemptKey] || 0) ||
-          Number(after.correct || 0) < Number(before.correct || 0)) return null;
+    } catch (_) { return false; }
+    if (changedGame) {
+      if (window.JINI_CHARACTER && typeof window.JINI_CHARACTER.adoptSyncedLevels === "function")
+        window.JINI_CHARACTER.adoptSyncedLevels();
+      window.dispatchEvent(new Event("jini-learning-progress-merged"));
     }
-    if (!gainedXP) return null;
-    const merged = Object.assign({}, remote, local);
-    for (const key of Object.keys(remote)) {
-      if (key === timeKey || gameKeys.includes(key)) continue;
-      if (!(key in local) || local[key] !== remote[key]) return null;
-    }
-    if (remote[timeKey] !== local[timeKey]) {
-      const time = mergeStudyTimes(local[timeKey], remote[timeKey]);
-      if (time === null) return null;
-      if (time !== undefined) merged[timeKey] = time;
-    }
-    // snapshot() always hashes alphabetically ordered keys.
-    const ordered = {};
-    Object.keys(merged).sort().forEach(key => { ordered[key] = merged[key]; });
-    return ordered;
+    return true;
   }
   function payload(records) {
     return { app: "JINI", schema: 1, exportedAt: new Date().toISOString(), data: records };
@@ -549,65 +598,46 @@
           return;
         }
       }
-      // Equality of actual records wins over old per-device hash metadata.
-      // This avoids a spurious upload after an import cleared popup notifications.
       if (remoteHash === localHash) {
         if (meta.lastHash !== localHash || String(meta.lastRemoteVersion || "") !== remoteVersion)
           markSynced(local, remoteMeta);
         return;
       }
-      // A device can earn XP while another device updates Drive (often just
-      // study time), changing the file version. Fast-forward verified, non-
-      // regressing progress instead of treating that as a permanent conflict.
-      const advanced = safeXPAdvance(local, remoteData);
-      if (advanced) {
+      const joined = mergeIndependentProgress(local, remoteData);
+      if (joined) {
+        if (fingerprint(joined) === remoteHash) {
+          applyMergedLocally(remoteData);
+          markSynced(remoteData, remoteMeta);
+          showDataComparison(remoteData, "다른 기기의 최신 학습기록을 반영했습니다.");
+          status("다른 기기의 학습기록을 이 기기로 동기화했습니다.");
+          return;
+        }
+        // Recheck the file version right before writing. A newer edit on
+        // another device is re-read on the next cycle, not blindly overwritten.
         const latest = await findFile();
         if (!latest || latest.id !== remoteMeta.id ||
             String(latest.version || "") !== remoteVersion) {
-          status("다른 기기의 백업이 갱신되어 최신 기록을 다시 확인합니다.");
+          status("다른 기기의 백업 변경을 감지했습니다. 최신 기록을 다시 확인합니다.");
           return;
         }
-        const saved = await writeFile(advanced, latest);
-        const timeKey = "jini-study-time-v1";
-        if (advanced[timeKey]) {
-          // Carry remote study time forward without losing seconds accumulated
-          // locally while the Drive request was in flight.
-          const currentTime = snapshot()[timeKey];
-          const combinedTime = mergeStudyTimes(currentTime, advanced[timeKey]);
-          if (combinedTime && combinedTime !== currentTime)
-            localStorage.setItem(timeKey, combinedTime);
-        }
-        markSynced(advanced, saved);
-        showDataComparison(advanced, "새로 얻은 XP를 Drive에 자동 백업했습니다.");
-        status("새 학습 경험치를 Google Drive에 자동 저장했습니다.");
+        const saved = await writeFile(joined, latest);
+        applyMergedLocally(joined);
+        markSynced(joined, saved);
+        showDataComparison(joined, "두 기기의 문제별 학습기록을 중복 XP 없이 합쳤습니다.");
+        status("휴대폰·PC에서 학습한 서로 다른 문제를 Google Drive에 합쳐 저장했습니다.");
         return;
       }
-      if (meta.lastRemoteVersion && remoteVersion === String(meta.lastRemoteVersion)) {
-        if (localHash !== meta.lastHash) {
-          const now = await findFile();
-          if (!now || String(now.version) !== remoteVersion) {
-            const remote = now ? await readFile(now.id) : remoteData;
-            showConflict(local, remote, now || remoteMeta);
-            return;
-          }
-          const saved = await writeFile(local, remoteMeta);
-          markSynced(local, saved);
-          showDataComparison(local, "기기 변경사항을 Drive에 업로드했습니다.");
-          status("이 기기에서 바뀐 학습정보를 Drive에 저장했습니다.");
-        }
-        return;
-      }
-      const remote = remoteData;
+      // Non-game settings or unrecognized data differ: protect both versions.
       if (!meaningful(local) || (meta.lastHash && localHash === meta.lastHash)) {
         meta.lastHash = remoteHash;
         meta.lastRemoteVersion = remoteVersion;
         meta.lastRemoteFileId = remoteMeta.id;
         meta.lastSyncedAt = new Date().toISOString();
         saveMeta();
-        status("Drive에서 기존 학습기록을 찾았습니다. 이 기기로 복원하고 있어요.");
-        applyRecords(remote);
+        status("Drive에서 더 최신 기록을 확인해 복원합니다.");
+        applyRecords(remoteData);
       } else {
-        showConflict(local, remote, remoteMeta);
+        showConflict(local, remoteData, remoteMeta);
       }
     } catch (e) { status(e.message || "동기화에 실패했습니다.", true); }
     finally { busy = false; render(); }
