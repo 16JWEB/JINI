@@ -331,8 +331,8 @@
   }
   // Merge distinct answered questions, deduplicate XP for questions solved on
   // both devices, and keep unrelated settings untouched when they agree.
-  // Unknown conflicting profile/bookmark values still require manual review.
-  function mergeIndependentProgress(local, remote) {
+  // Untimestamped settings can remain separate without blocking progress.
+  function mergeIndependentProgress(local, remote, keepSettings) {
     const en = "jini-english-game-v1", ko = "jini-korean-games-v1", time = "jini-study-time-v1";
     const merged = {};
     for (const key of Array.from(new Set(Object.keys(local).concat(Object.keys(remote)))).sort()) {
@@ -342,6 +342,8 @@
       else if (key === time) result = mergeStudyTimes(a, b);
       else if (a === undefined) result = b;
       else if (b === undefined || sameRecord(a, b)) result = a;
+      else if (keepSettings === "local") result = a;
+      else if (keepSettings === "remote") result = b;
       else return null;
       if (result === null) return null;
       if (result !== undefined) merged[key] = result;
@@ -352,13 +354,15 @@
   // Game modules reload their cached progress via an explicit event.
   function applyMergedLocally(cloudRecords) {
     const current = snapshot();
-    const next = mergeIndependentProgress(current, cloudRecords);
+    const next = mergeIndependentProgress(current, cloudRecords, "local");
     if (!next) return false;
     let changedGame = false;
+    let changedTime = false;
     try {
       for (const key of Object.keys(next)) {
         if (current[key] === next[key]) continue;
         localStorage.setItem(key, next[key]);
+        if (key === "jini-study-time-v1") changedTime = true;
         if (key === "jini-english-game-v1" || key === "jini-korean-games-v1")
           changedGame = true;
       }
@@ -366,8 +370,9 @@
     if (changedGame) {
       if (window.JINI_CHARACTER && typeof window.JINI_CHARACTER.adoptSyncedLevels === "function")
         window.JINI_CHARACTER.adoptSyncedLevels();
-      window.dispatchEvent(new Event("jini-learning-progress-merged"));
     }
+    if (changedGame || changedTime)
+      window.dispatchEvent(new Event("jini-learning-progress-merged"));
     return true;
   }
   function payload(records) {
@@ -632,7 +637,14 @@
     const info = await request(API + "/" + encodeURIComponent(id) + "?fields=id,version,modifiedTime,size");
     return info;
   }
+  function settingsFingerprint(records) {
+    const settings = Object.assign({}, records);
+    ["jini-english-game-v1", "jini-korean-games-v1", "jini-study-time-v1"]
+      .forEach(function (key) { delete settings[key]; });
+    return fingerprint(settings);
+  }
   function markSynced(records, remote) {
+    meta.lastLocalSettingsHash = settingsFingerprint(snapshot());
     setDriveSize(remote);
     rememberBackedUpXP(records);
     meta.lastHash = fingerprint(records);
@@ -801,13 +813,19 @@
       // A profile/bookmark edit on this device is safe to upload when Drive
       // still contains the exact last-synced data. Require a choice only when
       // both sides changed or the baseline is unavailable.
-      const localOnlyChange = !joined && !!meta.lastHash && remoteHash === meta.lastHash;
-      if (localOnlyChange) joined = local;
+      const localOnlyChange = !joined && !!meta.lastHash && remoteHash === meta.lastHash &&
+        (!meta.lastLocalSettingsHash || settingsFingerprint(local) !== meta.lastLocalSettingsHash);
+      if (localOnlyChange) joined = mergeIndependentProgress(local, remoteData, "local");
+      // Settings without per-field timestamps cannot safely be ordered. Keep
+      // each side's settings while reconciling XP and daily time independently.
+      // Never let a character/bookmark difference block learning progress.
+      const separateSettings = !joined;
+      if (!joined) joined = mergeIndependentProgress(local, remoteData, "remote");
       if (joined) {
         if (fingerprint(joined) === remoteHash) {
-          applyMergedLocally(remoteData);
+          if (!applyMergedLocally(remoteData)) throw new Error("학습기록을 기기에 저장하지 못했습니다. 다시 동기화해 주세요.");
           markSynced(remoteData, remoteMeta);
-          showDataComparison(remoteData, "다른 기기의 최신 학습기록을 반영했습니다.");
+          showDataComparison(remoteData, separateSettings ? "경험치·학습시간을 자동 반영했습니다. 서로 다른 설정은 각 기기와 Drive에 유지합니다." : "다른 기기의 최신 학습기록을 반영했습니다.");
           status("다른 기기의 학습기록을 이 기기로 동기화했습니다.");
           return;
         }
@@ -820,9 +838,9 @@
           return;
         }
         const saved = await writeFile(joined, latest);
-        applyMergedLocally(joined);
+        if (!applyMergedLocally(joined)) throw new Error("Drive 저장은 완료했지만 기기에 반영하지 못했습니다. 다시 동기화해 주세요.");
         markSynced(joined, saved);
-        showDataComparison(joined, localOnlyChange ? "이 기기의 변경사항을 Drive에 반영했습니다." :
+        showDataComparison(joined, separateSettings ? "경험치·학습시간을 합쳤습니다. 서로 다른 설정은 각 기기와 Drive에 유지합니다." : localOnlyChange ? "이 기기의 변경사항을 Drive에 반영했습니다." :
           "두 기기의 문제별 학습기록을 중복 XP 없이 합쳤습니다.");
         status(localOnlyChange ? "이 기기의 변경사항을 Google Drive에 저장했습니다." :
           "휴대폰·PC에서 학습한 서로 다른 문제를 Google Drive에 합쳐 저장했습니다.");
@@ -1210,4 +1228,5 @@
   // Reflect an expired authorization on return without extra Drive requests.
   window.addEventListener("focus", render);
 })();
+
 
