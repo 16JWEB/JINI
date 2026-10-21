@@ -189,16 +189,28 @@
   }
   let driveSnapshot = null;
   let driveChecked = false;
+  // Keep only the last confirmed Drive XP totals for comparison after expiry
+  // and page reloads. This device-only metadata is never part of a backup.
+  function rememberBackedUpXP(records) {
+    const totals = summary(records || {});
+    if (!Number.isSafeInteger(totals.enXp) || !Number.isSafeInteger(totals.koXp)) return;
+    const saved = meta.lastBackedUpXP;
+    if (saved && saved.enXp === totals.enXp && saved.koXp === totals.koXp) return;
+    meta.lastBackedUpXP = { enXp: totals.enXp, koXp: totals.koXp };
+    saveMeta();
+  }
   function showDataComparison(remote, note) {
     $("jsy-local-summary").textContent = description(snapshot());
     if (remote === null) {
       $("jsy-remote-summary").textContent = "백업 파일 없음";
       driveChecked = true;
       driveSnapshot = null;
+      rememberBackedUpXP({});
     } else if (remote) {
       $("jsy-remote-summary").textContent = description(remote);
       driveChecked = true;
       driveSnapshot = remote;
+      rememberBackedUpXP(remote);
     } else if (!driveChecked) {
       $("jsy-remote-summary").textContent = "아직 확인 전";
     }
@@ -445,6 +457,25 @@
   function render() {
     const on = validToken();
     const reconnectNeeded = !on && !!meta.previouslyConnected;
+    $("jsy-expired-notice").hidden = !reconnectNeeded || connecting || disconnecting;
+    if (reconnectNeeded) {
+      const current = summary(snapshot());
+      const saved = meta.lastBackedUpXP;
+      const known = saved && Number.isSafeInteger(saved.enXp) && saved.enXp >= 0 &&
+        Number.isSafeInteger(saved.koXp) && saved.koXp >= 0 &&
+        Number.isSafeInteger(current.enXp) && Number.isSafeInteger(current.koXp);
+      const englishXP = known ? Math.max(0, current.enXp - saved.enXp) : 0;
+      const koreanXP = known ? Math.max(0, current.koXp - saved.koXp) : 0;
+      $("jsy-unbacked-xp").textContent = !known ?
+        "미백업 경험치는 재연결 후 확인할 수 있어요." : englishXP + koreanXP > 0 ?
+        "Drive에 아직 백업되지 않은 경험치 +" + (englishXP + koreanXP).toLocaleString("ko-KR") + " XP" :
+        "추가로 백업할 경험치 0 XP";
+      $("jsy-unbacked-xp-detail").hidden = !known;
+      $("jsy-unbacked-xp-detail").textContent = known ?
+        "영어 +" + englishXP.toLocaleString("ko-KR") + " XP · 한글 +" + koreanXP.toLocaleString("ko-KR") + " XP" : "";
+      $("jsy-expired-reconnect").textContent = meta.accountEmail ? "이전 계정으로 다시 연결" : "Google 다시 연결";
+    }
+    $("jsy-expired-reconnect").disabled = on || busy || connecting || disconnecting;
     $("jsy-state").textContent = on ? "Google 연결됨" :
       reconnectNeeded ? "Google 재연결 필요" : "연결 안 됨";
     $("jsy-state").classList.toggle("is-connected", on);
@@ -588,6 +619,7 @@
   }
   function markSynced(records, remote) {
     setDriveSize(remote);
+    rememberBackedUpXP(records);
     meta.lastHash = fingerprint(records);
     meta.lastRemoteVersion = String(remote.version || "");
     meta.lastRemoteFileId = remote.id || "";
@@ -649,6 +681,7 @@
         meta.lastHash = "";
         meta.lastRemoteVersion = "";
         meta.lastRemoteFileId = "";
+        delete meta.lastBackedUpXP;
         saveMeta();
       }
       if (!remoteMeta) {
@@ -794,7 +827,12 @@
           expiresAt = Date.now() + (Number(response.expires_in) || 3600) * 1000;
           keepTabToken();
           accountHintChecked = false;
-          if (!reuseAccount) delete meta.accountEmail;
+          if (!reuseAccount) {
+            delete meta.accountEmail;
+            delete meta.lastBackedUpXP;
+            driveSnapshot = null;
+            driveChecked = false;
+          }
           await rememberGoogleAccount();
           if (!validToken()) {
             connecting = false;
@@ -934,6 +972,7 @@
       if (found) await request(API + "/" + encodeURIComponent(found.id), { method: "DELETE" });
       setDriveSize(null);
       meta.deleted = true;
+      delete meta.lastBackedUpXP;
       meta.lastRemoteVersion = "";
       meta.lastRemoteFileId = "";
       meta.lastHash = "";
@@ -946,6 +985,7 @@
     });
   }
   $("jsy-connect").addEventListener("click", beginConnect);
+  $("jsy-expired-reconnect").addEventListener("click", beginConnect);
   $("jsy-refresh").addEventListener("click", checkDrive);
   $("jsy-disconnect").addEventListener("click", function () { disconnect(); });
   $("jsy-backup").addEventListener("click", function () { manualBackup(false); });
@@ -1041,7 +1081,8 @@
   // A fixed window starts with the FIRST changed game record.
   // Additional answers in this minute do not reset the clock.
   window.addEventListener("jini-learning-progress-changed", function () {
-    if (!validToken() || conflict || disconnecting) return;
+    if (!validToken()) { render(); return; }
+    if (conflict || disconnecting) return;
     if (xpBatchDueAt) return;
     xpBatchDueAt = Date.now() + XP_BATCH_MS;
     syncAfterXP = window.setTimeout(flushXpBatch, XP_BATCH_MS);
