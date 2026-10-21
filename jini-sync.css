@@ -96,3 +96,18 @@
  .jsy-home-notice{padding:11px 12px}
 }
 
+
+/* JINI network usage: local per-category diagnosis. */
+.jsy-usage-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}
+.jsy-usage-header h2{margin:0}
+.jsy-usage-refresh{white-space:nowrap;font-size:12px!important;padding:7px 11px!important;min-height:32px}
+.jsy-usage-breakdown{margin-top:14px;padding-top:10px;border-top:1px solid #eeedf5}
+.jsy-usage-breakdown h3{margin:0 0 12px;font-size:14px;font-weight:750}
+.jsy-usage-group{margin:0 0 12px}
+.jsy-usage-group-line{display:flex;justify-content:space-between;gap:12px;align-items:baseline;font-size:12px}
+.jsy-usage-group-line strong{font-size:12px;white-space:nowrap}
+.jsy-usage-group-line strong small{font-weight:400;color:#828397}
+.jsy-usage-track{margin-top:5px;background:#eceaf5;border-radius:20px;height:6px;overflow:hidden}
+.jsy-usage-track>span{display:block;background:#7765df;border-radius:20px;height:100%;min-width:1px}
+.jsy-usage-history .jsy-usage-file{word-break:break-all;max-width:260px;font-weight:500;overflow-wrap:anywhere}
+@media(max-width:520px){.jsy-usage-header h2{font-size:16px}.jsy-usage-group-line{font-size:11px}}
