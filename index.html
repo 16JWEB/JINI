@@ -707,23 +707,34 @@
         <p class="ja-footnote">관리자 미리보기에서는 XP·레벨·획득 오라·보상 확인 기록이 바뀌지 않아요. 버튼은 미리보기에서만 동작해요.</p>
       </section>
       <section id="ja-aura-panel" role="tabpanel" aria-labelledby="ja-tab-aura" hidden>
-        <p class="ja-intro"><strong>5가지 오라, 각각 10~50레벨 성장 미리보기</strong><br>벚꽃·빙결·사이버·시간·은하 중 하나를 고르면 같은 오라가 10레벨마다 화려해지는 5단계 모습을 비교할 수 있어요. 캐릭터 그림은 단계마다 동일하게 유지돼요.</p>
+        <p class="ja-intro"><strong>신규 오라 성장 테스트 · Lv.10~250</strong><br>5가지 오라 각각 10레벨마다 성장하는 25단계를 만들었어요. 50레벨 구간마다 새로운 분위기의 문양과 특수 이펙트가 나타나며, 캐릭터 그림은 변경되지 않습니다.</p>
         <div class="jal-controls">
-          <div class="jal-control-group"><strong>캐릭터 선택 · 모든 오라 공통</strong><div id="ja-aura-avatars" class="jal-options" role="group" aria-label="오라 시험용 캐릭터 선택"></div></div>
-          <div class="jal-control-group"><strong>성장시킬 오라 콘셉트 선택</strong><div id="ja-aura-themes" class="jal-options" role="group" aria-label="오라 다섯 콘셉트 선택"></div></div>
+          <div class="jal-control-group">
+            <strong>캐릭터 · 모든 오라 공통으로 적용</strong>
+            <div id="ja-aura-avatars" class="jal-options" role="group" aria-label="미리보기 캐릭터"></div>
+          </div>
+          <div class="jal-control-group">
+            <strong>오라 콘셉트 5종</strong>
+            <div id="ja-aura-themes" class="jal-options" role="group" aria-label="오라 종류"></div>
+          </div>
         </div>
+        <div id="ja-aura-chapters" class="jal-chapters" role="group" aria-label="50레벨 단위 오라 성장 구간"></div>
         <div class="jal-layout">
           <div>
-            <h3 id="ja-aura-stage-title" class="jal-heading">오라 단계별 성장</h3>
-            <div id="ja-aura-cards" class="jal-cards" aria-label="선택한 오라의 10·20·30·40·50레벨 모습"><p class="ja-intro">오라 성장 미리보기를 불러오는 중…</p></div>
+            <h3 class="jal-heading" id="ja-aura-stage-title">레벨별 성장</h3>
+            <div id="ja-aura-cards" class="jal-cards" role="group" aria-label="현재 구간의 10레벨 단위 오라 단계"><p class="ja-intro">오라 미리보기를 준비 중이에요…</p></div>
           </div>
           <div class="jal-feature">
-            <strong>선택한 단계 크게 보기</strong>
-            <div id="ja-aura-focus" class="jal-feature-scene"></div>
-            <p id="ja-aura-focus-desc" aria-live="polite">단계를 선택하면 자세히 볼 수 있어요.</p>
+            <strong>현재 선택한 오라 미리보기</strong>
+            <div id="ja-aura-focus" class="jal-feature-scene" aria-label="선택한 오라의 확대 미리보기"></div>
+            <div class="jal-feature-controls">
+              <button id="ja-aura-prev" class="jal-step-button" type="button">‹ 이전 10레벨</button>
+              <button id="ja-aura-next" class="jal-step-button" type="button">다음 10레벨 ›</button>
+            </div>
+            <p id="ja-aura-focus-desc" role="status" aria-live="polite">오라 디자인을 불러오는 중이에요.</p>
           </div>
         </div>
-        <p class="ja-footnote">이 페이지는 오라 5종 각각의 5단계 성장 디자인 시안입니다. 실제 오라 지급 방식은 아직 결정하지 않았으며, 시험 중 XP·의상·기존 캐릭터·실제 오라·보상 기록·Google Drive 데이터는 바뀌지 않습니다. 테스트 탭을 열 때만 가벼운 CSS 효과를 불러옵니다.</p>
+        <p class="ja-footnote">실제 캐릭터·레벨·XP·의상·오라 보상·Google Drive 동기화에는 영향을 주지 않는 관리자 미리보기입니다. 애니메이션은 가벼운 SVG/CSS 방식이며 다른 단계 카드의 움직임은 자동으로 멈춥니다. 완성 디자인은 미리보기 확인 후 조정할 수 있어요.</p>
       </section>
       <section id="ja-data-panel" class="ja-data-panel" role="tabpanel" aria-labelledby="ja-tab-data" hidden>
         <div class="ja-data-lead">
@@ -803,7 +814,7 @@
   <script src="game-character-aura.js?v=20261018-aura-1"></script>
   <script src="game-character-art.js?v=20261021-external-avif-v1"></script>
   <script src="game-character.js?v=20261021-home-time-heading-v2"></script>
-  <script src="admin-preview.js?v=20261022-aura-families-growth-v2"></script>
+  <script src="admin-preview.js?v=20261022-aura-studio-250-v3"></script>
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="jini-sync.js?v=20261021-remove-drive-recheck-v3"></script>
