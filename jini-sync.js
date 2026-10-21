@@ -198,8 +198,30 @@
     }
     if (note) $("jsy-compare-note").textContent = note;
   }
+  // Compare parsed data, not JSON whitespace or object insertion order.
+  // Arrays retain their order because it can carry learning/bookmark meaning.
+  function stableValue(value) {
+    if (Array.isArray(value)) return value.map(stableValue);
+    if (value && typeof value === "object") {
+      const sorted = {};
+      Object.keys(value).sort().forEach(function (key) { sorted[key] = stableValue(value[key]); });
+      return sorted;
+    }
+    return value;
+  }
+  function recordValue(raw) {
+    try { return JSON.stringify(stableValue(JSON.parse(raw))); }
+    catch (_) { return raw; }
+  }
+  function sameRecord(a, b) { return a === b || recordValue(a) === recordValue(b); }
+  function differingKeys(local, remote) {
+    return Array.from(new Set(Object.keys(local).concat(Object.keys(remote)))).sort()
+      .filter(function (key) { return !sameRecord(local[key], remote[key]); });
+  }
   function fingerprint(records) {
-    const value = JSON.stringify(records);
+    const normalized = {};
+    Object.keys(records).sort().forEach(function (key) { normalized[key] = recordValue(records[key]); });
+    const value = JSON.stringify(normalized);
     let n = 2166136261;
     for (let i = 0; i < value.length; i++) {
       n ^= value.charCodeAt(i);
@@ -298,7 +320,7 @@
       if (key === en || key === ko) result = mergeGameHistory(a, b, key === en);
       else if (key === time) result = mergeStudyTimes(a, b);
       else if (a === undefined) result = b;
-      else if (b === undefined || a === b) result = a;
+      else if (b === undefined || sameRecord(a, b)) result = a;
       else return null;
       if (result === null) return null;
       if (result !== undefined) merged[key] = result;
@@ -558,6 +580,21 @@
   }
   function showConflict(local, remote, remoteMeta) {
     conflict = { local: local, remote: remote, remoteMeta: remoteMeta };
+    const labels = {
+      "jini-english-game-v1": "영어 문제별 정답·오답·XP",
+      "jini-korean-games-v1": "한글 문제별 정답·오답·XP",
+      "jini-study-time-v1": "날짜별 학습시간",
+      "jini-game-character-english-v1": "영어 캐릭터 설정",
+      "jini-game-character-korean-v1": "한글 캐릭터 설정",
+      "jini-game-character-v1": "공통 캐릭터 설정",
+      "jini-learning-bookmarks": "학습 책갈피",
+      "jini-essential-expressions-bookmarks-v1": "표현 책갈피",
+      "jini-opic-basic-v1": "스피킹 답변·진도"
+    };
+    const differences = differingKeys(local, remote);
+    $("jsy-differences").textContent = "서로 다른 항목: " + differences.map(function (key) {
+      return labels[key] || "기타 학습 설정";
+    }).join(", ") + ". XP·분 단위 요약이 같아도 세부 기록이나 설정은 다를 수 있어요.";
     const remoteHasProgress = meaningful(remote);
     $("jsy-use-drive").disabled = !remoteHasProgress;
     $("jsy-conflict-text").textContent = remoteHasProgress ?
@@ -791,20 +828,16 @@
   }
   async function checkDrive() {
     if (!syncPageOpen() || !validToken()) return status("먼저 홈 메뉴의 학습정보 동기화 화면에서 Google Drive에 연결해 주세요.", true);
-    await withBusy(async function () {
-      const found = await findFile();
-      setDriveSize(found);
-      if (!found) {
-        showDataComparison(null, "Drive에 JINI 백업 파일이 없습니다.");
-        status("Drive에 백업파일이 없습니다. 실제 기록이 있는 기기에서 첫 백업을 생성하세요.", true);
-        return;
-      }
-      const records = await readFile(found.id);
-      showDataComparison(records, "Drive 파일 수정: " + dateTime(found.modifiedTime));
-      status(meaningful(records) ?
-        "Drive 학습기록을 확인했습니다. 아래 XP와 학습시간을 비교하세요." :
-        "Drive 백업에 학습 진도나 캐릭터 기록이 없습니다. 원래 기기에서 새 백업이 필요합니다.", !meaningful(records));
-    });
+    if (busy || connecting || disconnecting) return;
+    // Reconcile fresh snapshots, rather than leaving a stale conflict latched.
+    // syncCycle preserves both records whenever safe merging is impossible.
+    conflict = null;
+    clearAsk();
+    status("Google Drive의 최신 학습기록을 확인하고 있습니다.");
+    await syncCycle(true);
+    if (driveSnapshot && !conflict && fingerprint(snapshot()) === fingerprint(driveSnapshot)) {
+      status("이 기기와 Google Drive의 학습기록이 일치합니다.");
+    }
   }
   async function manualBackup(force) {
     if (!validToken()) return status("먼저 동기화 하기를 눌러 연결해 주세요.", true);
