@@ -400,16 +400,29 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
 .word-example .example-pending { display:block; color:var(--text-muted,#717c8e); font-size:0.9rem; font-style:normal; }
 
 /* Google Drive sync lives alongside Home/Study Info, in testing mode. */
-.home-sync-tag {display:inline-block;margin-left:2px;font-size:10px;letter-spacing:0;color:#8a6a2d;font-weight:600}
-.home-sync-quicklink {display:block;width:max-content;max-width:100%;margin:18px auto 0;padding:9px 14px;background:#f6f4ff;color:#6151bd;border:1px solid #e6e1fc;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;text-align:center}
-.home-sync-quicklink:hover {background:#eeeaff}
-.home-sync-quicklink span {font-size:11px;font-weight:600;color:#957b32}
-@media (max-width:760px) {
-  /* Match the study-info shortcut: sync appears in the mobile bottom menu
-     only on Home, never inside English/Korean study screens. */
-  .home-nav .home-sync-link {display:none;flex-direction:column;gap:1px;min-width:70px;padding:6px 6px}
-  body:has(#home-section:not([hidden])) .home-nav .home-sync-link {display:flex}
-  .home-nav .home-sync-link .nav-icon {font-size:14px}
-  .home-nav .home-sync-tag {display:block;margin:0;font-size:8px}
-  .home-sync-quicklink {margin:17px auto 0}
+.home-sync-label{display:block;min-width:0}
+.home-sync-title{display:block;white-space:nowrap;line-height:1.2}
+.home-sync-tag{display:inline-block;margin-left:2px;font-size:10px;letter-spacing:0;color:#8a6a2d;font-weight:600}
+.home-sync-status{display:block;margin-top:3px;font-size:10px;line-height:1.3;font-weight:750;color:#73788d;white-space:nowrap}
+.home-sync-status::before{content:"";display:inline-block;width:6px;height:6px;margin-right:4px;vertical-align:1px;border-radius:50%;background:currentColor}
+.home-sync-link[data-sync-state="connected"] .home-sync-status,
+.home-sync-link[data-sync-state="synced"] .home-sync-status{color:#16714e}
+.home-sync-link[data-sync-state="syncing"] .home-sync-status{color:#4d59c5}
+.home-sync-link[data-sync-state="expired"] .home-sync-status{color:#ce273f}
+.home-sync-link[data-sync-state="pending"] .home-sync-status,
+.home-sync-link[data-sync-state="attention"] .home-sync-status{color:#aa670b}
+.home-sync-link[data-sync-state="disconnecting"] .home-sync-status,
+.home-sync-link[data-sync-state="disconnected"] .home-sync-status{color:#777c8d}
+.home-sync-quicklink{display:block;width:max-content;max-width:100%;margin:18px auto 0;padding:9px 14px;background:#f6f4ff;color:#6151bd;border:1px solid #e6e1fc;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;text-align:center}
+.home-sync-quicklink:hover{background:#eeeaff}
+.home-sync-quicklink span{font-size:11px;font-weight:600;color:#957b32}
+@media(max-width:760px){
+  /* Keep sync on the Home bottom navigation only, not study screens. */
+  .home-nav .home-sync-link{display:none;flex-direction:column;gap:1px;min-width:86px;padding:5px 4px}
+  body:has(#home-section:not([hidden])) .home-nav .home-sync-link{display:flex}
+  .home-nav .home-sync-link .nav-icon{font-size:14px;line-height:1}
+  .home-nav .home-sync-title{font-size:9px}
+  .home-nav .home-sync-tag{display:inline-block;margin:0 0 0 1px;font-size:7px}
+  .home-nav .home-sync-status{font-size:9px;margin-top:2px;line-height:1.1}
+  .home-sync-quicklink{margin:17px auto 0}
 }
