@@ -24,6 +24,8 @@
   let token = "";
   let expiresAt = 0;
   let busy = false;
+  let connecting = false;
+  let disconnecting = false;
   let fileId = "";
   // undefined: not checked yet, null: no backup, number: exact Drive file bytes.
   let driveSizeBytes;
@@ -422,9 +424,12 @@
       driveSizeBytes === undefined ? "백업 확인 전" :
       driveSizeBytes === null ? "백업 없음" :
       Number.isFinite(driveSizeBytes) ? formatDriveSize(driveSizeBytes) : "용량 확인 불가";
-    $("jsy-connect").disabled = on || busy;
-    $("jsy-connect").textContent = reconnectNeeded ? "↻ Google 다시 연결" : "↻ 동기화 하기";
-    $("jsy-disconnect").disabled = !on || busy;
+    $("jsy-connect").disabled = on || busy || connecting || disconnecting;
+    $("jsy-connect-label").textContent = reconnectNeeded ? "↻ Google 다시 연결" : "↻ 동기화 하기";
+    $("jsy-connect-progress").hidden = !(connecting || busy);
+    // Allow an explicit local disconnect even after the Google token expires.
+    $("jsy-disconnect").disabled = (!on && !meta.previouslyConnected) || busy || connecting || disconnecting;
+    $("jsy-disconnect-progress").hidden = !disconnecting;
     $("jsy-backup").disabled = !on || busy;
     $("jsy-restore").disabled = !on || busy;
     $("jsy-delete").disabled = !on || busy;
@@ -650,14 +655,18 @@
       status("Google 인증 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.", true);
       return;
     }
+    connecting = true;
+    render();
     try {
       const client = google.accounts.oauth2.initTokenClient({
         client_id: CONFIG_ID, scope: SCOPE,
-        callback: function (response) {
+        callback: async function (response) {
           if (!response || !response.access_token) {
             const detail = response && (response.error_description || response.error) || "";
+            connecting = false;
             status("Google Drive 연결이 취소되었거나 거부되었습니다." +
               (detail ? " (" + detail + ")" : ""), true);
+            render();
             return;
           }
           token = response.access_token;
@@ -669,28 +678,63 @@
           conflict = null;
           status("Google Drive에 연결했습니다. 기존 백업과 학습기록을 비교합니다.");
           render();
-          syncCycle();
+          try { await syncCycle(); }
+          finally { connecting = false; render(); }
         },
         error_callback: function (error) {
+          connecting = false;
           status("Google 로그인 창을 열지 못했습니다. 팝업 설정을 확인해 주세요." +
             (error && error.type ? " (" + error.type + ")" : ""), true);
+          render();
         }
       });
       // Keep account selection to avoid uploading to a different Google Drive,
       // but do not force a repeated consent screen at every connection.
       client.requestAccessToken({ prompt: "select_account" });
-    } catch (e) { status(e.message, true); }
-  }
-  function disconnect() {
-    if (token && window.google && google.accounts && google.accounts.oauth2) {
-      try { google.accounts.oauth2.revoke(token, function () {}); } catch (_) {}
+    } catch (e) {
+      connecting = false;
+      status(e.message, true);
+      render();
     }
+  }
+  async function disconnect() {
+    if (disconnecting || connecting || busy) return;
+    disconnecting = true;
+    render();
+    const oldToken = token;
+    // Stop this tab's authorization first; remote records and local XP stay intact.
     clearTabToken();
     meta.previouslyConnected = false;
     saveMeta();
     conflict = null;
-    status("이 기기의 동기화를 해제했어요. Drive 백업과 기기 학습기록은 그대로 유지됩니다.");
+    driveChecked = false;
+    driveSnapshot = null;
+    driveSizeBytes = undefined;
+    $("jsy-remote-summary").textContent = "Google 연결 후 확인";
+    status("이 기기의 Google Drive 동기화를 해제하고 있습니다.");
     render();
+    try {
+      if (oldToken && window.google && google.accounts && google.accounts.oauth2) {
+        // Google's revoke callback can be delayed or absent if the network is
+        // offline. Never leave the button showing '해제 중' indefinitely.
+        await new Promise(function (resolve) {
+          const timeout = window.setTimeout(resolve, 5000);
+          try {
+            google.accounts.oauth2.revoke(oldToken, function () {
+              window.clearTimeout(timeout);
+              resolve();
+            });
+          } catch (_) {
+            window.clearTimeout(timeout);
+            resolve();
+          }
+        });
+      }
+    } finally {
+      disconnecting = false;
+      status("동기화를 해제했어요. 기기 학습기록과 Google Drive 백업은 삭제되지 않았습니다.");
+      render();
+    }
   }
   function ask(action, title, body) {
     confirmAction = action;
@@ -787,9 +831,7 @@
   }
   $("jsy-connect").addEventListener("click", beginConnect);
   $("jsy-refresh").addEventListener("click", checkDrive);
-  $("jsy-disconnect").addEventListener("click", function () {
-    ask("disconnect", "동기화를 해제할까요?", "이 기기에서 자동 동기화만 중단됩니다. 기기와 Google Drive에 저장된 학습정보는 삭제되지 않습니다.");
-  });
+  $("jsy-disconnect").addEventListener("click", function () { disconnect(); });
   $("jsy-backup").addEventListener("click", function () { manualBackup(false); });
   $("jsy-restore").addEventListener("click", function () {
     ask("restore", "Google Drive 백업을 복원할까요?", "현재 기기의 학습정보를 JSON 파일로 먼저 다운로드한 다음 Drive 기록으로 교체합니다. 이후 화면이 새로고침됩니다.");
@@ -801,7 +843,6 @@
   $("jsy-confirm-yes").addEventListener("click", function () {
     const choice = confirmAction;
     clearAsk();
-    if (choice === "disconnect") disconnect();
     if (choice === "restore") restore();
     if (choice === "delete") deleteBackup();
   });
