@@ -11,13 +11,14 @@
 .kg-summary strong { color: #292841; font-size: 25px; }
 .kg-info { padding: 14px 18px; background: #efedff; border-radius: 12px; color: #585574; font-size: 12px; line-height: 1.75; }
 .kg-mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; margin-top: 18px; }
-.kg-mode { display: grid; justify-items: start; text-align: left; gap: 8px; min-height: 158px; padding: 23px; border: 1px solid #e9e9f3; border-radius: 17px; background: #fff; cursor: pointer; transition: border .16s, transform .16s, box-shadow .16s; }
+.kg-mode { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; align-items: center; text-align: left; gap: 14px; min-height: 88px; padding: 16px; border: 1px solid #e9e9f3; border-radius: 16px; background: #fff; cursor: pointer; transition: border .16s, transform .16s, box-shadow .16s; }
 .kg-mode:hover { transform: translateY(-2px); border-color: #b6acff; box-shadow: 0 10px 25px #6958e817; }
 .kg-mode:focus-visible, .kg-btn:focus-visible, .kg-choice:focus-visible { outline: 3px solid #9284f6; outline-offset: 2px; }
-.kg-mode-icon { font-size: 28px; }
-.kg-mode strong { font-size: 17px; }
+.kg-mode-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 13px; background: #f0edff; font-size: 26px; }
+.kg-mode-text { display: flex; flex-direction: column; gap: 5px; min-width: 0; overflow-wrap: anywhere; }
+.kg-mode strong { font-size: 16px; }
 .kg-mode small { color: #7f8096; font-size: 12px; line-height: 1.6; }
-.kg-mode-arrow { margin-top: 4px; font-size: 12px; font-weight: 800; color: #6655e4; }
+.kg-mode-arrow { font-size: 26px; line-height: 1; color: #6958e8; }
 .kg-footnote { color: #8e8fa2; font-size: 11px; line-height: 1.8; margin: 18px 0 0; }
 .kg-quiz-card { width: min(100%, 770px); margin: 10px auto; padding: 28px; border-radius: 20px; border: 1px solid #eeedf7; background: #fff; box-shadow: 0 14px 38px #34346609; }
 .kg-game-nav { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #efedf8; }
@@ -89,7 +90,8 @@
  .kg-summary strong { font-size: 20px; }
  .kg-summary span { font-size: 10px; }
  .kg-mode-grid { grid-template-columns: 1fr; gap: 9px; }
- .kg-mode { min-height: 130px; padding: 17px; }
+ .kg-mode { grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; min-height: 84px; padding: 14px; }
+ .kg-mode-icon { width: 44px; height: 44px; font-size: 25px; }
  .kg-quiz-card { padding: 18px; }
  .kg-game-nav { gap: 7px; margin-bottom: 15px; padding-bottom: 12px; }
  .kg-game-nav .kg-btn { min-height: 41px; padding: 9px; font-size: 11px; }
@@ -141,3 +143,4 @@
 .kg-example-text{font-size:15px;line-height:1.65;margin:4px 0 10px;word-break:keep-all}
 .kg-example-translation{font-size:13px;line-height:1.7;margin:4px 0 0;color:#426b58}
 .kg-example-listen{margin:2px 0 6px;min-height:40px}
+
