@@ -391,6 +391,7 @@
       const state = {
         page: currentPageView,
         study: currentStudy,
+        koreanOrderVersion: currentStudy === "korean" && window.JINI_KOREAN_CURRICULUM ? window.JINI_KOREAN_CURRICULUM.version : undefined,
         level: activeLevel,
         pageNumber: currentPage,
         query: search.value,
@@ -461,7 +462,7 @@
       playerIndex = savedWordIndex >= 0 ? savedWordIndex : Math.max(0, Math.min(requestedIndex, playerWords.length - 1));
       updatePlayerCard();
       setPlayerMode(playerMode);
-    } else if (currentPageView === "vocabulary" || currentPageView === "ko-vocabulary") {
+    } else if (["vocabulary", "ko-vocabulary", "ko-expressions"].includes(currentPageView)) {
       renderWords();
       const selectedCard = list.children[selectedVocabularyIndex % PAGE_SIZE];
       if (selectedCard && selectedVocabularyIndex >= 0) selectedCard.scrollIntoView({ block: "center" });
@@ -739,7 +740,8 @@
     if (index >= 0) {
       bookmarks.vocabulary.splice(index, 1);
     } else {
-      bookmarks.vocabulary.unshift({ study: currentStudy, level: activeLevel, page: currentPage, query: query });
+      bookmarks.vocabulary.unshift({ study: currentStudy, level: activeLevel, page: currentPage, query: query,
+        koreanOrderVersion: currentStudy === "korean" && window.JINI_KOREAN_CURRICULUM ? window.JINI_KOREAN_CURRICULUM.version : undefined });
     }
     if (saveBookmarks()) {
       renderBookmarkLists();
@@ -772,6 +774,7 @@
     } else {
       bookmarks.player.unshift({
         study: currentStudy,
+        koreanOrderVersion: currentStudy === "korean" && window.JINI_KOREAN_CURRICULUM ? window.JINI_KOREAN_CURRICULUM.version : undefined,
         level: bookmarkLevel,
         type: bookmarkType,
         index: playerIndex,
