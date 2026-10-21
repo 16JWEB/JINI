@@ -60,11 +60,13 @@
     return '<g transform="translate('+x+' '+y+') rotate('+rot+')" class="jal-motif">'+art+'</g>';
   }
   function particles(spec,m){
-    const count=3+m.chapter*3+m.strength*2;
+    // The sparkle field must NEVER shrink on the first step after a 50-level milestone.
+    const count=3+Math.ceil(m.tier*1.35);
     let svg="";
     for(let i=0;i<count;i++){
-      const angle=i*137.508+m.tier*17;
-      const dist=120+(i*23+m.strength*9)%78;
+      // Stable positions: new particles appear without moving previously earned ones.
+      const angle=i*137.508+22;
+      const dist=120+(i*23)%78;
       const [x,y]=polar(dist,angle);
       const size=2+(i%4)+(m.chapter>=3?2:0);
       if(i%4===0)svg+=motif(spec,x,y,size*1.35,angle+45);
@@ -81,10 +83,15 @@
     return s;
   }
   function chapterEffects(spec,m,fxId){
-    const c=m.chapter,amp=m.strength,col=spec.color,light=spec.light,deep=spec.deep;
+    const c=m.chapter,col=spec.color,light=spec.light,deep=spec.deep;
+    // Completed effects keep stage-5 intensity forever. Only the newly unlocked
+    // 50-level effect starts at stage 1 and grows over the next four milestones.
+    const strengthOf = chapter => c > chapter ? 5 : m.strength;
+    const fadeOf = chapter => fmt(c > chapter ? 1 : .25 + m.strength*.15);
     let s="";
     // Every 50 levels adds a visually distinct family of geometry.
     if(c>=1){
+      const amp=strengthOf(1);
       s+='<g class="jal-turn-rev"><ellipse cx="200" cy="200" rx="'+(157+c*4)+'" ry="'+(151+c*3)+'" fill="none" stroke="'+light+'" stroke-width="'+(1.4+amp*.35)+'" stroke-dasharray="'+(spec.key==="cyber"?"18 8":spec.key==="time"?"3 11":"5 13")+'" opacity=".83"/>';
       for(let i=0;i<8+amp;i++){
         const [x,y]=polar(160+c*3,i*360/(8+amp)-90);
@@ -94,6 +101,7 @@
       s+='</g>';
     }
     if(c>=2){
+      const amp=strengthOf(2);
       // Volumetric fabric, ice facets, luminous panels, time currents, and nebulae.
       // Each is a translucent surface rather than a thick visible sketch stroke.
       const fill='url(#'+fxId+'-silk)',shine='url(#'+fxId+'-shine)',haze='url(#'+fxId+'-mist)';
@@ -119,10 +127,11 @@
           '<path d="M12 288C76 339 134 300 170 260C106 362 45 365 12 288Z" fill="'+fill+'" opacity=".83"/>'+
           '<path d="M39 185C62 100 118 76 176 102C114 127 83 177 108 225C76 218 55 203 39 185Z" fill="'+shine+'" opacity=".53"/>';
       }
-      s+='<g class="jal-flow">'+w+'<g transform="translate(400 0) scale(-1 1)">'+w+'</g></g>';
+      s+='<g class="jal-flow" opacity="'+fadeOf(2)+'">'+w+'<g transform="translate(400 0) scale(-1 1)">'+w+'</g></g>';
       if(spec.key==="galaxy")s+='<g transform="rotate(-25 200 200)"><ellipse cx="200" cy="200" rx="183" ry="76" fill="none" stroke="'+shine+'" stroke-width="2" opacity=".4"/></g>';
     }
     if(c>=3){
+      const amp=strengthOf(3);
       // Sculpted wings/shields made of layered, lit surfaces.
       const fill='url(#'+fxId+'-silk)',shine='url(#'+fxId+'-shine)',haze='url(#'+fxId+'-mist)';
       let w='';
@@ -149,12 +158,13 @@
           '<path d="M148 245C82 260 37 294 16 344C108 333 165 298 173 228Z" fill="'+fill+'" opacity=".76"/>'+
           '<path d="M121 217C79 182 55 142 50 99C104 137 129 174 154 218Z" fill="'+shine+'" opacity=".71"/>';
       }
-      s+='<g class="jal-crest">'+w+'<g transform="translate(400 0) scale(-1 1)">'+w+'</g></g>';
+      s+='<g class="jal-crest" opacity="'+fadeOf(3)+'">'+w+'<g transform="translate(400 0) scale(-1 1)">'+w+'</g></g>';
       if(spec.key==="petal")for(let i=0;i<4+amp;i++){const [x,y]=polar(171,i*360/(4+amp)-70);s+=motif(spec,x,y,9+amp*.45,i*32)}
       if(spec.key==="frost")s+=motif(spec,200,42,20+amp*1.8,0);
       if(spec.key==="time")s+='<g class="jal-turn-rev" opacity=".58">'+clockFace(spec,true)+'</g>';
     }
     if(c>=4){
+      const amp=strengthOf(4);
       // Hand-shaped elemental coronets in place of a zigzag stroke crown.
       const fill='url(#'+fxId+'-silk)',shine='url(#'+fxId+'-shine)',haze='url(#'+fxId+'-mist)';
       let crown='';
@@ -163,7 +173,7 @@
       else if(spec.key==="cyber")crown='<path d="M102 105L130 64 169 64 200 27 231 64 270 64 298 105 261 118 235 92 165 92 139 118Z" fill="'+fill+'" opacity=".94"/><path d="M169 64L200 27 231 64 217 80 183 80Z" fill="'+shine+'" opacity=".91"/>';
       else if(spec.key==="time")crown='<path d="M110 102Q123 47 164 64Q181 30 200 29Q219 30 236 64Q277 47 290 102Q199 122 110 102Z" fill="'+fill+'" opacity=".93"/><path d="M124 99Q200 112 276 99Q200 125 124 99Z" fill="'+shine+'" opacity=".79"/>';
       else crown='<path d="M111 101Q138 53 175 72L200 18 225 72Q262 53 289 101Q200 126 111 101Z" fill="'+haze+'" opacity=".92"/><path d="M200 29L213 68 247 73 213 86 200 115 187 86 153 73 187 68Z" fill="'+shine+'" opacity=".92"/>';
-      s+='<g class="jal-imperial">'+crown+motif(spec,200,71,12+amp*.7,0)+'</g>';
+      s+='<g class="jal-imperial" opacity="'+fadeOf(4)+'">'+crown+motif(spec,200,71,12+amp*.7,0)+'</g>';
       s+='<g class="jal-turn-slow" opacity=".65">';
       for(let i=0;i<9+amp;i++){const [x,y]=polar(182,i*360/(9+amp)-90);s+=motif(spec,x,y,5+amp*.35,i*22)}
       s+='</g>';
@@ -176,8 +186,10 @@
     const ringCount=1+(m.chapter>=1?1:0)+(m.chapter>=3?1:0);
     let rings='';
     for(let i=0;i<ringCount;i++){
-      const r=120+i*20+m.strength*2.4;
-      rings+='<circle cx="200" cy="200" r="'+fmt(r)+'" fill="none" stroke="'+(i%2?spec.light:spec.color)+'" stroke-width="'+fmt(1.6+m.strength*.35+i*.25)+'" opacity="'+fmt(.3+m.strength*.085)+'" stroke-dasharray="'+(m.chapter===0?'3 12':i%2?'5 14':'none')+'"/>';
+      const ringChapter=i===0?0:i===1?1:3;
+      const power=m.chapter>ringChapter?5:m.strength;
+      const r=120+i*20+power*2.4;
+      rings+='<circle cx="200" cy="200" r="'+fmt(r)+'" fill="none" stroke="'+(i%2?spec.light:spec.color)+'" stroke-width="'+fmt(1.6+power*.35+i*.25)+'" opacity="'+fmt(.3+power*.085)+'" stroke-dasharray="'+(i===0?'3 12':i%2?'5 14':'none')+'"/>';
     }
     const sigil=chapterEffects(spec,m,grad);
     const art='<svg class="jal-aura-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
@@ -190,7 +202,7 @@
       '<g class="jal-ornaments">'+sigil+'</g>'+
       '<g class="jal-stars">'+particles(spec,m)+'</g>'+
       '</svg>';
-    return '<span class="jal-stage jal-'+spec.key+' jal-chapter-'+(m.chapter+1)+' jal-strength-'+m.strength+(large?' jal-large':'')+'" style="--jal-color:'+spec.color+';--jal-light:'+spec.light+';--jal-deep:'+spec.deep+'" aria-hidden="true">'+
+    return '<span class="jal-stage jal-'+spec.key+' jal-chapter-'+(m.chapter+1)+' jal-strength-'+m.strength+(lvl>=50?' jal-milestone-50':'')+(lvl>=100?' jal-milestone-100':'')+(lvl>=150?' jal-milestone-150':'')+(lvl>=200?' jal-milestone-200':'')+(lvl>=250?' jal-milestone-250':'')+(large?' jal-large':'')+'" style="--jal-color:'+spec.color+';--jal-light:'+spec.light+';--jal-deep:'+spec.deep+'" aria-hidden="true">'+
       '<span class="jal-halo"></span>'+art+'<span class="jal-sprite">'+portrait()+'</span></span>';
   }
   function render(){
