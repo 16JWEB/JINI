@@ -80,7 +80,7 @@
     }
     return s;
   }
-  function chapterEffects(spec,m){
+  function chapterEffects(spec,m,fxId){
     const c=m.chapter,amp=m.strength,col=spec.color,light=spec.light,deep=spec.deep;
     let s="";
     // Every 50 levels adds a visually distinct family of geometry.
@@ -94,41 +94,79 @@
       s+='</g>';
     }
     if(c>=2){
-      if(spec.key==="petal")s+='<path d="M60 250C40 85 160 45 195 110S330 35 344 176M55 280C165 370 250 125 346 210" stroke="'+light+'" stroke-width="'+(5+amp)+'" fill="none" stroke-linecap="round" opacity=".54"/>';
-      if(spec.key==="frost")s+='<path d="M62 284L110 225 94 193 153 117 178 75M339 277L291 226 307 193 247 118 224 73" stroke="'+light+'" stroke-width="'+(4+amp)+'" fill="none" stroke-linejoin="bevel" opacity=".8"/>';
-      if(spec.key==="cyber")s+='<path d="M59 135H111L137 162V207M335 270H287L260 237V184M99 329H159L186 300" stroke="'+col+'" stroke-width="'+(3+amp*.45)+'" fill="none" opacity=".8"/>';
-      if(spec.key==="time")s+='<path d="M46 232C35 73 240 29 286 118S279 320 357 236M55 295C110 365 265 343 353 116" stroke="'+light+'" stroke-width="'+(3+amp*.7)+'" fill="none" opacity=".58"/>';
-      if(spec.key==="galaxy")s+='<g transform="rotate(-25 200 200)"><ellipse cx="200" cy="200" rx="185" ry="68" stroke="'+light+'" stroke-width="'+(3+amp)+'" fill="none" opacity=".75"/><ellipse cx="200" cy="200" rx="160" ry="98" stroke="'+deep+'" stroke-width="3" fill="none" opacity=".85"/></g>';
-      s+='<g class="jal-turn-slow"><circle cx="200" cy="200" r="194" fill="none" stroke="'+col+'" stroke-width="'+(1.3+amp*.25)+'" opacity=".4" stroke-dasharray="36 38"/></g>';
+      // Volumetric fabric, ice facets, luminous panels, time currents, and nebulae.
+      // Each is a translucent surface rather than a thick visible sketch stroke.
+      const fill='url(#'+fxId+'-silk)',shine='url(#'+fxId+'-shine)',haze='url(#'+fxId+'-mist)';
+      let w='';
+      if(spec.key==="petal"){
+        w='<path d="M16 304C25 224 63 142 163 109C107 165 78 249 121 306C69 274 41 324 16 304Z" fill="'+fill+'" opacity=".88"/>'+
+          '<path d="M17 309C75 356 126 290 168 232C126 326 74 362 17 309Z" fill="'+shine+'" opacity=".65"/>'+
+          '<path d="M65 182C80 125 135 82 173 84C125 117 112 167 127 205C102 194 80 192 65 182Z" fill="'+haze+'" opacity=".72"/>';
+      }else if(spec.key==="frost"){
+        w='<path d="M24 276L87 194 69 135 125 86 158 204 128 292 70 316Z" fill="'+fill+'" opacity=".91"/>'+
+          '<path d="M69 135L125 86 115 209 91 239Z" fill="'+shine+'" opacity=".77"/>'+
+          '<path d="M24 276L87 194 128 292 70 316Z" fill="'+haze+'" opacity=".72"/>';
+      }else if(spec.key==="cyber"){
+        w='<path d="M27 284L43 222 99 183 141 219 128 298 65 317Z" fill="'+fill+'" opacity=".89"/>'+
+          '<path d="M33 277L75 225 107 208 95 242 67 278Z" fill="'+shine+'" opacity=".78"/>'+
+          '<path d="M89 144L121 94 156 111 143 161 117 184Z" fill="'+haze+'" opacity=".75"/>';
+      }else if(spec.key==="time"){
+        w='<path d="M16 250C18 155 99 79 172 89C111 129 85 224 142 295C71 306 32 289 16 250Z" fill="'+fill+'" opacity=".86"/>'+
+          '<path d="M25 255C76 309 118 288 150 269C111 322 52 337 25 255Z" fill="'+shine+'" opacity=".63"/>'+
+          '<path d="M63 192C58 131 109 108 167 94C124 132 102 172 116 219C87 218 75 211 63 192Z" fill="'+haze+'" opacity=".54"/>';
+      }else{
+        w='<path d="M7 262C11 127 107 50 181 99C105 131 79 235 143 311C54 336 21 309 7 262Z" fill="'+haze+'" opacity=".92"/>'+
+          '<path d="M12 288C76 339 134 300 170 260C106 362 45 365 12 288Z" fill="'+fill+'" opacity=".83"/>'+
+          '<path d="M39 185C62 100 118 76 176 102C114 127 83 177 108 225C76 218 55 203 39 185Z" fill="'+shine+'" opacity=".53"/>';
+      }
+      s+='<g class="jal-flow">'+w+'<g transform="translate(400 0) scale(-1 1)">'+w+'</g></g>';
+      if(spec.key==="galaxy")s+='<g transform="rotate(-25 200 200)"><ellipse cx="200" cy="200" rx="183" ry="76" fill="none" stroke="'+shine+'" stroke-width="2" opacity=".4"/></g>';
     }
     if(c>=3){
-      // Crest wings / shield structures are unique to every element.
-      const wing=spec.key==="frost"?'M132 205L84 172 69 114 43 142 34 66 110 126 155 160':
-        spec.key==="cyber"?'M145 232H77L58 189 27 178 44 144 10 98 115 137 154 175':
-        spec.key==="time"?'M146 225Q96 200 70 128Q55 95 27 99Q70 184 33 242Q89 284 143 259':
-        spec.key==="galaxy"?'M145 238Q46 191 31 86Q136 131 152 166Q58 260 42 318Q114 294 155 267':
-        'M143 233Q70 213 48 110Q110 122 153 178Q45 254 37 303Q129 279 143 233';
-      s+='<g class="jal-crest"><path d="'+wing+'" fill="'+(spec.key==="cyber"?"none":deep)+'" fill-opacity=".24" stroke="'+col+'" stroke-width="'+(3+amp*.55)+'" stroke-linecap="round" stroke-linejoin="round"/><g transform="translate(400 0) scale(-1 1)"><path d="'+wing+'" fill="'+(spec.key==="cyber"?"none":deep)+'" fill-opacity=".24" stroke="'+col+'" stroke-width="'+(3+amp*.55)+'" stroke-linecap="round" stroke-linejoin="round"/></g></g>';
-      if(spec.key==="petal")for(let i=0;i<5+amp;i++){const [x,y]=polar(167,i*360/(5+amp)-50);s+=motif(spec,x,y,9+amp*.6,i*45)}
-      if(spec.key==="cyber")s+='<path d="M200 13L326 74 386 200 326 326 200 387 74 326 14 200 74 74Z" fill="none" stroke="'+light+'" stroke-width="'+(2+amp*.35)+'" stroke-dasharray="18 12" opacity=".67"/>';
-      if(spec.key==="time")s+='<g class="jal-turn-rev">'+clockFace(spec,true)+'</g>';
-      if(spec.key==="galaxy")s+='<path d="M22 263Q160 52 384 170M20 301Q221 44 378 228" fill="none" stroke="'+light+'" stroke-width="5" stroke-linecap="round" opacity=".38"/>';
-      if(spec.key==="frost")s+motif(spec,200,44,22+amp*2,0);
+      // Sculpted wings/shields made of layered, lit surfaces.
+      const fill='url(#'+fxId+'-silk)',shine='url(#'+fxId+'-shine)',haze='url(#'+fxId+'-mist)';
+      let w='';
+      if(spec.key==="petal"){
+        w='<path d="M158 252C107 232 51 159 45 62C100 89 143 132 164 179C138 118 124 78 135 33C181 94 190 186 158 252Z" fill="'+fill+'" opacity=".93"/>'+
+          '<path d="M143 237C92 236 57 177 35 121C86 143 123 176 151 211C118 168 95 131 103 91C158 151 168 211 143 237Z" fill="'+shine+'" opacity=".72"/>'+
+          '<path d="M154 240C119 214 123 171 139 135C166 162 178 217 154 240Z" fill="'+haze+'" opacity=".87"/>';
+      }else if(spec.key==="frost"){
+        w='<path d="M152 260L90 216 56 229 22 164 58 126 39 51 119 96 159 173Z" fill="'+fill+'" opacity=".95"/>'+
+          '<path d="M39 51L119 96 159 173 94 150Z" fill="'+shine+'" opacity=".92"/>'+
+          '<path d="M22 164L94 150 90 216 56 229Z" fill="'+haze+'" opacity=".9"/>'+
+          '<path d="M94 150L159 173 152 260 90 216Z" fill="'+shine+'" opacity=".37"/>';
+      }else if(spec.key==="cyber"){
+        w='<path d="M156 247L109 222 69 240 30 199 43 164 17 105 99 136 146 182Z" fill="'+fill+'" opacity=".94"/>'+
+          '<path d="M43 164L17 105 99 136 105 165Z" fill="'+shine+'" opacity=".89"/>'+
+          '<path d="M30 199L105 165 146 182 109 222 69 240Z" fill="'+haze+'" opacity=".78"/>'+
+          '<path d="M56 187L80 177 116 197 91 208 59 207Z" fill="'+shine+'" opacity=".9"/>';
+      }else if(spec.key==="time"){
+        w='<path d="M153 260C98 249 55 198 35 133C24 85 50 67 80 94C104 126 126 166 145 184C126 122 135 83 158 45C180 133 188 204 153 260Z" fill="'+fill+'" opacity=".9"/>'+
+          '<path d="M145 243C103 215 65 159 74 110C114 149 137 191 145 243Z" fill="'+shine+'" opacity=".76"/>'+
+          '<path d="M155 246C122 222 127 172 154 122C171 173 172 222 155 246Z" fill="'+haze+'" opacity=".69"/>';
+      }else{
+        w='<path d="M149 266C78 223 25 151 17 49C100 90 136 127 169 193C144 128 146 83 165 29C195 117 192 211 149 266Z" fill="'+haze+'" opacity=".97"/>'+
+          '<path d="M148 245C82 260 37 294 16 344C108 333 165 298 173 228Z" fill="'+fill+'" opacity=".76"/>'+
+          '<path d="M121 217C79 182 55 142 50 99C104 137 129 174 154 218Z" fill="'+shine+'" opacity=".71"/>';
+      }
+      s+='<g class="jal-crest">'+w+'<g transform="translate(400 0) scale(-1 1)">'+w+'</g></g>';
+      if(spec.key==="petal")for(let i=0;i<4+amp;i++){const [x,y]=polar(171,i*360/(4+amp)-70);s+=motif(spec,x,y,9+amp*.45,i*32)}
+      if(spec.key==="frost")s+=motif(spec,200,42,20+amp*1.8,0);
+      if(spec.key==="time")s+='<g class="jal-turn-rev" opacity=".58">'+clockFace(spec,true)+'</g>';
     }
     if(c>=4){
-      // Lv210-250: a new regal halo and orbiting sigils, not merely bigger glow.
-      s+='<g class="jal-imperial"><path d="M115 84L130 23 166 56 200 5 234 56 270 23 285 84" fill="none" stroke="'+light+'" stroke-width="'+(3+amp*.65)+'" stroke-linecap="round" stroke-linejoin="round" opacity=".94"/>';
-      s+=motif(spec,200,25,17+amp,0);
-      s+='<ellipse cx="200" cy="200" rx="192" ry="182" stroke="'+light+'" stroke-width="'+(2+amp*.4)+'" stroke-dasharray="2 14" fill="none" opacity=".75"/>';
+      // Hand-shaped elemental coronets in place of a zigzag stroke crown.
+      const fill='url(#'+fxId+'-silk)',shine='url(#'+fxId+'-shine)',haze='url(#'+fxId+'-mist)';
+      let crown='';
+      if(spec.key==="petal")crown='<path d="M124 88Q111 57 139 44Q160 52 167 71Q181 24 200 18Q219 24 233 71Q254 48 269 44Q288 59 276 88Q200 111 124 88Z" fill="'+fill+'" opacity=".94"/><path d="M140 86Q200 104 260 86Q214 84 200 59Q186 84 140 86Z" fill="'+shine+'" opacity=".76"/>';
+      else if(spec.key==="frost")crown='<path d="M121 107L101 64 147 78 172 34 200 65 228 34 253 78 299 64 279 107Z" fill="'+fill+'" opacity=".95"/><path d="M172 34L200 65 228 34 220 99 180 99Z" fill="'+shine+'" opacity=".93"/>';
+      else if(spec.key==="cyber")crown='<path d="M102 105L130 64 169 64 200 27 231 64 270 64 298 105 261 118 235 92 165 92 139 118Z" fill="'+fill+'" opacity=".94"/><path d="M169 64L200 27 231 64 217 80 183 80Z" fill="'+shine+'" opacity=".91"/>';
+      else if(spec.key==="time")crown='<path d="M110 102Q123 47 164 64Q181 30 200 29Q219 30 236 64Q277 47 290 102Q199 122 110 102Z" fill="'+fill+'" opacity=".93"/><path d="M124 99Q200 112 276 99Q200 125 124 99Z" fill="'+shine+'" opacity=".79"/>';
+      else crown='<path d="M111 101Q138 53 175 72L200 18 225 72Q262 53 289 101Q200 126 111 101Z" fill="'+haze+'" opacity=".92"/><path d="M200 29L213 68 247 73 213 86 200 115 187 86 153 73 187 68Z" fill="'+shine+'" opacity=".92"/>';
+      s+='<g class="jal-imperial">'+crown+motif(spec,200,71,12+amp*.7,0)+'</g>';
+      s+='<g class="jal-turn-slow" opacity=".65">';
+      for(let i=0;i<9+amp;i++){const [x,y]=polar(182,i*360/(9+amp)-90);s+=motif(spec,x,y,5+amp*.35,i*22)}
       s+='</g>';
-      s+='<g class="jal-turn-slow">';
-      for(let i=0;i<12+amp;i++){const [x,y]=polar(187,i*360/(12+amp));s+=motif(spec,x,y,5+amp*.5,i*17)}
-      s+='</g>';
-      if(spec.key==="petal")s+='<path d="M68 108Q200 -22 332 108" fill="none" stroke="'+light+'" stroke-width="9" opacity=".48"/>';
-      if(spec.key==="frost")s+='<path d="M93 78L132 48 170 79 200 34 230 79 268 48 307 78" stroke="'+light+'" stroke-width="5" fill="none" opacity=".83"/>';
-      if(spec.key==="cyber")s+='<path d="M90 85H140L200 34 260 85H310" fill="none" stroke="'+col+'" stroke-width="7"/>';
-      if(spec.key==="time")s+='<path d="M115 58Q200 -9 285 58" stroke="'+col+'" stroke-width="6" fill="none"/>';
-      if(spec.key==="galaxy")s+='<path d="M84 67Q200 -18 316 67" stroke="'+light+'" stroke-width="8" fill="none" opacity=".69"/>';
     }
     return s;
   }
@@ -141,9 +179,12 @@
       const r=120+i*20+m.strength*2.4;
       rings+='<circle cx="200" cy="200" r="'+fmt(r)+'" fill="none" stroke="'+(i%2?spec.light:spec.color)+'" stroke-width="'+fmt(1.6+m.strength*.35+i*.25)+'" opacity="'+fmt(.3+m.strength*.085)+'" stroke-dasharray="'+(m.chapter===0?'3 12':i%2?'5 14':'none')+'"/>';
     }
-    const sigil=chapterEffects(spec,m);
+    const sigil=chapterEffects(spec,m,grad);
     const art='<svg class="jal-aura-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
-      '<defs><radialGradient id="'+grad+'"><stop offset="35%" stop-color="'+spec.color+'" stop-opacity="0"/><stop offset="67%" stop-color="'+spec.color+'" stop-opacity="'+fmt(.11+m.tier*.01)+'"/><stop offset="90%" stop-color="'+spec.deep+'" stop-opacity="'+fmt(.16+m.tier*.013)+'"/><stop offset="100%" stop-color="'+spec.light+'" stop-opacity="0"/></radialGradient></defs>'+
+      '<defs><radialGradient id="'+grad+'"><stop offset="35%" stop-color="'+spec.color+'" stop-opacity="0"/><stop offset="67%" stop-color="'+spec.color+'" stop-opacity="'+fmt(.11+m.tier*.01)+'"/><stop offset="90%" stop-color="'+spec.deep+'" stop-opacity="'+fmt(.16+m.tier*.013)+'"/><stop offset="100%" stop-color="'+spec.light+'" stop-opacity="0"/></radialGradient>'+
+      '<linearGradient id="'+grad+'-silk" x1="0%" y1="0%" x2="96%" y2="92%"><stop stop-color="'+spec.light+'" stop-opacity=".03"/><stop offset=".35" stop-color="'+spec.color+'" stop-opacity=".75"/><stop offset=".74" stop-color="'+spec.deep+'" stop-opacity=".74"/><stop offset="1" stop-color="'+spec.color+'" stop-opacity=".05"/></linearGradient>'+
+      '<linearGradient id="'+grad+'-shine" x1="0%" y1="0%" x2="90%" y2="100%"><stop stop-color="#ffffff" stop-opacity=".91"/><stop offset=".52" stop-color="'+spec.light+'" stop-opacity=".5"/><stop offset="1" stop-color="'+spec.color+'" stop-opacity=".05"/></linearGradient>'+
+      '<radialGradient id="'+grad+'-mist"><stop stop-color="'+spec.light+'" stop-opacity=".62"/><stop offset=".52" stop-color="'+spec.color+'" stop-opacity=".37"/><stop offset="1" stop-color="'+spec.deep+'" stop-opacity="0"/></radialGradient></defs>'+
       '<circle cx="200" cy="200" r="198" fill="url(#'+grad+')"/>'+
       '<g class="jal-turn-slow">'+rings+'</g>'+
       '<g class="jal-ornaments">'+sigil+'</g>'+
