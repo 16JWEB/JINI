@@ -14,24 +14,29 @@
   let ready = false, loading = null, status = null;
   // These views only use the always-loaded home/study-time/sync scripts.
   // Do not download the 44 learning files merely to inspect backup or usage.
-  const lightPages = ["home", "study-info", "sync"];
+  const lightPages = ["home", "study-info", "sync", "study-menu", "ko-study-menu"];
   function showLightPage(page, restoring) {
     if (!lightPages.includes(page)) return false;
     const home = page === "home", info = page === "study-info", sync = page === "sync";
+    const englishMenu = page === "study-menu", koreanMenu = page === "ko-study-menu";
     const sidebar = document.querySelector(".sidebar");
-    if (sidebar) sidebar.dataset.study = "home";
+    if (sidebar) sidebar.dataset.study = englishMenu ? "english" : koreanMenu ? "korean" : "home";
     const homeSection = document.getElementById("home-section");
     const infoSection = document.getElementById("jini-study-info-section");
     const syncSection = document.getElementById("jini-sync-page");
+    const englishHub = document.getElementById("english-study-hub");
+    const koreanHub = document.getElementById("korean-study-hub");
     if (homeSection) homeSection.hidden = !home;
     if (infoSection) infoSection.hidden = !info;
     if (syncSection) syncSection.hidden = !sync;
+    if (englishHub) englishHub.hidden = !englishMenu;
+    if (koreanHub) koreanHub.hidden = !koreanMenu;
     document.querySelectorAll(".nav-item[data-page]").forEach(function (btn) {
       btn.classList.toggle("active", btn.dataset.page === page);
     });
     const breadcrumb = document.getElementById("breadcrumb-section");
-    if (breadcrumb) breadcrumb.textContent = home ? "홈" :
-      info ? "나의 학습정보" : "학습정보 동기화";
+    if (breadcrumb) breadcrumb.textContent = home ? "홈" : info ? "나의 학습정보" :
+      sync ? "학습정보 동기화" : englishMenu ? "영어공부" : "한글공부";
     const divider = document.getElementById("breadcrumb-divider");
     if (divider) divider.hidden = true;
     try { sessionStorage.setItem("jini-refresh-current-page-v1", page); } catch (_) {}
