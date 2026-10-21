@@ -28,6 +28,7 @@
   let currentPageView = "";
   // The screen the learner was on immediately before entering OPIc mock practice.
   let mockReturnPage = "speaking";
+  let syncReturnPage = "home";
   let selectedVocabularyIndex = -1;
   let restoringStudyState = false;
   let toastTimer;
@@ -1421,6 +1422,7 @@
 
   function setPage(page) {
     if (page === currentPageView) return;
+    if (page === "sync" && !restoringStudyState) syncReturnPage = currentPageView || "home";
     // Capture before restore-state recursion so an Android back action returns to
     // the actual previous screen rather than forcing the user to the home page.
     if (page === "opic-mock" && currentPageView && currentPageView !== "opic-mock") {
@@ -1624,6 +1626,9 @@
       closeOtherStudyMenus(group);
       setStudyMenuOpen(group, open);
     });
+  });
+  document.getElementById("sync-back-button").addEventListener("click", function () {
+    setPage(syncReturnPage);
   });
   document.querySelectorAll("[data-page]").forEach(function (button) {
     button.addEventListener("click", function () {
