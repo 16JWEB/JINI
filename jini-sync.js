@@ -11,6 +11,10 @@
   const LEGACY_HANDOFF_KEY = "jini-drive-reload-token-once-v1";
   const FOLDER_NAME = "JINI";
   const FILE_NAME = "jini-backup.json";
+  // One upload window per first game-progress change; no per-answer requests.
+  const XP_BATCH_MS = 60 * 1000;
+  const DRIVE_POLL_MS = 5 * 60 * 1000;
+  const RETURN_CHECK_MIN_MS = 60 * 1000;
   const SCOPE = "https://www.googleapis.com/auth/drive.file";
   const API = "https://www.googleapis.com/drive/v3/files";
   const UPLOAD_API = "https://www.googleapis.com/upload/drive/v3/files";
@@ -34,6 +38,7 @@
   let conflict = null;
   let confirmAction = null;
   let syncAfterXP = null;
+  let xpBatchDueAt = 0;
   let meta = readMeta();
   // Restore only within the same browser tab, not as a stored site login.
   try {
@@ -717,6 +722,9 @@
           meta.manuallyDisconnected = false;
           saveMeta();
           conflict = null;
+          // An explicit reconnect already performs a full sync; remove only
+          // the old timer. Any new study changes during this sync form a new batch.
+          cancelXpBatch();
           connectionStage = "학습기록 비교·백업 중…";
           status("Google Drive 연결 후 현재 기기와 백업을 비교·반영하고 있습니다.");
           render();
@@ -744,6 +752,7 @@
   function disconnect() {
     if (disconnecting || connecting || busy) return;
     disconnecting = true;
+    cancelXpBatch();
     // Disconnect JINI immediately, without a confirmation or network request.
     // This is an auto-sync toggle, not a Google account permission revocation;
     // keeping consent also makes reconnecting less cumbersome.
@@ -925,37 +934,82 @@
       manualBackup(true);
     }
   }, true);
+  function cancelXpBatch() {
+    if (syncAfterXP !== null) window.clearTimeout(syncAfterXP);
+    syncAfterXP = null;
+    xpBatchDueAt = 0;
+  }
+  function flushXpBatch() {
+    if (syncAfterXP !== null) window.clearTimeout(syncAfterXP);
+    syncAfterXP = null;
+    if (!xpBatchDueAt) return;
+    if (Date.now() < xpBatchDueAt) {
+      syncAfterXP = window.setTimeout(flushXpBatch, xpBatchDueAt - Date.now());
+      return;
+    }
+    // If the tab sleeps, keep the due batch until the learner returns.
+    if (document.hidden) return;
+    if (!validToken() || conflict) {
+      cancelXpBatch();
+      render();
+      return;
+    }
+    if (busy || connecting || disconnecting) {
+      syncAfterXP = window.setTimeout(flushXpBatch, 15000);
+      return;
+    }
+    xpBatchDueAt = 0;
+    syncCycle();
+  }
+  // A fixed window starts with the FIRST changed game record.
+  // Additional answers in this minute do not reset the clock.
+  window.addEventListener("jini-learning-progress-changed", function () {
+    if (!validToken() || conflict || disconnecting) return;
+    if (xpBatchDueAt) return;
+    xpBatchDueAt = Date.now() + XP_BATCH_MS;
+    syncAfterXP = window.setTimeout(flushXpBatch, XP_BATCH_MS);
+    render();
+  });
   window.JINI_SYNC_PAGE_OPEN = function () {
     render();
-    if (validToken()) syncCycle();
+    // Just opening the settings page must not trigger another Drive request.
+    if (validToken() && !xpBatchDueAt &&
+        Date.now() - lastCycleFinishedAt >= DRIVE_POLL_MS) syncCycle();
   };
   render();
   if (validToken()) {
-    status("Google Drive 연결이 이 탭에 유지되어 있습니다. 학습 화면에서도 자동 동기화하며, 상세 기록은 홈의 동기화 메뉴에서 확인할 수 있습니다.");
+    status("Google Drive 연결을 유지하고 있습니다. 학습기록 변경은 1분간 모아 백업하고, 평소에는 약 5분마다 최신 백업을 확인합니다.");
     syncCycle();
   } else if (meta.previouslyConnected) {
     status("이전 Google 연결의 인증이 필요합니다. 기기와 Drive 학습기록은 유지되어 있으며, 'Google 다시 연결'을 누르면 이어서 확인할 수 있습니다.");
   }
-  // XP should be uploaded shortly after an answer, not only on the 45-second poll.
-  // Avoid writing on every question by combining rapid saves into one sync.
-  window.addEventListener("jini-learning-progress-changed", function () {
-    if (!validToken() || conflict) return;
-    if (syncAfterXP !== null) window.clearTimeout(syncAfterXP);
-    syncAfterXP = window.setTimeout(function () {
-      syncAfterXP = null;
-      if (validToken() && !document.hidden) syncCycle();
-    }, 2000);
-  });
-  setInterval(function () {
-    if (validToken()) syncCycle();
-    else if (token) { clearTabToken(); status("Google 인증이 만료되었습니다. 기기와 Drive 기록은 유지됩니다. Google 다시 연결을 눌러 주세요.", true); render(); }
-  }, 45000);
+  // Local 1-minute wakeup is cheap: Drive is contacted only when five minutes
+  // have passed since the last check, or when a pending XP batch is due.
+  window.setInterval(function () {
+    if (validToken()) {
+      if (xpBatchDueAt) {
+        if (Date.now() >= xpBatchDueAt) flushXpBatch();
+      } else if (Date.now() - lastCycleFinishedAt >= DRIVE_POLL_MS) {
+        syncCycle();
+      }
+    } else if (token) {
+      clearTabToken();
+      status("Google 인증이 만료되었습니다. 기기와 Drive 기록은 유지됩니다. Google 다시 연결을 눌러 주세요.", true);
+      render();
+    }
+  }, 60000);
   document.addEventListener("visibilitychange", function () {
     if (!document.hidden) {
       render();
-      if (validToken()) syncCycle();
+      if (validToken()) {
+        if (xpBatchDueAt) {
+          if (Date.now() >= xpBatchDueAt) flushXpBatch();
+        } else if (Date.now() - lastCycleFinishedAt >= RETURN_CHECK_MIN_MS) {
+          syncCycle();
+        }
+      }
     }
   });
-  // Reflect an expired authorization as soon as the learner returns to JINI.
+  // Reflect an expired authorization on return without extra Drive requests.
   window.addEventListener("focus", render);
 })();
