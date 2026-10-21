@@ -81,3 +81,8 @@
 .ja-data-plan p{margin:0;color:#676070;font-size:12px;line-height:1.65}
 .ja-data-legal{font-size:11px;line-height:1.7;color:#817989;margin:15px 0 0}
 @media(max-width:600px){.ja-data-plans{grid-template-columns:1fr}.ja-data-table{font-size:11px}.ja-data-table th,.ja-data-table td{padding:9px 8px}.ja-data-lead{padding:12px;gap:9px}}
+
+/* Keep the admin test entry discreet and at the very end of Home content. */
+.jini-home-admin-footer{display:flex;justify-content:center;margin:40px auto 0;padding:20px 0 7px;border-top:1px solid #ececf4}
+.jini-home-admin-footer #jini-admin-entry{padding:9px 15px;font-size:11px;color:#858396;background:#f9f9fc;box-shadow:none}
+@media(max-width:760px){.jini-home-admin-footer{margin-top:28px;padding-top:16px}.jini-home-admin-footer #jini-admin-entry{font-size:11px;padding:10px 13px}}
