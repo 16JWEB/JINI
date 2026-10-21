@@ -1,82 +1,98 @@
-/* Admin-only, read-only aura lab. Loaded on demand; does not write progress. */
+/* Read-only admin aura lab: five independent aura concepts, each with 10-50 levels. */
 (function () {
   "use strict";
   const panel = document.getElementById("ja-aura-panel");
   if (!panel || panel.dataset.auraLabReady === "true") return;
-  panel.dataset.auraLabReady = "true";
   const specs = [
-    { level: 10, key: "petal", name: "벚꽃의 정령", desc: "분홍 꽃잎이 흩날리는 부드러운 오라" },
-    { level: 20, key: "frost", name: "빙결 군주", desc: "빙결 결정과 푸른 냉기를 두른 오라" },
-    { level: 30, key: "cyber", name: "사이버 오버클럭", desc: "네온 사각 궤도와 디지털 에너지" },
-    { level: 40, key: "time", name: "시간의 지배자", desc: "황금 시계판과 시간의 고리" },
-    { level: 50, key: "galaxy", name: "은하의 지배자", desc: "공전하는 우주 고리와 반짝이는 별" }
+    { key: "petal", name: "벚꽃의 정령", icon: "🌸", stages: [
+      "분홍빛 첫 반짝임", "작은 꽃잎들이 떠오름", "꽃잎 띠와 은은한 꽃빛", "꽃잎 회오리와 분홍 고리", "벚꽃이 만개하는 꽃비 오라"
+    ] },
+    { key: "frost", name: "빙결 군주", icon: "❄️", stages: [
+      "옅은 푸른 냉기", "조그만 눈꽃 결정", "얼음 결정과 빙결 고리", "냉기 파동과 이중 결정", "빙결 왕관과 선명한 서리 폭풍"
+    ] },
+    { key: "cyber", name: "사이버 오버클럭", icon: "💠", stages: [
+      "작은 네온 점멸", "데이터 조각이 움직임", "네온 사각 궤도 생성", "이중 데이터 링이 회전", "다층 네온 에너지 폭주"
+    ] },
+    { key: "time", name: "시간의 지배자", icon: "⏳", stages: [
+      "은은한 금빛 기운", "시곗바늘 같은 잔광", "로마 숫자 시계 고리", "이중 시간 궤도 회전", "황금빛 시간 파동 완성"
+    ] },
+    { key: "galaxy", name: "은하의 지배자", icon: "🌌", stages: [
+      "작은 별빛의 탄생", "반짝이는 별자리 입자", "은하 궤도가 형성됨", "두 겹의 별빛이 공전", "찬란한 은하 소용돌이 완성"
+    ] }
   ];
   const avatars = [
-    { id: "rabbit", name: "토끼", emoji: "🐰" }, { id: "cat", name: "고양이", emoji: "🐱" },
-    { id: "bear", name: "곰", emoji: "🐻" }, { id: "fox", name: "여우", emoji: "🦊" }
+    { id: "rabbit", name: "토끼", emoji: "🐰" },
+    { id: "cat", name: "고양이", emoji: "🐱" },
+    { id: "bear", name: "곰", emoji: "🐻" },
+    { id: "fox", name: "여우", emoji: "🦊" }
   ];
-  let avatar = "rabbit", testLevel = 50, selected = 50;
+  const levels = [10, 20, 30, 40, 50];
+  let avatar = "rabbit", theme = "petal", level = 10;
   const avatarChoices = panel.querySelector("#ja-aura-avatars");
-  const levelChoices = panel.querySelector("#ja-aura-levels");
+  const themeChoices = panel.querySelector("#ja-aura-themes");
   const cards = panel.querySelector("#ja-aura-cards");
   const focus = panel.querySelector("#ja-aura-focus");
   const detail = panel.querySelector("#ja-aura-focus-desc");
-  const escape = value => String(value).replace(/[&<>"']/g, char =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&quot;" }[char]));
+  const heading = panel.querySelector("#ja-aura-stage-title");
+  if (!avatarChoices || !themeChoices || !cards || !focus || !detail || !heading) return;
+  panel.dataset.auraLabReady = "true";
+
   function sprite() {
     if (window.JINI_CHARACTER_ART && typeof window.JINI_CHARACTER_ART.render === "function") {
-      // Explicit 0 turns OFF the existing species-specific aura. New aura lives
-      // only in the lab's surrounding layer, never inside saved profiles.
-      return window.JINI_CHARACTER_ART.render({ avatar: avatar, level: testLevel, auraLevel: 0 });
+      // Fixed character artwork at level 1; ONLY the surrounding aura grows.
+      return window.JINI_CHARACTER_ART.render({ avatar: avatar, level: 1, auraLevel: 0 });
     }
-    const a = avatars.find(a => a.id === avatar);
+    const a = avatars.find(item => item.id === avatar);
     return '<span class="jal-emoji">' + (a ? a.emoji : "🐰") + '</span>';
   }
-  function stage(spec, large) {
-    const sparks = Array.from({ length: 5 }, (_, index) =>
-      '<i class="jal-spark jal-spark-' + (index + 1) + '"></i>').join("");
-    return '<span class="jal-stage jal-' + spec.key + (large ? ' jal-large' : '') + '" aria-hidden="true">' +
-      '<span class="jal-glow"></span><span class="jal-ring jal-ring-a"></span>' +
-      '<span class="jal-ring jal-ring-b"></span><span class="jal-glyph"></span>' +
-      sparks + '<span class="jal-sprite">' + sprite() + '</span></span>';
+  function stage(spec, tier, large) {
+    const sparks = Array.from({ length: 5 }, (_, i) =>
+      '<i class="jal-spark jal-spark-' + (i + 1) + '"></i>').join("");
+    return '<span class="jal-stage jal-' + spec.key + ' jal-tier-' + tier +
+      (large ? " jal-large" : "") + '" aria-hidden="true">' +
+      '<span class="jal-glow"></span><span class="jal-burst"></span>' +
+      '<span class="jal-ring jal-ring-a"></span><span class="jal-ring jal-ring-b"></span>' +
+      '<span class="jal-glyph"></span>' + sparks +
+      '<span class="jal-sprite">' + sprite() + '</span></span>';
   }
   function render() {
+    const spec = specs.find(item => item.key === theme) || specs[0];
     avatarChoices.innerHTML = avatars.map(a =>
-      '<button class="jal-switch' + (avatar === a.id ? ' is-selected' : '') +
+      '<button class="jal-switch' + (avatar === a.id ? " is-selected" : "") +
       '" type="button" data-jal-avatar="' + a.id + '" aria-pressed="' + (avatar === a.id) +
-      '">' + a.emoji + ' ' + a.name + '</button>').join("");
-    levelChoices.innerHTML = [1, 10, 20, 30, 40, 50].map(lvl =>
-      '<button class="jal-switch' + (testLevel === lvl ? ' is-selected' : '') +
-      '" type="button" data-jal-level="' + lvl + '" aria-pressed="' + (testLevel === lvl) +
-      '">Lv.' + lvl + '</button>').join("");
-    cards.innerHTML = specs.map(spec => {
-      const unlocked = testLevel >= spec.level;
-      return '<button type="button" class="jal-card' + (selected === spec.level ? ' is-selected' : '') +
-        '" data-jal-select="' + spec.level + '" aria-pressed="' + (selected === spec.level) + '">' +
-        '<span class="jal-card-art">' + stage(spec, false) + '</span>' +
-        '<span class="jal-card-copy"><span class="jal-level">LV.' + spec.level + ' 보상 ' +
-        (unlocked ? '<span class="jal-unlocked">해금 예시</span>' : '<span class="jal-locked">잠금 예시</span>') +
-        '</span><strong>' + escape(spec.name) + '</strong><small>' + escape(spec.desc) + '</small></span></button>';
-    }).join("");
-    const spec = specs.find(a => a.level === selected) || specs[0];
-    const unlocked = testLevel >= spec.level;
-    focus.innerHTML = stage(spec, true);
-    detail.textContent = "Lv." + spec.level + " · " + spec.name + " — " + spec.desc +
-      " / 시뮬레이션 Lv." + testLevel + (unlocked ? "에서 해금" : "에서는 잠금") +
-      " (테스트에서는 모든 오라 미리보기 가능)";
+      '">' + a.emoji + " " + a.name + "</button>").join("");
+    themeChoices.innerHTML = specs.map(a =>
+      '<button class="jal-switch' + (theme === a.key ? " is-selected" : "") +
+      '" type="button" data-jal-theme="' + a.key + '" aria-pressed="' + (theme === a.key) +
+      '">' + a.icon + " " + a.name + "</button>").join("");
+    heading.textContent = spec.icon + " " + spec.name + " · 단계별 성장";
+    cards.innerHTML = levels.map((stageLevel, i) =>
+      '<button type="button" class="jal-card' + (level === stageLevel ? " is-selected" : "") +
+      '" data-jal-level="' + stageLevel + '" aria-pressed="' + (level === stageLevel) + '">' +
+      '<span class="jal-card-art">' + stage(spec, i + 1, false) + '</span>' +
+      '<span class="jal-card-copy"><span class="jal-level">LV.' + stageLevel +
+      ' · ' + (i + 1) + '/5단계</span><strong>' + spec.stages[i] +
+      '</strong><small>' + (i === 4 ? "완성형 오라 시안" : "다음 레벨에 더욱 화려해져요") +
+      "</small></span></button>"
+    ).join("");
+    const tier = levels.indexOf(level) + 1;
+    focus.innerHTML = stage(spec, tier, true);
+    detail.textContent = spec.name + " · Lv." + level + " (" + tier +
+      "/5단계) — " + spec.stages[tier - 1] +
+      " / 캐릭터 그림은 고정, 오라만 단계별 변화 · 미리보기 전용";
   }
-  panel.addEventListener("click", function (event) {
-    const choice = event.target.closest("[data-jal-avatar],[data-jal-level],[data-jal-select]");
+  panel.addEventListener("click", event => {
+    const choice = event.target.closest("[data-jal-avatar],[data-jal-theme],[data-jal-level]");
     if (!choice || !panel.contains(choice)) return;
-    if (choice.dataset.jalAvatar && avatars.some(a => a.id === choice.dataset.jalAvatar)) avatar = choice.dataset.jalAvatar;
-    if (choice.dataset.jalLevel) {
-      const lvl = Number(choice.dataset.jalLevel);
-      if ([1, 10, 20, 30, 40, 50].includes(lvl)) testLevel = lvl;
+    const chosenAvatar = choice.dataset.jalAvatar;
+    const chosenTheme = choice.dataset.jalTheme;
+    const chosenLevel = Number(choice.dataset.jalLevel);
+    if (chosenAvatar && avatars.some(a => a.id === chosenAvatar)) avatar = chosenAvatar;
+    if (chosenTheme && specs.some(a => a.key === chosenTheme)) {
+      theme = chosenTheme;
+      level = 10;
     }
-    if (choice.dataset.jalSelect) {
-      const lvl = Number(choice.dataset.jalSelect);
-      if (specs.some(s => s.level === lvl)) selected = lvl;
-    }
+    if (levels.includes(chosenLevel)) level = chosenLevel;
     render();
   });
   render();
