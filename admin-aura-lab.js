@@ -85,42 +85,61 @@
 
   // Version A: each earned feather is an independent, shaded surface.
   // Its geometry never changes on later levels; newly earned feathers grow outwards.
+  // A design: broad three-tier wings. Every 10-level upgrade adds one whole
+  // new feather to EACH of the upper, middle and lower banks on BOTH sides.
+  // Previously earned feathers keep their position, shape and opacity.
   function growingFeathers(spec,m,id){
-    const count=Math.min(13,Math.max(0,m.tier-12)); // Lv.160: 4, Lv.250: 13 feathers per side.
-    const crystal=spec.key==="frost"||spec.key==="cyber";
-    const fill="url(#"+id+"-feather)",glint="url(#"+id+"-feather-glint)";
-    let blades="";
-    // New, farther feathers go behind the original ones instead of painting over them.
-    for(let i=count-1;i>=0;i--){
-      const tx=fmt(153-i*10.5),ty=fmt(195-i*11.6);
-      const upper=fmt(tx+20+i*.5),lower=fmt(tx+34+i*.6);
-      let body,highlight,facet="";
-      if(crystal){
-        body='M163 241Q'+fmt(154-i*.4)+' '+fmt(211-i*1.1)+' '+upper+' '+fmt(ty+25)+
-          'L'+tx+' '+ty+'Q'+fmt(tx+10)+' '+fmt(ty+29)+' '+lower+' '+fmt(ty+48)+'Q147 242 163 241Z';
-        highlight='M162 234Q'+fmt(tx+29)+' '+fmt(ty+38)+' '+tx+' '+ty+
-          'L'+fmt(tx+23)+' '+fmt(ty+26)+'Q149 231 162 234Z';
-        facet='<path d="M'+tx+' '+ty+'L'+fmt(tx+24)+' '+fmt(ty+25)+' '+fmt(tx+35)+' '+fmt(ty+48)+
-          'Q'+fmt(tx+18)+' '+fmt(ty+30)+' '+tx+' '+ty+'Z" fill="'+spec.deep+'" opacity=".16"/>';
-      }else{
-        body='M163 241C'+fmt(152-i*.4)+' '+fmt(209-i*.75)+' '+upper+' '+fmt(ty+24)+' '+tx+' '+ty+
-          'C'+fmt(tx+8)+' '+fmt(ty+27)+' '+lower+' '+fmt(ty+47)+' 163 241Z';
-        highlight='M161 233C'+fmt(153-i*.6)+' '+fmt(211-i*.45)+' '+fmt(tx+14)+' '+fmt(ty+19)+' '+tx+' '+ty+
-          'C'+fmt(tx+19)+' '+fmt(ty+29)+' '+fmt(tx+25)+' '+fmt(ty+40)+' 161 233Z';
-        facet='<path d="M'+fmt(tx+8)+' '+fmt(ty+22)+'Q'+fmt(tx+28)+' '+fmt(ty+44)+
-          ' 158 236Q'+fmt(tx+39)+' '+fmt(ty+59)+' '+fmt(tx+8)+' '+fmt(ty+22)+'Z" fill="'+spec.light+'" opacity=".13"/>';
+    const earned=Math.min(10,Math.max(0,m.tier-15));
+    if(!earned)return "";
+    const prism=spec.key==="frost"||spec.key==="cyber";
+    const color="url(#"+id+"-feather)",shine="url(#"+id+"-feather-glint)";
+    const banks=[
+      {name:"upper",count:4+earned,x:i=>20+117*Math.exp(-i/5.1),
+       y:i=>22+139*Math.exp(-i/5.3),baseX:164,baseY:223,width:24},
+      {name:"middle",count:3+earned,x:i=>22+117*Math.exp(-i/5.0),
+       y:i=>82+130*Math.exp(-i/5.4),baseX:161,baseY:241,width:21},
+      {name:"lower",count:3+earned,x:i=>23+116*Math.exp(-i/5.1),
+       y:i=>357-91*Math.exp(-i/5.8),baseX:165,baseY:255,width:22}
+    ];
+    const pt=(x,y)=>fmt(x)+" "+fmt(y);
+    let wing="";
+    for(const bank of banks){
+      let feathers="";
+      // Render the newest, outermost feathers first to keep inner plumage in front.
+      for(let i=bank.count-1;i>=0;i--){
+        const x=bank.x(i),y=bank.y(i);
+        const bx=bank.baseX+(i%3)*1.6,by=bank.baseY+(i%2)*1.8;
+        const dx=x-bx,dy=y-by,len=Math.hypot(dx,dy)||1;
+        const nx=-dy/len,ny=dx/len;
+        const w=(prism?bank.width*.79:bank.width)+(i%4)*1.55;
+        const move=(t,side)=>pt(bx+dx*t+nx*w*side,by+dy*t+ny*w*side);
+        const body='M'+pt(bx,by)+'C'+move(.18,.65)+' '+move(.69,1.04)+' '+pt(x,y)+
+          'C'+move(.82,-.32)+' '+move(.38,-.88)+' '+pt(bx+7,by+5)+'Z';
+        // Broad satin highlight, not a visible straight outline.
+        const highlight='M'+move(.16,.21)+'C'+move(.36,.68)+' '+move(.77,.69)+' '+move(.94,.06)+
+          'C'+move(.79,.05)+' '+move(.36,-.12)+' '+move(.16,.21)+'Z';
+        let facets="";
+        if(prism){
+          facets='<path d="M'+move(.19,-.05)+'L'+move(.77,-.45)+' '+pt(x,y)+
+            ' '+move(.48,.13)+'Z" fill="'+spec.deep+'" opacity=".19"/>';
+        }else{
+          facets='<path d="M'+move(.32,-.29)+'Q'+move(.73,-.09)+' '+move(.89,-.04)+
+            'Q'+move(.61,-.44)+' '+move(.32,-.29)+'Z" fill="'+spec.light+'" opacity=".13"/>';
+        }
+        const glimmer=(i%4===2)?
+          '<circle cx="'+fmt(x+dx*.05)+'" cy="'+fmt(y+dy*.05)+'" r="'+fmt(1.8+(i%3)*.35)+
+          '" fill="'+spec.light+'" opacity=".82"/>':"";
+        feathers+='<g class="jal-feather jal-feather-'+bank.name+'-'+i+'">'+
+          '<path d="'+body+'" fill="'+color+'" opacity=".89"/>'+
+          '<path d="'+highlight+'" fill="'+shine+'" opacity="'+(prism?".68":".55")+'"/>'+
+          facets+glimmer+'</g>';
       }
-      blades+='<g class="jal-feather jal-feather-'+i+'">'+
-        '<path d="'+body+'" fill="'+fill+'" opacity="'+fmt(.83-(i%3)*.035)+'"/>'+
-        '<path d="'+highlight+'" fill="'+glint+'" opacity="'+(crystal?".53":".37")+'"/>'+facet+
-        (i%3===2?'<circle cx="'+fmt(tx+4)+'" cy="'+fmt(ty+6)+'" r="2.1" fill="'+spec.light+'" opacity=".83"/>':'')+
-        '</g>';
+      wing+='<g class="jal-feather-bank jal-bank-'+bank.name+'">'+feathers+'</g>';
     }
-    if(!count)return "";
-    return '<g class="jal-crest jal-feather-array">'+
-      '<ellipse cx="158" cy="232" rx="39" ry="45" fill="url(#'+id+'-mist)" opacity=".26"/>'+
-      '<g class="jal-wing-left">'+blades+'</g>'+
-      '<g class="jal-wing-right" transform="translate(400 0) scale(-1 1)">'+blades+'</g></g>';
+    const rootGlow='<ellipse cx="164" cy="240" rx="46" ry="63" fill="url(#'+id+'-mist)" opacity=".32"/>';
+    return '<g class="jal-crest jal-feather-array jal-feather-three-banks">'+rootGlow+
+      '<g class="jal-wing-left">'+wing+'</g>'+
+      '<g class="jal-wing-right" transform="translate(400 0) scale(-1 1)">'+wing+'</g></g>';
   }
   // Lv.110–150: each step adds a new curved light ribbon, retained thereafter.
   function growingRibbons(spec,m,id){
