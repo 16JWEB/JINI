@@ -150,7 +150,7 @@
     return [];
   }
   function button(label, action, cls, extras) { return '<button type="button" class="kg-btn ' + (cls || "") + '" data-kg-action="' + action + '"' + (extras || "") + '>' + label + '</button>'; }
-  function boxText(title, detail, icon, action) { return '<button type="button" class="kg-mode" data-kg-action="start" data-mode="' + action + '"><span class="kg-mode-icon">' + icon + '</span><strong>' + title + '</strong><small>' + detail + '</small><span class="kg-mode-arrow">시작 →</span></button>'; }
+  function boxText(title, detail, icon, action) { return '<button type="button" class="kg-mode" data-kg-action="start" data-mode="' + action + '"><span class="kg-mode-icon" aria-hidden="true">' + icon + '</span><span class="kg-mode-text"><strong>' + title + '</strong><small>' + detail + '</small></span><span class="kg-mode-arrow" aria-hidden="true">›</span></button>'; }
   // Choice must be followed by correctly typing the word, without penalizing typos.
   function matchingWord(a,b) {
     return String(a||"").normalize("NFC").trim().replace(/\s+/g," ")===String(b||"").normalize("NFC").trim().replace(/\s+/g," ");
@@ -743,3 +743,4 @@
   window.JINI_START_KOREAN_GAME = start;
   dashboard();
 }());
+
