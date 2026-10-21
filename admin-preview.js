@@ -39,7 +39,7 @@
     if (auraLabLoading) return;
     const style = document.createElement("link");
     style.rel = "stylesheet";
-    style.href = "admin-aura-lab.css?v=20261022-aura-alt-b-v5";
+    style.href = "admin-aura-lab.css?v=20261022-natural-c-v6";
     document.head.appendChild(style);
     const loadError = function () {
       auraLabLoading = null;
@@ -53,14 +53,14 @@
       script.onload = done;
       script.onerror = loadError;
       document.body.appendChild(script);
-      return script;
     }
-    // B is a renderer only; load it before initializing the UI. Both are
-    // requested only on entry to this admin tab, never on the study pages.
+    // All preview-only assets are loaded only when this administrator tab opens.
     auraLabLoading = true;
-    attachScript("admin-aura-lab-b.js?v=20261022-aura-alt-b-v5", function () {
-      attachScript("admin-aura-lab.js?v=20261022-aura-alt-b-v5", function () {
-        auraLabLoading = null;
+    attachScript("admin-aura-lab-c.js?v=20261022-natural-c-v6", function () {
+      attachScript("admin-aura-lab-b.js?v=20261022-aura-alt-b-v5", function () {
+        attachScript("admin-aura-lab.js?v=20261022-natural-c-v6", function () {
+          auraLabLoading = null;
+        });
       });
     });
   }
