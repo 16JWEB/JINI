@@ -140,3 +140,16 @@
 #ja-aura-panel .jal-stage:not(.jal-variant-b):not(.jal-variant-c) .jal-feather-three-banks{
   filter:drop-shadow(0 0 3px var(--jal-color));
 }
+
+
+/* D: painted translucent energy, separate from every original character. */
+#ja-aura-panel .jal-energy-stage{isolation:isolate;overflow:hidden}
+#ja-aura-panel .jal-energy-reveal{position:absolute;inset:3%;z-index:1;mask-image:radial-gradient(circle at 50% 57%,#000 var(--energy-solid),transparent var(--energy-edge));-webkit-mask-image:radial-gradient(circle at 50% 57%,#000 var(--energy-solid),transparent var(--energy-edge))}
+#ja-aura-panel .jal-energy-art{display:block;width:100%;height:100%;object-fit:contain;animation:jal-energy-flow 7s ease-in-out infinite;transform-origin:50% 58%}
+#ja-aura-panel .jal-energy-stage .jal-sprite{inset:24% 18% 12%;z-index:4}
+#ja-aura-panel .jal-energy-particles{position:absolute;inset:0;z-index:2;pointer-events:none}
+#ja-aura-panel .jal-energy-petal{position:absolute;width:4px;height:7px;border-radius:85% 15% 70% 30%;background:linear-gradient(140deg,#fff4ed,#ffb0cf 55%,#f369a1);box-shadow:0 0 5px #ffb3d680;transform:rotate(var(--petal-angle));animation:jal-energy-petal 5s ease-in-out infinite}
+@keyframes jal-energy-flow{0%,100%{transform:translateY(1px) scale(1)}50%{transform:translateY(-2px) scale(1.018)}}
+@keyframes jal-energy-petal{0%,100%{transform:translate(0,0) rotate(var(--petal-angle))}50%{transform:translate(3px,-5px) rotate(calc(var(--petal-angle) + 22deg))}}
+#ja-aura-panel .jal-card:not(.is-selected) .jal-energy-stage *,#ja-aura-panel[hidden] .jal-energy-stage *{animation:none!important}
+@media(prefers-reduced-motion:reduce){#ja-aura-panel .jal-energy-stage *{animation:none!important}}
