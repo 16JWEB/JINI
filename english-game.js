@@ -134,9 +134,11 @@ function home(){stop();active=false;game=null;dashboard();gotoTop();}
 window.JINI_ENGLISH_GAME_BACK=function(){if(section.hidden||!active)return false;home();return true;};
 function goHome(){if(window.history&&window.history.state&&window.history.state.jiniEnglishGame)window.history.back();else home();}
 function dashboard(){
- root.innerHTML='<div class="eg-stats"><div><small>영어 게임 XP</small><b>'+memory.xp+'</b></div><div><small>성공률 (자가평가 포함)</small><b>'+(memory.tries?Math.round(memory.correct/memory.tries*100):0)+'%</b></div><div><small>오답 복습</small><b>'+wrongItems().length+'</b></div></div>'+
- '<div class="eg-options"><label>난이도 <select id="eg-level">'+levels.map(t=>'<option '+(t===level?"selected ":"")+'value="'+t+'">'+t+'</option>').join("")+'</select></label>'+
- '<label>문제 수 <select id="eg-count">'+[10,20,30].map(n=>'<option '+(n===count?"selected ":"")+'value="'+n+'">'+n+'문제</option>').join("")+'</select></label></div>'+
+ root.innerHTML='<section class="eg-options" aria-labelledby="eg-level-title">'+
+ '<div class="eg-level-heading"><h2 id="eg-level-title">난이도 선택</h2><span>현재 선택: <strong>'+level+'</strong></span></div>'+
+ '<div class="eg-level-choices" role="group" aria-label="게임 난이도">'+levels.map(t=>'<button type="button" class="eg-level-choice'+(t===level?' selected':'')+'" data-eg="level" data-level="'+t+'" aria-pressed="'+(t===level)+'"><strong>'+t+'</strong><span>'+(t===level?'✓ 선택됨':'선택하기')+'</span></button>').join("")+'</div>'+
+ '<label>문제 수 <select id="eg-count">'+[10,20,30].map(n=>'<option '+(n===count?"selected ":"")+'value="'+n+'">'+n+'문제</option>').join("")+'</select></label></section>'+
+ '<div class="eg-stats"><div><small>영어 게임 XP</small><b>'+memory.xp+'</b></div><div><small>성공률 (자가평가 포함)</small><b>'+(memory.tries?Math.round(memory.correct/memory.tries*100):0)+'%</b></div><div><small>오답 복습</small><b>'+wrongItems().length+'</b></div></div>'+
  '<div class="eg-grid">'+modes.map(m=>'<button type="button" class="eg-mode" data-eg="start" data-mode="'+m[0]+'"><span>'+m[1]+'</span><strong>'+m[2]+'</strong><small>'+(m[0]==="review"?"현재 틀린 문제 "+wrongItems().length+"개":m[0]==="remind"?"전에 맞힌 문제 "+reminderItems().length+"개 · 0 XP":m[0]==="expression"?"아직 맞히지 않은 표현 "+essentialExpressions.filter(item=>!hasEarnedXP("expression:"+item.id)).length+"개 · 전 난이도 공통":m[3])+'</small><b>시작 →</b></button>').join("")+'</div>'+
  '<p class="eg-note">기존 JINI 영어 단어와 검수 예문, 필수 표현 500개를 사용해요. 단어 뜻 맞히기·필수 표현 맞히기에서 이미 맞힌 문제는 자동으로 제외되고 리마인드에서 다시 풀 수 있어요. 처음 맞힌 문제는 +10 XP, 리마인드에서는 +0 XP예요. 학습 기록은 이 브라우저에 저장됩니다. 영어 음성은 미국식으로 재생해요. 실제 목소리는 기기에 설치된 음성 엔진에 따라 달라질 수 있어요.</p>';
 }
@@ -509,6 +511,11 @@ root.addEventListener("click",e=>{
  const b=e.target.closest("[data-eg]");if(!b||!root.contains(b))return;
  const a=b.dataset.eg;
  if(a==="home")goHome();
+ else if(a==="level"&&levels.includes(b.dataset.level)){
+  level=b.dataset.level;dashboard();
+  const selected=root.querySelector('.eg-level-choice[aria-pressed="true"]');
+  if(selected)selected.focus({preventScroll:true});
+ }
  else if(a==="start")begin(b.dataset.mode);
  else if(a==="restart"&&game)begin(game.mode);
  else if(a==="previous")move(-1);
@@ -545,7 +552,6 @@ root.addEventListener("submit",e=>{
 });
 root.addEventListener("input",e=>{if(e.target&&e.target.id==="eg-answer")updateSentenceDraft(e.target);});
 root.addEventListener("change",e=>{const t=e.target;if(!t)return;
- if(t.id==="eg-level"&&levels.includes(t.value)){level=t.value;dashboard();}
  if(t.id==="eg-count"&&[10,20,30].includes(Number(t.value))){count=Number(t.value);dashboard();}
 });
 // Keep cached quiz XP current after merging saved answers from another device.
