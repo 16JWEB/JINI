@@ -415,6 +415,27 @@
     $("jsy-state").classList.toggle("is-connected", on);
     const equalRecords = on && driveSnapshot &&
       fingerprint(snapshot()) === fingerprint(driveSnapshot);
+    // Home menu status is independent of the sync-page visibility. Never
+    // label an OAuth connection as "synced" until the snapshots match.
+    const menuLink = document.querySelector(".home-sync-link");
+    const menuStatus = $("jini-sync-menu-status");
+    if (menuLink && menuStatus) {
+      let state = "disconnected";
+      let message = "연결 안 됨";
+      if (disconnecting) { state = "disconnecting"; message = "해제 중…"; }
+      else if (connecting || busy) { state = "syncing"; message = "동기화 중…"; }
+      else if (!on && meta.previouslyConnected) { state = "expired"; message = "인증 만료"; }
+      else if (!on && meta.manuallyDisconnected) { state = "disconnected"; message = "해제됨"; }
+      else if (on && conflict) { state = "attention"; message = "확인 필요"; }
+      else if (on && driveChecked && driveSnapshot && equalRecords) {
+        state = "synced"; message = "동기화 완료";
+      } else if (on && driveChecked && driveSnapshot !== null && !equalRecords) {
+        state = "pending"; message = "백업 대기";
+      } else if (on) { state = "connected"; message = "연결됨"; }
+      menuLink.dataset.syncState = state;
+      if (menuStatus.textContent !== message) menuStatus.textContent = message;
+      menuLink.setAttribute("aria-label", "학습정보 동기화 (테스트 중) · " + message + " · 열기");
+    }
     $("jsy-auto").textContent = !on ? "확인 불가" :
       conflict ? "기록 충돌" : !driveChecked ? "백업 확인 전" :
       driveSnapshot === null ? "백업 없음" :
@@ -674,6 +695,7 @@
           keepTabToken();
           // Reconnect intent is not a credential. Never persist tokens in localStorage.
           meta.previouslyConnected = true;
+          meta.manuallyDisconnected = false;
           saveMeta();
           conflict = null;
           status("Google Drive에 연결했습니다. 기존 백업과 학습기록을 비교합니다.");
@@ -705,6 +727,7 @@
     // keeping consent also makes reconnecting less cumbersome.
     clearTabToken();
     meta.previouslyConnected = false;
+    meta.manuallyDisconnected = true;
     saveMeta();
     conflict = null;
     driveChecked = false;
@@ -886,7 +909,7 @@
   };
   render();
   if (validToken()) {
-    status("Google Drive 연결이 이 탭에 유지되어 있습니다. 학습 화면에서도 자동 동기화하며, 상세 기록은 관리자 동기화 탭에서 확인할 수 있습니다.");
+    status("Google Drive 연결이 이 탭에 유지되어 있습니다. 학습 화면에서도 자동 동기화하며, 상세 기록은 홈의 동기화 메뉴에서 확인할 수 있습니다.");
     syncCycle();
   } else if (meta.previouslyConnected) {
     status("이전 Google 연결의 인증이 필요합니다. 기기와 Drive 학습기록은 유지되어 있으며, 'Google 다시 연결'을 누르면 이어서 확인할 수 있습니다.");
@@ -906,6 +929,11 @@
     else if (token) { clearTabToken(); status("Google 인증이 만료되었습니다. 기기와 Drive 기록은 유지됩니다. Google 다시 연결을 눌러 주세요.", true); render(); }
   }, 45000);
   document.addEventListener("visibilitychange", function () {
-    if (!document.hidden && validToken()) syncCycle();
+    if (!document.hidden) {
+      render();
+      if (validToken()) syncCycle();
+    }
   });
+  // Reflect an expired authorization as soon as the learner returns to JINI.
+  window.addEventListener("focus", render);
 })();
