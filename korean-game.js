@@ -735,6 +735,11 @@
     }
   }).observe(section, { attributes: true, attributeFilter: ["hidden"] });
 
+  // Preserve the open exercise while refreshing cached credits after Drive merge.
+  window.addEventListener("jini-learning-progress-merged", function () {
+    progress = load();
+    if (!session || section.hidden) dashboard();
+  });
   window.JINI_START_KOREAN_GAME = start;
   dashboard();
 }());
