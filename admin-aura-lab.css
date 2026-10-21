@@ -93,3 +93,27 @@
  #ja-aura-panel .jal-stage:not(.jal-large){max-width:140px}
 }
 @media(prefers-reduced-motion:reduce){#ja-aura-panel .jal-stage *,#ja-aura-panel .jal-stage *::before,#ja-aura-panel .jal-stage *::after{animation:none!important}}
+
+
+/* Alternate design B: independent, cohesive shape families, not cumulative outlines. */
+#ja-aura-panel .jal-variant-b{isolation:isolate}
+#ja-aura-panel .jal-variant-b .jal-aura-svg{filter:none}
+#ja-aura-panel .jal-variant-b .jal-halo{display:none}
+#ja-aura-panel .jal-variant-b .jal-b-core{transform-origin:200px 200px;animation:jal-b-float 7s ease-in-out infinite}
+#ja-aura-panel .jal-variant-b .jal-b-plume{transform-origin:200px 200px;animation:jal-b-float 9s ease-in-out infinite reverse}
+#ja-aura-panel .jal-variant-b .jal-b-sparks{animation:jal-b-sparkle 4.8s ease-in-out infinite}
+#ja-aura-panel .jal-variant-b .jal-b-crown{transform-origin:200px 200px;animation:jal-b-float 8s ease-in-out infinite}
+#ja-aura-panel .jal-variant-b.jal-petal .jal-b-core{animation-duration:8s}
+#ja-aura-panel .jal-variant-b.jal-frost .jal-b-core{animation-duration:10s}
+#ja-aura-panel .jal-variant-b.jal-cyber .jal-b-core{animation-duration:12s}
+#ja-aura-panel .jal-variant-b.jal-time .jal-b-core{animation-duration:14s}
+#ja-aura-panel .jal-variant-b.jal-galaxy .jal-b-core{animation-duration:13s}
+#ja-aura-panel .jal-variant-b.jal-frost .jal-b-svg{filter:drop-shadow(0 0 3px #9af1ff4d)}
+#ja-aura-panel .jal-variant-b.jal-petal .jal-b-svg{filter:drop-shadow(0 0 3px #ffb1dd49)}
+#ja-aura-panel .jal-variant-b.jal-cyber .jal-b-svg{filter:drop-shadow(0 0 3px #63ffe64d)}
+#ja-aura-panel .jal-variant-b.jal-time .jal-b-svg{filter:drop-shadow(0 0 3px #f7cb8644)}
+#ja-aura-panel .jal-variant-b.jal-galaxy .jal-b-svg{filter:drop-shadow(0 0 3px #ad9dff54)}
+@keyframes jal-b-float{0%,100%{transform:translateY(2px) scale(.996)}50%{transform:translateY(-3px) scale(1.012)}}
+@keyframes jal-b-sparkle{0%,100%{opacity:.65}50%{opacity:1}}
+/* Reduced-motion, hidden panels and nonselected preview cards remain still. */
+@media(prefers-reduced-motion:reduce){#ja-aura-panel .jal-variant-b .jal-b-core,#ja-aura-panel .jal-variant-b .jal-b-plume,#ja-aura-panel .jal-variant-b .jal-b-sparks,#ja-aura-panel .jal-variant-b .jal-b-crown{animation:none!important}}
