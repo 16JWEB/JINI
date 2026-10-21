@@ -3,6 +3,7 @@
   "use strict";
   const CONFIG_ID = (window.JINI_GOOGLE_CLIENT_ID || "").trim();
   const META_KEY = "jini-drive-sync-meta-v1";
+  const REWARD_NOTIFICATIONS_KEY = "jini-character-reward-popups-v1";
   // Google browser-tab session only. Never include access tokens in localStorage
   // or Drive backups. Google OAuth tokens still expire and must be renewed by
   // an explicit user click after expiry (no server-side refresh token here).
@@ -30,6 +31,7 @@
   let driveSizeBytes;
   let conflict = null;
   let confirmAction = null;
+  let syncAfterXP = null;
   let meta = readMeta();
   // Restore only within the same browser tab, not as a stored site login.
   try {
@@ -72,6 +74,7 @@
   }
   function included(key) {
     return key.startsWith("jini-") && key !== META_KEY &&
+      key !== REWARD_NOTIFICATIONS_KEY && // Device-only notification queue, not earned rewards.
       key !== "jini-last-study-state" && !key.startsWith("jini-drive-") &&
       !/oauth|access.?token|refresh.?token|client.?secret|admin.?pass/i.test(key);
   }
@@ -233,9 +236,9 @@
   // Imported XP is existing progress, not a new level-up. Discard only
   // pending reward notifications, while keeping XP, character outfits and auras.
   function restoredRewardProgress(records) {
-    const key = "jini-character-reward-popups-v1";
+    // Old backups might still contain a pending-popup queue; never replay it.
     let saved = {};
-    try { saved = JSON.parse(records[key] || "null") || {}; } catch (_) {}
+    try { saved = JSON.parse(records[REWARD_NOTIFICATIONS_KEY] || "null") || {}; } catch (_) {}
     const progress = {};
     [["english", "jini-english-game-v1"], ["korean", "jini-korean-games-v1"]]
       .forEach(function (entry) {
@@ -260,7 +263,7 @@
     Object.keys(records).forEach(function (key) { localStorage.setItem(key, records[key]); });
     // Replace stale notification state only after the imported data is saved.
     // All restore paths (Drive, conflict resolution, JSON) run through here.
-    localStorage.setItem("jini-character-reward-popups-v1", restoredRewardProgress(records));
+    localStorage.setItem(REWARD_NOTIFICATIONS_KEY, restoredRewardProgress(records));
     window.location.reload();
   }
   function status(message, isError) {
@@ -295,7 +298,7 @@
     $("jsy-auto").textContent = !on ? "확인 불가" :
       conflict ? "기록 충돌" : !driveChecked ? "백업 확인 전" :
       driveSnapshot === null ? "백업 없음" :
-      equalRecords ? "학습기록 일치" : "학습기록 다름";
+      equalRecords ? "학습기록 일치" : "변경사항 동기화 대기";
     $("jsy-last").textContent = dateTime(meta.lastSyncedAt);
     $("jsy-backup-size").textContent = !on ? "Google 연결 후 확인" :
       driveSizeBytes === undefined ? "백업 확인 전" :
@@ -451,6 +454,7 @@
       // Always inspect the remote payload. Version equality alone does not
       // prove that the file contains the latest character and study progress.
       const remoteData = await readFile(remoteMeta.id);
+      const remoteHash = fingerprint(remoteData);
       showDataComparison(remoteData, "Drive 파일 수정: " + dateTime(remoteMeta.modifiedTime) +
         " · 버전 " + (remoteVersion || "확인 불가"));
       if (!meaningful(remoteData)) {
@@ -474,6 +478,13 @@
           return;
         }
       }
+      // Equality of actual records wins over old per-device hash metadata.
+      // This avoids a spurious upload after an import cleared popup notifications.
+      if (remoteHash === localHash) {
+        if (meta.lastHash !== localHash || String(meta.lastRemoteVersion || "") !== remoteVersion)
+          markSynced(local, remoteMeta);
+        return;
+      }
       if (meta.lastRemoteVersion && remoteVersion === String(meta.lastRemoteVersion)) {
         if (localHash !== meta.lastHash) {
           const now = await findFile();
@@ -490,11 +501,7 @@
         return;
       }
       const remote = remoteData;
-      const remoteHash = fingerprint(remote);
-      if (remoteHash === localHash) {
-        markSynced(local, remoteMeta);
-        status("기기와 Google Drive의 학습정보가 일치합니다.");
-      } else if (!meaningful(local) || (meta.lastHash && localHash === meta.lastHash)) {
+      if (!meaningful(local) || (meta.lastHash && localHash === meta.lastHash)) {
         meta.lastHash = remoteHash;
         meta.lastRemoteVersion = remoteVersion;
         meta.lastRemoteFileId = remoteMeta.id;
@@ -733,6 +740,16 @@
   } else if (meta.previouslyConnected) {
     status("이전 Google 연결의 인증이 필요합니다. 기기와 Drive 학습기록은 유지되어 있으며, 'Google 다시 연결'을 누르면 이어서 확인할 수 있습니다.");
   }
+  // XP should be uploaded shortly after an answer, not only on the 45-second poll.
+  // Avoid writing on every question by combining rapid saves into one sync.
+  window.addEventListener("jini-learning-progress-changed", function () {
+    if (!validToken() || conflict) return;
+    if (syncAfterXP !== null) window.clearTimeout(syncAfterXP);
+    syncAfterXP = window.setTimeout(function () {
+      syncAfterXP = null;
+      if (validToken() && !document.hidden) syncCycle();
+    }, 2000);
+  });
   setInterval(function () {
     if (validToken()) syncCycle();
     else if (token) { clearTabToken(); status("Google 인증이 만료되었습니다. 기기와 Drive 기록은 유지됩니다. Google 다시 연결을 눌러 주세요.", true); render(); }
