@@ -32,7 +32,7 @@
 #ja-aura-panel .jal-step-button:disabled{opacity:.35;cursor:default}
 #ja-aura-panel .jal-feature p{margin:0;padding:12px 13px 17px;font-size:11px;line-height:1.7;color:#726983}
 #ja-aura-panel .jal-stage{position:relative;display:block;width:100%;max-width:170px;aspect-ratio:1;margin:auto;isolation:isolate;overflow:visible;contain:layout style;--jal-color:#ffa1c9;--jal-light:#ffe4f2;--jal-deep:#bc438f}
-#ja-aura-panel .jal-stage.jal-large{max-width:298px}
+#ja-aura-panel .jal-stage.jal-large{max-width:330px}
 #ja-aura-panel .jal-halo{position:absolute;inset:7%;z-index:0;border-radius:50%;background:radial-gradient(circle,transparent 31%,var(--jal-color) 70%,transparent 78%);opacity:.18;filter:blur(7px);animation:jal-aura-breath 5.5s ease-in-out infinite}
 #ja-aura-panel .jal-stage.jal-chapter-2 .jal-halo{opacity:.27;inset:2%}
 #ja-aura-panel .jal-stage.jal-chapter-3 .jal-halo{opacity:.34;inset:-2%}
@@ -80,7 +80,7 @@
  #ja-aura-panel .jal-layout{grid-template-columns:1fr}
  #ja-aura-panel .jal-feature{position:static;grid-row:1}
  #ja-aura-panel .jal-feature-scene{padding:8px 10px}
- #ja-aura-panel .jal-stage.jal-large{max-width:252px}
+ #ja-aura-panel .jal-stage.jal-large{max-width:286px}
  #ja-aura-panel .jal-chapters{display:flex;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 1px 8px;margin:13px 0 13px}
  #ja-aura-panel .jal-chapter-button{min-width:135px;flex:0 0 135px;scroll-snap-align:start}
 }
@@ -135,3 +135,8 @@
 @keyframes jal-c-drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 @keyframes jal-c-orbit{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){#ja-aura-panel .jal-variant-c *,#ja-aura-panel .jal-variant-c *::before,#ja-aura-panel .jal-variant-c *::after{animation:none!important}}
+
+/* Variant A only: feather tips fill a wider scene while the mascot stays centered. */
+#ja-aura-panel .jal-stage:not(.jal-variant-b):not(.jal-variant-c) .jal-feather-three-banks{
+  filter:drop-shadow(0 0 3px var(--jal-color));
+}
