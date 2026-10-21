@@ -273,7 +273,7 @@
             <li>캐릭터 레벨, XP, 보상 및 꾸미기 정보</li>
             <li>크롬 사이트 데이터를 삭제해도 Drive에 백업된 기록 복원 가능</li>
           </ul>
-          <p class="jsy-muted">Google Drive에 연결하면 학습기록이 처음 변경된 시점부터 1분 동안 모아 한 번에 동기화합니다. 추가 변경으로 1분 대기시간이 늘어나지 않으며, 변경사항이 없을 때는 마지막 확인 이후 약 5분마다 Drive를 확인합니다. 다른 앱에서 돌아왔을 때도 최신 기록을 확인합니다. 홈의 동기화 화면을 계속 열어 둘 필요는 없습니다. 인증이 만료되면 Google 재연결이 필요하며, 서로 다른 문제의 학습기록은 중복 XP 없이 자동 병합하며, 캐릭터·설정 등 안전하게 합칠 수 없는 변경은 확인 후 처리합니다.</p>
+          <p class="jsy-muted">Google Drive에 연결하면 학습기록이 처음 변경된 시점부터 5분 동안 모아 한 번에 동기화합니다. 추가 변경으로 5분 대기시간이 늘어나지 않으며, 변경사항이 없을 때는 마지막 확인 이후 약 10분마다 Drive를 확인합니다. 다른 앱에서 돌아왔을 때도 마지막 확인 후 10분 이상 지났으면 최신 기록을 확인합니다. 홈의 동기화 화면을 계속 열어 둘 필요는 없습니다. 인증이 만료되면 Google 재연결이 필요하며, 서로 다른 문제의 학습기록은 중복 XP 없이 자동 병합하며, 캐릭터·설정 등 안전하게 합칠 수 없는 변경은 확인 후 처리합니다.</p>
         </div>
         <div class="jsy-card">
           <h2>동기화 연결 상태</h2>
@@ -787,7 +787,7 @@
   <script src="admin-preview.js?v=20261021-home-sync-nav-v2"></script>
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="jini-sync.js?v=20261021-drive-poll-metadata-v1"></script>
+  <script src="jini-sync.js?v=20261021-sync-5m-xp-10m-poll-v1"></script>
   <script src="study-sync-status.js?v=20261021-v1"></script>
   <button class="page-top-button" id="page-top-button" type="button" aria-label="페이지 맨 위로 이동" title="맨 위로 이동" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 13 6-6 6 6M12 7v12"/></svg>
