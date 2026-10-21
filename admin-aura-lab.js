@@ -26,7 +26,7 @@
     {id:"bear",label:"🐻 곰",emoji:"🐻"},{id:"fox",label:"🦊 여우",emoji:"🦊"}];
   const LEVELS = Array.from({length:25},(_,i)=>(i+1)*10);
   const STEPS = ["첫 기운","광채 확장","문양 활성","빛의 증폭","각성 완성"];
-  let avatar="rabbit",theme="petal",level=10,serial=0,design="b";
+  let avatar="rabbit",theme="petal",level=10,serial=0,design="c";
   const get = id=>document.getElementById(id);
   const els = {avatars:get("ja-aura-avatars"),themes:get("ja-aura-themes"),designs:get("ja-aura-designs"),
     chapters:get("ja-aura-chapters"),cards:get("ja-aura-cards"),focus:get("ja-aura-focus"),
@@ -206,6 +206,9 @@
       '<span class="jal-halo"></span>'+art+'<span class="jal-sprite">'+portrait()+'</span></span>';
   }
   function renderArt(spec,lvl,large){
+    if(design==="c"&&window.JINI_ADMIN_AURA_C&&typeof window.JINI_ADMIN_AURA_C.render==="function") {
+      return window.JINI_ADMIN_AURA_C.render(spec,lvl,large,portrait());
+    }
     if(design==="b"&&window.JINI_ADMIN_AURA_B&&typeof window.JINI_ADMIN_AURA_B.render==="function") {
       return window.JINI_ADMIN_AURA_B.render(spec,lvl,large,portrait());
     }
@@ -213,7 +216,8 @@
   }
   function render(){
     const spec=THEMES.find(x=>x.key===theme)||THEMES[0],m=info(level);
-    els.designs.innerHTML='<button type="button" class="jal-switch'+(design==="b"?' is-selected':'')+'" data-jal-design="b" aria-pressed="'+(design==="b")+'">B · 새로운 시안</button>'+
+    els.designs.innerHTML='<button type="button" class="jal-switch'+(design==="c"?' is-selected':'')+'" data-jal-design="c" aria-pressed="'+(design==="c")+'">C · 자연스러운 빛</button>'+
+      '<button type="button" class="jal-switch'+(design==="b"?' is-selected':'')+'" data-jal-design="b" aria-pressed="'+(design==="b")+'">B · 이전 시안</button>'+
       '<button type="button" class="jal-switch'+(design==="a"?' is-selected':'')+'" data-jal-design="a" aria-pressed="'+(design==="a")+'">A · 이전 시안</button>';
     els.avatars.innerHTML=AVATARS.map(a=>'<button type="button" class="jal-switch'+(a.id===avatar?' is-selected':'')+
       '" data-jal-avatar="'+a.id+'" aria-pressed="'+(a.id===avatar)+'">'+a.label+'</button>').join('');
@@ -232,7 +236,7 @@
         '<small>'+(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화')+'</small></span></button>';
     }).join('');
     els.focus.innerHTML=renderArt(spec,level,true);
-    els.detail.textContent=(design==="b"?"[B · 새 시안] ":"[A · 이전 시안] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
+    els.detail.textContent=(design==="c"?"[C · 자연스러운 빛] ":design==="b"?"[B · 이전 시안] ":"[A · 첫 시안] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
       ' (전체 '+m.tier+'/25단계). 캐릭터 원본은 동일하며 오라만 바뀝니다.';
     els.prev.disabled=level===10;
     els.next.disabled=level===250;
@@ -241,7 +245,7 @@
     const el=event.target.closest("[data-jal-design],[data-jal-avatar],[data-jal-theme],[data-jal-chapter],[data-jal-level],#ja-aura-prev,#ja-aura-next");
     if(!el||!panel.contains(el))return;
     const d=el.dataset;
-    if((d.jalDesign==="a"||d.jalDesign==="b")&&d.jalDesign!==design)design=d.jalDesign;
+    if(["a","b","c"].includes(d.jalDesign)&&d.jalDesign!==design)design=d.jalDesign;
     if(d.jalAvatar&&AVATARS.some(x=>x.id===d.jalAvatar))avatar=d.jalAvatar;
     if(d.jalTheme&&THEMES.some(x=>x.key===d.jalTheme)){theme=d.jalTheme;level=10;}
     if(d.jalChapter!==undefined){const ch=Number(d.jalChapter);if(Number.isInteger(ch)&&ch>=0&&ch<5)level=ch*50+10;}
