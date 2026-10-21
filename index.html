@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261021-language-specific-nav-v10">
+  <link rel="stylesheet" href="styles.css?v=20261021-mint-korean-book-v11">
   <link rel="stylesheet" href="korean-game.css?v=20261018-word-quiz-card-audio-v1">
   <link rel="stylesheet" href="english-game.css?v=20261018-expression-card-tap-v1">
   <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
@@ -211,7 +211,7 @@
               <button class="home-resume-button" id="resume-english-study" type="button" data-resume-study="english">마지막 영어 공부 화면</button>
             </div>
             <div class="home-study-choice">
-              <button class="home-start-button" id="start-korean-learning" type="button" data-page="ko-study-menu">📕 AI 한글공부 시작 ›</button>
+              <button class="home-start-button" id="start-korean-learning" type="button" data-page="ko-study-menu"><span class="korean-book-icon" aria-hidden="true"><svg viewBox="0 0 24 28" fill="none" focusable="false"><rect x="3" y="2" width="19" height="24" rx="3" fill="#99d2c2"/><path d="M7 2v24" stroke="#4d9e89" stroke-width="2"/><path d="M11 9h7M11 13h5" stroke="#f1fcf7" stroke-width="2" stroke-linecap="round"/><path d="M8 23h12" stroke="#d9f0e7" stroke-width="2" stroke-linecap="round"/></svg></span> AI 한글공부 시작 ›</button>
               <button class="home-resume-button" id="resume-korean-study" type="button" data-resume-study="korean">마지막 한글 공부 화면</button>
             </div>
             <div class="home-study-choice">
@@ -247,9 +247,9 @@
 </section>
 <section class="study-hub" id="korean-study-hub" aria-label="한글공부 학습 메뉴" hidden>
   <button class="bookmark-button" data-page="home" type="button">← 홈</button>
-  <p class="study-hub-eyebrow">📕 한글공부</p>
+  <p class="study-hub-eyebrow"><span class="korean-book-icon" aria-hidden="true"><svg viewBox="0 0 24 28" fill="none" focusable="false"><rect x="3" y="2" width="19" height="24" rx="3" fill="#99d2c2"/><path d="M7 2v24" stroke="#4d9e89" stroke-width="2"/><path d="M11 9h7M11 13h5" stroke="#f1fcf7" stroke-width="2" stroke-linecap="round"/><path d="M8 23h12" stroke="#d9f0e7" stroke-width="2" stroke-linecap="round"/></svg></span> 한글공부</p>
   <p class="study-hub-intro">원하는 메뉴를 골라 시작하세요. 마지막 학습 위치는 그대로 기억해요.</p>
-  <div class="study-hub-grid"><button class="study-hub-card" data-page="ko-vocabulary" type="button"><span class="study-hub-icon" aria-hidden="true">📕</span><span class="study-hub-copy"><strong>필수 단어</strong><small>한국어 단어와 베트남어 뜻 공부</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
+  <div class="study-hub-grid"><button class="study-hub-card" data-page="ko-vocabulary" type="button"><span class="study-hub-icon" aria-hidden="true"><span class="korean-book-icon" aria-hidden="true"><svg viewBox="0 0 24 28" fill="none" focusable="false"><rect x="3" y="2" width="19" height="24" rx="3" fill="#99d2c2"/><path d="M7 2v24" stroke="#4d9e89" stroke-width="2"/><path d="M11 9h7M11 13h5" stroke="#f1fcf7" stroke-width="2" stroke-linecap="round"/><path d="M8 23h12" stroke="#d9f0e7" stroke-width="2" stroke-linecap="round"/></svg></span></span><span class="study-hub-copy"><strong>필수 단어</strong><small>한국어 단어와 베트남어 뜻 공부</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
 <button class="study-hub-card" data-page="ko-player" type="button"><span class="study-hub-icon" aria-hidden="true">♫</span><span class="study-hub-copy"><strong>단어 재생</strong><small>한국어 발음을 듣고 따라 하기</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
 <button class="study-hub-card" data-page="ko-expressions" type="button"><span class="study-hub-icon" aria-hidden="true">💬</span><span class="study-hub-copy"><strong>일상생활 표현</strong><small>생활 속 한국어 표현과 번역 공부</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
 <button class="study-hub-card" data-page="ko-expression-player" type="button"><span class="study-hub-icon" aria-hidden="true">▶</span><span class="study-hub-copy"><strong>표현 재생</strong><small>한국어 표현을 순서대로 듣기</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
