@@ -228,25 +228,25 @@
     return '<span class="jal-stage jal-'+spec.key+' jal-chapter-'+(m.chapter+1)+' jal-strength-'+m.strength+(lvl>=50?' jal-milestone-50':'')+(lvl>=100?' jal-milestone-100':'')+(lvl>=150?' jal-milestone-150':'')+(lvl>=200?' jal-milestone-200':'')+(lvl>=250?' jal-milestone-250':'')+(large?' jal-large':'')+'" style="--jal-color:'+spec.color+';--jal-light:'+spec.light+';--jal-deep:'+spec.deep+'" aria-hidden="true">'+
       '<span class="jal-halo"></span>'+art+'<span class="jal-sprite">'+portrait()+'</span></span>';
   }
-  // Art-directed transparent VFX; the mascot remains the original atlas sprite.
-  // A monotonic reveal adds outer currents without fading earned inner energy.
-  function energyArtwork(lvl,large){
-    const m=info(lvl),edge=22+(m.tier-1)*2.35;
-    let petals="";
+  // Independent illustrated forms: no clipping, reveal mask or hue recolors.
+  // Major evolutions unlock at 50-level boundaries; minor details accumulate.
+  function energyArtwork(spec,lvl,large){
+    const m=info(lvl),form=Math.min(5,Math.floor(lvl/50));
+    const span=[52,61,70,80,90,100][form];
+    let details="";
     for(let i=0;i<m.tier;i++){
-      const angle=i*137.508,rad=31+(i%5)*3.5;
-      const x=50+Math.cos(angle*Math.PI/180)*rad;
-      const y=51+Math.sin(angle*Math.PI/180)*rad;
-      petals+='<i class="jal-energy-petal" style="left:'+fmt(x)+'%;top:'+fmt(y)+'%;--petal-angle:'+fmt(angle)+'deg;animation-delay:-'+fmt(i*.37)+'s"></i>';
+      const angle=i*137.508+24,rad=100+(i%5)*15;
+      const [x,y]=polar(rad,angle);
+      details+='<g class="jal-evolution-detail" style="animation-delay:-'+fmt(i*.37)+'s">'+motif(spec,x,y,3+(i%3),angle)+'</g>';
     }
-    return '<span class="jal-stage jal-energy-stage'+(large?' jal-large':'')+'" aria-hidden="true">'+
-      '<span class="jal-energy-reveal" style="--energy-solid:'+fmt(edge-9)+'%;--energy-edge:'+fmt(edge)+'%">'+
-      '<img class="jal-energy-art" src="icons/aura-petal-energy.avif?v=20261022-energy-v1" width="768" height="768" alt="" decoding="async">'+
-      '</span><span class="jal-energy-particles">'+petals+'</span>'+
+    return '<span class="jal-stage jal-energy-stage jal-evolution-'+spec.key+(large?' jal-large':'')+'" data-evolution="'+form+'" style="--jal-color:'+spec.color+';--jal-light:'+spec.light+';--jal-deep:'+spec.deep+'" aria-hidden="true">'+
+      '<span class="jal-energy-form" style="width:'+span+'%;height:'+span+'%;left:'+(100-span)/2+'%;top:'+(100-span)/2+'%">'+
+      '<img class="jal-energy-art" src="icons/aura-evolution/'+spec.key+'-'+form+'.avif?v=20261022-evolution-v1" width="320" height="320" alt="" decoding="async">'+
+      '</span><svg class="jal-evolution-details" viewBox="0 0 400 400" aria-hidden="true">'+details+'</svg>'+
       '<span class="jal-sprite">'+portrait()+'</span></span>';
   }
   function renderArt(spec,lvl,large){
-    if(design==="d") return energyArtwork(lvl,large);
+    if(design==="d") return energyArtwork(spec,lvl,large);
     if(design==="c"&&window.JINI_ADMIN_AURA_C&&typeof window.JINI_ADMIN_AURA_C.render==="function") {
       return window.JINI_ADMIN_AURA_C.render(spec,lvl,large,portrait());
     }
@@ -257,14 +257,14 @@
   }
   function render(){
     const spec=THEMES.find(x=>x.key===theme)||THEMES[0],m=info(level);
-    els.designs.innerHTML='<button type="button" class="jal-switch'+(design==="d"?' is-selected':'')+'" data-jal-design="d" aria-pressed="'+(design==="d")+'">D · 벚꽃 에너지 (신규)</button>'+'<button type="button" class="jal-switch'+(design==="a"?' is-selected':'')+'" data-jal-design="a" aria-pressed="'+(design==="a")+'">A · 이전 깃털 시안</button>'+
+    els.designs.innerHTML='<button type="button" class="jal-switch'+(design==="d"?' is-selected':'')+'" data-jal-design="d" aria-pressed="'+(design==="d")+'">D · 에너지 진화 5종</button>'+'<button type="button" class="jal-switch'+(design==="a"?' is-selected':'')+'" data-jal-design="a" aria-pressed="'+(design==="a")+'">A · 이전 깃털 시안</button>'+
       '<button type="button" class="jal-switch'+(design==="b"?' is-selected':'')+'" data-jal-design="b" aria-pressed="'+(design==="b")+'">B · 이전 시안</button>'+
       '<button type="button" class="jal-switch'+(design==="c"?' is-selected':'')+'" data-jal-design="c" aria-pressed="'+(design==="c")+'">C · 부드러운 빛</button>';
     els.avatars.innerHTML=AVATARS.map(a=>'<button type="button" class="jal-switch'+(a.id===avatar?' is-selected':'')+
       '" data-jal-avatar="'+a.id+'" aria-pressed="'+(a.id===avatar)+'">'+a.label+'</button>').join('');
     els.themes.innerHTML=THEMES.map(s=>'<button type="button" class="jal-switch'+(s.key===theme?' is-selected':'')+
       '" data-jal-theme="'+s.key+'" aria-pressed="'+(s.key===theme)+'">'+s.icon+' '+s.name+'</button>').join('');
-    const chapterNames=design==="d"?["기류의 시작","꽃잎의 확산","빛결의 날개","벚꽃의 비상","만개의 기류"]:spec.chapters;
+    const chapterNames=spec.chapters;
     els.chapters.innerHTML=chapterNames.map((name,i)=>'<button type="button" class="jal-chapter-button'+(i===m.chapter?' is-selected':'')+
       '" data-jal-chapter="'+i+'" aria-pressed="'+(i===m.chapter)+'"><span>Lv.'+(i*50+10)+'–'+((i+1)*50)+'</span><strong>'+(i+1)+'막 · '+name+'</strong></button>').join('');
     const start=m.chapter*50+10;
@@ -275,12 +275,12 @@
         '<span class="jal-card-art">'+renderArt(spec,lvl,false)+'</span>'+
         '<span class="jal-card-copy"><span class="jal-level">LV.'+lvl+' · '+(m.chapter*5+i+1)+'/25</span>'+
         '<strong>'+(design==="d"?chapterNames[m.chapter]+' · '+(i+1)+'/5':i===4?spec.gifts[m.chapter]:STEPS[i])+'</strong>'+
-        '<small>'+(design==="d"?'에너지의 범위와 꽃잎이 함께 늘어나요':design==="a"?(i===4?'자연스러운 날개 윤곽이 성장했어요':'깃털이 세 방향으로 함께 자라요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
+        '<small>'+(design==="d"?'50레벨마다 새 형태 · 10레벨마다 장식 추가':design==="a"?(i===4?'자연스러운 날개 윤곽이 성장했어요':'깃털이 세 방향으로 함께 자라요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
     }).join('');
     els.focus.innerHTML=renderArt(spec,level,true);
-    els.detail.textContent=(design==="d"?"[D · 벚꽃 에너지] ":design==="c"?"[C · 자연스러운 빛] ":design==="b"?"[B · 이전 시안] ":"[A · 자연스러운 날개] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
+    els.detail.textContent=(design==="d"?"[D · 에너지 진화] ":design==="c"?"[C · 자연스러운 빛] ":design==="b"?"[B · 이전 시안] ":"[A · 자연스러운 날개] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
       ' (전체 '+m.tier+'/25단계). 캐릭터 원본은 동일하며 오라만 바뀝니다.';
-    if(design==="d") els.detail.textContent='[D · 벚꽃 에너지] LV.'+level+' · 꽃잎과 빛의 기류가 날개 형상으로 펼쳐집니다. 이전 기류를 유지하며 바깥 영역과 꽃잎이 누적됩니다. 벚꽃 콘셉트 우선 테스트입니다.';
+    if(design==="d") els.detail.textContent='[D · '+spec.name+'] LV.'+level+' · 진화 '+(Math.min(5,Math.floor(level/50))+1)+'/6단계. 10·50·100·150·200·250레벨에 서로 다른 형태가 등장하고, 사이 단계에서는 고유 입자와 장식이 추가됩니다. 캐릭터는 그대로 유지됩니다.';
     els.prev.disabled=level===10;
     els.next.disabled=level===250;
   }
@@ -289,9 +289,8 @@
     if(!el||!panel.contains(el))return;
     const d=el.dataset;
     if(["a","b","c","d"].includes(d.jalDesign)&&d.jalDesign!==design)design=d.jalDesign;
-    if(d.jalDesign==="d") theme="petal";
     if(d.jalAvatar&&AVATARS.some(x=>x.id===d.jalAvatar))avatar=d.jalAvatar;
-    if(d.jalTheme&&THEMES.some(x=>x.key===d.jalTheme)){theme=d.jalTheme;level=10;if(theme!=="petal"&&design==="d")design="a";}
+    if(d.jalTheme&&THEMES.some(x=>x.key===d.jalTheme)){theme=d.jalTheme;level=10;}
     if(d.jalChapter!==undefined){const ch=Number(d.jalChapter);if(Number.isInteger(ch)&&ch>=0&&ch<5)level=ch*50+10;}
     if(d.jalLevel&&LEVELS.includes(Number(d.jalLevel)))level=Number(d.jalLevel);
     if(el.id==="ja-aura-prev")level=Math.max(10,level-10);
