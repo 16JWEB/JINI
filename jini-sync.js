@@ -367,9 +367,10 @@
     }
   }
   async function syncCycle() {
-    // Experimental Drive activity is confined to the unlocked admin tab.
-    // Ordinary users opening JINI must not initiate background sync writes.
-    if (!adminOpen() || !validToken() || busy || conflict || document.hidden) return;
+    // Once the learner explicitly connects Google Drive, sync whenever the
+    // JINI page is visible; opening the admin sync tab is no longer required.
+    // Existing remote-version and meaningful-data safeguards still apply.
+    if (!validToken() || busy || conflict || document.hidden) return;
     busy = true;
     render();
     try {
@@ -681,15 +682,16 @@
   };
   render();
   if (validToken()) {
-    status("Google Drive 연결은 이 탭에 유지되어 있습니다. 관리자 동기화 탭을 열면 기록을 확인합니다.");
+    status("Google Drive 연결이 이 탭에 유지되어 있습니다. 학습 화면에서도 자동 동기화하며, 상세 기록은 관리자 동기화 탭에서 확인할 수 있습니다.");
+    syncCycle();
   } else if (meta.previouslyConnected) {
     status("이전 Google 연결의 인증이 필요합니다. 기기와 Drive 학습기록은 유지되어 있으며, 'Google 다시 연결'을 누르면 이어서 확인할 수 있습니다.");
   }
   setInterval(function () {
-    if (validToken() && adminOpen()) syncCycle();
+    if (validToken()) syncCycle();
     else if (token) { clearTabToken(); status("Google 인증이 만료되었습니다. 기기와 Drive 기록은 유지됩니다. Google 다시 연결을 눌러 주세요.", true); render(); }
   }, 45000);
   document.addEventListener("visibilitychange", function () {
-    if (!document.hidden && validToken() && adminOpen()) syncCycle();
+    if (!document.hidden && validToken()) syncCycle();
   });
 })();
