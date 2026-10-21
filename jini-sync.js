@@ -200,6 +200,27 @@
     }
     return String(value.length) + "-" + (n >>> 0).toString(16);
   }
+  function mergeStudyTimes(primaryRaw, otherRaw) {
+    if (!primaryRaw) return otherRaw || undefined;
+    if (!otherRaw || primaryRaw === otherRaw) return primaryRaw;
+    let primary, other;
+    try { primary = JSON.parse(primaryRaw); other = JSON.parse(otherRaw); }
+    catch (_) { return null; }
+    if (!primary || !other || primary.schema !== 1 || other.schema !== 1 ||
+        !primary.days || !other.days || typeof primary.days !== "object" ||
+        typeof other.days !== "object" || Array.isArray(primary.days) ||
+        Array.isArray(other.days)) return null;
+    const days = {};
+    for (const day of Array.from(new Set(Object.keys(primary.days)
+        .concat(Object.keys(other.days)))).sort()) {
+      const a = primary.days[day] || {}, b = other.days[day] || {};
+      const en = Math.max(Number(a.englishMs || 0), Number(b.englishMs || 0));
+      const ko = Math.max(Number(a.koreanMs || 0), Number(b.koreanMs || 0));
+      if (![en, ko].every(n => Number.isFinite(n) && n >= 0)) return null;
+      days[day] = { englishMs: en, koreanMs: ko };
+    }
+    return JSON.stringify(Object.assign({}, primary, { days: days }));
+  }
   // A higher XP value alone is not enough to overwrite another device.
   // Only auto-advance when the newer game history contains every remote result,
   // and all non-game settings are unchanged. Merge per-day study time by max
@@ -240,23 +261,15 @@
       if (key === timeKey || gameKeys.includes(key)) continue;
       if (!(key in local) || local[key] !== remote[key]) return null;
     }
-    if (remote[timeKey] && local[timeKey] && remote[timeKey] !== local[timeKey]) {
-      const before = parse(remote[timeKey]), after = parse(local[timeKey]);
-      if (!before || !after || before.schema !== 1 || after.schema !== 1 ||
-          !before.days || !after.days) return null;
-      const days = {};
-      for (const day of new Set(Object.keys(before.days).concat(Object.keys(after.days)))) {
-        const a = before.days[day] || {}, b = after.days[day] || {};
-        const en = Math.max(Number(a.englishMs || 0), Number(b.englishMs || 0));
-        const ko = Math.max(Number(a.koreanMs || 0), Number(b.koreanMs || 0));
-        if (![en, ko].every(n => Number.isFinite(n) && n >= 0)) return null;
-        days[day] = { englishMs: en, koreanMs: ko };
-      }
-      merged[timeKey] = JSON.stringify(Object.assign({}, after, { days: days }));
-    } else if (remote[timeKey] && !local[timeKey]) {
-      merged[timeKey] = remote[timeKey];
+    if (remote[timeKey] !== local[timeKey]) {
+      const time = mergeStudyTimes(local[timeKey], remote[timeKey]);
+      if (time === null) return null;
+      if (time !== undefined) merged[timeKey] = time;
     }
-    return merged;
+    // snapshot() always hashes alphabetically ordered keys.
+    const ordered = {};
+    Object.keys(merged).sort().forEach(key => { ordered[key] = merged[key]; });
+    return ordered;
   }
   function payload(records) {
     return { app: "JINI", schema: 1, exportedAt: new Date().toISOString(), data: records };
@@ -556,13 +569,13 @@
         }
         const saved = await writeFile(advanced, latest);
         const timeKey = "jini-study-time-v1";
-        if (advanced[timeKey] && advanced[timeKey] !== local[timeKey]) {
-          // Preserve time added during the network request as well.
-          const current = snapshot();
-          if (current[timeKey] === local[timeKey])
-            localStorage.setItem(timeKey, advanced[timeKey]);
-          // If this device accrued more time mid-request, the next cycle
-          // will detect it rather than replacing those new seconds.
+        if (advanced[timeKey]) {
+          // Carry remote study time forward without losing seconds accumulated
+          // locally while the Drive request was in flight.
+          const currentTime = snapshot()[timeKey];
+          const combinedTime = mergeStudyTimes(currentTime, advanced[timeKey]);
+          if (combinedTime && combinedTime !== currentTime)
+            localStorage.setItem(timeKey, combinedTime);
         }
         markSynced(advanced, saved);
         showDataComparison(advanced, "새로 얻은 XP를 Drive에 자동 백업했습니다.");
