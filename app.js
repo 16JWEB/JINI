@@ -1991,6 +1991,9 @@
   playerLevelStates = loadPlayerLevelStates();
   expressionPlayerStates = loadExpressionPlayerStates();
   updateResumeStudyButtons();
+  // Save the latest page/scroll position before a browser refresh. Local
+  // learning records are not cleared or sent to Drive by this navigation save.
+  window.addEventListener("pagehide", function () { saveStudyState(); });
   // A normal new visit starts on Home. Reload stays on the current screen;
   // saved list/player positions are restored through existing study-state data.
   setPage(initialPageOnReload());
