@@ -200,6 +200,64 @@
     }
     return String(value.length) + "-" + (n >>> 0).toString(16);
   }
+  // A higher XP value alone is not enough to overwrite another device.
+  // Only auto-advance when the newer game history contains every remote result,
+  // and all non-game settings are unchanged. Merge per-day study time by max
+  // rather than silently replacing a larger recorded duration.
+  function safeXPAdvance(local, remote) {
+    const gameKeys = ["jini-english-game-v1", "jini-korean-games-v1"];
+    const timeKey = "jini-study-time-v1";
+    const parse = raw => {
+      try { return JSON.parse(raw || "null"); } catch (_) { return null; }
+    };
+    let gainedXP = false;
+    for (const key of gameKeys) {
+      const before = parse(remote[key]), after = parse(local[key]);
+      if (!before && !after) continue;
+      if (!before || !after || typeof before !== "object" || typeof after !== "object") return null;
+      const oldXP = Number(before.xp), newXP = Number(after.xp);
+      if (!Number.isSafeInteger(oldXP) || !Number.isSafeInteger(newXP) ||
+          oldXP < 0 || newXP < oldXP) return null;
+      if (newXP > oldXP) gainedXP = true;
+      const oldItems = before.items || {}, newItems = after.items || {};
+      if (typeof oldItems !== "object" || !oldItems || Array.isArray(oldItems) ||
+          typeof newItems !== "object" || !newItems || Array.isArray(newItems)) return null;
+      for (const id of Object.keys(oldItems)) {
+        if (!Object.prototype.hasOwnProperty.call(newItems, id)) return null;
+        const a = oldItems[id], b = newItems[id];
+        if (!a || !b || typeof a !== "object" || typeof b !== "object") return null;
+        const awarded = item => item.xpAwarded === true ||
+          (item.xpAwarded === undefined && Number(item.streak) > 0);
+        if (awarded(a) && !awarded(b)) return null;
+      }
+      const attemptKey = key === gameKeys[0] ? "tries" : "attempts";
+      if (Number(after[attemptKey] || 0) < Number(before[attemptKey] || 0) ||
+          Number(after.correct || 0) < Number(before.correct || 0)) return null;
+    }
+    if (!gainedXP) return null;
+    const merged = Object.assign({}, remote, local);
+    for (const key of Object.keys(remote)) {
+      if (key === timeKey || gameKeys.includes(key)) continue;
+      if (!(key in local) || local[key] !== remote[key]) return null;
+    }
+    if (remote[timeKey] && local[timeKey] && remote[timeKey] !== local[timeKey]) {
+      const before = parse(remote[timeKey]), after = parse(local[timeKey]);
+      if (!before || !after || before.schema !== 1 || after.schema !== 1 ||
+          !before.days || !after.days) return null;
+      const days = {};
+      for (const day of new Set(Object.keys(before.days).concat(Object.keys(after.days)))) {
+        const a = before.days[day] || {}, b = after.days[day] || {};
+        const en = Math.max(Number(a.englishMs || 0), Number(b.englishMs || 0));
+        const ko = Math.max(Number(a.koreanMs || 0), Number(b.koreanMs || 0));
+        if (![en, ko].every(n => Number.isFinite(n) && n >= 0)) return null;
+        days[day] = { englishMs: en, koreanMs: ko };
+      }
+      merged[timeKey] = JSON.stringify(Object.assign({}, after, { days: days }));
+    } else if (remote[timeKey] && !local[timeKey]) {
+      merged[timeKey] = remote[timeKey];
+    }
+    return merged;
+  }
   function payload(records) {
     return { app: "JINI", schema: 1, exportedAt: new Date().toISOString(), data: records };
   }
@@ -483,6 +541,32 @@
       if (remoteHash === localHash) {
         if (meta.lastHash !== localHash || String(meta.lastRemoteVersion || "") !== remoteVersion)
           markSynced(local, remoteMeta);
+        return;
+      }
+      // A device can earn XP while another device updates Drive (often just
+      // study time), changing the file version. Fast-forward verified, non-
+      // regressing progress instead of treating that as a permanent conflict.
+      const advanced = safeXPAdvance(local, remoteData);
+      if (advanced) {
+        const latest = await findFile();
+        if (!latest || latest.id !== remoteMeta.id ||
+            String(latest.version || "") !== remoteVersion) {
+          status("다른 기기의 백업이 갱신되어 최신 기록을 다시 확인합니다.");
+          return;
+        }
+        const saved = await writeFile(advanced, latest);
+        const timeKey = "jini-study-time-v1";
+        if (advanced[timeKey] && advanced[timeKey] !== local[timeKey]) {
+          // Preserve time added during the network request as well.
+          const current = snapshot();
+          if (current[timeKey] === local[timeKey])
+            localStorage.setItem(timeKey, advanced[timeKey]);
+          // If this device accrued more time mid-request, the next cycle
+          // will detect it rather than replacing those new seconds.
+        }
+        markSynced(advanced, saved);
+        showDataComparison(advanced, "새로 얻은 XP를 Drive에 자동 백업했습니다.");
+        status("새 학습 경험치를 Google Drive에 자동 저장했습니다.");
         return;
       }
       if (meta.lastRemoteVersion && remoteVersion === String(meta.lastRemoteVersion)) {
