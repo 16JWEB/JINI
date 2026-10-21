@@ -7,7 +7,8 @@
   // Reading position belongs to this device, like jini-last-study-state.
   // Page numbers, player cursors and scroll offsets are not learning results.
   const DEVICE_STATE_KEYS = ["jini-last-study-state",
-    "jini-vocabulary-level-state-v1", "jini-player-level-state-v1"];
+    "jini-vocabulary-level-state-v1", "jini-player-level-state-v1",
+    "jini-essential-expressions-positions-v1", "jini-expression-player-state-v1"];
   // Google browser-tab session only. Never include access tokens in localStorage
   // or Drive backups. Google OAuth tokens still expire and must be renewed by
   // an explicit user click after expiry (no server-side refresh token here).

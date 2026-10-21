@@ -58,6 +58,37 @@
   let vocabularyLevelStates = {};
   const PLAYER_LEVEL_STATE_KEY = "jini-player-level-state-v1";
   let playerLevelStates = {};
+  const EXPRESSION_PLAYER_STATE_KEY = "jini-expression-player-state-v1";
+  let expressionPlayerCategory = "전체";
+  let expressionPlayerStates = {};
+
+  function expressionCategories() {
+    if (window.JINI_EXPRESSION_CATEGORIES) return window.JINI_EXPRESSION_CATEGORIES.slice();
+    return ["전체"].concat(Array.from(new Set(essentialExpressionItems().map(function (item) {
+      return item.level;
+    })))).concat("책갈피");
+  }
+  function expressionPlayerItems(category) {
+    const ids = essentialBookmarkIds();
+    return essentialExpressionItems().filter(function (item) {
+      return category === "전체" || (category === "책갈피" ? ids.includes(item.id) : item.level === category);
+    });
+  }
+  function loadExpressionPlayerStates() {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(EXPRESSION_PLAYER_STATE_KEY) || "{}") || {}; }
+    catch (_) { /* Reading positions must not interrupt learning. */ }
+    const states = {};
+    Object.keys(saved).forEach(function (category) {
+      const state = saved[category];
+      if (state && state.page === "english-expression-player" &&
+          Number.isInteger(state.playerIndex) && state.playerIndex >= 0) states[category] = state;
+    });
+    const previous = studyStates.pages && studyStates.pages["english-expression-player"];
+    if (previous && !states[previous.expressionCategory || "전체"])
+      states[previous.expressionCategory || "전체"] = previous;
+    return states;
+  }
 
   function essentialExpressionItems() {
     return (window.JINI_ESSENTIAL_EXPRESSIONS || []).map(function (item) {
@@ -76,6 +107,18 @@
   function saveEssentialBookmarkIds(ids) {
     try {
       window.localStorage.setItem(ESSENTIAL_EXPRESSION_BOOKMARK_KEY, JSON.stringify(ids));
+      if (currentPageView === "english-expression-player") {
+        if (expressionPlayerCategory === "책갈피") {
+          const current = playerWords[playerIndex];
+          stopPlayback("책갈피를 변경했어요.");
+          playerWords = expressionPlayerItems(expressionPlayerCategory);
+          const index = current ? playerWords.findIndex(function (item) { return item.id === current.id; }) : -1;
+          playerIndex = index >= 0 ? index : Math.max(0, Math.min(playerIndex, playerWords.length - 1));
+          renderPlayerItemOptions();
+          updatePlayerCard();
+        }
+        renderPlayerCategories(currentPageView);
+      }
       return true;
     } catch (e) { showToast("표현 책갈피를 저장하지 못했어요."); return false; }
   }
@@ -356,6 +399,7 @@
         playerIndex: playerIndex,
         playerWord: playerWords[playerIndex] ? playerWords[playerIndex].word : "",
         playerMode: playerMode,
+        expressionCategory: expressionPlayerCategory,
         verbQuery: verbSearch.value,
         autoVerbWord: lastAutoVerbWord,
         scrollY: window.scrollY
@@ -372,6 +416,10 @@
       if (currentPageView === "player") {
         playerLevelStates[playerLevel] = state;
         window.localStorage.setItem(PLAYER_LEVEL_STATE_KEY, JSON.stringify(playerLevelStates));
+      }
+      if (currentPageView === "english-expression-player") {
+        expressionPlayerStates[expressionPlayerCategory] = state;
+        localStorage.setItem(EXPRESSION_PLAYER_STATE_KEY, JSON.stringify(expressionPlayerStates));
       }
       updateResumeStudyButtons();
     } catch (error) {
@@ -393,6 +441,7 @@
       state.selectedVocabularyIndex : -1;
     playerLevel = validPlayerLevels.includes(state.playerLevel) ? state.playerLevel : "초등";
     playerMode = state.playerMode === "word-meaning" ? "word-meaning" : "word-meaning-example";
+    expressionPlayerCategory = expressionCategories().includes(state.expressionCategory) ? state.expressionCategory : "전체";
     verbSearch.value = typeof state.verbQuery === "string" ? state.verbQuery : "";
     lastAutoVerbWord = typeof state.autoVerbWord === "string" ? state.autoVerbWord : "";
     restoringStudyState = true;
@@ -400,16 +449,16 @@
     restoringStudyState = false;
     selectedVocabularyIndex = Number.isInteger(state.selectedVocabularyIndex) && state.selectedVocabularyIndex >= 0 ?
       state.selectedVocabularyIndex : -1;
-    document.querySelectorAll(".filter-chip").forEach(function (button) {
+    document.querySelectorAll("#vocabulary-filters .filter-chip").forEach(function (button) {
       button.classList.toggle("selected", button.dataset.level === activeLevel);
     });
-    document.querySelectorAll(".player-level").forEach(function (button) {
+    document.querySelectorAll("#player-levels .player-level").forEach(function (button) {
       button.classList.toggle("selected", button.dataset.playerLevel === playerLevel);
     });
     if (["player", "ko-player", "ko-expression-player", "english-expression-player"].includes(state.page)) {
       const savedWordIndex = playerWords.findIndex(function (item) { return item.word === state.playerWord; });
       const requestedIndex = Number.isInteger(state.playerIndex) ? state.playerIndex : 0;
-      playerIndex = savedWordIndex >= 0 ? savedWordIndex : Math.min(Math.max(requestedIndex, 0), playerWords.length - 1);
+      playerIndex = savedWordIndex >= 0 ? savedWordIndex : Math.max(0, Math.min(requestedIndex, playerWords.length - 1));
       updatePlayerCard();
       setPlayerMode(playerMode);
     } else if (currentPageView === "vocabulary" || currentPageView === "ko-vocabulary") {
@@ -455,7 +504,7 @@
           (state.playerWord || playerItemNumber + "번째 표현"),
         "verb-forms": "동사 변화",
         "english-expressions": "필수 표현",
-        "english-expression-player": "표현 재생 · " + playerItemNumber + "번 " +
+        "english-expression-player": "표현 재생 · " + (state.expressionCategory || "전체") + " · " + playerItemNumber + "번 " +
           (state.playerWord || playerItemNumber + "번째 표현"),
         "english-game": "영어 연습 게임",
         "speaking": "스피킹 대비",
@@ -566,7 +615,7 @@
         currentPage = bookmark.page;
         selectedVocabularyIndex = -1;
         search.value = bookmark.query;
-        document.querySelectorAll(".filter-chip").forEach(function (chip) {
+        document.querySelectorAll("#vocabulary-filters .filter-chip").forEach(function (chip) {
           chip.classList.toggle("selected", chip.dataset.level === activeLevel);
         });
         renderWords();
@@ -635,7 +684,8 @@
         button.textContent = (itemIndex + 1) + ". " + item.word;
         button.addEventListener("click", function () {
           if (playbackState !== "stopped") stopPlayback();
-          playerIndex = itemIndex;
+          if (!playerWords.some(function (entry) { return entry.id === id; })) setExpressionPlayerCategory("전체");
+          playerIndex = playerWords.findIndex(function (entry) { return entry.id === id; });
           updatePlayerCard();
           setPlaybackStatus("저장한 표현으로 이동했어요. 재생을 눌러 들어 보세요.");
         });
@@ -737,7 +787,21 @@
   }
 
   function updatePlayerCard() {
-    if (!playerWords.length) return;
+    document.getElementById("toggle-playback").disabled = !playerWords.length;
+    document.getElementById("previous-word").disabled = !playerWords.length;
+    document.getElementById("next-word").disabled = !playerWords.length;
+    if (!playerWords.length) {
+      document.getElementById("player-word").textContent = "재생할 표현이 없어요";
+      ["player-ipa", "player-meaning", "player-example", "player-example-translation", "player-level-label",
+        "player-other-senses", "player-example-extra", "player-vietnamese-pronunciation"].forEach(function (id) {
+        document.getElementById(id).textContent = "";
+      });
+      document.getElementById("player-progress").textContent = "0 / 0 표현";
+      document.getElementById("player-progress-bar").style.width = "0%";
+      updatePlayerBookmarkControl();
+      saveStudyState();
+      return;
+    }
     const item = playerWords[playerIndex];
     const expressionPlayer = currentPageView === "ko-expression-player" || currentPageView === "english-expression-player";
     document.getElementById("player-item-select").value = String(playerIndex);
@@ -1089,6 +1153,12 @@
   }
 
   function renderPagination(pageCount) {
+    renderStudyPagination(pagination, currentPage, pageCount, goToPage);
+  }
+
+  // Word and expression lists use the same page selector and jump controls.
+  function renderStudyPagination(target, currentPage, pageCount, goToPage) {
+    const pagination = target;
     pagination.replaceChildren();
     if (pageCount <= 1) return;
 
@@ -1156,6 +1226,7 @@
     renderWords();
     document.querySelector(".vocabulary-section").scrollIntoView({ behavior: "smooth", block: "start" });
   }
+  window.JINI_RENDER_PAGINATION = renderStudyPagination;
 
   function renderVocabularyItemOptions(filtered, expressionStudy) {
     const navigation = document.getElementById("vocabulary-item-navigation");
@@ -1414,7 +1485,7 @@
     currentPage = saved && Number.isInteger(saved.pageNumber) && saved.pageNumber > 0 ? saved.pageNumber : 1;
     search.value = saved && typeof saved.query === "string" ? saved.query : "";
     selectedVocabularyIndex = saved && Number.isInteger(saved.selectedVocabularyIndex) ? saved.selectedVocabularyIndex : -1;
-    document.querySelectorAll(".filter-chip").forEach(function (button) {
+    document.querySelectorAll("#vocabulary-filters .filter-chip").forEach(function (button) {
       button.classList.toggle("selected", button.dataset.level === level);
     });
     renderWords();
@@ -1435,6 +1506,17 @@
         resumeStudyState(savedPageState);
         return;
       }
+      // First visits start independently; never inherit another list's query,
+      // page, or another player's mode just because they share the same DOM.
+      if (["vocabulary", "ko-vocabulary", "ko-expressions"].includes(page)) {
+        activeLevel = "all";
+        currentPage = 1;
+        search.value = "";
+      }
+      if (["player", "ko-player", "ko-expression-player", "english-expression-player"].includes(page)) {
+        playerMode = "word-meaning-example";
+        expressionPlayerCategory = "전체";
+      }
     }
     if (window.JINI_STUDY_TIME) window.JINI_STUDY_TIME.navigate(page);
     selectedVocabularyIndex = -1;
@@ -1453,7 +1535,7 @@
       activeLevel = "all";
       currentPage = 1;
       search.value = "";
-      document.querySelectorAll(".filter-chip").forEach(function (chip) {
+      document.querySelectorAll("#vocabulary-filters .filter-chip").forEach(function (chip) {
         chip.classList.toggle("selected", chip.dataset.level === "all");
       });
     }
@@ -1518,14 +1600,18 @@
     search.placeholder = showingExpressions ? "표현 또는 번역 검색" : "단어 또는 뜻 검색";
     search.setAttribute("aria-label", showingExpressions ? "표현 또는 번역 검색" : "단어 또는 뜻 검색");
     document.getElementById("vocabulary-filters").hidden = koreanStudy;
+    document.getElementById("korean-vocabulary-filters").hidden = !koreanStudy;
+    document.getElementById("korean-list-count").textContent =
+      (showingExpressions ? koreanExpressions.length : koreanWords.length) + "개";
     document.getElementById("vocabulary-hint").textContent = koreanStudy ?
       (showingExpressions ? "스피커를 눌러 한국어 표현과 베트남어 번역을 들어 보세요" :
         "스피커를 눌러 한국어 발음을 들어 보세요") : "스피커를 눌러 발음을 들어 보세요";
     document.getElementById("player-levels").hidden = koreanStudy || playingEnglishExpressions;
+    renderPlayerCategories(page);
     document.getElementById("player-heading-title").textContent = playingEnglishExpressions ? "영어 표현 재생" : koreanStudy ? "한국어 단어 재생" : "단어 재생";
     if (playingExpressions) document.getElementById("player-heading-title").textContent = "한국어 표현 재생";
     document.getElementById("player-heading-description").textContent = playingEnglishExpressions ?
-      "필수 표현 500개를 순서대로 들어 보세요. 재생을 누르면 표현·뜻·예문·해석을 이어서 들려줘요." : playingExpressions ?
+      "필수 표현 " + essentialExpressionItems().length + "개를 분류별로 들어 보세요. 각 분류의 재생 위치를 따로 기억해요." : playingExpressions ?
       "일상생활 한국어 표현과 베트남어 뜻, 예문을 함께 익혀 보세요." : koreanStudy ?
       "한국어 단어를 듣고 베트남어 뜻과 함께 익혀 보세요." : "학년과 재생 내용을 선택하고 시작해 보세요.";
     document.getElementById("open-language-packs").hidden = !koreanStudy;
@@ -1542,12 +1628,13 @@
       "한국어 단어를 듣고 베트남어 뜻과 함께 익혀 보세요." :
       "단어를 듣고, 예문을 따라 읽으며 나만의 영어를 만들어 보세요.";
     if (showingPlayer) {
-      playerWords = playingEnglishExpressions ? essentialExpressionItems() : playingExpressions ? koreanExpressions : koreanStudy ? koreanWords :
+      playerWords = playingEnglishExpressions ? expressionPlayerItems(expressionPlayerCategory) : playingExpressions ? koreanExpressions : koreanStudy ? koreanWords :
         words.filter(function (item) { return item.level === playerLevel; });
       playerIndex = 0;
       renderPlayerItemOptions();
       updatePlayerCard();
-      setPlaybackStatus(playingEnglishExpressions ? "재생을 누르면 영어 표현 500개를 순서대로 들을 수 있어요." :
+      setPlayerMode(playerMode);
+      setPlaybackStatus(playingEnglishExpressions ? "재생을 누르면 선택한 영어 표현 " + playerWords.length + "개를 순서대로 들을 수 있어요." :
         playingExpressions ? "재생을 누르면 한국어 표현을 들을 수 있어요." :
         koreanStudy ? "재생을 누르면 한국어 단어를 들을 수 있어요." : "학년을 고르고 재생을 시작해 보세요.");
     }
@@ -1569,14 +1656,58 @@
     const savedWordIndex = saved ? playerWords.findIndex(function (item) { return item.word === saved.playerWord; }) : -1;
     const requestedIndex = saved && Number.isInteger(saved.playerIndex) ? saved.playerIndex : 0;
     playerIndex = savedWordIndex >= 0 ? savedWordIndex : Math.max(0, Math.min(requestedIndex, playerWords.length - 1));
+    playerMode = saved && saved.playerMode === "word-meaning" ? "word-meaning" : "word-meaning-example";
     renderPlayerItemOptions();
-    document.querySelectorAll(".player-level").forEach(function (button) {
+    document.querySelectorAll("#player-levels .player-level").forEach(function (button) {
       button.classList.toggle("selected", button.dataset.playerLevel === level);
     });
     breadcrumbLevel.textContent = playerLevel + " 단어 재생";
     updatePlayerCard();
+    setPlayerMode(playerMode);
     setPlaybackStatus("재생을 누르면 " + playerLevel + " 단어를 현재 위치부터 들려드려요.");
     updatePlaybackButton();
+  }
+
+  function renderPlayerCategories(page) {
+    const row = document.getElementById("player-categories");
+    const english = page === "english-expression-player";
+    const korean = page === "ko-player" || page === "ko-expression-player";
+    row.hidden = !english && !korean;
+    row.replaceChildren();
+    if (row.hidden) return;
+    const categories = english ? expressionCategories() : ["전체"];
+    categories.forEach(function (category) {
+      const total = english ? expressionPlayerItems(category).length :
+        page === "ko-player" ? koreanWords.length : koreanExpressions.length;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "player-level" + (!english || category === expressionPlayerCategory ? " selected" : "");
+      button.dataset.expressionCategory = category;
+      button.setAttribute("aria-pressed", String(!english || category === expressionPlayerCategory));
+      button.appendChild(document.createTextNode(category + " "));
+      const count = document.createElement("span");
+      count.textContent = total + "개";
+      button.appendChild(count);
+      if (english) button.addEventListener("click", function () { setExpressionPlayerCategory(category); });
+      row.appendChild(button);
+    });
+  }
+
+  function setExpressionPlayerCategory(category) {
+    if (category === expressionPlayerCategory || !expressionCategories().includes(category)) return;
+    saveStudyState();
+    stopPlayback("분류를 변경했어요.");
+    expressionPlayerCategory = category;
+    const saved = expressionPlayerStates[category];
+    playerWords = expressionPlayerItems(category);
+    const index = saved ? playerWords.findIndex(function (item) { return item.word === saved.playerWord; }) : -1;
+    playerIndex = index >= 0 ? index : Math.max(0, Math.min(saved && Number.isInteger(saved.playerIndex) ? saved.playerIndex : 0,
+      playerWords.length - 1));
+    playerMode = saved && saved.playerMode === "word-meaning" ? "word-meaning" : "word-meaning-example";
+    renderPlayerItemOptions();
+    renderPlayerCategories(currentPageView);
+    updatePlayerCard();
+    setPlayerMode(playerMode);
   }
 
   function renderPlayerItemOptions() {
@@ -1713,10 +1844,10 @@
     event.preventDefault();
     setPage("home");
   });
-  document.querySelectorAll(".filter-chip").forEach(function (button) {
+  document.querySelectorAll("#vocabulary-filters .filter-chip").forEach(function (button) {
     button.addEventListener("click", function () { setLevel(button.dataset.level); });
   });
-  document.querySelectorAll(".player-level").forEach(function (button) {
+  document.querySelectorAll("#player-levels .player-level").forEach(function (button) {
     button.addEventListener("click", function () { setPlayerLevel(button.dataset.playerLevel); });
   });
   search.addEventListener("input", function () {
@@ -1810,10 +1941,10 @@
   document.getElementById("nav-total-count").textContent = counts.all;
   document.getElementById("nav-korean-count").textContent = koreanWords.length;
   document.getElementById("nav-korean-expression-count").textContent = koreanExpressions.length;
-  document.getElementById("count-all").textContent = counts.all;
-  document.getElementById("count-elementary").textContent = counts.elementary;
-  document.getElementById("count-middle").textContent = counts.middle;
-  document.getElementById("count-high").textContent = counts.high;
+  document.getElementById("count-all").textContent = counts.all + "개";
+  document.getElementById("count-elementary").textContent = counts.elementary + "개";
+  document.getElementById("count-middle").textContent = counts.middle + "개";
+  document.getElementById("count-high").textContent = counts.high + "개";
   document.getElementById("player-count-elementary").textContent = counts.elementary + "개";
   document.getElementById("player-count-middle").textContent = counts.middle + "개";
   document.getElementById("player-count-high").textContent = counts.high + "개";
@@ -1824,6 +1955,7 @@
   studyStates = loadStudyStates();
   vocabularyLevelStates = loadVocabularyLevelStates();
   playerLevelStates = loadPlayerLevelStates();
+  expressionPlayerStates = loadExpressionPlayerStates();
   updateResumeStudyButtons();
   // Always open JINI on Home. Saved study screens remain available through
   // the separate "마지막 공부 화면" buttons; do not auto-resume on startup.
@@ -1856,4 +1988,5 @@
     window.history.pushState({ jiniHome: true }, "", window.location.href);
   });
 }());
+
 

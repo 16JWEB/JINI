@@ -101,6 +101,21 @@ test('reading positions alone are not meaningful learning progress', () => {
   assert.equal(h.api.meaningful(h.api.snapshot()), false);
 });
 
+test('expression list and player positions stay local and cannot create Drive conflicts', async () => {
+  const remote = records(), local = records();
+  const keys = ['jini-essential-expressions-positions-v1', 'jini-expression-player-state-v1'];
+  for (const key of keys) {local[key] = '{"page":3}'; remote[key] = '{"page":7}';}
+  const h = harness(local, remote);
+  await h.api.checkDrive();
+  assert.equal(h.api.getConflict(), null);
+  assert.equal(h.element('jsy-auto').textContent, '학습기록 일치');
+  assert.equal(h.uploads().length, 0);
+  for (const key of keys) {
+    assert.equal(h.api.snapshot()[key], undefined);
+    assert.equal(h.localStorage.getItem(key), local[key]);
+  }
+});
+
 test('manual backup compares content when Drive version changed', async () => {
   const remote = records();
   const h = harness(remote, remote);
