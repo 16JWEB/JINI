@@ -16,12 +16,10 @@
   const UPLOAD_API = "https://www.googleapis.com/upload/drive/v3/files";
   const $ = function (id) { return document.getElementById(id); };
   const root = $("jini-sync-section");
-  const adminDialog = $("jini-admin-dialog");
-  const adminPanel = $("ja-panel");
-  const adminSyncTab = $("ja-sync-panel");
-  if (!root || !adminDialog || !adminPanel || !adminSyncTab) return;
-  function adminOpen() {
-    return adminDialog.open && !adminPanel.hidden && !adminSyncTab.hidden;
+  const syncPage = $("jini-sync-page");
+  if (!root || !syncPage) return;
+  function syncPageOpen() {
+    return !syncPage.hidden;
   }
   let token = "";
   let expiresAt = 0;
@@ -526,7 +524,7 @@
     status(remoteHasProgress ?
       "기기와 Drive 기록이 서로 달라 안전을 위해 자동 동기화를 중단했습니다. 기록을 비교한 뒤 선택해 주세요." :
       "Drive 백업파일이 비어 있어 자동 복원을 중지했습니다. 실제 학습기록이 있는 기기에서 백업해 주세요.", true);
-    if (adminOpen()) {
+    if (syncPageOpen()) {
       try { $("jsy-conflict").scrollIntoView({ behavior: "smooth", block: "center" }); } catch (_) {}
     }
   }
@@ -643,7 +641,7 @@
     finally { busy = false; render(); }
   }
   async function beginConnect() {
-    if (!adminOpen()) return;
+    if (!syncPageOpen()) return;
     if (!CONFIG_ID) {
       status("Google Drive 연동을 사용하려면 사이트 관리자가 Google OAuth 클라이언트 ID를 먼저 등록해야 해요. 현재 학습기록은 변경되지 않습니다.", true);
       return;
@@ -709,7 +707,7 @@
     finally { busy = false; render(); }
   }
   async function checkDrive() {
-    if (!adminOpen() || !validToken()) return status("먼저 관리자 화면에서 Google Drive에 연결해 주세요.", true);
+    if (!syncPageOpen() || !validToken()) return status("먼저 홈 메뉴의 학습정보 동기화 화면에서 Google Drive에 연결해 주세요.", true);
     await withBusy(async function () {
       const found = await findFile();
       setDriveSize(found);
@@ -856,7 +854,7 @@
       manualBackup(true);
     }
   }, true);
-  window.JINI_SYNC_ADMIN_OPEN = function () {
+  window.JINI_SYNC_PAGE_OPEN = function () {
     render();
     if (validToken()) syncCycle();
   };
