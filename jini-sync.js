@@ -4,6 +4,10 @@
   const CONFIG_ID = (window.JINI_GOOGLE_CLIENT_ID || "").trim();
   const META_KEY = "jini-drive-sync-meta-v1";
   const REWARD_NOTIFICATIONS_KEY = "jini-character-reward-popups-v1";
+  // Reading position belongs to this device, like jini-last-study-state.
+  // Page numbers, player cursors and scroll offsets are not learning results.
+  const DEVICE_STATE_KEYS = ["jini-last-study-state",
+    "jini-vocabulary-level-state-v1", "jini-player-level-state-v1"];
   // Google browser-tab session only. Never include access tokens in localStorage
   // or Drive backups. Google OAuth tokens still expire and must be renewed by
   // an explicit user click after expiry (no server-side refresh token here).
@@ -82,7 +86,7 @@
   function included(key) {
     return key.startsWith("jini-") && key !== META_KEY &&
       key !== REWARD_NOTIFICATIONS_KEY && // Device-only notification queue, not earned rewards.
-      key !== "jini-last-study-state" && !key.startsWith("jini-drive-") &&
+      !DEVICE_STATE_KEYS.includes(key) && !key.startsWith("jini-drive-") &&
       !/oauth|access.?token|refresh.?token|client.?secret|admin.?pass/i.test(key);
   }
   function snapshot() {
@@ -360,7 +364,7 @@
     const data = value.data;
     if (Object.keys(data).length > 1000) throw new Error("백업 항목이 너무 많습니다.");
     const restored = {};
-    // Legacy backups created before Oct 20 may contain jini-last-study-state
+    // Legacy backups may contain device-specific reading positions
     // and unrelated localStorage entries. Filter those out; do not reject
     // legitimate XP, character, study-time and bookmark data because of them.
     for (const k of Object.keys(data).sort()) {
@@ -612,7 +616,8 @@
     // An explicit login completes one full Drive reconciliation, even while a
     // mobile Google account chooser briefly hides the original page.
     // Background focus / visibility / timer checks must not race that login.
-    if (!validToken() || busy || conflict || (!force && (connecting || document.hidden))) return;
+    if (!validToken() || busy || (conflict && !force) ||
+        (!force && (connecting || document.hidden))) return;
     // Returning from the Google popup can fire focus and visibility events.
     // Avoid a second identical scan immediately after a completed upload.
     if (!force && Date.now() - lastCycleFinishedAt < 8000 &&
@@ -620,8 +625,6 @@
     busy = true;
     render();
     try {
-      const local = snapshot();
-      const localHash = fingerprint(local);
       const remoteMeta = await findFile();
       setDriveSize(remoteMeta);
       // Never reuse sync baselines from a different Drive file/account.
@@ -633,6 +636,9 @@
         saveMeta();
       }
       if (!remoteMeta) {
+        const local = snapshot();
+        conflict = null;
+        clearAsk();
         showDataComparison(null, "Google Drive에서 JINI 백업파일을 찾지 못했습니다.");
         // 다른 기기에서 백업을 삭제했으면 자동으로 다시 만들지 않습니다.
         if (meta.lastRemoteVersion || meta.deleted) {
@@ -656,6 +662,13 @@
       // Always inspect the remote payload. Version equality alone does not
       // prove that the file contains the latest character and study progress.
       const remoteData = await readFile(remoteMeta.id);
+      // Studying can continue while the Drive request is in flight.
+      const local = snapshot();
+      const localHash = fingerprint(local);
+      // Keep the previous conflict until a fresh Drive read succeeds. A failed
+      // recheck must not silently resume background uploads or hide the choice.
+      conflict = null;
+      clearAsk();
       const remoteHash = fingerprint(remoteData);
       showDataComparison(remoteData, "Drive 파일 수정: " + dateTime(remoteMeta.modifiedTime) +
         " · 버전 " + (remoteVersion || "확인 불가"));
@@ -683,9 +696,15 @@
       if (remoteHash === localHash) {
         if (meta.lastHash !== localHash || String(meta.lastRemoteVersion || "") !== remoteVersion)
           markSynced(local, remoteMeta);
+        status("이 기기와 Google Drive의 학습기록이 일치합니다.");
         return;
       }
-      const joined = mergeIndependentProgress(local, remoteData);
+      let joined = mergeIndependentProgress(local, remoteData);
+      // A profile/bookmark edit on this device is safe to upload when Drive
+      // still contains the exact last-synced data. Require a choice only when
+      // both sides changed or the baseline is unavailable.
+      const localOnlyChange = !joined && !!meta.lastHash && remoteHash === meta.lastHash;
+      if (localOnlyChange) joined = local;
       if (joined) {
         if (fingerprint(joined) === remoteHash) {
           applyMergedLocally(remoteData);
@@ -705,8 +724,10 @@
         const saved = await writeFile(joined, latest);
         applyMergedLocally(joined);
         markSynced(joined, saved);
-        showDataComparison(joined, "두 기기의 문제별 학습기록을 중복 XP 없이 합쳤습니다.");
-        status("휴대폰·PC에서 학습한 서로 다른 문제를 Google Drive에 합쳐 저장했습니다.");
+        showDataComparison(joined, localOnlyChange ? "이 기기의 변경사항을 Drive에 반영했습니다." :
+          "두 기기의 문제별 학습기록을 중복 XP 없이 합쳤습니다.");
+        status(localOnlyChange ? "이 기기의 변경사항을 Google Drive에 저장했습니다." :
+          "휴대폰·PC에서 학습한 서로 다른 문제를 Google Drive에 합쳐 저장했습니다.");
         return;
       }
       // Non-game settings or unrecognized data differ: protect both versions.
@@ -831,8 +852,6 @@
     if (busy || connecting || disconnecting) return;
     // Reconcile fresh snapshots, rather than leaving a stale conflict latched.
     // syncCycle preserves both records whenever safe merging is impossible.
-    conflict = null;
-    clearAsk();
     status("Google Drive의 최신 학습기록을 확인하고 있습니다.");
     await syncCycle(true);
     if (driveSnapshot && !conflict && fingerprint(snapshot()) === fingerprint(driveSnapshot)) {
@@ -841,21 +860,17 @@
   }
   async function manualBackup(force) {
     if (!validToken()) return status("먼저 동기화 하기를 눌러 연결해 주세요.", true);
+    // A normal backup uses the same content comparison and lossless game merge
+    // as automatic sync. A Drive version change alone is not a data conflict.
+    // Only the explicitly confirmed conflict choice may overwrite a snapshot.
+    if (!force) {
+      if (connecting || disconnecting) return;
+      await syncCycle(true);
+      return;
+    }
     await withBusy(async function () {
       const now = await findFile();
       setDriveSize(now);
-      if (now && !force && meta.lastRemoteVersion &&
-          String(now.version) !== String(meta.lastRemoteVersion)) {
-        showConflict(snapshot(), await readFile(now.id), now);
-        return;
-      }
-      if (now && !force && !meta.lastRemoteVersion) {
-        const remote = await readFile(now.id);
-        if (fingerprint(remote) !== fingerprint(snapshot())) {
-          showConflict(snapshot(), remote, now);
-          return;
-        }
-      }
       const local = snapshot();
       if (!meaningful(local)) throw new Error("이 기기에 실제 학습기록이 없습니다. 빈 백업으로 기존 기록을 덮어쓰지 않아요.");
       const result = await writeFile(local, now);
@@ -1046,3 +1061,4 @@
   // Reflect an expired authorization on return without extra Drive requests.
   window.addEventListener("focus", render);
 })();
+

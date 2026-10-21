@@ -3,9 +3,7 @@ const vm = require('node:vm');
 const assert = require('node:assert/strict');
 let source = fs.readFileSync(require('node:path').join(__dirname, '../jini-sync.js'), 'utf8');
 source = source.replace('  render();\n  if (validToken()) {', `
-  window.testAPI = {fingerprint, mergeIndependentProgress, showConflict, checkDrive,
-    getConflict: () => conflict, replaceCycle: fn => syncCycle = fn,
-    setToken: () => { token = 'test'; expiresAt = Date.now() + 1000000; }};
+  window.testAPI = {fingerprint, mergeIndependentProgress, showConflict};
   return;
   render();
   if (validToken()) {`);
@@ -32,19 +30,11 @@ assert.equal(t.mergeIndependentProgress({'jini-profile': '{"name":"A"}'},
 t.showConflict({'jini-game-character-english-v1': '{"name":"A"}'},
   {'jini-game-character-english-v1': '{"name":"B"}'}, {});
 assert(element('jsy-differences').textContent.includes('영어 캐릭터 설정'));
-t.setToken();
-let calls = 0;
-t.replaceCycle(async force => {
-  assert.equal(force, true);
-  assert.equal(t.getConflict(), null);
-  calls++;
-});
-(async () => {
-  await t.checkDrive();
-  assert.equal(calls, 1);
-  const html = fs.readFileSync(require('node:path').join(__dirname, '../index.html'), 'utf8');
-  assert(html.indexOf('id="jsy-message"') < html.indexOf('id="jsy-local-summary"'));
-  assert(html.indexOf('id="jsy-conflict"') > html.indexOf('id="jsy-remote-summary"'));
-  assert(html.indexOf('id="jsy-conflict"') < html.indexOf('id="jsy-refresh"'));
-  console.log('PASS: comparison, conflict preservation, conflict recheck and message placement');
-})().catch(error => {console.error(error); process.exitCode = 1;});
+// Recheck behavior is covered through the real syncCycle and mocked Drive HTTP
+// in sync-integration.test.cjs; do not replace the reconciliation under test.
+const html = fs.readFileSync(require('node:path').join(__dirname, '../index.html'), 'utf8');
+assert(html.indexOf('id="jsy-message"') < html.indexOf('id="jsy-local-summary"'));
+assert(html.indexOf('id="jsy-conflict"') > html.indexOf('id="jsy-remote-summary"'));
+assert(html.indexOf('id="jsy-conflict"') < html.indexOf('id="jsy-refresh"'));
+console.log('PASS: comparison, conflict preservation and message placement');
+
