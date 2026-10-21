@@ -1,6 +1,6 @@
 /* English practice games: isolated from other JINI pages */
 .english-game-section[hidden]{display:none!important}
-.english-game-section{max-width:1060px;padding:30px 0 52px}
+.english-game-section{max-width:1060px;padding:30px 0 0}
 .eg-header{margin-bottom:18px}
 .eg-header h1{margin:7px 0 9px}
 .eg-header p{color:#77798f;font-size:13px;line-height:1.75}
@@ -28,8 +28,8 @@
 .eg-mode strong{font-size:16px}
 .eg-mode small{font-size:12px;color:#77798f;line-height:1.7}
 .eg-mode-arrow{font-size:26px;line-height:1;color:#6958e8}
-.eg-note{color:#87889d;font-size:11px;line-height:1.9;margin:12px 0}
-.eg-card{max-width:800px;margin:8px auto 40px;padding:26px;border:1px solid #ececf5;border-radius:19px;background:white}
+.eg-note{color:#87889d;font-size:11px;line-height:1.9;margin:12px 0 0}
+.eg-card{max-width:800px;margin:8px auto 0;padding:26px;border:1px solid #ececf5;border-radius:19px;background:white}
 .eg-nav{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:9px;border-bottom:1px solid #f0eef8;padding-bottom:16px;margin-bottom:18px}
 .eg-nav-controls{display:flex;gap:8px}
 .eg-nav-bottom{border-bottom:0;border-top:1px solid #f0eef8;padding:18px 0 0;margin:24px 0 0}
@@ -90,7 +90,7 @@
 .eg-finish p{font-size:14px;color:#73758e;line-height:1.8}
 .eg-trophy{font-size:43px}
 @media(max-width:740px){
-.english-game-section{padding:18px 0 75px}
+.english-game-section{padding:18px 0 0}
 .eg-stats{gap:7px}
 .eg-stats>div{padding:12px 10px;gap:8px}
 .eg-stats small{font-size:10px}

@@ -1,6 +1,6 @@
 /* Scoped OPIc styles reuse JINI's existing palette, typography and card shapes. */
 .opic-section[hidden]{display:none!important}
-.opic-section{max-width:1060px;padding:30px 0 40px;line-height:1.8;overflow-wrap:anywhere}
+.opic-section{max-width:1060px;padding:30px 0 0;line-height:1.8;overflow-wrap:anywhere}
 .opic-section .page-title{margin:8px 0}
 .op-top,.op-card-heading,.op-progress,.op-bottom{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .op-top p{margin:8px 0 16px}
@@ -37,7 +37,7 @@
 .op-retry{padding:12px;border-radius:10px;background:#fff5e7;color:#865316}
 .opic-section textarea{display:block;resize:vertical;min-height:160px;width:100%;margin-top:12px;padding:14px;font:inherit;font-size:16px;line-height:1.8;border:1px solid #dcd9ee;border-radius:12px;background:var(--card);color:var(--ink)}
 .op-model{font-size:17px;line-height:1.95;white-space:pre-line}
-.op-bottom{margin:24px 0 12px;padding:18px 0;border-top:1px solid var(--line)}
+.op-bottom{margin:24px 0 0;padding:18px 0 0;border-top:1px solid var(--line)}
 .op-bottom .op-actions{margin:0}
 .op-topic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .op-topic{display:flex;flex-direction:column;gap:8px;text-align:left;padding:20px;min-height:156px;border:1px solid var(--line);border-radius:16px;background:var(--card);font:inherit;color:var(--ink);cursor:pointer}
@@ -56,7 +56,7 @@
   .sidebar>.brand,.sidebar>nav,.sidebar>.menu-label,.sidebar>.sidebar-note,.sidebar>.sidebar-foot{flex-shrink:0}
 }
 @media(max-width:760px){
-  .opic-section{padding:18px 0 24px}
+  .opic-section{padding:18px 0 0}
   .op-top{align-items:flex-start;gap:8px}
   .op-level{width:100%;margin-bottom:8px}
   .op-card{padding:17px}

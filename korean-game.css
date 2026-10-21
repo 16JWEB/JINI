@@ -1,6 +1,6 @@
 /* JINI Korean game: scoped styles */
 .korean-game-section[hidden] { display: none !important; }
-.korean-game-section { padding: 30px 0 50px; max-width: 1080px; }
+.korean-game-section { padding: 30px 0 0; max-width: 1080px; }
 .kg-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 20px; }
 .kg-head h1 { margin: 6px 0 10px; }
 .kg-head p { margin: 0; color: #77788f; line-height: 1.75; font-size: 13px; }
@@ -83,7 +83,7 @@
 .kg-success { color: #287f59 !important; font-weight: 800; }
 .kg-end-actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 23px; }
 @media (max-width: 740px) {
- .korean-game-section { padding: 18px 0 80px; }
+ .korean-game-section { padding: 18px 0 0; }
  .kg-head { gap: 10px; flex-wrap: wrap; }
  .kg-summary { gap: 7px; }
  .kg-summary > div { padding: 12px 10px; gap: 8px; }

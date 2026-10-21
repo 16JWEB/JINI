@@ -1,7 +1,7 @@
 /* OPIc-style 15-question practice; isolated styles. */
 #opic-mock-section[hidden]{display:none!important}
 .om-intro,.om-panel,.om-review{background:var(--card);border:1px solid var(--line);border-radius:18px}
-.om-intro{padding:30px;margin:22px 0}
+.om-intro{padding:30px;margin:22px 0 0}
 .om-intro h2,.om-header h2{font-size:clamp(23px,3vw,32px);line-height:1.4;margin:7px 0 10px;letter-spacing:-.7px}
 .om-intro>p{font-size:14px;color:#62647c;line-height:1.85;max-width:760px}
 .om-features{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}
@@ -45,7 +45,7 @@
 .om-break>p{max-width:640px;margin:10px auto 18px;line-height:1.8}
 .om-difficulty{display:flex;gap:11px;flex-wrap:wrap;justify-content:center;margin:20px 0 7px}
 .om-difficulty button{min-width:120px}
-.om-review-list{display:grid;grid-template-columns:1fr;gap:11px;margin:14px 0 30px}
+.om-review-list{display:grid;grid-template-columns:1fr;gap:11px;margin:14px 0 0}
 .om-review{overflow:hidden}
 .om-review summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:14px;font-weight:750;padding:18px 21px}
 .om-review summary::-webkit-details-marker{display:none}
@@ -62,7 +62,7 @@
 #opic-mock-section [hidden]{display:none!important}
 #opic-mock-section button:focus-visible,#opic-mock-section select:focus-visible,#opic-mock-section textarea:focus-visible,#opic-mock-section summary:focus-visible{outline:3px solid #9587f2;outline-offset:3px}
 @media(max-width:760px){
- .om-intro{padding:21px;margin:15px 0}
+ .om-intro{padding:21px;margin:15px 0 0}
  .om-panel{padding:17px}
  .om-header{align-items:flex-start}
  .om-header h2{font-size:23px}
@@ -76,3 +76,4 @@
  .om-review summary{padding:16px 13px;gap:7px;font-size:13px}
  .om-review>p,.om-review-notes,.om-review-examples,.om-review>.om-audio{margin:13px}
 }
+

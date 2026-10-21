@@ -1,6 +1,6 @@
 /* English essential expressions: compact cards using the JINI palette. */
 #english-expressions-section[hidden]{display:none!important}
-.ee-section{max-width:1050px;padding:24px 0 50px}
+.ee-section{max-width:1050px;padding:24px 0 0}
 .ee-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .ee-heading h1{margin:7px 0}
 .ee-heading p{color:#77788f;font-size:13px;line-height:1.8;margin:5px 0}
@@ -30,14 +30,14 @@
 .ee-example-ko{font-size:12px;line-height:1.8;color:#73758b;margin:0 0 13px}
 .ee-listen-example{background:#fff}
 .ee-status{min-height:18px;margin:10px 0;color:#7b6dc8;font-size:12px}
-.ee-pagination{display:flex;align-items:center;justify-content:center;gap:15px;margin:25px 0}
+.ee-pagination{display:flex;align-items:center;justify-content:center;gap:15px;margin:25px 0 0}
 .ee-page-button{min-height:41px;padding:9px 16px;color:#5947d5;border:1px solid #dad4f7;border-radius:10px;background:#fff;cursor:pointer;font-size:12px;font-weight:750}
 .ee-page-button:disabled{opacity:.42;cursor:default}
 .ee-page-status{color:#74748e;font-size:12px}
 .ee-empty{padding:42px 15px;text-align:center;border:1px dashed #dcd9ed;border-radius:12px;background:#fff;color:#85869a;grid-column:1/-1}
 .ee-section button:focus-visible,.ee-section input:focus-visible{outline:3px solid #9a92f5;outline-offset:2px}
 @media(max-width:760px){
-.ee-section{padding:20px 0 83px}
+.ee-section{padding:20px 0 0}
 .ee-heading{gap:10px}
 .ee-heading h1{font-size:25px}
 .ee-heading p{font-size:12px}

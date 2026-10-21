@@ -31,8 +31,8 @@
   .sidebar .home-sync-status { margin:0; font-size:8px; line-height:1; }
   .sidebar[data-study="home"] .home-nav .nav-item { width:auto!important; min-width:55px!important; flex:1; }
   .sidebar[data-study="home"] .home-sync-link { gap:1px!important; }
-  .page-top-button { right:12px; bottom:calc(76px + env(safe-area-inset-bottom)); }
-  body:has(.player-section:not([hidden])) .page-top-button { bottom:calc(168px + env(safe-area-inset-bottom)); }
+  .page-top-button { right:12px; bottom:calc(var(--mobile-nav-height) + var(--page-bottom-gap) + env(safe-area-inset-bottom)); }
+  body:has(.player-section:not([hidden])) .page-top-button { bottom:calc(var(--mobile-nav-height) + var(--mobile-player-dock-height) + var(--page-bottom-gap) + env(safe-area-inset-bottom)); }
 }
   @media (max-width:760px) { .sidebar[data-study="home"] .home-sync-link { padding:2px!important; } .sidebar[data-study="home"] .home-sync-label { gap:1px; } }
 
