@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261021-unified-sync-status-v4">
+  <link rel="stylesheet" href="styles.css?v=20261021-home-sync-admin-bottom-v5">
   <link rel="stylesheet" href="korean-game.css?v=20261018-word-quiz-card-audio-v1">
   <link rel="stylesheet" href="english-game.css?v=20261018-expression-card-tap-v1">
   <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="jini-chrome-launch.css?v=20261018-number-left-v1">
   <link rel="stylesheet" href="jini-install.css?v=20261018-number-left-v1">
   <link rel="stylesheet" href="jini-address-bar.css?v=20261018-standalone-address-v1">
-  <link rel="stylesheet" href="admin-preview.css?v=20261019-data-guide-v1">
+  <link rel="stylesheet" href="admin-preview.css?v=20261021-admin-footer-v2">
   <link rel="stylesheet" href="english-expressions.css?v=20261018-tap-full-audio-v1">
   <link rel="stylesheet" href="opic.css?v=20261017-game-submenus">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
@@ -167,7 +167,6 @@
       <header class="topbar">
         <div class="topbar-start">
           <div class="breadcrumb"><span class="breadcrumb-root" id="breadcrumb-section">홈</span><span id="breadcrumb-divider" hidden> / </span><strong id="breadcrumb-level"></strong></div>
-          <button id="jini-admin-entry" type="button" aria-haspopup="dialog" aria-controls="jini-admin-dialog">관리자 페이지</button>
         </div>
         <div class="top-actions">
           <span class="voice-status"><i></i> 기기 기본 음성</span>
@@ -225,6 +224,9 @@
           <div class="jini-home-character-grid" aria-label="나의 영어·한글 캐릭터">
             <div class="jgc-home-slot" id="jini-home-character-english" data-jini-character-panel="english" data-jini-character-home="true"></div>
             <div class="jgc-home-slot" id="jini-home-character-korean" data-jini-character-panel="korean" data-jini-character-home="true"></div>
+          </div>
+          <div class="jini-home-admin-footer">
+            <button id="jini-admin-entry" type="button" aria-haspopup="dialog" aria-controls="jini-admin-dialog">관리자 테스트 페이지</button>
           </div>
         </div>
       </section>
@@ -565,7 +567,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <dialog id="jini-admin-dialog" class="ja-auth" aria-labelledby="ja-dialog-title">
     <div class="ja-topline">
-      <strong id="ja-dialog-title">관리자 페이지</strong>
+      <strong id="ja-dialog-title">관리자 테스트 페이지</strong>
       <button class="ja-close" type="button" data-ja-close aria-label="관리자 페이지 닫기">닫기 ✕</button>
     </div>
     <div class="ja-login" id="ja-login">
@@ -785,7 +787,7 @@
   <script src="opic-mock.js?v=20261017-mock-v2"></script>
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="jini-sync.js?v=20261021-unified-sync-status-v19"></script>
+  <script src="jini-sync.js?v=20261021-single-pass-sync-v20"></script>
 </body>
 </html>
 
