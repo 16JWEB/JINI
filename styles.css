@@ -398,3 +398,15 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
 
 /* 콘텐츠 검수 상태 표시: 확인되지 않은 자동 생성 예문은 단어 암기에 사용하지 않습니다. */
 .word-example .example-pending { display:block; color:var(--text-muted,#717c8e); font-size:0.9rem; font-style:normal; }
+
+/* Google Drive sync lives alongside Home/Study Info, in testing mode. */
+.home-sync-tag {display:inline-block;margin-left:2px;font-size:10px;letter-spacing:0;color:#8a6a2d;font-weight:600}
+.home-sync-quicklink {display:block;width:max-content;max-width:100%;margin:18px auto 0;padding:9px 14px;background:#f6f4ff;color:#6151bd;border:1px solid #e6e1fc;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;text-align:center}
+.home-sync-quicklink:hover {background:#eeeaff}
+.home-sync-quicklink span {font-size:11px;font-weight:600;color:#957b32}
+@media (max-width:760px) {
+  .home-nav .home-sync-link {flex-direction:column;gap:1px;min-width:70px;padding:6px 6px}
+  .home-nav .home-sync-link .nav-icon {font-size:14px}
+  .home-nav .home-sync-tag {display:block;margin:0;font-size:8px}
+  .home-sync-quicklink {margin:17px auto 0}
+}
