@@ -17,9 +17,9 @@
   const FOLDER_NAME = "JINI";
   const FILE_NAME = "jini-backup.json";
   // One upload window per first game-progress change; no per-answer requests.
-  const XP_BATCH_MS = 60 * 1000;
-  const DRIVE_POLL_MS = 5 * 60 * 1000;
-  const RETURN_CHECK_MIN_MS = 60 * 1000;
+  const XP_BATCH_MS = 5 * 60 * 1000;
+  const DRIVE_POLL_MS = 10 * 60 * 1000;
+  const RETURN_CHECK_MIN_MS = DRIVE_POLL_MS;
   const SCOPE = "https://www.googleapis.com/auth/drive.file";
   const API = "https://www.googleapis.com/drive/v3/files";
   const UPLOAD_API = "https://www.googleapis.com/upload/drive/v3/files";
@@ -1126,13 +1126,13 @@
   };
   render();
   if (validToken()) {
-    status("Google Drive 연결을 유지하고 있습니다. 학습기록 변경은 1분간 모아 백업하고, 평소에는 약 5분마다 최신 백업을 확인합니다.");
+    status("Google Drive 연결을 유지하고 있습니다. 학습기록 변경은 첫 변경부터 5분간 모아 백업하고, 변경사항이 없을 때는 약 10분마다 최신 백업을 확인합니다.");
     syncCycle();
   } else if (meta.previouslyConnected) {
     status("이전 Google 연결의 인증이 필요합니다. 기기와 Drive 학습기록은 유지되어 있으며, 'Google 다시 연결'을 누르면 이어서 확인할 수 있습니다.");
   }
-  // Local 1-minute wakeup is cheap: Drive is contacted only when five minutes
-  // have passed since the last check, or when a pending XP batch is due.
+  // Local 1-minute timer only checks deadlines: Drive is contacted after ten
+  // idle minutes, or when a pending five-minute XP batch becomes due.
   window.setInterval(function () {
     if (validToken()) {
       if (xpBatchDueAt) {
