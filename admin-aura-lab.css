@@ -1,117 +1,91 @@
-/* Lightweight CSS-only aura concepts, scoped to admin test dialog. */
-#ja-aura-panel{--jal-muted:#746d85;--jal-purple:#6654c7}
-#ja-aura-panel .jal-controls{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0 0 16px}
-#ja-aura-panel .jal-control-group{min-width:0}
-#ja-aura-panel .jal-control-group>strong{display:block;font-size:12px;color:#605876;margin-bottom:7px}
-#ja-aura-panel .jal-options{display:flex;flex-wrap:wrap;gap:6px}
-#ja-aura-panel .jal-switch{min-height:36px;padding:6px 10px;cursor:pointer;border-radius:9px;border:1px solid #e1daef;background:#fff;color:#615878;font:inherit;font-size:12px;font-weight:700}
-#ja-aura-panel .jal-switch.is-selected{border-color:#8c72eb;background:#f0ebff;color:#5b41bb}
-#ja-aura-panel .jal-switch:focus-visible,#ja-aura-panel .jal-card:focus-visible{outline:3px solid #9d8aed;outline-offset:2px}
-#ja-aura-panel .jal-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(215px,.65fr);align-items:start;gap:14px}
+/* JINI Aura Studio v3 – administrator-only lightweight animated SVG gallery. */
+#ja-aura-panel{--jal-ink:#2c2644;--jal-accent:#6753c7}
+#ja-aura-panel .ja-intro{max-width:750px}
+#ja-aura-panel .jal-controls{display:grid;grid-template-columns:1fr;gap:13px;margin:4px 0 19px}
+#ja-aura-panel .jal-control-group{display:block;min-width:0}
+#ja-aura-panel .jal-control-group>strong{display:block;color:#544975;font-weight:800;font-size:12px;margin:0 0 8px}
+#ja-aura-panel .jal-options{display:flex;flex-wrap:wrap;gap:7px}
+#ja-aura-panel .jal-switch{appearance:none;display:inline-flex;align-items:center;justify-content:center;min-height:39px;padding:8px 12px;border-radius:11px;border:1px solid #e3dbef;background:#fff;color:#655c7d;cursor:pointer;font:inherit;font-size:12px;line-height:1.4;font-weight:750;transition:border-color .15s,background .15s}
+#ja-aura-panel .jal-switch.is-selected{background:#f0ebff;border-color:#987de2;color:#553cb9;box-shadow:0 0 0 1px #d8cafa}
+#ja-aura-panel :is(button):focus-visible{outline:3px solid #a18bed;outline-offset:2px}
+#ja-aura-panel .jal-chapters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:15px 0 18px}
+#ja-aura-panel .jal-chapter-button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:6px;min-width:0;padding:11px 10px;border:1px solid #ddd7e9;border-radius:13px;background:#f9f8fd;color:#574c70;cursor:pointer;font:inherit}
+#ja-aura-panel .jal-chapter-button span{font-size:10px;font-weight:850;letter-spacing:.4px;color:#8a7daa;white-space:nowrap}
+#ja-aura-panel .jal-chapter-button strong{font-size:11px;line-height:1.5;font-weight:800;overflow-wrap:anywhere}
+#ja-aura-panel .jal-chapter-button.is-selected{border-color:#9680e1;background:#ede8ff;box-shadow:inset 0 0 0 1px #cabdf0}
+#ja-aura-panel .jal-chapter-button.is-selected span,#ja-aura-panel .jal-chapter-button.is-selected strong{color:#5a40b5}
+#ja-aura-panel .jal-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(265px,.82fr);gap:15px;align-items:start}
+#ja-aura-panel .jal-heading{margin:0 0 11px;font-size:14px;line-height:1.5;color:#4c3e73}
 #ja-aura-panel .jal-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-#ja-aura-panel .jal-card{display:block;min-width:0;text-align:center;padding:0;border:1px solid #e0dcee;border-radius:15px;overflow:hidden;cursor:pointer;background:#fff;color:#34314a;font:inherit}
-#ja-aura-panel .jal-card.is-selected{border-color:#7457e7;box-shadow:0 0 0 2px #b8a8f4a8}
-#ja-aura-panel .jal-card-art{display:block;background:radial-gradient(ellipse at 50% 65%,#34405c,#131a31 69%,#0e1425);padding:8px}
-#ja-aura-panel .jal-card-copy{display:flex;flex-direction:column;gap:4px;padding:8px}
-#ja-aura-panel .jal-card-copy strong{font-size:12px}
-#ja-aura-panel .jal-card-copy small{font-size:10px;line-height:1.45;color:#77728c;min-height:28px}
-#ja-aura-panel .jal-level{display:block;font-weight:800;font-size:10px;color:#746b95}
-#ja-aura-panel .jal-unlocked{color:#16836f}
-#ja-aura-panel .jal-locked{color:#a88b73}
-#ja-aura-panel .jal-feature{position:sticky;top:74px;min-width:0;border:1px solid #e4dff0;border-radius:16px;overflow:hidden;background:#fff}
-#ja-aura-panel .jal-feature>strong{display:block;font-size:13px;padding:12px 12px 4px;text-align:center}
-#ja-aura-panel .jal-feature-scene{background:radial-gradient(ellipse at 50% 65%,#34405c,#131a31 69%,#0e1425);padding:14px}
-#ja-aura-panel .jal-feature p{padding:11px 13px 14px;font-size:11px;line-height:1.6;color:#6d6781;margin:0}
-#ja-aura-panel .jal-stage{position:relative;display:block;aspect-ratio:1;width:100%;max-width:168px;margin:auto;isolation:isolate;overflow:visible;--jal-aura:#f6a4d2;--jal-light:#ffd7ed}
-#ja-aura-panel .jal-stage.jal-large{max-width:280px}
-#ja-aura-panel .jal-sprite{position:absolute;z-index:3;inset:7%;display:block}
-#ja-aura-panel .jal-sprite .jgc-mascot{width:100%!important;height:100%!important;display:block!important}
-#ja-aura-panel .jal-emoji{display:grid;place-items:center;width:100%;height:100%;font-size:64px}
-#ja-aura-panel .jal-glow{position:absolute;inset:5%;z-index:0;border-radius:50%;background:radial-gradient(ellipse,transparent 34%,var(--jal-aura) 63%,transparent 74%);opacity:.48;animation:jalBreathe 3.5s ease-in-out infinite}
-#ja-aura-panel .jal-ring{position:absolute;z-index:1;inset:7%;border-radius:50%;border:2px solid var(--jal-aura);box-shadow:0 0 11px var(--jal-aura),inset 0 0 12px #ffffff26;opacity:.8}
-#ja-aura-panel .jal-ring-b{inset:1%;border:2px dashed var(--jal-light);opacity:.65;animation:jalSpin 10s linear infinite}
-#ja-aura-panel .jal-glyph{position:absolute;z-index:2;inset:0;pointer-events:none}
-#ja-aura-panel .jal-spark{position:absolute;z-index:2;width:6px;height:6px;background:var(--jal-light);box-shadow:0 0 8px var(--jal-aura);transform:rotate(45deg);animation:jalTwinkle 2.8s ease-in-out infinite}
-#ja-aura-panel .jal-spark-1{left:13%;top:13%;animation-delay:-.3s}
-#ja-aura-panel .jal-spark-2{right:9%;top:27%;animation-delay:-1.1s}
-#ja-aura-panel .jal-spark-3{left:5%;top:58%;animation-delay:-1.7s}
-#ja-aura-panel .jal-spark-4{right:12%;bottom:12%;animation-delay:-.9s}
-#ja-aura-panel .jal-spark-5{left:37%;bottom:2%;animation-delay:-2.2s}
-/* Concept: sakura petals */
-#ja-aura-panel .jal-petal{--jal-aura:#f9a8cf;--jal-light:#ffe2f2}
-#ja-aura-panel .jal-petal .jal-ring-a{border-style:dotted}
-#ja-aura-panel .jal-petal .jal-spark{width:9px;height:6px;border-radius:9px 0 9px 0;transform:rotate(35deg);animation:jalPetal 4s ease-in-out infinite}
-/* Concept: frost shards */
-#ja-aura-panel .jal-frost{--jal-aura:#72defb;--jal-light:#e5faff}
-#ja-aura-panel .jal-frost .jal-ring-a{border-radius:27%;transform:rotate(45deg);border:3px solid #a1eeff}
-#ja-aura-panel .jal-frost .jal-ring-b{border-style:solid;border-radius:20%;transform:rotate(25deg);animation:jalFrost 9s ease-in-out infinite}
-#ja-aura-panel .jal-frost .jal-spark{width:8px;height:12px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:#cbfaff}
-/* Concept: cyber neon */
-#ja-aura-panel .jal-cyber{--jal-aura:#32eec8;--jal-light:#c5fff1}
-#ja-aura-panel .jal-cyber .jal-ring-a{border-radius:18%;border:3px solid #27f3d1;transform:rotate(10deg)}
-#ja-aura-panel .jal-cyber .jal-ring-b{border-radius:24%;border:3px dashed #8effe4;animation:jalSpin 8s linear infinite}
-#ja-aura-panel .jal-cyber .jal-spark{width:7px;height:7px;background:#27ffd5;border-radius:1px}
-/* Concept: antique clock */
-#ja-aura-panel .jal-time{--jal-aura:#e8bc75;--jal-light:#fff1cd}
-#ja-aura-panel .jal-time .jal-ring-a{border:4px double #f5d59b}
-#ja-aura-panel .jal-time .jal-ring-b{border:2px dotted #edc58a;animation:jalSpin 25s linear infinite}
-#ja-aura-panel .jal-time .jal-glyph:before{content:"Ⅻ";position:absolute;top:0;left:43%;color:#ffe4a7;font-size:17px;text-shadow:0 0 8px #dd9e48}
-#ja-aura-panel .jal-time .jal-glyph:after{content:"Ⅵ";position:absolute;bottom:0;left:46%;color:#ffe4a7;font-size:17px;text-shadow:0 0 8px #dd9e48}
-/* Concept: orbital galaxy */
-#ja-aura-panel .jal-galaxy{--jal-aura:#9e8aff;--jal-light:#e2d9ff}
-#ja-aura-panel .jal-galaxy .jal-glow{background:radial-gradient(ellipse,transparent 28%,#725ce8ab 64%,transparent 76%)}
-#ja-aura-panel .jal-galaxy .jal-ring-a{transform:rotate(-24deg) scaleY(.62);border:4px solid #b1a3ff;box-shadow:0 0 13px #b49dff}
-#ja-aura-panel .jal-galaxy .jal-ring-b{transform:rotate(24deg) scaleY(.72);border:3px dashed #dcceff;animation:jalOrbit 9s linear infinite}
-#ja-aura-panel .jal-galaxy .jal-spark{border-radius:50%;box-shadow:0 0 11px 3px #ac9aff;background:#fff}
-@keyframes jalBreathe{0%,100%{opacity:.25;transform:scale(.95)}50%{opacity:.58;transform:scale(1.08)}}
-@keyframes jalSpin{to{transform:rotate(360deg)}}
-@keyframes jalFrost{0%,100%{transform:rotate(25deg)}50%{transform:rotate(70deg)}}
-@keyframes jalOrbit{0%{transform:rotate(24deg) scaleY(.72)}100%{transform:rotate(384deg) scaleY(.72)}}
-@keyframes jalTwinkle{0%,100%{opacity:.3}50%{opacity:1}}
-@keyframes jalPetal{0%,100%{opacity:.2;translate:0 7px;rotate:-12deg}50%{opacity:1;translate:8px -9px;rotate:18deg}}
-@media(max-width:700px){#ja-aura-panel .jal-controls{grid-template-columns:1fr}#ja-aura-panel .jal-layout{grid-template-columns:1fr}#ja-aura-panel .jal-feature{position:static;grid-row:1}#ja-aura-panel .jal-feature-scene{padding:7px}#ja-aura-panel .jal-stage.jal-large{max-width:230px}}
-@media(max-width:370px){#ja-aura-panel .jal-cards{gap:7px}#ja-aura-panel .jal-card-copy{padding:7px 5px}#ja-aura-panel .jal-stage{max-width:135px}}
-@media(prefers-reduced-motion:reduce){#ja-aura-panel *,#ja-aura-panel *::before,#ja-aura-panel *::after{animation:none!important}}
-
-
-/* Each theme has five independent preview stages, Lv.10 -> Lv.50. */
-#ja-aura-panel .jal-controls{grid-template-columns:1fr}
-#ja-aura-panel .jal-control-group:last-child{border-top:1px solid #ece8f5;padding-top:13px}
-#ja-aura-panel .jal-control-group:last-child .jal-options{gap:8px}
-#ja-aura-panel .jal-heading{margin:0 0 10px;font-size:14px;color:#3e3464;line-height:1.5}
-#ja-aura-panel .jal-card-copy strong{line-height:1.45;min-height:34px}
-#ja-aura-panel .jal-stage .jal-burst{position:absolute;z-index:0;inset:-7%;border-radius:50%;opacity:0;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 8%,var(--jal-aura) 9% 12%,transparent 14% 28%,var(--jal-light) 30% 33%,transparent 35% 51%,var(--jal-aura) 53% 57%,transparent 59% 75%,var(--jal-light) 77% 80%,transparent 82%);filter:blur(6px)}
-/* Lv10 - a gentle hint of the chosen effect. */
-#ja-aura-panel .jal-tier-1 .jal-glow{animation:none;opacity:.18;transform:scale(.88)}
-#ja-aura-panel .jal-tier-1 .jal-ring{opacity:0}
-#ja-aura-panel .jal-tier-1 .jal-spark:nth-of-type(n+3){display:none}
-#ja-aura-panel .jal-tier-1 .jal-glyph{opacity:0}
-/* Lv20 - first particles and a faint ring. */
-#ja-aura-panel .jal-tier-2 .jal-glow{animation:none;opacity:.27}
-#ja-aura-panel .jal-tier-2 .jal-ring-a{opacity:.35;border-width:1px;box-shadow:none}
-#ja-aura-panel .jal-tier-2 .jal-ring-b{opacity:0}
-#ja-aura-panel .jal-tier-2 .jal-spark-4,#ja-aura-panel .jal-tier-2 .jal-spark-5{display:none}
-#ja-aura-panel .jal-tier-2 .jal-glyph{opacity:0}
-/* Lv30 - a recognizable themed sigil with one bright ring. */
-#ja-aura-panel .jal-tier-3 .jal-glow{animation:none;opacity:.4}
-#ja-aura-panel .jal-tier-3 .jal-ring-a{opacity:.8}
-#ja-aura-panel .jal-tier-3 .jal-ring-b{opacity:0}
-#ja-aura-panel .jal-tier-3 .jal-glyph{opacity:.75}
-/* Lv40 - full double aura, larger glints. */
-#ja-aura-panel .jal-tier-4 .jal-ring-a{opacity:.95}
-#ja-aura-panel .jal-tier-4 .jal-ring-b{opacity:.66}
-#ja-aura-panel .jal-tier-4 .jal-spark{box-shadow:0 0 12px 1px var(--jal-aura)}
-/* Lv50 - final version, expanding rays and a brighter orbit. */
-#ja-aura-panel .jal-tier-5 .jal-glow{filter:saturate(1.5) brightness(1.4)}
-#ja-aura-panel .jal-tier-5 .jal-ring-a{opacity:1;border-width:4px;box-shadow:0 0 13px 2px var(--jal-aura),inset 0 0 15px var(--jal-aura)}
-#ja-aura-panel .jal-tier-5 .jal-ring-b{opacity:.95;border-width:3px}
-#ja-aura-panel .jal-tier-5 .jal-burst{opacity:.68;animation:jalSpin 16s linear infinite}
-#ja-aura-panel .jal-tier-5 .jal-spark{width:9px;height:9px;box-shadow:0 0 16px 3px var(--jal-aura)}
-/* Keep the five comparison cards still; animate only the selected card and large detail.
-   This minimizes background GPU/CPU work when previewing alongside music apps. */
+#ja-aura-panel .jal-card{border-radius:15px;border:1px solid #e4deed;overflow:hidden;min-width:0;display:block;text-align:left;background:#fff;font:inherit;color:#352d4c;cursor:pointer;padding:0;transition:border-color .16s,box-shadow .16s}
+#ja-aura-panel .jal-card.is-selected{border-color:#9b87e4;box-shadow:0 0 0 2px #d9cffe}
+#ja-aura-panel .jal-card-art{display:block;padding:10px 8px 8px;background:radial-gradient(ellipse at 50% 66%,#2c3453 0%,#151b30 57%,#0b1020 100%);overflow:hidden}
+#ja-aura-panel .jal-card-copy{display:flex;flex-direction:column;gap:4px;padding:10px 10px 12px}
+#ja-aura-panel .jal-level{font-size:10px;letter-spacing:.35px;font-weight:800;color:#8473ab}
+#ja-aura-panel .jal-card-copy strong{font-size:12px;line-height:1.45;font-weight:850;min-height:32px}
+#ja-aura-panel .jal-card-copy small{font-size:10px;color:#878099;line-height:1.55}
+#ja-aura-panel .jal-feature{position:sticky;top:76px;overflow:hidden;min-width:0;border:1px solid #ddd7ec;border-radius:19px;background:#fff;box-shadow:0 6px 22px #31295413}
+#ja-aura-panel .jal-feature>strong{display:block;text-align:center;font-size:13px;padding:13px 10px 11px;color:#524575}
+#ja-aura-panel .jal-feature-scene{padding:16px 14px 12px;overflow:hidden;background:radial-gradient(ellipse at 50% 62%,#394463 0%,#151c31 59%,#090f1d 100%)}
+#ja-aura-panel .jal-feature-controls{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:10px 12px 0}
+#ja-aura-panel .jal-step-button{flex:1;border:1px solid #e1dbea;background:#f6f3fe;color:#5d4ba8;border-radius:10px;padding:9px 6px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+#ja-aura-panel .jal-step-button:disabled{opacity:.35;cursor:default}
+#ja-aura-panel .jal-feature p{margin:0;padding:12px 13px 17px;font-size:11px;line-height:1.7;color:#726983}
+#ja-aura-panel .jal-stage{position:relative;display:block;width:100%;max-width:170px;aspect-ratio:1;margin:auto;isolation:isolate;overflow:visible;contain:layout style;--jal-color:#ffa1c9;--jal-light:#ffe4f2;--jal-deep:#bc438f}
+#ja-aura-panel .jal-stage.jal-large{max-width:298px}
+#ja-aura-panel .jal-halo{position:absolute;inset:7%;z-index:0;border-radius:50%;background:radial-gradient(circle,transparent 31%,var(--jal-color) 70%,transparent 78%);opacity:.18;filter:blur(7px);animation:jal-aura-breath 5.5s ease-in-out infinite}
+#ja-aura-panel .jal-stage.jal-chapter-2 .jal-halo{opacity:.27;inset:2%}
+#ja-aura-panel .jal-stage.jal-chapter-3 .jal-halo{opacity:.34;inset:-2%}
+#ja-aura-panel .jal-stage.jal-chapter-4 .jal-halo{opacity:.37;inset:-5%}
+#ja-aura-panel .jal-stage.jal-chapter-5 .jal-halo{opacity:.47;inset:-8%;filter:blur(9px)}
+#ja-aura-panel .jal-aura-svg{position:absolute;inset:-5%;width:110%;height:110%;display:block;z-index:1;overflow:visible;pointer-events:none}
+#ja-aura-panel .jal-sprite{position:absolute;inset:12%;z-index:4;display:block}
+#ja-aura-panel .jal-sprite .jgc-mascot{width:100%!important;height:100%!important;display:block!important;max-width:none!important}
+#ja-aura-panel .jal-emoji{display:grid;place-items:center;font-size:64px;height:100%}
+#ja-aura-panel .jal-ornaments{opacity:.9}
+#ja-aura-panel .jal-stars{animation:jal-twinkle 3.6s ease-in-out infinite}
+#ja-aura-panel .jal-turn-slow{transform-origin:200px 200px;animation:jal-rotate 30s linear infinite}
+#ja-aura-panel .jal-turn-rev{transform-origin:200px 200px;animation:jal-reverse 21s linear infinite}
+#ja-aura-panel .jal-crest{animation:jal-twinkle 4.5s ease-in-out infinite}
+#ja-aura-panel .jal-imperial{animation:jal-twinkle 4.2s ease-in-out infinite}
+#ja-aura-panel .jal-stage.jal-strength-1 .jal-stars{opacity:.35}
+#ja-aura-panel .jal-stage.jal-strength-2 .jal-stars{opacity:.52}
+#ja-aura-panel .jal-stage.jal-strength-3 .jal-stars{opacity:.7}
+#ja-aura-panel .jal-stage.jal-strength-4 .jal-stars{opacity:.84}
+#ja-aura-panel .jal-stage.jal-strength-5 .jal-stars{opacity:1}
+#ja-aura-panel .jal-stage.jal-strength-5 .jal-halo{filter:blur(10px) brightness(1.18)}
+#ja-aura-panel .jal-stage.jal-strength-5 .jal-aura-svg{filter:drop-shadow(0 0 4px var(--jal-color))}
+#ja-aura-panel .jal-frost .jal-aura-svg{filter:drop-shadow(0 0 3px #6fdbff55)}
+#ja-aura-panel .jal-cyber .jal-aura-svg{filter:drop-shadow(0 0 3px #38ffd055)}
+#ja-aura-panel .jal-time .jal-aura-svg{filter:drop-shadow(0 0 3px #ffc96744)}
+#ja-aura-panel .jal-galaxy .jal-aura-svg{filter:drop-shadow(0 0 3px #978aff55)}
+#ja-aura-panel .jal-petal .jal-aura-svg{filter:drop-shadow(0 0 3px #f9a0ca55)}
+@keyframes jal-rotate{to{transform:rotate(360deg)}}
+@keyframes jal-reverse{to{transform:rotate(-360deg)}}
+@keyframes jal-aura-breath{0%,100%{transform:scale(.965);opacity:.22}50%{transform:scale(1.045);opacity:.5}}
+@keyframes jal-twinkle{0%,100%{opacity:.56}50%{opacity:1}}
+/* Only detail and the actively selected preview move. Five inactive cards stay static
+   to limit render work while music/other Android apps are running. */
 #ja-aura-panel .jal-card:not(.is-selected) .jal-stage *,
 #ja-aura-panel .jal-card:not(.is-selected) .jal-stage *::before,
 #ja-aura-panel .jal-card:not(.is-selected) .jal-stage *::after{animation:none!important}
-#ja-aura-panel .jal-stage .jal-sprite .jgc-mascot{pointer-events:none}
-@media(max-width:700px){#ja-aura-panel .jal-controls{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){#ja-aura-panel .jal-stage .jal-burst{animation:none!important}}
+#ja-aura-panel[hidden] .jal-stage *,
+#ja-aura-panel[hidden] .jal-stage *::before,
+#ja-aura-panel[hidden] .jal-stage *::after{animation-play-state:paused!important}
+@media(max-width:800px){
+ #ja-aura-panel .jal-layout{grid-template-columns:1fr}
+ #ja-aura-panel .jal-feature{position:static;grid-row:1}
+ #ja-aura-panel .jal-feature-scene{padding:8px 10px}
+ #ja-aura-panel .jal-stage.jal-large{max-width:252px}
+ #ja-aura-panel .jal-chapters{display:flex;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 1px 8px;margin:13px 0 13px}
+ #ja-aura-panel .jal-chapter-button{min-width:135px;flex:0 0 135px;scroll-snap-align:start}
+}
+@media(max-width:390px){
+ #ja-aura-panel .jal-switch{font-size:11px;min-height:36px;padding:6px 9px}
+ #ja-aura-panel .jal-cards{gap:8px}
+ #ja-aura-panel .jal-card-copy{padding:8px 7px 10px}
+ #ja-aura-panel .jal-card-copy strong{font-size:11px;min-height:28px}
+ #ja-aura-panel .jal-card-art{padding:6px}
+ #ja-aura-panel .jal-stage:not(.jal-large){max-width:140px}
+}
+@media(prefers-reduced-motion:reduce){#ja-aura-panel .jal-stage *,#ja-aura-panel .jal-stage *::before,#ja-aura-panel .jal-stage *::after{animation:none!important}}
