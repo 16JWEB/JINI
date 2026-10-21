@@ -37,27 +37,27 @@
 #ja-aura-panel .jal-spark-3{left:5%;top:58%;animation-delay:-1.7s}
 #ja-aura-panel .jal-spark-4{right:12%;bottom:12%;animation-delay:-.9s}
 #ja-aura-panel .jal-spark-5{left:37%;bottom:2%;animation-delay:-2.2s}
-/* Lv.10: sakura petals */
+/* Concept: sakura petals */
 #ja-aura-panel .jal-petal{--jal-aura:#f9a8cf;--jal-light:#ffe2f2}
 #ja-aura-panel .jal-petal .jal-ring-a{border-style:dotted}
 #ja-aura-panel .jal-petal .jal-spark{width:9px;height:6px;border-radius:9px 0 9px 0;transform:rotate(35deg);animation:jalPetal 4s ease-in-out infinite}
-/* Lv.20: frost shards */
+/* Concept: frost shards */
 #ja-aura-panel .jal-frost{--jal-aura:#72defb;--jal-light:#e5faff}
 #ja-aura-panel .jal-frost .jal-ring-a{border-radius:27%;transform:rotate(45deg);border:3px solid #a1eeff}
 #ja-aura-panel .jal-frost .jal-ring-b{border-style:solid;border-radius:20%;transform:rotate(25deg);animation:jalFrost 9s ease-in-out infinite}
 #ja-aura-panel .jal-frost .jal-spark{width:8px;height:12px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:#cbfaff}
-/* Lv.30: cyber neon */
+/* Concept: cyber neon */
 #ja-aura-panel .jal-cyber{--jal-aura:#32eec8;--jal-light:#c5fff1}
 #ja-aura-panel .jal-cyber .jal-ring-a{border-radius:18%;border:3px solid #27f3d1;transform:rotate(10deg)}
 #ja-aura-panel .jal-cyber .jal-ring-b{border-radius:24%;border:3px dashed #8effe4;animation:jalSpin 8s linear infinite}
 #ja-aura-panel .jal-cyber .jal-spark{width:7px;height:7px;background:#27ffd5;border-radius:1px}
-/* Lv.40: antique clock */
+/* Concept: antique clock */
 #ja-aura-panel .jal-time{--jal-aura:#e8bc75;--jal-light:#fff1cd}
 #ja-aura-panel .jal-time .jal-ring-a{border:4px double #f5d59b}
 #ja-aura-panel .jal-time .jal-ring-b{border:2px dotted #edc58a;animation:jalSpin 25s linear infinite}
 #ja-aura-panel .jal-time .jal-glyph:before{content:"Ⅻ";position:absolute;top:0;left:43%;color:#ffe4a7;font-size:17px;text-shadow:0 0 8px #dd9e48}
 #ja-aura-panel .jal-time .jal-glyph:after{content:"Ⅵ";position:absolute;bottom:0;left:46%;color:#ffe4a7;font-size:17px;text-shadow:0 0 8px #dd9e48}
-/* Lv.50: orbital galaxy */
+/* Concept: orbital galaxy */
 #ja-aura-panel .jal-galaxy{--jal-aura:#9e8aff;--jal-light:#e2d9ff}
 #ja-aura-panel .jal-galaxy .jal-glow{background:radial-gradient(ellipse,transparent 28%,#725ce8ab 64%,transparent 76%)}
 #ja-aura-panel .jal-galaxy .jal-ring-a{transform:rotate(-24deg) scaleY(.62);border:4px solid #b1a3ff;box-shadow:0 0 13px #b49dff}
@@ -72,3 +72,46 @@
 @media(max-width:700px){#ja-aura-panel .jal-controls{grid-template-columns:1fr}#ja-aura-panel .jal-layout{grid-template-columns:1fr}#ja-aura-panel .jal-feature{position:static;grid-row:1}#ja-aura-panel .jal-feature-scene{padding:7px}#ja-aura-panel .jal-stage.jal-large{max-width:230px}}
 @media(max-width:370px){#ja-aura-panel .jal-cards{gap:7px}#ja-aura-panel .jal-card-copy{padding:7px 5px}#ja-aura-panel .jal-stage{max-width:135px}}
 @media(prefers-reduced-motion:reduce){#ja-aura-panel *,#ja-aura-panel *::before,#ja-aura-panel *::after{animation:none!important}}
+
+
+/* Each theme has five independent preview stages, Lv.10 -> Lv.50. */
+#ja-aura-panel .jal-controls{grid-template-columns:1fr}
+#ja-aura-panel .jal-control-group:last-child{border-top:1px solid #ece8f5;padding-top:13px}
+#ja-aura-panel .jal-control-group:last-child .jal-options{gap:8px}
+#ja-aura-panel .jal-heading{margin:0 0 10px;font-size:14px;color:#3e3464;line-height:1.5}
+#ja-aura-panel .jal-card-copy strong{line-height:1.45;min-height:34px}
+#ja-aura-panel .jal-stage .jal-burst{position:absolute;z-index:0;inset:-7%;border-radius:50%;opacity:0;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 8%,var(--jal-aura) 9% 12%,transparent 14% 28%,var(--jal-light) 30% 33%,transparent 35% 51%,var(--jal-aura) 53% 57%,transparent 59% 75%,var(--jal-light) 77% 80%,transparent 82%);filter:blur(6px)}
+/* Lv10 - a gentle hint of the chosen effect. */
+#ja-aura-panel .jal-tier-1 .jal-glow{animation:none;opacity:.18;transform:scale(.88)}
+#ja-aura-panel .jal-tier-1 .jal-ring{opacity:0}
+#ja-aura-panel .jal-tier-1 .jal-spark:nth-of-type(n+3){display:none}
+#ja-aura-panel .jal-tier-1 .jal-glyph{opacity:0}
+/* Lv20 - first particles and a faint ring. */
+#ja-aura-panel .jal-tier-2 .jal-glow{animation:none;opacity:.27}
+#ja-aura-panel .jal-tier-2 .jal-ring-a{opacity:.35;border-width:1px;box-shadow:none}
+#ja-aura-panel .jal-tier-2 .jal-ring-b{opacity:0}
+#ja-aura-panel .jal-tier-2 .jal-spark-4,#ja-aura-panel .jal-tier-2 .jal-spark-5{display:none}
+#ja-aura-panel .jal-tier-2 .jal-glyph{opacity:0}
+/* Lv30 - a recognizable themed sigil with one bright ring. */
+#ja-aura-panel .jal-tier-3 .jal-glow{animation:none;opacity:.4}
+#ja-aura-panel .jal-tier-3 .jal-ring-a{opacity:.8}
+#ja-aura-panel .jal-tier-3 .jal-ring-b{opacity:0}
+#ja-aura-panel .jal-tier-3 .jal-glyph{opacity:.75}
+/* Lv40 - full double aura, larger glints. */
+#ja-aura-panel .jal-tier-4 .jal-ring-a{opacity:.95}
+#ja-aura-panel .jal-tier-4 .jal-ring-b{opacity:.66}
+#ja-aura-panel .jal-tier-4 .jal-spark{box-shadow:0 0 12px 1px var(--jal-aura)}
+/* Lv50 - final version, expanding rays and a brighter orbit. */
+#ja-aura-panel .jal-tier-5 .jal-glow{filter:saturate(1.5) brightness(1.4)}
+#ja-aura-panel .jal-tier-5 .jal-ring-a{opacity:1;border-width:4px;box-shadow:0 0 13px 2px var(--jal-aura),inset 0 0 15px var(--jal-aura)}
+#ja-aura-panel .jal-tier-5 .jal-ring-b{opacity:.95;border-width:3px}
+#ja-aura-panel .jal-tier-5 .jal-burst{opacity:.68;animation:jalSpin 16s linear infinite}
+#ja-aura-panel .jal-tier-5 .jal-spark{width:9px;height:9px;box-shadow:0 0 16px 3px var(--jal-aura)}
+/* Keep the five comparison cards still; animate only the selected card and large detail.
+   This minimizes background GPU/CPU work when previewing alongside music apps. */
+#ja-aura-panel .jal-card:not(.is-selected) .jal-stage *,
+#ja-aura-panel .jal-card:not(.is-selected) .jal-stage *::before,
+#ja-aura-panel .jal-card:not(.is-selected) .jal-stage *::after{animation:none!important}
+#ja-aura-panel .jal-stage .jal-sprite .jgc-mascot{pointer-events:none}
+@media(max-width:700px){#ja-aura-panel .jal-controls{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){#ja-aura-panel .jal-stage .jal-burst{animation:none!important}}
