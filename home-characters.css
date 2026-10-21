@@ -14,8 +14,14 @@
 .jgc-home-card-korean{border-color:#f0d4e6;background:linear-gradient(145deg,#ffeaf5 0%,#fff6fb 60%,#fff 100%);color:#4b2c46;box-shadow:0 13px 33px #b95a9b0e}
 .jgc-home-card:hover{transform:translateY(-3px);box-shadow:0 17px 37px #3c478b21}
 .jgc-home-card:focus-visible{outline:3px solid #8c7be8;outline-offset:4px}
-.jgc-home-copy{position:relative;z-index:2;display:flex;flex-direction:column;width:57%;min-width:0;height:100%}
+.jgc-home-heading{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
+.jgc-home-copy{position:relative;z-index:2;display:flex;flex-direction:column;width:57%;min-width:0}
 .jgc-home-label{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:800;letter-spacing:-.3px}
+.jgc-home-study-time{display:flex;flex-direction:column;align-items:flex-end;gap:3px;min-width:0;text-align:right}
+.jgc-home-study-time small{font-size:10px;font-weight:600;color:#687aa3}
+.jgc-home-study-time strong{font-size:14px;font-weight:800;color:#286ce6;line-height:1.3}
+.jgc-home-card-korean .jgc-home-study-time small{color:#a86690}
+.jgc-home-card-korean .jgc-home-study-time strong{color:#e83e8b}
 .jgc-home-label-icon{width:35px;height:35px;display:grid;place-items:center;border-radius:11px;background:#3f82f5;box-shadow:0 4px 11px #4c80db28;color:#fff;font-size:17px}
 .jgc-home-card-korean .jgc-home-label-icon{background:#ed599e;box-shadow:0 4px 11px #ee6eaa22}
 .jgc-home-name{margin-top:23px;color:#516189;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -37,7 +43,6 @@
 .jgc-home-stats>span{display:flex;flex:1 1 70px;flex-direction:column;gap:4px;border:1px solid #e3e9f9;background:#ffffffb5;border-radius:12px;padding:9px 10px;min-width:0}
 .jgc-home-stats small{font-size:10px;color:#8993aa;font-weight:600}
 .jgc-home-stats strong{font-size:15px;color:#3e5178;font-weight:800;white-space:nowrap}
-.jgc-home-stats>.jgc-home-study-time{flex:1 0 100%;flex-direction:row;align-items:center;justify-content:space-between;gap:8px}
 .jgc-home-card-korean .jgc-home-stats>span{border-color:#f4dfea}
 .jgc-home-card-korean .jgc-home-stats strong{color:#87516c}
 .jgc-home-aura{margin-top:11px;display:block;color:#6d7295;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

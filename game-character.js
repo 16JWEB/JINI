@@ -269,8 +269,10 @@
     const today=todayStudyLabel(study);
     return '<button type="button" class="jgc-home-card jgc-home-card-'+study+'" data-jgc-action="open" data-jgc-study="'+study+
       '" aria-label="'+escape(homePanelLabel(study,score,profile,today))+'">'+
-      '<span class="jgc-home-copy">'+
+      '<span class="jgc-home-heading">'+
       '<span class="jgc-home-label"><span class="jgc-home-label-icon" aria-hidden="true">'+(study==="english"?"📘":"📕")+'</span>'+meta.label+' 캐릭터</span>'+
+      '<span class="jgc-home-study-time"><small>오늘 학습시간</small><strong data-jgc-today-study="'+study+'">'+escape(today)+'</strong></span></span>'+
+      '<span class="jgc-home-copy">'+
       '<span class="jgc-home-name">'+escape(profile.name)+'</span>'+
       '<span class="jgc-home-level">Lv. <strong>'+score.level+'</strong></span>'+
       '<span class="jgc-home-rank">'+tier.name+' · '+avatarOf(profile.avatar).label+'</span>'+
@@ -278,8 +280,7 @@
       '<span class="jgc-home-track"><span style="width:'+score.percent+'%"></span></span>'+
       '<span class="jgc-home-progress-count">'+score.inLevel+' / 100 XP</span>'+
       '<span class="jgc-home-stats"><span><small>누적 XP</small><strong>'+score.xp.toLocaleString()+'</strong></span>'+
-      '<span><small>해금한 오라</small><strong>'+unlocked+' / 20</strong></span>'+
-      '<span class="jgc-home-study-time"><small>오늘 학습시간</small><strong data-jgc-today-study="'+study+'">'+escape(today)+'</strong></span></span>'+
+      '<span><small>해금한 오라</small><strong>'+unlocked+' / 20</strong></span></span>'+
       '<span class="jgc-home-aura" title="'+escape(auraName)+'">✨ '+escape(auraName)+'</span>'+
       '<span class="jgc-home-view">캐릭터 상세보기 <span aria-hidden="true">›</span></span>'+
       '</span><span class="jgc-home-illustration" aria-hidden="true">'+illustration(study)+'</span></button>';
