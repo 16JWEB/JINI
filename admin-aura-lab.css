@@ -46,8 +46,8 @@
 #ja-aura-panel .jal-stars{animation:jal-twinkle 3.6s ease-in-out infinite}
 #ja-aura-panel .jal-turn-slow{transform-origin:200px 200px;animation:jal-rotate 30s linear infinite}
 #ja-aura-panel .jal-turn-rev{transform-origin:200px 200px;animation:jal-reverse 21s linear infinite}
-#ja-aura-panel .jal-crest{animation:jal-twinkle 4.5s ease-in-out infinite}
-#ja-aura-panel .jal-imperial{animation:jal-twinkle 4.2s ease-in-out infinite}
+#ja-aura-panel .jal-crest{animation:jal-drift 5.5s ease-in-out infinite}
+#ja-aura-panel .jal-imperial{animation:jal-drift 6.2s ease-in-out infinite}
 /* Milestone unlocks persist when the next 50-level chapter begins.
    Do not style only strength-5: that caused Lv.60 to look weaker than Lv.50. */
 #ja-aura-panel .jal-stage.jal-milestone-50 .jal-halo{filter:blur(10px) brightness(1.18)}
@@ -66,7 +66,8 @@
 @keyframes jal-rotate{to{transform:rotate(360deg)}}
 @keyframes jal-reverse{to{transform:rotate(-360deg)}}
 @keyframes jal-aura-breath{0%,100%{transform:scale(.965);opacity:.22}50%{transform:scale(1.045);opacity:.5}}
-@keyframes jal-twinkle{0%,100%{opacity:.56}50%{opacity:1}}
+@keyframes jal-twinkle{0%,100%{opacity:.68}50%{opacity:1}}
+@keyframes jal-drift{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 /* Only detail and the actively selected preview move. Five inactive cards stay static
    to limit render work while music/other Android apps are running. */
 #ja-aura-panel .jal-card:not(.is-selected) .jal-stage *,
