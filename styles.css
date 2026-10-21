@@ -438,9 +438,9 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
 .home-sync-quicklink .home-sync-status{font-size:11px;margin-top:5px}
 .home-sync-quicklink span{font-size:11px;font-weight:600;color:#957b32}
 @media(max-width:760px){
-  /* Keep sync on the Home bottom navigation only, not study screens. */
+  /* Keep the five Home tabs unchanged on Home, learning stats and sync. */
   .home-nav .home-sync-link{display:none;flex-direction:column;gap:1px;min-width:86px;padding:5px 4px}
-  body:has(#home-section:not([hidden])) .home-nav .home-sync-link{display:flex}
+  .sidebar[data-study="home"] .home-nav .home-sync-link{display:flex}
   .home-nav .home-sync-link .nav-icon{font-size:14px;line-height:1}
   .home-nav .home-sync-title{font-size:9px}
   .home-nav .home-sync-status{font-size:9px;margin-top:2px;line-height:1.1}
