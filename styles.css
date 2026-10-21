@@ -322,7 +322,7 @@ h2 { margin: 7px 0 0; font-size: 20px; letter-spacing: -.65px; }
   .sidebar[data-study="korean"] #english-study-menu { display: none; }
   .home-nav { display: flex; flex: 0 0 auto; align-items: center; gap: 3px; margin: 0 6px 0 0; }
   .home-nav .nav-item { width: auto; min-width: 58px; min-height: 43px; flex: 0 0 auto; justify-content: center; gap: 6px; padding: 9px 8px; font-size: 10px; }
-  .home-nav .home-study-shortcut { display: none; }
+  .home-nav .home-study-shortcut { display: flex; }
   .sidebar[data-study="home"] .home-nav .home-study-shortcut { display: flex; }
   .home-nav .nav-icon { font-size: 16px; }
   .home-nav .home-study-shortcut { flex-direction: column; gap: 2px; min-width: 66px; padding: 6px 4px; font-size: 9px; }
