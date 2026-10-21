@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261021-sync-status-menu-v3">
+  <link rel="stylesheet" href="styles.css?v=20261021-unified-sync-status-v4">
   <link rel="stylesheet" href="korean-game.css?v=20261018-word-quiz-card-audio-v1">
   <link rel="stylesheet" href="english-game.css?v=20261018-expression-card-tap-v1">
   <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
@@ -218,7 +218,10 @@
               <button class="home-resume-button" type="button" data-page="study-info">공부시간 · 학습 달력</button>
             </div>
           </div>
-          <button class="home-sync-quicklink" type="button" data-page="sync">☁ 학습정보 동기화 <span>(테스트 중)</span> ›</button>
+          <button class="home-sync-quicklink" type="button" data-page="sync" data-sync-state="disconnected" aria-label="학습정보 동기화 (테스트 중) 열기">
+            <span class="home-sync-quicklink-title">☁ 학습정보 동기화 <span class="home-sync-quicklink-tag">(테스트 중)</span> ›</span>
+            <small id="jini-sync-home-status" class="home-sync-status" aria-live="polite">연결 안 됨</small>
+          </button>
           <div class="jini-home-character-grid" aria-label="나의 영어·한글 캐릭터">
             <div class="jgc-home-slot" id="jini-home-character-english" data-jini-character-panel="english" data-jini-character-home="true"></div>
             <div class="jgc-home-slot" id="jini-home-character-korean" data-jini-character-panel="korean" data-jini-character-home="true"></div>
@@ -782,7 +785,7 @@
   <script src="opic-mock.js?v=20261017-mock-v2"></script>
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="jini-sync.js?v=20261021-sync-status-menu-v18"></script>
+  <script src="jini-sync.js?v=20261021-unified-sync-status-v19"></script>
 </body>
 </html>
 
