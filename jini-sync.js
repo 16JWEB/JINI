@@ -13,6 +13,8 @@
   // or Drive backups. Google OAuth tokens still expire and must be renewed by
   // an explicit user click after expiry (no server-side refresh token here).
   const SESSION_KEY = "jini-drive-tab-session-v2";
+  // Keep the first XP change deadline across a same-tab page reload.
+  const XP_BATCH_DUE_KEY = "jini-drive-xp-batch-due-v1";
   const LEGACY_HANDOFF_KEY = "jini-drive-reload-token-once-v1";
   const FOLDER_NAME = "JINI";
   const FILE_NAME = "jini-backup.json";
@@ -638,6 +640,10 @@
     meta.lastRemoteVersion = String(remote.version || "");
     meta.lastRemoteFileId = remote.id || "";
     meta.lastSyncedAt = new Date().toISOString();
+    meta.lastVerifiedAt = Date.now();
+    if (remote.size !== undefined && remote.size !== null &&
+        Number.isFinite(Number(remote.size)) && Number(remote.size) >= 0)
+      meta.lastRemoteSize = Number(remote.size);
     meta.deleted = false;
     saveMeta();
     fileId = remote.id || fileId;
@@ -722,24 +728,31 @@
       }
       fileId = remoteMeta.id;
       const remoteVersion = String(remoteMeta.version || "");
-      // During automatic polling, compare lightweight file metadata first.
-      // Skip downloading the entire JSON only when THIS TAB has already
-      // verified an identical Drive snapshot and local learning data has not
-      // changed. After reload/reconnect, or on manual checks, read the file.
-      // Never skip the read for unrecognized versions, pending local edits or
-      // conflicts: those need full comparison/merge before any upload.
-      if (!force && !conflict && driveChecked && driveSnapshot &&
-          remoteVersion && meta.lastRemoteVersion === remoteVersion &&
+      // A previously confirmed file id/version/hash remains trustworthy
+      // across a same-tab reload. First check remote metadata, then skip the
+      // full JSON only if both that version and local data still match.
+      // Manual checks, account reconnects and changed records always use
+      // the full comparison/merge path.
+      if (!force && !conflict && remoteVersion &&
+          meta.lastRemoteVersion === remoteVersion &&
           meta.lastRemoteFileId === remoteMeta.id && meta.lastHash &&
-          meta.lastHash === fingerprint(driveSnapshot) &&
-          meta.lastHash === fingerprint(snapshot())) {
-        $("jsy-compare-note").textContent =
-          "Drive 파일 버전 " + remoteVersion + " · 변경 없음 (전체 백업 다운로드 생략)";
-        status("Drive 백업 변경사항이 없어 전체 학습데이터 다운로드를 생략했습니다.");
+          meta.lastHash === fingerprint(snapshot()) &&
+          (!driveChecked || (driveSnapshot &&
+            meta.lastHash === fingerprint(driveSnapshot)))) {
+        if (!driveChecked) showDataComparison(snapshot(),
+          "Drive 백업 버전 확인 완료 · 전체 다운로드 생략");
+        else $("jsy-compare-note").textContent =
+          "Drive 파일 버전 " + remoteVersion + " · 변경 없음 (전체 다운로드 생략)";
+        meta.lastVerifiedAt = Date.now();
+        if (remoteMeta.size !== undefined && remoteMeta.size !== null &&
+            Number.isFinite(Number(remoteMeta.size)) && Number(remoteMeta.size) >= 0)
+          meta.lastRemoteSize = Number(remoteMeta.size);
+        saveMeta();
+        status("Drive 백업이 변경되지 않아 전체 학습데이터 다운로드를 생략했습니다.");
         return;
       }
-      // Read the full backup whenever versions, local records, or the
-      // verified baseline differ; never trust version alone on first connect.
+      // Read the full backup if the file identity, version, or local data
+      // differs, or when no trustworthy previous sync baseline exists.
       const remoteData = await readFile(remoteMeta.id);
       // Studying can continue while the Drive request is in flight.
       const local = snapshot();
@@ -775,6 +788,13 @@
       if (remoteHash === localHash) {
         if (meta.lastHash !== localHash || String(meta.lastRemoteVersion || "") !== remoteVersion)
           markSynced(local, remoteMeta);
+        else {
+          meta.lastVerifiedAt = Date.now();
+          if (remoteMeta.size !== undefined && remoteMeta.size !== null &&
+              Number.isFinite(Number(remoteMeta.size)) && Number(remoteMeta.size) >= 0)
+            meta.lastRemoteSize = Number(remoteMeta.size);
+          saveMeta();
+        }
         status("이 기기와 Google Drive의 학습기록이 일치합니다.");
         return;
       }
@@ -860,6 +880,7 @@
           if (!reuseAccount) {
             delete meta.accountEmail;
             delete meta.lastBackedUpXP;
+            delete meta.lastVerifiedAt;
             driveSnapshot = null;
             driveChecked = false;
           }
@@ -1006,6 +1027,7 @@
       meta.lastRemoteVersion = "";
       meta.lastRemoteFileId = "";
       meta.lastHash = "";
+      delete meta.lastVerifiedAt;
       saveMeta();
       clearTabToken();
       meta.previouslyConnected = false;
@@ -1081,10 +1103,17 @@
       manualBackup(true);
     }
   }, true);
+  function saveXpDeadline() {
+    try {
+      if (xpBatchDueAt) sessionStorage.setItem(XP_BATCH_DUE_KEY, String(xpBatchDueAt));
+      else sessionStorage.removeItem(XP_BATCH_DUE_KEY);
+    } catch (_) {}
+  }
   function cancelXpBatch() {
     if (syncAfterXP !== null) window.clearTimeout(syncAfterXP);
     syncAfterXP = null;
     xpBatchDueAt = 0;
+    saveXpDeadline();
   }
   function flushXpBatch() {
     if (syncAfterXP !== null) window.clearTimeout(syncAfterXP);
@@ -1106,15 +1135,17 @@
       return;
     }
     xpBatchDueAt = 0;
+    saveXpDeadline();
     syncCycle();
   }
-  // A fixed window starts with the FIRST changed game record.
-  // Additional answers in this minute do not reset the clock.
+  // A fixed five-minute window starts with the FIRST changed game record.
+  // Additional answers do not extend that window.
   window.addEventListener("jini-learning-progress-changed", function () {
     if (!validToken()) { render(); return; }
     if (conflict || disconnecting) return;
     if (xpBatchDueAt) return;
     xpBatchDueAt = Date.now() + XP_BATCH_MS;
+    saveXpDeadline();
     syncAfterXP = window.setTimeout(flushXpBatch, XP_BATCH_MS);
     render();
   });
@@ -1124,10 +1155,41 @@
     if (validToken() && !xpBatchDueAt &&
         Date.now() - lastCycleFinishedAt >= DRIVE_POLL_MS) syncCycle();
   };
+  // Refreshing the page is not a new sync event. If this tab's token,
+  // previously verified Drive identity and unchanged local hash are present,
+  // reuse that *metadata* until the 10-minute check is due. No Drive payload,
+  // access token or other learning records are persisted for this shortcut.
+  const sameVerifiedLocal = validToken() && meta.previouslyConnected &&
+    !meta.manuallyDisconnected && !meta.deleted &&
+    !!meta.lastHash && !!meta.lastRemoteVersion && !!meta.lastRemoteFileId &&
+    fingerprint(snapshot()) === meta.lastHash;
+  const verifiedAt = Number(meta.lastVerifiedAt || 0);
+  const recentlyVerified = sameVerifiedLocal && Number.isFinite(verifiedAt) &&
+    verifiedAt > 0 && verifiedAt <= Date.now() &&
+    Date.now() - verifiedAt < DRIVE_POLL_MS;
+  if (recentlyVerified) {
+    showDataComparison(snapshot(), "이전 동기화 확인 기록 유지 · 새로고침 시 Drive 통신 생략");
+    if (Number.isFinite(Number(meta.lastRemoteSize)) &&
+        Number(meta.lastRemoteSize) >= 0)
+      setDriveSize({ size: meta.lastRemoteSize });
+    lastCycleFinishedAt = verifiedAt;
+  }
+  // A reload during the XP batching window must not upload early.
+  try {
+    const due = Number(sessionStorage.getItem(XP_BATCH_DUE_KEY) || 0);
+    if (validToken() && due > 0 && Number.isFinite(due) &&
+        meta.lastHash && fingerprint(snapshot()) !== meta.lastHash) {
+      xpBatchDueAt = due;
+      syncAfterXP = window.setTimeout(flushXpBatch, Math.max(0, due - Date.now()));
+    } else sessionStorage.removeItem(XP_BATCH_DUE_KEY);
+  } catch (_) {}
   render();
   if (validToken()) {
-    status("Google Drive 연결을 유지하고 있습니다. 학습기록 변경은 첫 변경부터 5분간 모아 백업하고, 변경사항이 없을 때는 약 10분마다 최신 백업을 확인합니다.");
-    syncCycle();
+    status(recentlyVerified ?
+      "새로고침 시 Drive 다운로드 없이 기존 확인 기록을 유지합니다. 다음 확인은 10분 주기입니다." :
+      xpBatchDueAt ? "이전 학습 변경을 첫 획득부터 5분간 모아 동기화합니다." :
+      "Google Drive 연결을 유지하고 있습니다. 변경사항이 없을 때는 약 10분마다 최신 백업을 확인합니다.");
+    if (!recentlyVerified && !xpBatchDueAt) syncCycle();
   } else if (meta.previouslyConnected) {
     status("이전 Google 연결의 인증이 필요합니다. 기기와 Drive 학습기록은 유지되어 있으며, 'Google 다시 연결'을 누르면 이어서 확인할 수 있습니다.");
   }
