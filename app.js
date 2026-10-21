@@ -52,6 +52,27 @@
   const BOOKMARK_STORAGE_KEY = "jini-learning-bookmarks";
   const ESSENTIAL_EXPRESSION_BOOKMARK_KEY = "jini-essential-expressions-bookmarks-v1";
   const STUDY_STATE_KEY = "jini-last-study-state";
+  // A fresh visit starts at Home; only a true browser reload restores the
+  // current screen. This tab-only key is not uploaded to Google Drive.
+  const RELOAD_VIEW_KEY = "jini-refresh-current-page-v1";
+  function initialPageOnReload() {
+    try {
+      const nav = window.performance && window.performance.getEntriesByType &&
+        window.performance.getEntriesByType("navigation")[0];
+      const isReload = nav ? nav.type === "reload" :
+        !!(window.performance && window.performance.navigation && window.performance.navigation.type === 1);
+      if (!isReload) return "home";
+      const page = sessionStorage.getItem(RELOAD_VIEW_KEY);
+      if (!page || !/^[a-z][a-z0-9-]*$/.test(page)) return "home";
+      return Array.from(document.querySelectorAll("[data-page]")).some(function (el) {
+        return el.dataset.page === page;
+      }) ? page : "home";
+    } catch (_) { return "home"; }
+  }
+  function rememberCurrentPage(page) {
+    try { sessionStorage.setItem(RELOAD_VIEW_KEY, page); } catch (_) {}
+  }
+
   const VOCABULARY_LEVEL_STATE_KEY = "jini-vocabulary-level-state-v1";
   let vocabularyLevelStates = {};
   const PLAYER_LEVEL_STATE_KEY = "jini-player-level-state-v1";
@@ -1549,6 +1570,7 @@
       search.value = "";
     }
     currentPageView = page;
+    rememberCurrentPage(page);
     const showingHome = page === "home";
     const showingStudyMenu = page === "study-menu" || page === "ko-study-menu";
     document.getElementById("english-study-hub").hidden = page !== "study-menu";
@@ -1969,9 +1991,9 @@
   playerLevelStates = loadPlayerLevelStates();
   expressionPlayerStates = loadExpressionPlayerStates();
   updateResumeStudyButtons();
-  // Always open JINI on Home. Saved study screens remain available through
-  // the separate "마지막 공부 화면" buttons; do not auto-resume on startup.
-  setPage("home");
+  // A normal new visit starts on Home. Reload stays on the current screen;
+  // saved list/player positions are restored through existing study-state data.
+  setPage(initialPageOnReload());
   showAndroidTtsFallback();
   renderWords();
   renderVerbForms();
