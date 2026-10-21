@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261021-home-only-sync-v2">
+  <link rel="stylesheet" href="styles.css?v=20261021-sync-status-menu-v3">
   <link rel="stylesheet" href="korean-game.css?v=20261018-word-quiz-card-audio-v1">
   <link rel="stylesheet" href="english-game.css?v=20261018-expression-card-tap-v1">
   <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
@@ -48,8 +48,12 @@
         <button class="nav-item home-study-info-link" data-page="study-info" type="button" aria-label="나의 학습정보 열기">
           <span class="nav-icon">▤</span><span>학습정보</span>
         </button>
-        <button class="nav-item home-sync-link" data-page="sync" type="button" aria-label="학습정보 동기화 (테스트 중) 열기">
-          <span class="nav-icon">☁</span><span>동기화 <small class="home-sync-tag">테스트 중</small></span>
+        <button class="nav-item home-sync-link" data-page="sync" type="button" data-sync-state="disconnected" aria-label="학습정보 동기화 (테스트 중) 열기">
+          <span class="nav-icon">☁</span>
+          <span class="home-sync-label">
+            <span class="home-sync-title">동기화 <small class="home-sync-tag">테스트 중</small></span>
+            <small id="jini-sync-menu-status" class="home-sync-status" aria-live="polite">연결 안 됨</small>
+          </span>
         </button>
       </nav>
       <div class="menu-label study-menu-label" id="english-menu-label">AI 영어공부</div>
@@ -778,7 +782,7 @@
   <script src="opic-mock.js?v=20261017-mock-v2"></script>
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="jini-sync.js?v=20261021-sync-buttons-status-v17"></script>
+  <script src="jini-sync.js?v=20261021-sync-status-menu-v18"></script>
 </body>
 </html>
 
