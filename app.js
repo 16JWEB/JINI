@@ -53,6 +53,8 @@
   const BOOKMARK_STORAGE_KEY = "jini-learning-bookmarks";
   const ESSENTIAL_EXPRESSION_BOOKMARK_KEY = "jini-essential-expressions-bookmarks-v1";
   const STUDY_STATE_KEY = "jini-last-study-state";
+  const VOCABULARY_LEVEL_STATE_KEY = "jini-vocabulary-level-state-v1";
+  let vocabularyLevelStates = {};
 
   function essentialExpressionItems() {
     return (window.JINI_ESSENTIAL_EXPRESSIONS || []).map(function (item) {
@@ -296,6 +298,29 @@
     }
   }
 
+  function loadVocabularyLevelStates() {
+    let saved = {};
+    try {
+      saved = JSON.parse(window.localStorage.getItem(VOCABULARY_LEVEL_STATE_KEY) || "{}") || {};
+    } catch (error) {
+      // A damaged or unavailable preference must not prevent studying.
+    }
+    const states = {};
+    ["all", "초등", "중등", "고등"].forEach(function (level) {
+      const state = saved[level];
+      if (state && state.page === "vocabulary" && state.level === level &&
+          Number.isInteger(state.pageNumber) && state.pageNumber > 0) {
+        states[level] = state;
+      }
+    });
+    // Keep the last position saved by versions before per-category memory.
+    const previous = studyStates.pages && studyStates.pages.vocabulary;
+    if (previous && ["all", "초등", "중등", "고등"].includes(previous.level) && !states[previous.level]) {
+      states[previous.level] = previous;
+    }
+    return states;
+  }
+
   function saveStudyState() {
     const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-expression-player", "english-game", "speaking", "opic", "opic-basic", "opic-mock"];
     if (restoringStudyState || !validPages.includes(currentPageView)) return;
@@ -320,6 +345,10 @@
       studyStates[currentStudy] = state;
       studyStates.lastStudy = currentStudy;
       window.localStorage.setItem(STUDY_STATE_KEY, JSON.stringify(studyStates));
+      if (currentPageView === "vocabulary") {
+        vocabularyLevelStates[activeLevel] = state;
+        window.localStorage.setItem(VOCABULARY_LEVEL_STATE_KEY, JSON.stringify(vocabularyLevelStates));
+      }
       updateResumeStudyButtons();
     } catch (error) {
       showToast("마지막 학습 화면을 저장하지 못했어요.");
@@ -1354,9 +1383,13 @@
   }
 
   function setLevel(level) {
+    if (level === activeLevel) return;
+    saveStudyState();
     activeLevel = level;
-    currentPage = 1;
-    selectedVocabularyIndex = -1;
+    const saved = currentPageView === "vocabulary" ? vocabularyLevelStates[level] : null;
+    currentPage = saved && Number.isInteger(saved.pageNumber) && saved.pageNumber > 0 ? saved.pageNumber : 1;
+    search.value = saved && typeof saved.query === "string" ? saved.query : "";
+    selectedVocabularyIndex = saved && Number.isInteger(saved.selectedVocabularyIndex) ? saved.selectedVocabularyIndex : -1;
     document.querySelectorAll(".filter-chip").forEach(function (button) {
       button.classList.toggle("selected", button.dataset.level === level);
     });
@@ -1753,6 +1786,7 @@
   renderBookmarkLists();
   updateVerbAutoButton();
   studyStates = loadStudyStates();
+  vocabularyLevelStates = loadVocabularyLevelStates();
   updateResumeStudyButtons();
   // Always open JINI on Home. Saved study screens remain available through
   // the separate "마지막 공부 화면" buttons; do not auto-resume on startup.
@@ -1785,4 +1819,5 @@
     window.history.pushState({ jiniHome: true }, "", window.location.href);
   });
 }());
+
 
