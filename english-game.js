@@ -548,6 +548,16 @@ root.addEventListener("change",e=>{const t=e.target;if(!t)return;
  if(t.id==="eg-level"&&levels.includes(t.value)){level=t.value;dashboard();}
  if(t.id==="eg-count"&&[10,20,30].includes(Number(t.value))){count=Number(t.value);dashboard();}
 });
+// Keep cached quiz XP current after merging saved answers from another device.
+window.addEventListener("jini-learning-progress-merged",()=>{
+ try {
+  const saved=JSON.parse(localStorage.getItem(KEY)||"null");
+  if(saved&&saved.items){
+   memory=Object.assign({xp:0,tries:0,correct:0,items:{}},saved);
+   if(!game||section.hidden)dashboard();
+  }
+ }catch(e){}
+});
 new MutationObserver(()=>{if(section.hidden){stop();active=false;game=null;dashboard();}}).observe(section,{attributes:true,attributeFilter:["hidden"]});
 window.JINI_START_ENGLISH_GAME=begin;
 dashboard();
