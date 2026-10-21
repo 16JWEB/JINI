@@ -12,6 +12,34 @@
     })) throw Error("Invalid study script manifest");
   } catch (_) { return; }
   let ready = false, loading = null, status = null;
+  // These views only use the always-loaded home/study-time/sync scripts.
+  // Do not download the 44 learning files merely to inspect backup or usage.
+  const lightPages = ["home", "study-info", "sync"];
+  function showLightPage(page, restoring) {
+    if (!lightPages.includes(page)) return false;
+    const home = page === "home", info = page === "study-info", sync = page === "sync";
+    const sidebar = document.querySelector(".sidebar");
+    if (sidebar) sidebar.dataset.study = "home";
+    const homeSection = document.getElementById("home-section");
+    const infoSection = document.getElementById("jini-study-info-section");
+    const syncSection = document.getElementById("jini-sync-page");
+    if (homeSection) homeSection.hidden = !home;
+    if (infoSection) infoSection.hidden = !info;
+    if (syncSection) syncSection.hidden = !sync;
+    document.querySelectorAll(".nav-item[data-page]").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.page === page);
+    });
+    const breadcrumb = document.getElementById("breadcrumb-section");
+    if (breadcrumb) breadcrumb.textContent = home ? "홈" :
+      info ? "나의 학습정보" : "학습정보 동기화";
+    const divider = document.getElementById("breadcrumb-divider");
+    if (divider) divider.hidden = true;
+    try { sessionStorage.setItem("jini-refresh-current-page-v1", page); } catch (_) {}
+    if (window.JINI_STUDY_TIME) window.JINI_STUDY_TIME.navigate(page);
+    if (sync && window.JINI_SYNC_PAGE_OPEN) window.JINI_SYNC_PAGE_OPEN();
+    if (!restoring) window.scrollTo(0, 0);
+    return true;
+  }
 
   function message(text) {
     if (!status) {
@@ -64,17 +92,25 @@
 
   document.addEventListener("click", function (event) {
     if (ready || event.defaultPrevented) return;
+    const back = event.target.closest("#sync-back-button");
+    if (back) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      showLightPage("home");
+      return;
+    }
     const trigger = event.target.closest("[data-page], [data-resume-study], .practice-menu-toggle, .opic-menu-toggle, .brand");
     if (!trigger) return;
-    // Home buttons do not need to download the learning library.
-    if (trigger.classList.contains("brand") || trigger.dataset.page === "home") {
+    const page = trigger.classList.contains("brand") ? "home" : trigger.dataset.page;
+    if (lightPages.includes(page)) {
       event.preventDefault();
+      event.stopImmediatePropagation();
+      showLightPage(page);
       return;
     }
     event.preventDefault();
     event.stopImmediatePropagation();
-    const wasDisabled = trigger.disabled;
-    if (wasDisabled) return;
+    if (trigger.disabled) return;
     fetchStudyScripts().then(function () {
       if (trigger.isConnected) trigger.click();
     }).catch(function () {});
@@ -87,7 +123,8 @@
     const reload = nav ? nav.type === "reload" : !!(performance.navigation && performance.navigation.type === 1);
     const oldPage = sessionStorage.getItem("jini-refresh-current-page-v1");
     if (reload && oldPage && oldPage !== "home") {
-      fetchStudyScripts().catch(function () {});
+      if (lightPages.includes(oldPage)) showLightPage(oldPage, true);
+      else fetchStudyScripts().catch(function () {});
     }
   } catch (_) {}
 
