@@ -9,6 +9,7 @@
 .jsy-info p{font-size:14px;line-height:1.75;margin:7px 0}
 .jsy-list{padding-left:21px;margin:13px 0 0;color:#616680;font-size:13px;line-height:1.9}
 .jsy-status-row{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #f1f0f6;padding:10px 0;font-size:14px}
+.jsy-status-row[hidden]{display:none}
 .jsy-status-row:last-of-type{border:0}
 .jsy-label{color:#6f7389}
 .jsy-pill{display:inline-block;font-size:12px;background:#f1f0f5;color:#6d6c80;border-radius:50px;padding:5px 11px;font-weight:700}
@@ -78,3 +79,4 @@
  .jsy-home-page{margin:10px auto 20px}
  .jsy-home-notice{padding:11px 12px}
 }
+

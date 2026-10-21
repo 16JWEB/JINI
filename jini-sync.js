@@ -461,8 +461,6 @@
     else if (on && conflict) { syncState = "attention"; syncMessage = "확인 필요"; }
     else if (on && driveChecked && driveSnapshot && equalRecords) {
       syncState = "synced"; syncMessage = "동기화 완료";
-    } else if (on && driveChecked && driveSnapshot !== null && !equalRecords) {
-      syncState = "pending"; syncMessage = "백업 대기";
     } else if (on) { syncState = "connected"; syncMessage = "연결됨"; }
     [
       [document.querySelector(".home-sync-link"), $("jini-sync-menu-status")],
@@ -477,7 +475,8 @@
     $("jsy-auto").textContent = !on ? "확인 불가" :
       conflict ? "기록 충돌" : !driveChecked ? "백업 확인 전" :
       driveSnapshot === null ? "백업 없음" :
-      equalRecords ? "학습기록 일치" : "변경사항 동기화 대기";
+      equalRecords ? "학습기록 일치" : "";
+    $("jsy-learning-status-row").hidden = !$("jsy-auto").textContent;
     $("jsy-last").textContent = dateTime(meta.lastSyncedAt);
     $("jsy-backup-size").textContent = !on ? "Google 연결 후 확인" :
       driveSizeBytes === undefined ? "백업 확인 전" :
