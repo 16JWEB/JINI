@@ -311,7 +311,10 @@
       notifyToday();
     }
   });
-  window.addEventListener("jini-learning-progress-merged", notifyToday);
+  window.addEventListener("jini-learning-progress-merged", function () {
+    if (page === "study-info") render();
+    notifyToday();
+  });
   window.setInterval(function () {
     settle();
     if (page === "study-info") render();
@@ -319,4 +322,5 @@
   }, 10000);
   window.JINI_STUDY_TIME = { navigate: onNavigate, getToday: getToday };
 }());
+
 
