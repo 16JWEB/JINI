@@ -89,6 +89,7 @@
     return key.startsWith("jini-") && key !== META_KEY &&
       key !== REWARD_NOTIFICATIONS_KEY && // Device-only notification queue, not earned rewards.
       !DEVICE_STATE_KEYS.includes(key) && !key.startsWith("jini-drive-") &&
+      !key.startsWith("jini-network-usage-") && // Traffic belongs to this browser, not learning progress.
       !/oauth|access.?token|refresh.?token|client.?secret|admin.?pass/i.test(key);
   }
   function snapshot() {
@@ -502,7 +503,7 @@
       if (!link || !field) return;
       link.dataset.syncState = syncState;
       if (field.textContent !== syncMessage) field.textContent = syncMessage;
-      link.setAttribute("aria-label", "학습정보 동기화 (테스트 중) · " + syncMessage + " · 열기");
+      link.setAttribute("aria-label", "학습정보 동기화 · " + syncMessage + " · 열기");
     });
     $("jsy-auto").textContent = !on ? "확인 불가" :
       conflict ? "기록 충돌" : !driveChecked ? "백업 확인 전" :
@@ -544,18 +545,31 @@
     const options = opts || {};
     options.headers = Object.assign({ Authorization: "Bearer " + token }, options.headers || {});
     const res = await fetch(url, options);
-    if (res.status === 401) {
-      clearTabToken();
-      render();
-      throw new Error("Google 인증이 만료되었습니다. 다시 동기화를 연결해 주세요.");
+    let receivedBody = "";
+    try {
+      if (res.status === 401) {
+        clearTabToken();
+        render();
+        throw new Error("Google 인증이 만료되었습니다. 다시 동기화를 연결해 주세요.");
+      }
+      if (!res.ok) {
+        const raw = receivedBody = await res.text();
+        throw new Error("Google Drive 요청 실패 (" + res.status + "): " + raw.slice(0, 150));
+      }
+      if (res.status === 204) return null;
+      if (res.headers.get("Content-Type") && res.headers.get("Content-Type").includes("application/json")) {
+        const data = await res.json();
+        receivedBody = JSON.stringify(data);
+        return data;
+      }
+      receivedBody = await res.text();
+      return receivedBody;
+    } finally {
+      // Metering must never interrupt backup, restoration or authorization.
+      try {
+        if (window.JINI_NETWORK_USAGE) window.JINI_NETWORK_USAGE.recordDrive(options.body || "", receivedBody);
+      } catch (_) {}
     }
-    if (!res.ok) {
-      const raw = await res.text();
-      throw new Error("Google Drive 요청 실패 (" + res.status + "): " + raw.slice(0, 150));
-    }
-    if (res.status === 204) return null;
-    if (res.headers.get("Content-Type") && res.headers.get("Content-Type").includes("application/json")) return res.json();
-    return res.text();
   }
   function query(params) {
     return API + "?" + new URLSearchParams(params);
