@@ -109,7 +109,7 @@
 }
 
 
-/* Mobile study-info shortcut is visible only while Home is open. */
+/* Keep study-info in the five-tab Home navigation on Home, stats and Drive sync. */
 @media(max-width:760px){
  .home-nav .home-study-info-link{
    display:none;
@@ -123,7 +123,7 @@
    padding:6px 5px;
    font-size:9px;
  }
- body:has(#home-section:not([hidden])) .home-nav .home-study-info-link{
+ .sidebar[data-study="home"] .home-nav .home-study-info-link{
    display:flex;
  }
  .home-nav .home-study-info-link .nav-icon{
