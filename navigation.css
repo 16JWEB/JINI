@@ -1,14 +1,22 @@
 /* Shared line icons, with a stable mobile navigation layout. */
 .sidebar .nav-icon { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
 .sidebar .nav-icon svg { display:block; width:20px; height:20px; }
+.page-top-button { position:fixed; right:20px; bottom:24px; z-index:5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; width:46px; min-height:46px; padding:5px; border:1px solid #dcd6fa; border-radius:14px; background:#fff; color:#6250d8; box-shadow:0 3px 14px #28244116; font:inherit; cursor:pointer; }
+.page-top-button[hidden] { display:none; }
+.page-top-button svg { width:20px; height:20px; }
+.page-top-button span { font-size:10px; font-weight:700; line-height:1.2; }
+.page-top-button:hover { background:#f3f0ff; }
+.page-top-button:focus-visible { outline:3px solid #a99bec; outline-offset:3px; }
 @media (max-width:760px) {
   .sidebar { z-index:6; align-items:center; gap:8px; padding:5px 8px; overflow:visible; background:#fff; box-shadow:0 -3px 16px #28244108; }
-  .sidebar .home-nav { flex:0 0 auto; gap:2px; margin:0; padding-right:7px; border-right:1px solid #eceaf5; }
+  .sidebar .home-nav { flex:0 0 auto; gap:0; margin:0; padding-right:4px; border-right:1px solid #eceaf5; }
   .sidebar[data-study="home"] .home-nav { flex:1; justify-content:space-around; border-right:0; padding:0; }
   .sidebar .study-menu { flex:1 1 0; min-width:0; overflow-x:auto; scrollbar-width:none; margin:0; padding:0; border:0; }
   .sidebar .study-menu::-webkit-scrollbar { display:none; }
   .sidebar .nav-submenu { gap:2px; align-items:center; }
   .sidebar .nav-item { flex-direction:column!important; align-items:center!important; justify-content:center!important; gap:4px!important; width:66px!important; min-width:66px!important; min-height:48px!important; height:48px; padding:5px 2px!important; border-radius:10px; font-size:10px!important; line-height:1.15; text-align:center; white-space:nowrap; color:#73758b; }
+  .sidebar .home-nav .nav-item { width:44px!important; min-width:44px!important; }
+  .sidebar .home-nav .home-study-shortcut { width:54px!important; min-width:54px!important; }
   .sidebar .nav-item .nav-icon { width:22px!important; height:22px; font-size:20px!important; }
   .sidebar .nav-item .nav-icon svg { width:21px; height:21px; }
   .sidebar .nav-item.active { background:#efecff; color:#6250d8; font-weight:800; }
@@ -23,7 +31,10 @@
   .sidebar .home-sync-status { margin:0; font-size:8px; line-height:1; }
   .sidebar[data-study="home"] .home-nav .nav-item { width:auto!important; min-width:55px!important; flex:1; }
   .sidebar[data-study="home"] .home-sync-link { gap:1px!important; }
+  .page-top-button { right:12px; bottom:calc(76px + env(safe-area-inset-bottom)); }
+  body:has(.player-section:not([hidden])) .page-top-button { bottom:calc(168px + env(safe-area-inset-bottom)); }
 }
   @media (max-width:760px) { .sidebar[data-study="home"] .home-sync-link { padding:2px!important; } .sidebar[data-study="home"] .home-sync-label { gap:1px; } }
 
 @media (max-width:760px) { .toast { bottom:76px; z-index:20; } }
+
