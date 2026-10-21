@@ -64,7 +64,7 @@
     root.innerHTML = '<div class="jsy-usage-today"><span>오늘 사용량 <small>(추정)</small></span><strong>' + formatBytes(today.download + today.upload) + '</strong></div>' +
       '<p class="jsy-muted">다운로드 ' + formatBytes(today.download) + ' · 업로드 ' + formatBytes(today.upload) + '</p>' +
       '<details class="jsy-usage-history"' + (expanded ? ' open' : '') + '><summary>최근 7일 사용량</summary><table><caption>이 브라우저의 JINI 일별 추정 전송량</caption><thead><tr><th scope="col">날짜</th><th scope="col">사용량</th></tr></thead><tbody>' + rows + '</tbody></table></details>' +
-      '<p class="jsy-muted">이 기기·이 브라우저에서 지니 이용 중 발생한 통신만 집계해요. Wi-Fi와 모바일 데이터를 합산하며, 기록은 이 브라우저에만 보관해요.</p>' +
+      '<p class="jsy-muted">이 기기·이 브라우저에서 지니 이용 중 발생한 통신만 집계해요. Wi-Fi와 모바일 데이터는 구분할 수 없어 합산해 표시해요. 기록은 이 브라우저에만 보관해요.</p>' +
       '<p class="jsy-muted">사이트 파일 다운로드와 Drive 백업·복원 데이터를 기준으로 한 추정치예요. 캐시에서 불러온 파일은 추가 다운로드로 세지 않아요. 압축·통신 부가 데이터 및 확인할 수 없는 외부 음성·인증 통신 때문에 통신사 사용량과 다를 수 있어요.</p>' +
       (today.unknown ? '<p class="jsy-muted">오늘 전송량을 확인할 수 없는 요청 ' + today.unknown.toLocaleString("ko-KR") + '건은 합계에서 제외했어요.</p>' : '') +
       (!window.performance || !window.performance.getEntriesByType ? '<p class="jsy-muted">이 브라우저는 파일 전송량 측정을 지원하지 않아 Drive 통신만 집계해요.</p>' : '') +
