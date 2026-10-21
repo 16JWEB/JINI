@@ -722,8 +722,24 @@
       }
       fileId = remoteMeta.id;
       const remoteVersion = String(remoteMeta.version || "");
-      // Always inspect the remote payload. Version equality alone does not
-      // prove that the file contains the latest character and study progress.
+      // During automatic polling, compare lightweight file metadata first.
+      // Skip downloading the entire JSON only when THIS TAB has already
+      // verified an identical Drive snapshot and local learning data has not
+      // changed. After reload/reconnect, or on manual checks, read the file.
+      // Never skip the read for unrecognized versions, pending local edits or
+      // conflicts: those need full comparison/merge before any upload.
+      if (!force && !conflict && driveChecked && driveSnapshot &&
+          remoteVersion && meta.lastRemoteVersion === remoteVersion &&
+          meta.lastRemoteFileId === remoteMeta.id && meta.lastHash &&
+          meta.lastHash === fingerprint(driveSnapshot) &&
+          meta.lastHash === fingerprint(snapshot())) {
+        $("jsy-compare-note").textContent =
+          "Drive 파일 버전 " + remoteVersion + " · 변경 없음 (전체 백업 다운로드 생략)";
+        status("Drive 백업 변경사항이 없어 전체 학습데이터 다운로드를 생략했습니다.");
+        return;
+      }
+      // Read the full backup whenever versions, local records, or the
+      // verified baseline differ; never trust version alone on first connect.
       const remoteData = await readFile(remoteMeta.id);
       // Studying can continue while the Drive request is in flight.
       const local = snapshot();
