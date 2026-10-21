@@ -7,7 +7,7 @@ const {test} = require('node:test');
 const source = fs.readFileSync(path.join(__dirname, '../jini-sync.js'), 'utf8')
   .replace('  render();\n  if (validToken()) {', `
   window.testAPI = {snapshot, validate, meaningful, fingerprint, syncCycle, checkDrive, manualBackup, beginConnect, disconnect,
-    getConflict: () => conflict, getMeta: () => meta,
+    getConflict: () => conflict, getMeta: () => meta, render,
     expireToken: () => {expiresAt = 0;},
     setBaseline: records => {meta.lastHash = fingerprint(records); meta.lastRemoteVersion = '1'; meta.lastRemoteFileId = 'backup';},
     setToken: () => {token = 'test'; expiresAt = Date.now() + 1000000;}};
@@ -29,20 +29,21 @@ function harness(local, remote, {version = '2', failRead = false, onRead, accoun
   let cloud = structuredClone(remote), cloudVersion = Number(version);
   let reloads = 0;
   const oauthRequests = [], oauthClients = [];
+  const windowEvents = new Map();
   const google = {accounts: {oauth2: {initTokenClient(config) {
     oauthClients.push(config);
     return {requestAccessToken(options) {oauthRequests.push(options);}};
   }}}};
   function element(id) {
-    if (!fields.has(id)) fields.set(id, {hidden: false, textContent: '',
-      addEventListener() {}, classList: {toggle() {}}, scrollIntoView() {}});
+    if (!fields.has(id)) fields.set(id, {hidden: false, textContent: '', events: {},
+      addEventListener(name, fn) {this.events[name] = fn;}, classList: {toggle() {}}, scrollIntoView() {}});
     return fields.get(id);
   }
   const metadata = () => ({id: 'backup', version: String(cloudVersion), size: '96000', modifiedTime: '2026-10-21T09:50:08Z'});
   const context = {URLSearchParams, Event, document: {hidden: false,
     getElementById: element, querySelector() {return null;}},
     google,
-    window: {google, JINI_GOOGLE_CLIENT_ID: 'test-client', addEventListener() {}, dispatchEvent() {}, setTimeout() {}, clearTimeout() {}, location: {reload() {reloads++;}}},
+    window: {google, JINI_GOOGLE_CLIENT_ID: 'test-client', addEventListener(name, fn) {windowEvents.set(name, fn);}, dispatchEvent() {}, setTimeout() {}, clearTimeout() {}, location: {reload() {reloads++;}}},
     localStorage, sessionStorage: storage(),
     fetch: async (url, options = {}) => {
       requests.push({url, ...options});
@@ -71,6 +72,7 @@ function harness(local, remote, {version = '2', failRead = false, onRead, accoun
   assert(api, 'test hooks must be installed');
   api.setToken();
   return {api, localStorage, element, requests, oauthRequests, oauthClients, cloud: () => cloud, reloads: () => reloads,
+    notifyProgress: () => windowEvents.get('jini-learning-progress-changed')(),
     setCloud: value => {cloud = structuredClone(value); cloudVersion++;},
     failReads: value => {failRead = value;},
     uploads: () => requests.filter(r => r.method === 'PATCH')};
@@ -326,4 +328,98 @@ test('authorization expiry while identifying the account leaves reconnect availa
   assert(h.element('jsy-message').textContent.includes('Google 인증이 만료'));
   await h.api.beginConnect();
   assert.equal(h.oauthClients.length, 2, 'the failed account check must not leave connecting latched');
+});
+
+function addXP(h, english, korean) {
+  for (const [key, amount] of [['jini-english-game-v1', english], ['jini-korean-games-v1', korean]]) {
+    const game = JSON.parse(h.localStorage.getItem(key));
+    game.xp += amount;
+    h.localStorage.setItem(key, JSON.stringify(game));
+  }
+}
+
+test('expired authorization shows unsaved XP by language from confirmed Drive totals', async () => {
+  const h = harness(records(), records());
+  await h.api.checkDrive();
+  h.api.getMeta().previouslyConnected = true;
+  addXP(h, 100, 20);
+  h.api.expireToken(); h.api.render();
+  assert.equal(h.element('jsy-expired-notice').hidden, false);
+  assert.equal(h.element('jsy-unbacked-xp').textContent, 'Drive에 아직 백업되지 않은 경험치 +120 XP');
+  assert.equal(h.element('jsy-unbacked-xp-detail').textContent, '영어 +100 XP · 한글 +20 XP');
+  assert.equal(h.element('jsy-expired-reconnect').textContent, '이전 계정으로 다시 연결');
+  assert.equal(h.element('jsy-expired-reconnect').disabled, false);
+  assert.equal(h.api.snapshot()['jini-drive-sync-meta-v1'], undefined);
+});
+
+test('last confirmed Drive XP survives reload while new expired-session gains update without requests', async () => {
+  const h = harness(records(), records());
+  await h.api.checkDrive();
+  const meta = JSON.parse(h.localStorage.getItem('jini-drive-sync-meta-v1'));
+  meta.previouslyConnected = true;
+  const restored = harness({...records(), 'jini-drive-sync-meta-v1': JSON.stringify(meta)}, records());
+  restored.api.expireToken(); addXP(restored, 10, 30);
+  restored.notifyProgress();
+  assert.equal(restored.element('jsy-expired-notice').hidden, false);
+  assert.match(restored.element('jsy-unbacked-xp').textContent, /\+40 XP$/);
+  assert.equal(restored.requests.length, 0);
+  addXP(restored, 20, 0); restored.notifyProgress();
+  assert.match(restored.element('jsy-unbacked-xp').textContent, /\+60 XP$/);
+  assert.equal(restored.requests.length, 0);
+});
+
+test('old or invalid Drive XP metadata never invents an unsaved XP amount', () => {
+  for (const lastBackedUpXP of [undefined, {enXp: '1400', koXp: 170}, {enXp: -10, koXp: 170}]) {
+    const meta = {previouslyConnected: true, lastBackedUpXP};
+    const h = harness({...records(), 'jini-drive-sync-meta-v1': JSON.stringify(meta)}, records());
+    h.api.expireToken(); h.api.render();
+    assert.equal(h.element('jsy-unbacked-xp').textContent, '미백업 경험치는 재연결 후 확인할 수 있어요.');
+    assert.equal(h.element('jsy-unbacked-xp-detail').hidden, true);
+  }
+});
+
+test('zero XP and lower local totals do not create negative or misleading combined XP', async () => {
+  const h = harness(records(), records());
+  await h.api.checkDrive(); h.api.getMeta().previouslyConnected = true;
+  h.api.expireToken(); h.api.render();
+  assert.equal(h.element('jsy-unbacked-xp').textContent, '추가로 백업할 경험치 0 XP');
+  addXP(h, -100, 30); h.notifyProgress();
+  assert.equal(h.element('jsy-unbacked-xp').textContent, 'Drive에 아직 백업되지 않은 경험치 +30 XP');
+  assert.equal(h.element('jsy-unbacked-xp-detail').textContent, '영어 +0 XP · 한글 +30 XP');
+});
+
+test('a failed Drive check preserves the last confirmed XP reference', async () => {
+  const h = harness(records(), records());
+  await h.api.checkDrive(); h.api.getMeta().previouslyConnected = true;
+  addXP(h, 50, 0); h.failReads(true);
+  await h.api.checkDrive();
+  h.api.expireToken(); h.api.render();
+  assert.match(h.element('jsy-unbacked-xp').textContent, /\+50 XP$/);
+  assert.equal(h.api.getMeta().lastBackedUpXP.enXp, 1400);
+});
+
+test('the expiry notice stays hidden when connected or deliberately disconnected', async () => {
+  const h = harness(records(), records());
+  h.api.render(); assert.equal(h.element('jsy-expired-notice').hidden, true);
+  h.api.getMeta().previouslyConnected = true;
+  h.api.render(); assert.equal(h.element('jsy-expired-notice').hidden, true);
+  h.api.expireToken(); h.api.render();
+  assert.equal(h.element('jsy-expired-notice').hidden, false);
+  h.api.disconnect();
+  assert.equal(h.element('jsy-expired-notice').hidden, true);
+});
+
+test('expiry notice reconnect uses the existing Google flow and clears the XP difference after backup', async () => {
+  const h = harness(records(), records());
+  await h.api.checkDrive();
+  h.api.getMeta().previouslyConnected = true;
+  addXP(h, 120, 0); h.api.expireToken(); h.api.render();
+  await h.element('jsy-expired-reconnect').events.click();
+  assert.equal(h.oauthRequests[0].prompt, '');
+  assert.equal(h.oauthRequests[0].login_hint, 'learner@example.test');
+  await h.oauthClients[0].callback({access_token: 'renewed', expires_in: 3600});
+  assert.equal(h.element('jsy-expired-notice').hidden, true);
+  assert.equal(h.api.getMeta().lastBackedUpXP.enXp, 1520);
+  h.api.expireToken(); h.api.render();
+  assert.equal(h.element('jsy-unbacked-xp').textContent, '추가로 백업할 경험치 0 XP');
 });

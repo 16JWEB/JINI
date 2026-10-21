@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="english-expressions.css?v=20261018-tap-full-audio-v1">
   <link rel="stylesheet" href="opic.css?v=20261021-compact-speaking-menu-v1">
   <link rel="stylesheet" href="opic-mock.css?v=20261017-mock-v1">
-  <link rel="stylesheet" href="jini-sync.css?v=20261021-no-pending-status-v5">
+  <link rel="stylesheet" href="jini-sync.css?v=20261021-expired-xp-v1">
   <link rel="stylesheet" href="navigation.css?v=20261021-compact-page-top-v3">
 </head>
 <body>
@@ -280,6 +280,13 @@
         <div class="jsy-card">
           <h2>동기화 연결 상태</h2>
           <div class="jsy-status-row"><span class="jsy-label">Google Drive</span><span id="jsy-state" class="jsy-pill">연결 안 됨</span></div>
+          <div id="jsy-expired-notice" class="jsy-expired-notice" role="status" aria-live="polite" hidden>
+            <strong>⚠ 동기화 인증이 만료됐어요</strong>
+            <p id="jsy-unbacked-xp"></p>
+            <p id="jsy-unbacked-xp-detail" class="jsy-muted"></p>
+            <p class="jsy-muted">학습 기록은 이 기기에 저장되어 있어요. 마지막으로 확인한 Drive 백업을 기준으로 비교해요.</p>
+            <button id="jsy-expired-reconnect" class="jsy-btn" type="button">Google 다시 연결</button>
+          </div>
           <div class="jsy-status-row" id="jsy-learning-status-row"><span class="jsy-label">학습정보 확인</span><strong id="jsy-auto">확인 불가</strong></div>
           <div class="jsy-status-row"><span class="jsy-label">마지막 동기화</span><strong id="jsy-last">기록 없음</strong></div>
           <div class="jsy-status-row"><span class="jsy-label">Drive 백업 파일 용량</span><strong id="jsy-backup-size">Google 연결 후 확인</strong></div>
@@ -818,7 +825,7 @@
   <script src="opic-mock.js?v=20261017-mock-v2"></script>
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="jini-sync.js?v=20261021-remember-google-account-v3"></script>
+  <script src="jini-sync.js?v=20261021-expired-xp-v1"></script>
   <script src="study-sync-status.js?v=20261021-v1"></script>
   <button class="page-top-button" id="page-top-button" type="button" aria-label="페이지 맨 위로 이동" title="맨 위로 이동" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 13 6-6 6 6M12 7v12"/></svg>

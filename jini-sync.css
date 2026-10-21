@@ -14,6 +14,12 @@
 .jsy-label{color:#6f7389}
 .jsy-pill{display:inline-block;font-size:12px;background:#f1f0f5;color:#6d6c80;border-radius:50px;padding:5px 11px;font-weight:700}
 .jsy-pill.is-connected{background:#e4f4eb;color:#227653}
+.jsy-expired-notice{margin:12px 0;padding:14px;border:1px solid #ead8ad;border-radius:12px;background:#fffbef;font-size:13px;line-height:1.7;color:#775724;overflow-wrap:anywhere}
+.jsy-expired-notice[hidden]{display:none!important}
+.jsy-expired-notice>strong{display:block}
+.jsy-expired-notice>p{margin:6px 0 0}
+.jsy-expired-notice .jsy-muted{color:#786b50}
+.jsy-expired-notice .jsy-btn{margin-top:10px;min-height:44px;padding:10px 14px}
 .jsy-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:15px 0 0}
 .jsy-btn{border:1px solid #dcd9ec;border-radius:10px;padding:13px 9px;background:white;font-size:13px;font-family:inherit;font-weight:700;color:#4e4a65;cursor:pointer;min-height:45px}
 .jsy-btn:disabled{opacity:.46;cursor:not-allowed}
