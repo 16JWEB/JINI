@@ -286,9 +286,19 @@
           <div class="jsy-data-audit" aria-label="Google Drive 데이터 비교">
             <strong>학습정보 실제 저장 상태 확인</strong>
             <p>연결됨은 Google 로그인 상태예요. 아래에서 XP·레벨·학습시간·캐릭터를 비교해야 복원 여부를 알 수 있어요.</p>
+          <div id="jsy-message" class="jsy-message" role="status" aria-live="polite" hidden></div>
             <div class="jsy-audit-item"><span>이 기기의 학습기록</span><div id="jsy-local-summary">확인 중</div></div>
             <div class="jsy-audit-item"><span>Google Drive 백업</span><div id="jsy-remote-summary">Google 연결 후 확인</div></div>
             <p id="jsy-compare-note" class="jsy-muted">기존 기기에서 기록이 보이는지 먼저 확인하세요.</p>
+          <div id="jsy-conflict" class="jsy-conflict" hidden>
+            <strong>기기 간 학습기록이 달라요</strong>
+            <p id="jsy-differences"></p>
+            <p id="jsy-conflict-text">어느 기록을 사용할지 선택하세요.</p>
+            <div class="jsy-buttons">
+              <button id="jsy-use-drive" class="jsy-btn" type="button">Drive 기록 사용</button>
+              <button id="jsy-use-local" class="jsy-btn" type="button">이 기기 기록 사용</button>
+            </div>
+          </div>
             <button id="jsy-refresh" class="jsy-btn" type="button" disabled>↻ Drive 백업 다시 확인</button>
           </div>
           <div class="jsy-buttons">
@@ -311,20 +321,11 @@
             <button id="jsy-restore" class="jsy-btn" type="button" disabled>↓ 백업 복원</button>
           </div>
           <button id="jsy-delete" class="jsy-btn danger" type="button" disabled>🗑 백업 데이터 삭제</button>
-          <div id="jsy-conflict" class="jsy-conflict" hidden>
-            <strong>기기 간 학습기록이 달라요</strong>
-            <p id="jsy-conflict-text">어느 기록을 사용할지 선택하세요.</p>
-            <div class="jsy-buttons">
-              <button id="jsy-use-drive" class="jsy-btn" type="button">Drive 기록 사용</button>
-              <button id="jsy-use-local" class="jsy-btn" type="button">이 기기 기록 사용</button>
-            </div>
-          </div>
           <div id="jsy-confirm" class="jsy-confirm" hidden>
             <strong id="jsy-confirm-title">확인</strong>
             <p id="jsy-confirm-body"></p>
             <div class="jsy-buttons"><button id="jsy-cancel" class="jsy-btn" type="button">취소</button><button id="jsy-confirm-yes" class="jsy-btn danger" type="button">확인</button></div>
           </div>
-          <div id="jsy-message" class="jsy-message" role="status" aria-live="polite" hidden></div>
           <details class="jsy-local-tools">
             <summary>인터넷 없이 파일로 직접 백업·복원</summary>
             <p class="jsy-muted">Google Drive 연결과 관계없이 현재 기기 학습정보를 파일로 내려받거나, 이전에 저장한 JSON 백업을 불러올 수 있습니다.</p>
@@ -812,8 +813,7 @@
   <script src="opic-mock.js?v=20261017-mock-v2"></script>
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="jini-sync.js?v=20261021-one-minute-batch-v21"></script>
+  <script src="jini-sync.js?v=20261021-conflict-recheck-v22"></script>
   <script src="study-sync-status.js?v=20261021-v1"></script>
 </body>
 </html>
-
