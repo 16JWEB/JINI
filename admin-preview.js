@@ -39,19 +39,30 @@
     if (auraLabLoading) return;
     const style = document.createElement("link");
     style.rel = "stylesheet";
-    style.href = "admin-aura-lab.css?v=20261022-polished-persistent-v4";
+    style.href = "admin-aura-lab.css?v=20261022-aura-alt-b-v5";
     document.head.appendChild(style);
-    const script = document.createElement("script");
-    script.src = "admin-aura-lab.js?v=20261022-polished-persistent-v4";
-    script.async = true;
-    script.onerror = function () {
+    const loadError = function () {
       auraLabLoading = null;
       const element = document.getElementById("ja-aura-cards");
-      if (element) element.textContent = "오라 테스트 파일을 불러오지 못했어요. 연결을 확인한 뒤 이 탭을 다시 눌러 주세요.";
+      if (element) element.textContent = "오라 테스트 파일을 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.";
     };
-    script.onload = function () { auraLabLoading = null; };
-    auraLabLoading = script;
-    document.body.appendChild(script);
+    function attachScript(path, done) {
+      const script = document.createElement("script");
+      script.src = path;
+      script.async = true;
+      script.onload = done;
+      script.onerror = loadError;
+      document.body.appendChild(script);
+      return script;
+    }
+    // B is a renderer only; load it before initializing the UI. Both are
+    // requested only on entry to this admin tab, never on the study pages.
+    auraLabLoading = true;
+    attachScript("admin-aura-lab-b.js?v=20261022-aura-alt-b-v5", function () {
+      attachScript("admin-aura-lab.js?v=20261022-aura-alt-b-v5", function () {
+        auraLabLoading = null;
+      });
+    });
   }
   let level = 100;
   function reset() {
