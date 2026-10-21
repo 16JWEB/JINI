@@ -26,8 +26,6 @@
   let currentStudy = "english";
   let currentPage = 1;
   let currentPageView = "";
-  // The screen the learner was on immediately before entering OPIc mock practice.
-  let mockReturnPage = "speaking";
   let syncReturnPage = "home";
   let selectedVocabularyIndex = -1;
   let restoringStudyState = false;
@@ -1497,11 +1495,6 @@
   function setPage(page) {
     if (page === currentPageView) return;
     if (page === "sync" && !restoringStudyState) syncReturnPage = currentPageView || "home";
-    // Capture before restore-state recursion so an Android back action returns to
-    // the actual previous screen rather than forcing the user to the home page.
-    if (page === "opic-mock" && currentPageView && currentPageView !== "opic-mock") {
-      mockReturnPage = currentPageView;
-    }
     if (!restoringStudyState) {
       saveStudyState();
       const savedPageState = studyStates.pages && studyStates.pages[page];
@@ -1725,11 +1718,18 @@
     select.disabled = playerWords.length === 0;
   }
 
+  function parentStudyPage(page) {
+    if (["study-menu", "ko-study-menu", "study-info"].includes(page)) return "home";
+    if (page === "sync") return syncReturnPage && syncReturnPage !== "sync" ? syncReturnPage : "home";
+    if (page === "opic-basic") return "opic";
+    if (page === "opic" || page === "opic-mock") return "speaking";
+    if (page === "ko-language-packs") return "ko-player";
+    return currentStudy === "korean" ? "ko-study-menu" : "study-menu";
+  }
+
   function leaveMockPractice() {
     if (currentPageView !== "opic-mock") return false;
-    const destination = mockReturnPage && mockReturnPage !== "opic-mock" ?
-      mockReturnPage : "speaking";
-    setPage(destination);
+    setPage(parentStudyPage("opic-mock"));
     return true;
   }
 
@@ -1969,26 +1969,20 @@
   updatePlayerCard();
   window.history.pushState({ jiniHome: true }, "", window.location.href);
   window.addEventListener("popstate", function () {
-    if (currentPageView === "opic-mock" && leaveMockPractice()) {
-      // The site's in-page navigation uses a history guard. Restore it so the
-      // next Android/browser Back press is still handled by JINI.
-      window.history.pushState({ jiniHome: true }, "", window.location.href);
-      return;
-    }
-    if (currentPageView === "opic-basic" &&
-        typeof window.JINI_OPIC_BACK === "function" &&
-        window.JINI_OPIC_BACK()) return;
-    // Give English and Korean games their own back-navigation steps.
-    if (currentPageView === "english-game" &&
-        typeof window.JINI_ENGLISH_GAME_BACK === "function" &&
-        window.JINI_ENGLISH_GAME_BACK()) return;
-    // Give the Korean game its own back-navigation step.
-    if (currentPageView === "ko-game" &&
-        typeof window.JINI_KOREAN_GAME_BACK === "function" &&
-        window.JINI_KOREAN_GAME_BACK()) return;
     if (currentPageView === "home") return;
-    setPage("home");
-    window.history.pushState({ jiniHome: true }, "", window.location.href);
+    let handled = false;
+    if (currentPageView === "opic-mock") handled = leaveMockPractice();
+    else if (currentPageView === "opic-basic" && typeof window.JINI_OPIC_BACK === "function")
+      handled = window.JINI_OPIC_BACK();
+    else if (currentPageView === "english-game" && typeof window.JINI_ENGLISH_GAME_BACK === "function")
+      handled = window.JINI_ENGLISH_GAME_BACK();
+    else if (currentPageView === "ko-game" && typeof window.JINI_KOREAN_GAME_BACK === "function")
+      handled = window.JINI_KOREAN_GAME_BACK();
+    if (!handled) setPage(parentStudyPage(currentPageView));
+    // Exercises may already have a JINI history entry underneath them. Restore
+    // the guard only when Back consumed it, so every parent remains reachable.
+    if (!window.history.state || !window.history.state.jiniHome)
+      window.history.pushState({ jiniHome: true }, "", window.location.href);
   });
 }());
 
