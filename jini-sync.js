@@ -26,6 +26,8 @@
   let busy = false;
   let connecting = false;
   let disconnecting = false;
+  let connectionStage = "";
+  let lastCycleFinishedAt = 0;
   let fileId = "";
   // undefined: not checked yet, null: no backup, number: exact Drive file bytes.
   let driveSizeBytes;
@@ -417,25 +419,29 @@
       fingerprint(snapshot()) === fingerprint(driveSnapshot);
     // Home menu status is independent of the sync-page visibility. Never
     // label an OAuth connection as "synced" until the snapshots match.
-    const menuLink = document.querySelector(".home-sync-link");
-    const menuStatus = $("jini-sync-menu-status");
-    if (menuLink && menuStatus) {
-      let state = "disconnected";
-      let message = "연결 안 됨";
-      if (disconnecting) { state = "disconnecting"; message = "해제 중…"; }
-      else if (connecting || busy) { state = "syncing"; message = "동기화 중…"; }
-      else if (!on && meta.previouslyConnected) { state = "expired"; message = "인증 만료"; }
-      else if (!on && meta.manuallyDisconnected) { state = "disconnected"; message = "해제됨"; }
-      else if (on && conflict) { state = "attention"; message = "확인 필요"; }
-      else if (on && driveChecked && driveSnapshot && equalRecords) {
-        state = "synced"; message = "동기화 완료";
-      } else if (on && driveChecked && driveSnapshot !== null && !equalRecords) {
-        state = "pending"; message = "백업 대기";
-      } else if (on) { state = "connected"; message = "연결됨"; }
-      menuLink.dataset.syncState = state;
-      if (menuStatus.textContent !== message) menuStatus.textContent = message;
-      menuLink.setAttribute("aria-label", "학습정보 동기화 (테스트 중) · " + message + " · 열기");
-    }
+    // Show the same state in the Home menu and the large Home shortcut.
+    let syncState = "disconnected";
+    let syncMessage = "연결 안 됨";
+    if (disconnecting) { syncState = "disconnecting"; syncMessage = "해제 중…"; }
+    else if (connecting || busy) { syncState = "syncing"; syncMessage = "동기화 중…"; }
+    else if (!on && meta.previouslyConnected) { syncState = "expired"; syncMessage = "인증 만료"; }
+    else if (!on && meta.manuallyDisconnected) { syncState = "disconnected"; syncMessage = "해제됨"; }
+    else if (on && conflict) { syncState = "attention"; syncMessage = "확인 필요"; }
+    else if (on && driveChecked && driveSnapshot && equalRecords) {
+      syncState = "synced"; syncMessage = "동기화 완료";
+    } else if (on && driveChecked && driveSnapshot !== null && !equalRecords) {
+      syncState = "pending"; syncMessage = "백업 대기";
+    } else if (on) { syncState = "connected"; syncMessage = "연결됨"; }
+    [
+      [document.querySelector(".home-sync-link"), $("jini-sync-menu-status")],
+      [document.querySelector(".home-sync-quicklink"), $("jini-sync-home-status")]
+    ].forEach(function (entry) {
+      const link = entry[0], field = entry[1];
+      if (!link || !field) return;
+      link.dataset.syncState = syncState;
+      if (field.textContent !== syncMessage) field.textContent = syncMessage;
+      link.setAttribute("aria-label", "학습정보 동기화 (테스트 중) · " + syncMessage + " · 열기");
+    });
     $("jsy-auto").textContent = !on ? "확인 불가" :
       conflict ? "기록 충돌" : !driveChecked ? "백업 확인 전" :
       driveSnapshot === null ? "백업 없음" :
@@ -446,8 +452,14 @@
       driveSizeBytes === null ? "백업 없음" :
       Number.isFinite(driveSizeBytes) ? formatDriveSize(driveSizeBytes) : "용량 확인 불가";
     $("jsy-connect").disabled = on || busy || connecting || disconnecting;
-    $("jsy-connect-label").textContent = reconnectNeeded ? "↻ Google 다시 연결" : "↻ 동기화 하기";
+    $("jsy-connect-label").textContent = connecting || busy ? "↻ 동기화 처리 중" :
+      on && conflict ? "⚠ 기록 확인 필요" :
+      on && driveChecked && driveSnapshot && equalRecords ? "✓ 동기화 완료" :
+      on ? "✓ Google 연결됨" :
+      reconnectNeeded ? "↻ Google 다시 연결" : "↻ 동기화 하기";
     $("jsy-connect-progress").hidden = !(connecting || busy);
+    $("jsy-connect-progress").textContent = connecting ?
+      (connectionStage || "Google 인증 중…") : "학습기록 확인 중…";
     // Allow an explicit local disconnect even after the Google token expires.
     $("jsy-disconnect").disabled = (!on && !meta.previouslyConnected) || busy || connecting || disconnecting;
     $("jsy-disconnect-progress").hidden = !disconnecting;
@@ -554,11 +566,15 @@
       try { $("jsy-conflict").scrollIntoView({ behavior: "smooth", block: "center" }); } catch (_) {}
     }
   }
-  async function syncCycle() {
-    // Once the learner explicitly connects Google Drive, sync whenever the
-    // JINI page is visible; opening the admin sync tab is no longer required.
-    // Existing remote-version and meaningful-data safeguards still apply.
-    if (!validToken() || busy || conflict || document.hidden) return;
+  async function syncCycle(force) {
+    // An explicit login completes one full Drive reconciliation, even while a
+    // mobile Google account chooser briefly hides the original page.
+    // Background focus / visibility / timer checks must not race that login.
+    if (!validToken() || busy || conflict || (!force && (connecting || document.hidden))) return;
+    // Returning from the Google popup can fire focus and visibility events.
+    // Avoid a second identical scan immediately after a completed upload.
+    if (!force && Date.now() - lastCycleFinishedAt < 8000 &&
+        fingerprint(snapshot()) === meta.lastHash) return;
     busy = true;
     render();
     try {
@@ -664,7 +680,7 @@
         showConflict(local, remoteData, remoteMeta);
       }
     } catch (e) { status(e.message || "동기화에 실패했습니다.", true); }
-    finally { busy = false; render(); }
+    finally { busy = false; lastCycleFinishedAt = Date.now(); render(); }
   }
   async function beginConnect() {
     if (!syncPageOpen()) return;
@@ -676,7 +692,9 @@
       status("Google 인증 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.", true);
       return;
     }
+    if (connecting || busy || disconnecting) return;
     connecting = true;
+    connectionStage = "Google 인증 중…";
     render();
     try {
       const client = google.accounts.oauth2.initTokenClient({
@@ -685,6 +703,7 @@
           if (!response || !response.access_token) {
             const detail = response && (response.error_description || response.error) || "";
             connecting = false;
+            connectionStage = "";
             status("Google Drive 연결이 취소되었거나 거부되었습니다." +
               (detail ? " (" + detail + ")" : ""), true);
             render();
@@ -698,13 +717,15 @@
           meta.manuallyDisconnected = false;
           saveMeta();
           conflict = null;
-          status("Google Drive에 연결했습니다. 기존 백업과 학습기록을 비교합니다.");
+          connectionStage = "학습기록 비교·백업 중…";
+          status("Google Drive 연결 후 현재 기기와 백업을 비교·반영하고 있습니다.");
           render();
-          try { await syncCycle(); }
-          finally { connecting = false; render(); }
+          try { await syncCycle(true); }
+          finally { connecting = false; connectionStage = ""; render(); }
         },
         error_callback: function (error) {
           connecting = false;
+          connectionStage = "";
           status("Google 로그인 창을 열지 못했습니다. 팝업 설정을 확인해 주세요." +
             (error && error.type ? " (" + error.type + ")" : ""), true);
           render();
@@ -715,6 +736,7 @@
       client.requestAccessToken({ prompt: "select_account" });
     } catch (e) {
       connecting = false;
+      connectionStage = "";
       status(e.message, true);
       render();
     }
