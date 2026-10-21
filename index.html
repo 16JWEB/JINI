@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=20261021-page-bottom-spacing-v1">
+  <link rel="stylesheet" href="styles.css?v=20261021-site-data-usage-v1">
   <link rel="stylesheet" href="korean-game.css?v=20261021-page-bottom-spacing-v1">
   <link rel="stylesheet" href="english-game.css?v=20261021-page-bottom-spacing-v1">
   <link rel="stylesheet" href="game-character.css?v=20261018-growth-aura-1">
@@ -25,8 +25,8 @@
   <link rel="stylesheet" href="english-expressions.css?v=20261021-page-bottom-spacing-v1">
   <link rel="stylesheet" href="opic.css?v=20261021-page-bottom-spacing-v1">
   <link rel="stylesheet" href="opic-mock.css?v=20261021-page-bottom-spacing-v1">
-  <link rel="stylesheet" href="jini-sync.css?v=20261021-page-bottom-spacing-v1">
-  <link rel="stylesheet" href="navigation.css?v=20261021-page-bottom-spacing-v1">
+  <link rel="stylesheet" href="jini-sync.css?v=20261021-site-data-usage-v1">
+  <link rel="stylesheet" href="navigation.css?v=20261021-site-data-usage-v1">
 </head>
 <body>
   <div class="app-shell">
@@ -49,10 +49,10 @@
         <button class="nav-item home-study-info-link" data-page="study-info" type="button" aria-label="나의 학습정보 열기">
           <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 3v18h17M8 16v-4m5 4V6m5 10V9"/></svg></span><span>학습정보</span>
         </button>
-        <button class="nav-item home-sync-link" data-page="sync" type="button" data-sync-state="disconnected" aria-label="학습정보 동기화 (테스트 중) 열기">
+        <button class="nav-item home-sync-link" data-page="sync" type="button" data-sync-state="disconnected" aria-label="학습정보 동기화 열기">
           <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M20 7a8 8 0 0 0-14-2L3 8m0-5v5h5M4 17a8 8 0 0 0 14 2l3-3m0 5v-5h-5"/></svg></span>
           <span class="home-sync-label">
-            <span class="home-sync-title">동기화 <small class="home-sync-tag">테스트 중</small></span>
+            <span class="home-sync-title">동기화</span>
             <small id="jini-sync-menu-status" class="home-sync-status" aria-live="polite">연결 안 됨</small>
           </span>
         </button>
@@ -170,7 +170,7 @@
           <div class="breadcrumb"><span class="breadcrumb-root" id="breadcrumb-section">홈</span><span id="breadcrumb-divider" hidden> / </span><strong id="breadcrumb-level"></strong></div>
         </div>
         <div class="top-actions">
-          <button class="study-sync-link" data-page="sync" type="button" data-sync-state="disconnected" aria-label="학습정보 동기화 (테스트 중) 열기"><span>☁ 동기화</span><small id="study-sync-status" class="home-sync-status" aria-live="polite">연결 안 됨</small></button>
+          <button class="study-sync-link" data-page="sync" type="button" data-sync-state="disconnected" aria-label="학습정보 동기화 열기"><span>☁ 동기화</span><small id="study-sync-status" class="home-sync-status" aria-live="polite">연결 안 됨</small></button>
           <span class="voice-status"><i></i> 기기 기본 음성</span>
           <button class="profile" aria-label="프로필">J</button>
         </div>
@@ -219,8 +219,8 @@
               <button class="home-resume-button" type="button" data-page="study-info">공부시간 · 학습 달력</button>
             </div>
           </div>
-          <button class="home-sync-quicklink" type="button" data-page="sync" data-sync-state="disconnected" aria-label="학습정보 동기화 (테스트 중) 열기">
-            <span class="home-sync-quicklink-title">☁ 학습정보 동기화 <span class="home-sync-quicklink-tag">(테스트 중)</span> ›</span>
+          <button class="home-sync-quicklink" type="button" data-page="sync" data-sync-state="disconnected" aria-label="학습정보 동기화 열기">
+            <span class="home-sync-quicklink-title">☁ 학습정보 동기화 ›</span>
             <small id="jini-sync-home-status" class="home-sync-status" aria-live="polite">연결 안 됨</small>
           </button>
           <div class="jini-home-character-grid" aria-label="나의 영어·한글 캐릭터">
@@ -259,12 +259,11 @@
         <div id="jini-study-time-root"></div>
       </section>
 
-      <section id="jini-sync-page" class="jsy-home-page" aria-label="학습정보 동기화 (테스트 중)" hidden>
+      <section id="jini-sync-page" class="jsy-home-page" aria-label="학습정보 동기화" hidden>
         <button id="sync-back-button" class="bookmark-button" type="button" style="min-height:36px;margin:12px 0 4px;font-size:12px">← 이전 페이지</button>
-        <p class="jsy-home-notice">🧪 테스트 중인 기능입니다. Google Drive 백업·복원 및 기기 간 동기화는 아직 완전히 검증되지 않았습니다. 중요한 기록은 JSON 파일로 별도 백업해 두세요.</p>
       <section class="jsy-section" id="jini-sync-section" aria-labelledby="jsy-title">
         <div class="jsy-head">
-          <h1 id="jsy-title">↻ 학습정보 동기화 (테스트 중)</h1>
+          <h1 id="jsy-title">↻ 학습정보 동기화</h1>
           <p>Google Drive를 통해 휴대폰과 컴퓨터의 학습기록을 안전하게 보관하고 이어서 공부하세요.</p>
         </div>
         <div class="jsy-card jsy-info">
@@ -344,6 +343,10 @@
           <div class="jsy-path">내 드라이브 &gt; <strong>JINI</strong><div class="jsy-path-file">📄 jini-backup.json</div></div>
           <p class="jsy-muted">동기화 연결 후 Google Drive의 '내 드라이브/JINI' 폴더에 저장합니다.</p>
           <a class="jsy-link" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener noreferrer">Google Drive 열기 ↗</a>
+        </div>
+        <div class="jsy-card" aria-labelledby="jsy-usage-title">
+          <h2 id="jsy-usage-title">지니 인터넷 데이터 사용량</h2>
+          <div id="jini-network-usage-root">이 브라우저에서 오늘 사용한 데이터를 집계하고 있어요.</div>
         </div>
       </section>
       </section>
@@ -709,7 +712,7 @@
           <span class="ja-data-lead-icon" aria-hidden="true">🛡️</span>
           <div>
             <strong>JINI 학습 데이터 보관 안내</strong>
-            <p>JINI 학습 기록은 기본적으로 <b>각 기기의 브라우저 저장공간(localStorage)</b>에 보관됩니다. Google Drive 동기화는 <b>홈 메뉴에서 테스트 중</b>이며, 실제 복원이 확인되기 전에는 Chrome의 사이트 데이터를 지우지 마세요.</p>
+            <p>JINI 학습 기록은 기본적으로 <b>각 기기의 브라우저 저장공간(localStorage)</b>에 보관됩니다. <b>홈 메뉴의 학습정보 동기화</b>에서 Google Drive에 백업하고 다른 기기에서 이어서 공부할 수 있어요.</p>
           </div>
         </div>
         <section class="ja-data-section" aria-labelledby="ja-data-risk-title">
@@ -754,8 +757,8 @@
           </ol>
         </section>
         <section class="ja-data-section" aria-labelledby="ja-data-plan-title">
-          <h3 id="ja-data-plan-title">4. 백업·복원 기능 계획</h3>
-          <p>홈 메뉴의 <strong>학습정보 동기화 (테스트 중)</strong> 화면에서 Drive 백업·복원과 JSON 파일 저장을 시험할 수 있어요. 정식 지원 전에는 파일 사본을 따로 보관하세요.</p>
+          <h3 id="ja-data-plan-title">4. 백업·복원 기능</h3>
+          <p>홈 메뉴의 <strong>학습정보 동기화</strong> 화면에서 Drive 백업·복원과 JSON 파일 저장을 사용할 수 있어요.</p>
           <div class="ja-data-plans">
             <article class="ja-data-plan"><strong>📥 전체 데이터 백업</strong><p>레벨·XP·캐릭터·문제 풀이·책갈피·오픽 답변 등 저장 기록을 JSON 파일로 내보내기</p></article>
             <article class="ja-data-plan"><strong>📤 전체 데이터 복원</strong><p>백업 파일을 검증한 뒤 이전 학습 기록을 불러오기</p></article>
@@ -805,6 +808,7 @@
   <script src="english-learning-order-data.js?v=20261020-500-expressions-merge-v1"></script>
   <script src="study-time.js?v=20261020-calendar-v1"></script>
   <script src="app.js?v=20261021-korean-curriculum-v2"></script>
+  <script src="network-usage.js?v=20261021-site-data-usage-v1"></script>
   <script src="jini-chrome-launch.js?v=20261018-compact-shortcuts-v2"></script>
   <script src="jini-install.js?v=20261018-number-left-v1"></script>
   <script src="jini-address-bar.js?v=20261018-standalone-address-v1"></script>
@@ -825,7 +829,7 @@
   <script src="opic-mock.js?v=20261017-mock-v2"></script>
   <script src="jini-drive-config.js?v=20261020-sync-v1"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="jini-sync.js?v=20261021-expired-xp-v1"></script>
+  <script src="jini-sync.js?v=20261021-site-data-usage-v1"></script>
   <script src="study-sync-status.js?v=20261021-v1"></script>
   <button class="page-top-button" id="page-top-button" type="button" aria-label="페이지 맨 위로 이동" title="맨 위로 이동" hidden>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 13 6-6 6 6M12 7v12"/></svg>

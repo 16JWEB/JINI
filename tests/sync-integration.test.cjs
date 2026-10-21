@@ -22,7 +22,7 @@ function storage(initial = {}) {
     removeItem: key => data.delete(key)};
 }
 function harness(local, remote, {version = '2', failRead = false, onRead, accountEmail = 'learner@example.test',
-    failAccountRead = false, accountUnauthorized = false} = {}) {
+    failAccountRead = false, accountUnauthorized = false, usageRecorder} = {}) {
   const fields = new Map();
   const localStorage = storage(local);
   const requests = [];
@@ -43,7 +43,9 @@ function harness(local, remote, {version = '2', failRead = false, onRead, accoun
   const context = {URLSearchParams, Event, document: {hidden: false,
     getElementById: element, querySelector() {return null;}},
     google,
-    window: {google, JINI_GOOGLE_CLIENT_ID: 'test-client', addEventListener(name, fn) {windowEvents.set(name, fn);}, dispatchEvent() {}, setTimeout() {}, clearTimeout() {}, location: {reload() {reloads++;}}},
+    window: {google, JINI_GOOGLE_CLIENT_ID: 'test-client',
+      JINI_NETWORK_USAGE: usageRecorder ? {recordDrive: usageRecorder} : undefined,
+      addEventListener(name, fn) {windowEvents.set(name, fn);}, dispatchEvent() {}, setTimeout() {}, clearTimeout() {}, location: {reload() {reloads++;}}},
     localStorage, sessionStorage: storage(),
     fetch: async (url, options = {}) => {
       requests.push({url, ...options});
@@ -422,4 +424,40 @@ test('expiry notice reconnect uses the existing Google flow and clears the XP di
   assert.equal(h.api.getMeta().lastBackedUpXP.enXp, 1520);
   h.api.expireToken(); h.api.render();
   assert.equal(h.element('jsy-unbacked-xp').textContent, '추가로 백업할 경험치 0 XP');
+});
+
+test('network usage stays device-local and cannot create Drive learning-record conflicts', async () => {
+  const remote = records(), local = {...remote,
+    'jini-network-usage-v1:phone': '{"schema":1,"days":{"2026-10-21":{"download":123456}}}'};
+  remote['jini-network-usage-v1:computer'] = '{"schema":1,"days":{"2026-10-21":{"download":900000}}}';
+  const h = harness(local, remote);
+  assert.equal(h.api.snapshot()['jini-network-usage-v1:phone'], undefined);
+  const onlyUsage = harness({'jini-network-usage-v1:phone': local['jini-network-usage-v1:phone']}, {});
+  assert.equal(onlyUsage.api.meaningful(onlyUsage.api.snapshot()), false);
+  await h.api.checkDrive();
+  assert.equal(h.api.getConflict(), null);
+  assert.equal(h.element('jsy-auto').textContent, '학습기록 일치');
+  assert.equal(h.uploads().length, 0);
+});
+
+test('Drive uploads and downloads report their payloads without additional requests', async () => {
+  const observed = [];
+  const h = harness(records(), records(), {usageRecorder: (upload, download) => observed.push({upload, download})});
+  await h.api.checkDrive();
+  addXP(h, 10, 0); await h.api.manualBackup(true);
+  assert.equal(observed.length, h.requests.length);
+  const uploaded = observed.find(row => row.upload);
+  assert.equal(JSON.parse(uploaded.upload).app, 'JINI');
+  assert.equal(JSON.parse(uploaded.upload).data['jini-network-usage-v1:phone'], undefined);
+  assert.ok(observed.some(row => row.download.includes('"app":"JINI"')));
+  assert.equal(h.api.getConflict(), null);
+});
+
+test('a failed usage meter cannot interrupt a successful Drive backup', async () => {
+  const h = harness(records(), records(), {usageRecorder() {throw Error('Meter unavailable');}});
+  await h.api.checkDrive();
+  assert.equal(h.element('jsy-auto').textContent, '학습기록 일치');
+  addXP(h, 10, 0); await h.api.manualBackup(true);
+  assert.equal(h.uploads().length, 1);
+  assert.equal(JSON.parse(h.cloud()['jini-english-game-v1']).xp, 1410);
 });

@@ -55,7 +55,7 @@
  .jsy-btn{font-size:12px;padding:12px 6px}
 }
 
-/* Admin dialog is the sole entry point while Drive sync remains experimental. */
+/* Sync layout when embedded in the admin panel. */
 #ja-sync-panel .jsy-section{margin:0 auto 6px;max-width:100%}
 #ja-sync-panel .jsy-head h1{font-size:21px}
 #ja-sync-panel .jsy-head p{margin-bottom:16px}
@@ -79,9 +79,18 @@
 /* Main-content sync page (not an admin dialog). */
 .jsy-home-page[hidden]{display:none!important}
 .jsy-home-page{max-width:1000px;margin:20px auto 0}
-.jsy-home-notice{margin:12px 0 14px;padding:12px 16px;border-radius:12px;border:1px solid #eadfba;background:#fffbef;color:#765d2c;font-size:12px;line-height:1.75}
 .jsy-home-page .jsy-section{margin:15px auto 0;max-width:930px}
 .jsy-home-page .jsy-card:last-child{margin-bottom:0}
+.jsy-usage-today{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px}
+.jsy-usage-today small{color:#828397;font-size:11px}
+.jsy-usage-today strong{font-size:22px;color:#5c4bc8}
+.jsy-usage-history{margin-top:12px}
+.jsy-usage-history summary{cursor:pointer;font-size:13px;font-weight:700;color:#62558e;min-height:32px;line-height:32px}
+.jsy-usage-history summary:focus-visible{outline:3px solid #b6aeff;outline-offset:2px}
+.jsy-usage-history table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.jsy-usage-history caption{text-align:left;font-size:11px;color:#828397;margin-bottom:6px}
+.jsy-usage-history th,.jsy-usage-history td{padding:8px 0;border-bottom:1px solid #eeedf5;text-align:left}
+.jsy-usage-history td,.jsy-usage-history thead th:last-child{text-align:right}
 @media (max-width:760px) {
  .jsy-home-page{margin:10px auto 0}
  .jsy-home-notice{padding:11px 12px}
