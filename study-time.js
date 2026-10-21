@@ -56,6 +56,10 @@
       localStorage.setItem(KEY, JSON.stringify(data));
       storageFailed = false;
     } catch (_) { storageFailed = true; }
+    notifyToday();
+  }
+  function notifyToday() {
+    window.dispatchEvent(new Event("jini-study-time-updated"));
   }
   function languageFor(pageName) {
     return ENGLISH.has(pageName) ? "english" : KOREAN.has(pageName) ? "korean" : null;
@@ -105,6 +109,7 @@
     lastTick = Date.now();
     lastActivity = lastTick;
     if (page === "study-info") render();
+    if (page === "home") notifyToday();
   }
   function duration(milliseconds) {
     const ms = Math.max(0, Number(milliseconds) || 0);
@@ -112,13 +117,18 @@
     if (ms < 60000) return "1분 미만";
     const min = Math.floor(ms / 60000);
     const h = Math.floor(min / 60);
-    return h ? h + "시간 " + (min % 60 ? (min % 60) + "분" : "") : min + "분";
+    return h ? h + "시간" + (min % 60 ? " " + (min % 60) + "분" : "") : min + "분";
   }
   function getMs(data, key, language) {
     const item = data.days[key] || {};
     const en = Math.max(0, Number(item.englishMs) || 0);
     const ko = Math.max(0, Number(item.koreanMs) || 0);
     return language === "english" ? en : language === "korean" ? ko : en + ko;
+  }
+  function getToday(language) {
+    const value = ["english", "korean"].includes(language) ? getMs(readData(), dayKey(new Date()), language) : 0;
+    const milliseconds = Number.isFinite(value) && value >= 0 ? value : 0;
+    return { milliseconds: milliseconds, label: duration(milliseconds) };
   }
   function monthTotal(data, year, month, language) {
     const days = new Date(year, month + 1, 0).getDate();
@@ -292,15 +302,21 @@
   document.addEventListener("visibilitychange", function () {
     if (document.hidden) settle(true);
     lastTick = Date.now();
-    if (!document.hidden) lastActivity = lastTick;
+    if (!document.hidden) { lastActivity = lastTick; notifyToday(); }
   });
   window.addEventListener("pagehide", function () { settle(true); });
   window.addEventListener("storage", function (event) {
-    if (event.key === KEY && page === "study-info") render();
+    if (event.key === KEY) {
+      if (page === "study-info") render();
+      notifyToday();
+    }
   });
+  window.addEventListener("jini-learning-progress-merged", notifyToday);
   window.setInterval(function () {
     settle();
     if (page === "study-info") render();
+    if (page === "home") notifyToday();
   }, 10000);
-  window.JINI_STUDY_TIME = { navigate: onNavigate };
+  window.JINI_STUDY_TIME = { navigate: onNavigate, getToday: getToday };
 }());
+

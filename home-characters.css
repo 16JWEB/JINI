@@ -37,6 +37,7 @@
 .jgc-home-stats>span{display:flex;flex:1 1 70px;flex-direction:column;gap:4px;border:1px solid #e3e9f9;background:#ffffffb5;border-radius:12px;padding:9px 10px;min-width:0}
 .jgc-home-stats small{font-size:10px;color:#8993aa;font-weight:600}
 .jgc-home-stats strong{font-size:15px;color:#3e5178;font-weight:800;white-space:nowrap}
+.jgc-home-stats>.jgc-home-study-time{flex:1 0 100%;flex-direction:row;align-items:center;justify-content:space-between;gap:8px}
 .jgc-home-card-korean .jgc-home-stats>span{border-color:#f4dfea}
 .jgc-home-card-korean .jgc-home-stats strong{color:#87516c}
 .jgc-home-aura{margin-top:11px;display:block;color:#6d7295;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
