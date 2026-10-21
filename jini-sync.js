@@ -534,7 +534,6 @@
     $("jsy-delete").disabled = !on || busy;
     $("jsy-config").hidden = !!CONFIG_ID;
     $("jsy-conflict").hidden = !conflict;
-    $("jsy-refresh").disabled = !on || busy;
     $("jsy-local-summary").textContent = description(snapshot());
     if (!driveChecked && !on) $("jsy-remote-summary").textContent = "Google 연결 후 확인";
   }
@@ -965,17 +964,6 @@
     catch (e) { status(e.message || "작업을 완료하지 못했습니다.", true); }
     finally { busy = false; render(); }
   }
-  async function checkDrive() {
-    if (!syncPageOpen() || !validToken()) return status("먼저 홈 메뉴의 학습정보 동기화 화면에서 Google Drive에 연결해 주세요.", true);
-    if (busy || connecting || disconnecting) return;
-    // Reconcile fresh snapshots, rather than leaving a stale conflict latched.
-    // syncCycle preserves both records whenever safe merging is impossible.
-    status("Google Drive의 최신 학습기록을 확인하고 있습니다.");
-    await syncCycle(true);
-    if (driveSnapshot && !conflict && fingerprint(snapshot()) === fingerprint(driveSnapshot)) {
-      status("이 기기와 Google Drive의 학습기록이 일치합니다.");
-    }
-  }
   async function manualBackup(force) {
     if (!validToken()) return status("먼저 동기화 하기를 눌러 연결해 주세요.", true);
     // A normal backup uses the same content comparison and lossless game merge
@@ -1038,7 +1026,6 @@
   }
   $("jsy-connect").addEventListener("click", beginConnect);
   $("jsy-expired-reconnect").addEventListener("click", beginConnect);
-  $("jsy-refresh").addEventListener("click", checkDrive);
   $("jsy-disconnect").addEventListener("click", function () { disconnect(); });
   $("jsy-backup").addEventListener("click", function () { manualBackup(false); });
   $("jsy-restore").addEventListener("click", function () {
