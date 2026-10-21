@@ -39,10 +39,10 @@
     if (auraLabLoading) return;
     const style = document.createElement("link");
     style.rel = "stylesheet";
-    style.href = "admin-aura-lab.css?v=20261022-aura-preview-v1";
+    style.href = "admin-aura-lab.css?v=20261022-independent-growth-v2";
     document.head.appendChild(style);
     const script = document.createElement("script");
-    script.src = "admin-aura-lab.js?v=20261022-aura-preview-v1";
+    script.src = "admin-aura-lab.js?v=20261022-independent-growth-v2";
     script.async = true;
     script.onerror = function () {
       auraLabLoading = null;
