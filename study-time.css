@@ -5,7 +5,7 @@
 #home-section .home-study-choice:nth-child(3) .home-resume-button:focus-visible,
 #home-section .home-study-choice:nth-child(3) .home-start-button:focus-visible{outline:3px solid #459b7a;outline-offset:2px}
 
-.jst-section{max-width:1040px;margin:0 auto;padding:26px 0 40px;color:#28334c}
+.jst-section{max-width:1040px;margin:0 auto;padding:26px 0 0;color:#28334c}
 .jst-section[hidden]{display:none!important}
 .jst-section button{font:inherit;cursor:pointer}
 .jst-section button:focus-visible{outline:3px solid #8975ea;outline-offset:2px}
@@ -136,3 +136,4 @@
    background:#e4f4eb;
  }
 }
+
