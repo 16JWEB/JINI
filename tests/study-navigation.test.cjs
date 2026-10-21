@@ -36,7 +36,7 @@ class Element {
   focus() {}
   blur() {}
 }
-function harness(initial = {}) {
+function harness(initial = {}, {voice = false} = {}) {
   const entries = new Map(Object.entries(initial));
   const storage = {getItem: key => entries.get(key) ?? null,
     setItem: (key, value) => entries.set(key, String(value))};
@@ -47,6 +47,8 @@ function harness(initial = {}) {
   const modes = ['word-meaning', 'word-meaning-example'].map(playerMode => Object.assign(new Element(), {dataset: {playerMode}}));
   const selectors = new Map();
   const windowListeners = {};
+  const spoken = [], scheduled = new Map();
+  let timerId = 0;
   const historyEntries = [null];
   let historyIndex = 0;
   const document = {getElementById: element, createElement: () => new Element(),
@@ -63,6 +65,7 @@ function harness(initial = {}) {
       return [];
     }};
   const window = {document, localStorage: storage, navigator: {userAgent: ''},
+    ...(voice ? {speechSynthesis: {cancel() {}, getVoices() {return [];}, speak(utterance) {spoken.push(utterance);}}} : {}),
     location: {href: 'https://jini.test/', hash: ''}, history: {
       get state() {return historyEntries[historyIndex];},
       get length() {return historyEntries.length;},
@@ -73,9 +76,12 @@ function harness(initial = {}) {
         (windowListeners.popstate || []).forEach(fn => fn({state: historyEntries[historyIndex]}));
       }
     },
-    addEventListener(name, fn) {(windowListeners[name] ||= []).push(fn);}, setTimeout() {}, clearTimeout() {}, scrollY: 0,
+    addEventListener(name, fn) {(windowListeners[name] ||= []).push(fn);},
+    setTimeout(fn, delay) {scheduled.set(++timerId, {fn, delay}); return timerId;},
+    clearTimeout(id) {scheduled.delete(id);}, scrollY: 0,
     requestAnimationFrame: fn => fn(), scrollTo() {}, matchMedia: () => ({matches: false})};
-  const context = vm.createContext({window, document, localStorage: storage, console});
+  const context = vm.createContext({window, document, localStorage: storage, console,
+    SpeechSynthesisUtterance: voice ? class {constructor(text) {this.text = text;}} : undefined});
   const scripts = [...read('index.html').matchAll(/<script src="([^"?]+)(?:\?[^\"]*)?"/g)].map(m => m[1]);
   for (const file of scripts.slice(0, scripts.indexOf('app.js'))) {
     if (file !== 'study-time.js') vm.runInContext(read(file), context, {filename: file});
@@ -84,6 +90,10 @@ function harness(initial = {}) {
   app = app.replace('  const mockBackButton =', `
   window.testAPI = {setPage, setLevel, setPlayerLevel, setExpressionPlayerCategory, setPlayerMode, togglePlayerBookmark,
     goToPage, renderWords, renderStudyPagination,
+    verbRows: getFilteredVerbForms, startVerbAuto,
+    verbQuery: value => {verbSearch.value = value; renderVerbForms();},
+    verbAutoState: () => ({playing: verbAutoPlaying, index: verbAutoIndex, lastWord: lastAutoVerbWord,
+      rows: verbAutoRows.map(row => row[0])}),
     state: () => ({currentPageView, currentStudy, currentPage, activeLevel, playerLevel,
       playerIndex, playerMode, expressionPlayerCategory, query: search.value, count: playerWords.length}),
     query: value => {search.value = value; currentPage = 1; renderWords();},
@@ -94,6 +104,11 @@ function harness(initial = {}) {
     if (file.startsWith('english-expressions')) vm.runInContext(read(file), context, {filename: file});
   }
   return {api: window.testAPI, window, element, entries, snapshot: () => Object.fromEntries(entries),
+    spoken, runDelay(delay) {
+      const item = [...scheduled].find(([, value]) => value.delay === delay);
+      assert(item, 'the expected playback delay must be scheduled');
+      scheduled.delete(item[0]); item[1].fn();
+    },
     back: () => window.history.back(),
     category: name => element('ee-categories').children.find(c => c.textContent.startsWith(name + ' ')),
     playerCategory: name => element('player-categories').children.find(c => c.dataset.expressionCategory === name)};
@@ -305,4 +320,49 @@ test('returning through a parent menu preserves the saved learning page', () => 
   h.api.setPage('ko-expressions'); h.api.goToPage(3); h.back();
   assert.equal(h.api.state().currentPageView, 'ko-study-menu');
   h.api.setPage('ko-expressions'); assert.equal(h.api.state().currentPage, 3);
+});
+
+test('verb tables begin with core everyday verbs and retain all 131 entries', () => {
+  const h = harness(); h.api.setPage('verb-forms');
+  const rows = Array.from(h.api.verbRows());
+  assert.equal(rows.length, 131); assert.equal(new Set(rows.map(row => row[0])).size, 131);
+  assert.deepEqual(rows.slice(0, 10).map(row => row[0]), ['be', 'have', 'do', 'go', 'come', 'get', 'give', 'take', 'make', 'become']);
+  const table = h.element('verb-table-body').children;
+  assert.equal(table.length, 131);
+  assert.deepEqual(table.map(row => row.getAttribute('aria-label').split(' ')[0]), rows.map(row => row[0]));
+  assert.deepEqual(table.map(row => row.children[0].children[0].textContent), Array.from({length: 131}, (_, i) => String(i + 1)));
+});
+
+test('verb search preserves the learning order and still finds inflected forms and meanings', () => {
+  const h = harness(); h.api.setPage('verb-forms');
+  const all = Array.from(h.api.verbRows());
+  h.api.verbQuery('말');
+  assert.deepEqual(Array.from(h.api.verbRows(), row => row[0]), all.filter(row => row.join(' ').includes('말')).map(row => row[0]));
+  h.api.verbQuery('WENT'); assert.deepEqual(Array.from(h.api.verbRows(), row => row[0]), ['go']);
+  h.api.verbQuery('없는 동사 검색'); assert.equal(h.element('verb-empty').hidden, false);
+  h.api.verbQuery(''); assert.equal(h.element('verb-result-count').textContent, '131개 동사');
+});
+
+test('automatic verb playback follows the table order through be and have', () => {
+  const h = harness({}, {voice: true}); h.api.setPage('verb-forms'); h.api.startVerbAuto();
+  assert.equal(h.api.verbAutoState().lastWord, 'be');
+  assert.deepEqual(Array.from(h.api.verbAutoState().rows), Array.from(h.api.verbRows(), row => row[0]));
+  for (let i = 0; i < 7; i++) h.spoken.at(-1).onend();
+  assert.deepEqual(h.spoken.map(utterance => utterance.text), ['이다, 있다', 'am', 'is', 'are', 'was', 'were', 'been']);
+  h.runDelay(450);
+  assert.equal(h.api.verbAutoState().lastWord, 'have');
+  assert.equal(h.spoken.at(-1).text, '가지다');
+});
+
+test('reordered verb playback resumes the saved verb by identity after reload', () => {
+  const before = harness(); before.api.setPage('verb-forms');
+  const saved = JSON.parse(before.entries.get('jini-last-study-state'));
+  saved.pages['verb-forms'].autoVerbWord = 'write';
+  before.entries.set('jini-last-study-state', JSON.stringify(saved));
+  const h = harness(before.snapshot(), {voice: true}); h.api.setPage('verb-forms');
+  assert.equal(h.api.verbAutoState().lastWord, 'write');
+  h.api.startVerbAuto();
+  assert.equal(h.api.verbAutoState().lastWord, 'write');
+  assert.equal(h.api.verbAutoState().index, Array.from(h.api.verbRows()).findIndex(row => row[0] === 'write'));
+  assert.equal(h.spoken.at(-1).text, '쓰다');
 });
