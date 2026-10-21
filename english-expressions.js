@@ -30,6 +30,7 @@
   let repeatTimer = null;
   const POSITION_STORE = "jini-essential-expressions-positions-v1";
   const CATEGORIES = ["전체", "일상", "직장", "답변", "여행", "관계", "책갈피"];
+  window.JINI_EXPRESSION_CATEGORIES = CATEGORIES.slice();
   let categoryPositions = {};
   try {
     const stored = JSON.parse(localStorage.getItem(POSITION_STORE) || "{}") || {};
@@ -202,7 +203,9 @@
   function renderCategories() {
     categoryBar.replaceChildren();
     CATEGORIES.forEach(function (name) {
-      const label = name === "전체" ? "전체 " + EXPRESSIONS.length : name === "책갈피" ? "책갈피 " + saved.length : name;
+      const total = name === "전체" ? EXPRESSIONS.length : name === "책갈피" ? saved.length :
+        EXPRESSIONS.filter(function (item) { return item.category === name; }).length;
+      const label = name + " " + total + "개";
       const el = button(label, "ee-category" + (category === name ? " selected" : ""), function () {
         setCategory(name);
       });
@@ -230,15 +233,10 @@
   }
 
   function renderPages(totalPages) {
-    nav.replaceChildren();
-    if (totalPages <= 1) return;
-    const previous = button("‹ 이전", "ee-page-button", function () { page = Math.max(1, page - 1); render(true); });
-    previous.disabled = page === 1;
-    nav.appendChild(previous);
-    nav.appendChild(element("span", "ee-page-status", page + " / " + totalPages));
-    const next = button("다음 ›", "ee-page-button", function () { page = Math.min(totalPages, page + 1); render(true); });
-    next.disabled = page === totalPages;
-    nav.appendChild(next);
+    window.JINI_RENDER_PAGINATION(nav, page, totalPages, function (nextPage) {
+      page = nextPage;
+      render(true);
+    });
   }
 
   function render(scrollToTop) {
