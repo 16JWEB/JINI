@@ -237,10 +237,8 @@
   // Previous preview artwork deliberately removed. New painted assets will be added separately.
   // Uploaded art assets (PNG) from the approved image sheets; never fall back to the old Canvas/SVG rendering.
   function renderArt(spec,lvl,large){
-    const levelNum=String(lvl).padStart(3,"0");
-    const asset="icons/sakura/petal_lv"+levelNum+".png?v=20261022-art-v1";
     return '<span class="jal-stage jal-petal-image'+(large?' jal-large':'')+'" aria-hidden="true">'+
-      '<img class="jal-petal-art" src="'+asset+'" alt="" loading="lazy" decoding="async" onerror="this.hidden=true;this.parentNode.classList.add(\'jal-petal-missing\')">'+
+      '<img class="jal-petal-art" data-sakura-level="'+lvl+'" alt="" loading="lazy" decoding="async">'+
       '<span class="jal-sprite">'+portrait()+'</span></span>';
   }
   function render(){
@@ -263,13 +261,14 @@
         '<span class="jal-card-art">'+renderArt(spec,lvl,false)+'</span>'+
         '<span class="jal-card-copy"><span class="jal-level">LV.'+lvl+' · '+(m.chapter*5+i+1)+'/25</span>'+
         '<strong>'+(design==="d"?chapterNames[m.chapter]+' · '+(i+1)+'/5':i===4?spec.gifts[m.chapter]:STEPS[i])+'</strong>'+
-        '<small>'+(design==="d"?'벚꽃 에너지 페인팅 테스트':design==="a"?(i===4?'자연스러운 날개 윤곽이 성장했어요':'깃털이 세 방향으로 함께 자라요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
+        '<small>'+(design==="d"?'벚꽃 고화질 이미지 ZIP 적용':design==="a"?(i===4?'자연스러운 날개 윤곽이 성장했어요':'깃털이 세 방향으로 함께 자라요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
     }).join('');
     els.focus.innerHTML=renderArt(spec,level,true);
+    if(window.JINI_SAKURA_ZIP)window.JINI_SAKURA_ZIP.refresh(panel);
 
     els.detail.textContent=(design==="d"?"[D · 에너지 진화] ":design==="c"?"[C · 자연스러운 빛] ":design==="b"?"[B · 이전 시안] ":"[A · 자연스러운 날개] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
       ' (전체 '+m.tier+'/5단계). 캐릭터 원본은 동일하며 오라만 바뀝니다.';
-    if(design==="d") els.detail.textContent='벚꽃 이미지 레이어입니다. 이미지 파일이 서버에 업로드되어야 표시됩니다. LV.'+level+' · 캐릭터만 표시합니다.';
+    if(design==="d") els.detail.textContent='벚꽃 오라 ZIP 이미지 · LV.'+level+' / 200 · 업로드된 투명 PNG를 캐릭터 뒤에 표시합니다.';
     els.prev.disabled=level===10;
     els.next.disabled=level===200;
   }
