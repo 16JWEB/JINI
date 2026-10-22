@@ -13,7 +13,7 @@
   ];
   const AVATARS = [{id:"rabbit",label:"🐰 토끼",emoji:"🐰"},{id:"cat",label:"🐱 고양이",emoji:"🐱"},
     {id:"bear",label:"🐻 곰",emoji:"🐻"},{id:"fox",label:"🦊 여우",emoji:"🦊"}];
-  const LEVELS = Array.from({length:25},(_,i)=>(i+1)*10);
+  const LEVELS = [10,20,30,40,50];
   const STEPS = ["첫 기운","장식 추가","빛결 확장","새 효과 성장","구간 완성"];
   let avatar="rabbit",theme="petal",level=10,serial=0,design="d";
   const get = id=>document.getElementById(id);
@@ -25,7 +25,7 @@
   panel.dataset.auraLabReady="true";
 
   function info(lvl) {
-    const step=Math.max(1,Math.min(25,Math.round(lvl/10)));
+    const step=Math.max(1,Math.min(5,Math.round(lvl/10)));
     return {tier:step,chapter:Math.floor((step-1)/5),strength:(step-1)%5+1};
   }
   function portrait(){
@@ -246,14 +246,15 @@
     return artwork(spec,lvl,large);
   }
   function render(){
-    const spec=THEMES.find(x=>x.key===theme)||THEMES[0],m=info(level);
+    level=Math.min(50,Math.max(10,level));
+    const spec=THEMES[0],m=info(level);
     // One focused design only: no former A/B/C experiments in this test.
     els.designs.innerHTML='<button type="button" class="jal-switch is-selected" data-jal-design="d" aria-pressed="true">D · 벚꽃 에너지 성장</button>';
     els.avatars.innerHTML=AVATARS.map(a=>'<button type="button" class="jal-switch'+(a.id===avatar?' is-selected':'')+
       '" data-jal-avatar="'+a.id+'" aria-pressed="'+(a.id===avatar)+'">'+a.label+'</button>').join('');
     els.themes.innerHTML=THEMES.map(s=>'<button type="button" class="jal-switch'+(s.key===theme?' is-selected':'')+
       '" data-jal-theme="'+s.key+'" aria-pressed="'+(s.key===theme)+'">'+s.icon+' '+s.name+'</button>').join('');
-    const chapterNames=spec.chapters;
+    const chapterNames=spec.chapters.slice(0,1);
     els.chapters.innerHTML=chapterNames.map((name,i)=>'<button type="button" class="jal-chapter-button'+(i===m.chapter?' is-selected':'')+
       '" data-jal-chapter="'+i+'" aria-pressed="'+(i===m.chapter)+'"><span>Lv.'+(i*50+10)+'–'+((i+1)*50)+'</span><strong>'+(i+1)+'막 · '+name+'</strong></button>').join('');
     const start=m.chapter*50+10;
@@ -268,10 +269,10 @@
     }).join('');
     els.focus.innerHTML=renderArt(spec,level,true);
     els.detail.textContent=(design==="d"?"[D · 에너지 진화] ":design==="c"?"[C · 자연스러운 빛] ":design==="b"?"[B · 이전 시안] ":"[A · 자연스러운 날개] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
-      ' (전체 '+m.tier+'/25단계). 캐릭터 원본은 동일하며 오라만 바뀝니다.';
-    if(design==="d") els.detail.textContent='[D · '+spec.name+'] LV.'+level+' · 진화 '+(Math.min(5,Math.floor(level/50))+1)+'/6단계. 10레벨부터 에너지 흐름이 시작되며, 50레벨마다 효과가 누적 진화하고 10레벨마다 기류와 입자가 추가됩니다. 날개 형태는 만들지 않습니다. 캐릭터는 그대로 유지됩니다.';
+      ' (전체 '+m.tier+'/5단계). 캐릭터 원본은 동일하며 오라만 바뀝니다.';
+    if(design==="d") els.detail.textContent='[D · '+spec.name+'] LV.'+level+' · 성장 '+(level/10)+'/5단계. 10레벨부터 에너지 흐름이 시작되며, 50레벨마다 효과가 누적 진화하고 10레벨마다 기류와 입자가 추가됩니다. 날개 형태는 만들지 않습니다. 캐릭터는 그대로 유지됩니다.';
     els.prev.disabled=level===10;
-    els.next.disabled=level===250;
+    els.next.disabled=level===50;
   }
   panel.addEventListener("click",function(event){
     const el=event.target.closest("[data-jal-design],[data-jal-avatar],[data-jal-theme],[data-jal-chapter],[data-jal-level],#ja-aura-prev,#ja-aura-next");
@@ -283,7 +284,7 @@
     if(d.jalChapter!==undefined){const ch=Number(d.jalChapter);if(Number.isInteger(ch)&&ch>=0&&ch<5)level=ch*50+10;}
     if(d.jalLevel&&LEVELS.includes(Number(d.jalLevel)))level=Number(d.jalLevel);
     if(el.id==="ja-aura-prev")level=Math.max(10,level-10);
-    if(el.id==="ja-aura-next")level=Math.min(250,level+10);
+    if(el.id==="ja-aura-next")level=Math.min(50,level+10);
     render();
   });
   render();
