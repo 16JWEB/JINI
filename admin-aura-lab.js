@@ -234,22 +234,15 @@
       '</span><svg class="jal-evolution-details" viewBox="0 0 400 400" aria-hidden="true">'+details+'</svg>'+
       '<span class="jal-sprite">'+portrait()+'</span></span>';
   }
+  // Previous preview artwork deliberately removed. New painted assets will be added separately.
   function renderArt(spec,lvl,large){
-    if(design==="d" && window.JINI_ADMIN_AURA_FLOW) return window.JINI_ADMIN_AURA_FLOW.render(spec,lvl,large,portrait());
-    if(design==="d") return energyArtwork(spec,lvl,large);
-    if(design==="c"&&window.JINI_ADMIN_AURA_C&&typeof window.JINI_ADMIN_AURA_C.render==="function") {
-      return window.JINI_ADMIN_AURA_C.render(spec,lvl,large,portrait());
-    }
-    if(design==="b"&&window.JINI_ADMIN_AURA_B&&typeof window.JINI_ADMIN_AURA_B.render==="function") {
-      return window.JINI_ADMIN_AURA_B.render(spec,lvl,large,portrait());
-    }
-    return artwork(spec,lvl,large);
+    return '<span class="jal-stage'+(large?' jal-large':'')+'" aria-hidden="true"><span class="jal-sprite">'+portrait()+'</span></span>';
   }
   function render(){
     level=Math.min(50,Math.max(10,level));
     const spec=THEMES[0],m=info(level);
     // One focused design only: no former A/B/C experiments in this test.
-    els.designs.innerHTML='<button type="button" class="jal-switch is-selected" data-jal-design="d" aria-pressed="true">D · 벚꽃 에너지 성장</button>';
+    els.designs.innerHTML='<button type="button" class="jal-switch is-selected" data-jal-design="d" aria-pressed="true">벚꽃 오라 · 새 이미지 준비 중</button>';
     els.avatars.innerHTML=AVATARS.map(a=>'<button type="button" class="jal-switch'+(a.id===avatar?' is-selected':'')+
       '" data-jal-avatar="'+a.id+'" aria-pressed="'+(a.id===avatar)+'">'+a.label+'</button>').join('');
     els.themes.innerHTML=THEMES.map(s=>'<button type="button" class="jal-switch'+(s.key===theme?' is-selected':'')+
@@ -265,12 +258,12 @@
         '<span class="jal-card-art">'+renderArt(spec,lvl,false)+'</span>'+
         '<span class="jal-card-copy"><span class="jal-level">LV.'+lvl+' · '+(m.chapter*5+i+1)+'/25</span>'+
         '<strong>'+(design==="d"?chapterNames[m.chapter]+' · '+(i+1)+'/5':i===4?spec.gifts[m.chapter]:STEPS[i])+'</strong>'+
-        '<small>'+(design==="d"?'에너지 기류 누적 성장 · 50레벨마다 추가 각성':design==="a"?(i===4?'자연스러운 날개 윤곽이 성장했어요':'깃털이 세 방향으로 함께 자라요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
+        '<small>'+(design==="d"?'기존 오라 제거 완료 · 새 이미지 미적용':design==="a"?(i===4?'자연스러운 날개 윤곽이 성장했어요':'깃털이 세 방향으로 함께 자라요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
     }).join('');
     els.focus.innerHTML=renderArt(spec,level,true);
     els.detail.textContent=(design==="d"?"[D · 에너지 진화] ":design==="c"?"[C · 자연스러운 빛] ":design==="b"?"[B · 이전 시안] ":"[A · 자연스러운 날개] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
       ' (전체 '+m.tier+'/5단계). 캐릭터 원본은 동일하며 오라만 바뀝니다.';
-    if(design==="d") els.detail.textContent='[D · '+spec.name+'] LV.'+level+' · 성장 '+(level/10)+'/5단계. 10레벨부터 에너지 흐름이 시작되며, 50레벨마다 효과가 누적 진화하고 10레벨마다 기류와 입자가 추가됩니다. 날개 형태는 만들지 않습니다. 캐릭터는 그대로 유지됩니다.';
+    if(design==="d") els.detail.textContent='기존 테스트 오라를 제거했습니다. 새 벚꽃 이미지 에셋은 아직 적용되지 않았습니다. LV.'+level+' · 캐릭터만 표시합니다.';
     els.prev.disabled=level===10;
     els.next.disabled=level===50;
   }
