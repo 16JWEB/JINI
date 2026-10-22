@@ -236,7 +236,7 @@
   }
   // Previous preview artwork deliberately removed. New painted assets will be added separately.
   function renderArt(spec,lvl,large){
-    return '<span class="jal-stage'+(large?' jal-large':'')+'" aria-hidden="true"><span class="jal-sprite">'+portrait()+'</span></span>';
+    return '<span class="jal-stage jal-petal-painted'+(large?' jal-large':'')+'" aria-hidden="true"><canvas data-jini-petal="'+lvl+'" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas><span class="jal-sprite">'+portrait()+'</span></span>';
   }
   function render(){
     level=Math.min(50,Math.max(10,level));
@@ -258,12 +258,13 @@
         '<span class="jal-card-art">'+renderArt(spec,lvl,false)+'</span>'+
         '<span class="jal-card-copy"><span class="jal-level">LV.'+lvl+' · '+(m.chapter*5+i+1)+'/25</span>'+
         '<strong>'+(design==="d"?chapterNames[m.chapter]+' · '+(i+1)+'/5':i===4?spec.gifts[m.chapter]:STEPS[i])+'</strong>'+
-        '<small>'+(design==="d"?'기존 오라 제거 완료 · 새 이미지 미적용':design==="a"?(i===4?'자연스러운 날개 윤곽이 성장했어요':'깃털이 세 방향으로 함께 자라요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
+        '<small>'+(design==="d"?'벚꽃 에너지 페인팅 테스트':design==="a"?(i===4?'자연스러운 날개 윤곽이 성장했어요':'깃털이 세 방향으로 함께 자라요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
     }).join('');
     els.focus.innerHTML=renderArt(spec,level,true);
+    if(window.JINI_PETAL_PAINT)window.JINI_PETAL_PAINT.refresh(panel);
     els.detail.textContent=(design==="d"?"[D · 에너지 진화] ":design==="c"?"[C · 자연스러운 빛] ":design==="b"?"[B · 이전 시안] ":"[A · 자연스러운 날개] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
       ' (전체 '+m.tier+'/5단계). 캐릭터 원본은 동일하며 오라만 바뀝니다.';
-    if(design==="d") els.detail.textContent='기존 테스트 오라를 제거했습니다. 새 벚꽃 이미지 에셋은 아직 적용되지 않았습니다. LV.'+level+' · 캐릭터만 표시합니다.';
+    if(design==="d") els.detail.textContent='새 벚꽃 에너지 캔버스 시안입니다. 고화질 참고 그림과 동일한 이미지 에셋은 아닙니다. LV.'+level+' · 캐릭터만 표시합니다.';
     els.prev.disabled=level===10;
     els.next.disabled=level===50;
   }
