@@ -158,3 +158,9 @@
 @keyframes jal-energy-hum{0%,100%{transform:translateY(0)}50%{transform:translateY(-1px)}}
 #ja-aura-panel .jal-card:not(.is-selected) .jal-energy-stage *,#ja-aura-panel[hidden] .jal-energy-stage *{animation:none!important}
 @media(prefers-reduced-motion:reduce){#ja-aura-panel .jal-energy-stage *{animation:none!important}}
+
+/* Sakura PNG-only mode: transparent energy behind original sprite. */
+#ja-aura-panel .jal-petal-image{overflow:visible}
+#ja-aura-panel .jal-petal-image .jal-petal-art{position:absolute;inset:-17%;width:134%;height:134%;object-fit:contain;z-index:1;pointer-events:none}
+#ja-aura-panel .jal-petal-image .jal-sprite{z-index:4}
+#ja-aura-panel .jal-petal-image.jal-petal-missing::after{content:"오라 이미지 업로드 대기";position:absolute;bottom:-7px;left:0;right:0;text-align:center;font-size:10px;color:#a97595}
