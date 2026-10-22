@@ -13,7 +13,7 @@
   ];
   const AVATARS = [{id:"rabbit",label:"🐰 토끼",emoji:"🐰"},{id:"cat",label:"🐱 고양이",emoji:"🐱"},
     {id:"bear",label:"🐻 곰",emoji:"🐻"},{id:"fox",label:"🦊 여우",emoji:"🦊"}];
-  const LEVELS = [10,20,30,40,50];
+  const LEVELS = Array.from({length:20},(_,i)=>(i+1)*10);
   const STEPS = ["첫 기운","장식 추가","빛결 확장","새 효과 성장","구간 완성"];
   let avatar="rabbit",theme="petal",level=10,serial=0,design="d";
   const get = id=>document.getElementById(id);
@@ -25,7 +25,7 @@
   panel.dataset.auraLabReady="true";
 
   function info(lvl) {
-    const step=Math.max(1,Math.min(5,Math.round(lvl/10)));
+    const step=Math.max(1,Math.min(20,Math.round(lvl/10)));
     return {tier:step,chapter:Math.floor((step-1)/5),strength:(step-1)%5+1};
   }
   function portrait(){
@@ -235,19 +235,24 @@
       '<span class="jal-sprite">'+portrait()+'</span></span>';
   }
   // Previous preview artwork deliberately removed. New painted assets will be added separately.
+  // Uploaded art assets (PNG) from the approved image sheets; never fall back to the old Canvas/SVG rendering.
   function renderArt(spec,lvl,large){
-    return '<span class="jal-stage jal-petal-painted'+(large?' jal-large':'')+'" aria-hidden="true"><canvas data-jini-petal="'+lvl+'" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none"></canvas><span class="jal-sprite">'+portrait()+'</span></span>';
+    const levelNum=String(lvl).padStart(3,"0");
+    const asset="icons/sakura/petal_lv"+levelNum+".png?v=20261022-art-v1";
+    return '<span class="jal-stage jal-petal-image'+(large?' jal-large':'')+'" aria-hidden="true">'+
+      '<img class="jal-petal-art" src="'+asset+'" alt="" loading="lazy" decoding="async" onerror="this.hidden=true;this.parentNode.classList.add(\'jal-petal-missing\')">'+
+      '<span class="jal-sprite">'+portrait()+'</span></span>';
   }
   function render(){
-    level=Math.min(50,Math.max(10,level));
+    level=Math.min(200,Math.max(10,level));
     const spec=THEMES[0],m=info(level);
     // One focused design only: no former A/B/C experiments in this test.
-    els.designs.innerHTML='<button type="button" class="jal-switch is-selected" data-jal-design="d" aria-pressed="true">벚꽃 오라 · 새 이미지 준비 중</button>';
+    els.designs.innerHTML='<button type="button" class="jal-switch is-selected" data-jal-design="d" aria-pressed="true">벚꽃 이미지 오라 · Lv.10~200</button>';
     els.avatars.innerHTML=AVATARS.map(a=>'<button type="button" class="jal-switch'+(a.id===avatar?' is-selected':'')+
       '" data-jal-avatar="'+a.id+'" aria-pressed="'+(a.id===avatar)+'">'+a.label+'</button>').join('');
     els.themes.innerHTML=THEMES.map(s=>'<button type="button" class="jal-switch'+(s.key===theme?' is-selected':'')+
       '" data-jal-theme="'+s.key+'" aria-pressed="'+(s.key===theme)+'">'+s.icon+' '+s.name+'</button>').join('');
-    const chapterNames=spec.chapters.slice(0,1);
+    const chapterNames=spec.chapters.slice(0,4);
     els.chapters.innerHTML=chapterNames.map((name,i)=>'<button type="button" class="jal-chapter-button'+(i===m.chapter?' is-selected':'')+
       '" data-jal-chapter="'+i+'" aria-pressed="'+(i===m.chapter)+'"><span>Lv.'+(i*50+10)+'–'+((i+1)*50)+'</span><strong>'+(i+1)+'막 · '+name+'</strong></button>').join('');
     const start=m.chapter*50+10;
@@ -261,12 +266,12 @@
         '<small>'+(design==="d"?'벚꽃 에너지 페인팅 테스트':design==="a"?(i===4?'자연스러운 날개 윤곽이 성장했어요':'깃털이 세 방향으로 함께 자라요'):(i===4?'새로운 이펙트의 완성 단계':'빛과 문양이 조금씩 진화'))+'</small></span></button>';
     }).join('');
     els.focus.innerHTML=renderArt(spec,level,true);
-    if(window.JINI_PETAL_PAINT)window.JINI_PETAL_PAINT.refresh(panel);
+
     els.detail.textContent=(design==="d"?"[D · 에너지 진화] ":design==="c"?"[C · 자연스러운 빛] ":design==="b"?"[B · 이전 시안] ":"[A · 자연스러운 날개] ")+'LV.'+level+' · '+spec.chapters[m.chapter]+' · '+STEPS[m.strength-1]+' — '+spec.gifts[m.chapter]+
       ' (전체 '+m.tier+'/5단계). 캐릭터 원본은 동일하며 오라만 바뀝니다.';
-    if(design==="d") els.detail.textContent='새 벚꽃 에너지 캔버스 시안입니다. 고화질 참고 그림과 동일한 이미지 에셋은 아닙니다. LV.'+level+' · 캐릭터만 표시합니다.';
+    if(design==="d") els.detail.textContent='벚꽃 이미지 레이어입니다. 이미지 파일이 서버에 업로드되어야 표시됩니다. LV.'+level+' · 캐릭터만 표시합니다.';
     els.prev.disabled=level===10;
-    els.next.disabled=level===50;
+    els.next.disabled=level===200;
   }
   panel.addEventListener("click",function(event){
     const el=event.target.closest("[data-jal-design],[data-jal-avatar],[data-jal-theme],[data-jal-chapter],[data-jal-level],#ja-aura-prev,#ja-aura-next");
@@ -275,10 +280,10 @@
     if(d.jalDesign==="d")design="d";
     if(d.jalAvatar&&AVATARS.some(x=>x.id===d.jalAvatar))avatar=d.jalAvatar;
     if(d.jalTheme&&THEMES.some(x=>x.key===d.jalTheme)){theme=d.jalTheme;level=10;}
-    if(d.jalChapter!==undefined){const ch=Number(d.jalChapter);if(Number.isInteger(ch)&&ch>=0&&ch<5)level=ch*50+10;}
+    if(d.jalChapter!==undefined){const ch=Number(d.jalChapter);if(Number.isInteger(ch)&&ch>=0&&ch<4)level=ch*50+10;}
     if(d.jalLevel&&LEVELS.includes(Number(d.jalLevel)))level=Number(d.jalLevel);
     if(el.id==="ja-aura-prev")level=Math.max(10,level-10);
-    if(el.id==="ja-aura-next")level=Math.min(50,level+10);
+    if(el.id==="ja-aura-next")level=Math.min(200,level+10);
     render();
   });
   render();
