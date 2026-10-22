@@ -1,32 +1,21 @@
-/* JINI admin-only aura studio: five themes x 25 steps (Lv.10–250).
+/* JINI admin-only focused petal energy studio: 25 steps (Lv.10–250).
    Preview-only, no user progress changes or external animation assets. */
 (function () {
   "use strict";
   const panel = document.getElementById("ja-aura-panel");
   if (!panel || panel.dataset.auraLabReady === "true") return;
 
+  // Other themes are kept out of this focused test until the petal art is approved.
   const THEMES = [
-    {key:"petal",name:"벚꽃의 정령",icon:"🌸",color:"#ff8fbf",light:"#ffe5f3",deep:"#b93b90",
-      chapters:["꽃망울의 탄생","꽃의 문장","봄바람의 춤","찬란한 꽃비","천상의 만개"],
-      gifts:["꽃잎과 부드러운 분홍 광휘","꽃송이 문양과 꽃잎 고리","곡선을 그리는 봄바람 리본","하늘에서 흩날리는 빛의 꽃비","화관과 눈부신 천상의 꽃빛"]},
-    {key:"frost",name:"빙결 군주",icon:"❄️",color:"#77dfff",light:"#e0fbff",deep:"#448fe8",
-      chapters:["첫 서리","눈꽃 결계","빙하의 숨결","절대영도의 날개","영원의 빙관"],
-      gifts:["얼음 결정과 차가운 빛","눈꽃 문양과 빙결 고리","서리 안개와 빙하 소용돌이","커다란 결정 날개와 눈보라","푸른 빙관과 다층 결정 결계"]},
-    {key:"cyber",name:"사이버 오버클럭",icon:"💠",color:"#36e8d3",light:"#c5fff4",deep:"#2d92ef",
-      chapters:["네온 기동","홀로그램 활성","데이터 순환","양자 방어막","오버클럭 한계 돌파"],
-      gifts:["미세한 네온 빛과 데이터 입자","기계 문양과 정밀한 HUD 고리","데이터 스트림과 회로 궤적","육각 방어막과 에너지 날개","양자 코어와 다층 홀로그램 왕관"]},
-    {key:"time",name:"시간의 지배자",icon:"⏳",color:"#e6ba74",light:"#ffecd0",deep:"#a97bdf",
-      chapters:["시간의 씨앗","시계의 문장","시공의 흐름","운명의 톱니","영겁의 관문"],
-      gifts:["은은한 금빛과 시계 바늘","로마 숫자 시계판과 시간 고리","시공의 곡선과 시간의 물결","톱니바퀴 결계와 시간의 날개","황금 시간 왕관과 영겁의 관문"]},
-    {key:"galaxy",name:"은하의 지배자",icon:"🌌",color:"#a99aff",light:"#f0eaff",deep:"#649dff",
-      chapters:["별의 탄생","별자리 각인","행성의 공전","성운의 폭풍","창세의 은하"],
-      gifts:["갓 태어난 별의 반짝임","별자리 연결선과 별빛 고리","행성 궤도와 휘감기는 혜성","성운의 날개와 유성의 파도","창세의 별왕관과 다층 은하계"]}
+    {key:"petal",name:"벚꽃 에너지 성장",icon:"🌸",color:"#ff8fbf",light:"#ffe5f3",deep:"#b93b90",
+      chapters:["꽃망울의 탄생","봄빛 기류","꽃바람의 각성","분홍 폭풍","천상의 꽃비"],
+      gifts:["작은 분홍빛 안개와 꽃잎","꽃잎과 기류가 늘어나는 봄바람","휘몰아치는 벚꽃빛 잔상","깊이 있는 꽃바람과 에너지 입자","축적된 빛결이 만개한 벚꽃 에너지 폭풍"]}
   ];
   const AVATARS = [{id:"rabbit",label:"🐰 토끼",emoji:"🐰"},{id:"cat",label:"🐱 고양이",emoji:"🐱"},
     {id:"bear",label:"🐻 곰",emoji:"🐻"},{id:"fox",label:"🦊 여우",emoji:"🦊"}];
   const LEVELS = Array.from({length:25},(_,i)=>(i+1)*10);
   const STEPS = ["첫 기운","장식 추가","빛결 확장","새 효과 성장","구간 완성"];
-  let avatar="rabbit",theme="petal",level=200,serial=0,design="d";
+  let avatar="rabbit",theme="petal",level=10,serial=0,design="d";
   const get = id=>document.getElementById(id);
   const els = {avatars:get("ja-aura-avatars"),themes:get("ja-aura-themes"),designs:get("ja-aura-designs"),
     chapters:get("ja-aura-chapters"),cards:get("ja-aura-cards"),focus:get("ja-aura-focus"),
@@ -258,9 +247,8 @@
   }
   function render(){
     const spec=THEMES.find(x=>x.key===theme)||THEMES[0],m=info(level);
-    els.designs.innerHTML='<button type="button" class="jal-switch'+(design==="d"?' is-selected':'')+'" data-jal-design="d" aria-pressed="'+(design==="d")+'">D · 흐르는 에너지 5종</button>'+'<button type="button" class="jal-switch'+(design==="a"?' is-selected':'')+'" data-jal-design="a" aria-pressed="'+(design==="a")+'">A · 이전 깃털 시안</button>'+
-      '<button type="button" class="jal-switch'+(design==="b"?' is-selected':'')+'" data-jal-design="b" aria-pressed="'+(design==="b")+'">B · 이전 시안</button>'+
-      '<button type="button" class="jal-switch'+(design==="c"?' is-selected':'')+'" data-jal-design="c" aria-pressed="'+(design==="c")+'">C · 부드러운 빛</button>';
+    // One focused design only: no former A/B/C experiments in this test.
+    els.designs.innerHTML='<button type="button" class="jal-switch is-selected" data-jal-design="d" aria-pressed="true">D · 벚꽃 에너지 성장</button>';
     els.avatars.innerHTML=AVATARS.map(a=>'<button type="button" class="jal-switch'+(a.id===avatar?' is-selected':'')+
       '" data-jal-avatar="'+a.id+'" aria-pressed="'+(a.id===avatar)+'">'+a.label+'</button>').join('');
     els.themes.innerHTML=THEMES.map(s=>'<button type="button" class="jal-switch'+(s.key===theme?' is-selected':'')+
@@ -289,7 +277,7 @@
     const el=event.target.closest("[data-jal-design],[data-jal-avatar],[data-jal-theme],[data-jal-chapter],[data-jal-level],#ja-aura-prev,#ja-aura-next");
     if(!el||!panel.contains(el))return;
     const d=el.dataset;
-    if(["a","b","c","d"].includes(d.jalDesign)&&d.jalDesign!==design)design=d.jalDesign;
+    if(d.jalDesign==="d")design="d";
     if(d.jalAvatar&&AVATARS.some(x=>x.id===d.jalAvatar))avatar=d.jalAvatar;
     if(d.jalTheme&&THEMES.some(x=>x.key===d.jalTheme)){theme=d.jalTheme;level=10;}
     if(d.jalChapter!==undefined){const ch=Number(d.jalChapter);if(Number.isInteger(ch)&&ch>=0&&ch<5)level=ch*50+10;}
