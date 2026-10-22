@@ -39,7 +39,7 @@
     if (auraLabLoading) return;
     const style = document.createElement("link");
     style.rel = "stylesheet";
-    style.href = "admin-aura-lab.css?v=20261022-energy-evolution-v6";
+    style.href = "admin-aura-lab.css?v=20261022-sakura-png-v1";
     document.head.appendChild(style);
     const loadError = function () {
       auraLabLoading = null;
@@ -56,10 +56,8 @@
     }
     // All preview-only assets are loaded only when this administrator tab opens.
     auraLabLoading = true;
-    attachScript("admin-petal-paint.js?v=20261022-petal-painted-v1", function () {
-      attachScript("admin-aura-lab.js?v=20261022-petal-painted-v1", function () {
-        auraLabLoading = null;
-      });
+    attachScript("admin-aura-lab.js?v=20261022-sakura-png-v1", function () {
+      auraLabLoading = null;
     });
   }
   let level = 100;
