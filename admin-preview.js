@@ -58,8 +58,10 @@
     auraLabLoading = true;
     attachScript("admin-aura-lab-c.js?v=20261022-energy-evolution-v6", function () {
       attachScript("admin-aura-lab-b.js?v=20261022-aura-alt-b-v5", function () {
-        attachScript("admin-aura-lab.js?v=20261022-energy-evolution-v6", function () {
+        attachScript("admin-aura-flow.js?v=20261022-flow-v1", function () {
+        attachScript("admin-aura-lab.js?v=20261022-flow-v1", function () {
           auraLabLoading = null;
+        });
         });
       });
     });
