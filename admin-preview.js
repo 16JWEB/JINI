@@ -56,8 +56,10 @@
     }
     // All preview-only assets are loaded only when this administrator tab opens.
     auraLabLoading = true;
-    attachScript("admin-aura-lab.js?v=20261022-aura-clear-v1", function () {
-      auraLabLoading = null;
+    attachScript("admin-petal-paint.js?v=20261022-petal-painted-v1", function () {
+      attachScript("admin-aura-lab.js?v=20261022-petal-painted-v1", function () {
+        auraLabLoading = null;
+      });
     });
   }
   let level = 100;
