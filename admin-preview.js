@@ -12,14 +12,13 @@
   const growthPanel = document.getElementById("ja-preview-panel");
   const rewardPanel = document.getElementById("ja-reward-panel");
   const dataPanel = document.getElementById("ja-data-panel");
-  const auraPanel = document.getElementById("ja-aura-panel");
   const rewardPreview = document.getElementById("ja-reward-preview");
   const rewardDemoDialog = document.getElementById("ja-reward-demo-dialog");
   const rewardStudy = document.getElementById("ja-reward-study");
   const rewardAvatar = document.getElementById("ja-reward-avatar");
   const rewardLevel = document.getElementById("ja-reward-level");
   const rewardOpenButton = document.getElementById("ja-reward-open");
-  if (!growthPanel || !rewardPanel || !dataPanel || !auraPanel || !rewardPreview || !rewardDemoDialog ||
+  if (!growthPanel || !rewardPanel || !dataPanel || !rewardPreview || !rewardDemoDialog ||
       !rewardStudy || !rewardAvatar || !rewardLevel || !rewardOpenButton) return;
   const EXPECTED_DIGEST = "d4758ff40ebce1b5d0980f165c14d660f4723e50cd8c59d25403cde2ad87edc6";
   const ANIMALS = [
@@ -29,46 +28,13 @@
     { id: "fox", name: "여우", emoji: "🦊" }
   ];
   const PREVIEW_LEVELS = new Set([1].concat(Array.from({ length: 20 }, (_, i) => (i + 1) * 10)));
-  const TAB_IDS = ["ja-tab-preview", "ja-tab-reward", "ja-tab-aura", "ja-tab-data"];
-  let auraLabLoading = null;
-  function loadAuraLab() {
-    if (window.JINI_ADMIN_AURA_LAB) {
-      window.JINI_ADMIN_AURA_LAB.refresh();
-      return;
-    }
-    if (auraLabLoading) return;
-    const style = document.createElement("link");
-    style.rel = "stylesheet";
-    style.href = "admin-aura-lab.css?v=20261022-sakura-png-v1";
-    document.head.appendChild(style);
-    const loadError = function () {
-      auraLabLoading = null;
-      const element = document.getElementById("ja-aura-cards");
-      if (element) element.textContent = "오라 테스트 파일을 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.";
-    };
-    function attachScript(path, done) {
-      const script = document.createElement("script");
-      script.src = path;
-      script.async = true;
-      script.onload = done;
-      script.onerror = loadError;
-      document.body.appendChild(script);
-    }
-    // All preview-only assets are loaded only when this administrator tab opens.
-    auraLabLoading = true;
-    attachScript("admin-sakura-zip.js?v=20261022-sakura-zip-v1", function () {
-      attachScript("admin-aura-lab.js?v=20261022-sakura-zip-v1", function () {
-        auraLabLoading = null;
-      });
-    });
-  }
+  const TAB_IDS = ["ja-tab-preview", "ja-tab-reward", "ja-tab-data"];
   let level = 100;
   function reset() {
     if (rewardDemoDialog.open) rewardDemoDialog.close();
     growthPanel.hidden = false;
     rewardPanel.hidden = true;
     dataPanel.hidden = true;
-    auraPanel.hidden = true;
     dialog.querySelectorAll('[role="tab"]').forEach(function (button) {
       const active = button.id === "ja-tab-preview";
       button.setAttribute("aria-selected", String(active));
@@ -133,14 +99,12 @@
     growthPanel.hidden = id !== "ja-tab-preview";
     rewardPanel.hidden = id !== "ja-tab-reward";
     dataPanel.hidden = id !== "ja-tab-data";
-    auraPanel.hidden = id !== "ja-tab-aura";
     dialog.querySelectorAll('[role="tab"]').forEach(function (button) {
       const selected = button.id === id;
       button.setAttribute("aria-selected", String(selected));
       button.tabIndex = selected ? 0 : -1;
     });
     if (id === "ja-tab-reward") renderRewardPreview();
-    if (id === "ja-tab-aura") loadAuraLab();
   }
   async function digest(value) {
     const data = new TextEncoder().encode(value);
