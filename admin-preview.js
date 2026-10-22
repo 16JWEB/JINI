@@ -56,8 +56,10 @@
     }
     // All preview-only assets are loaded only when this administrator tab opens.
     auraLabLoading = true;
-    attachScript("admin-aura-lab.js?v=20261022-sakura-png-v1", function () {
-      auraLabLoading = null;
+    attachScript("admin-sakura-zip.js?v=20261022-sakura-zip-v1", function () {
+      attachScript("admin-aura-lab.js?v=20261022-sakura-zip-v1", function () {
+        auraLabLoading = null;
+      });
     });
   }
   let level = 100;
