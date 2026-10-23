@@ -26,39 +26,32 @@ css.textContent=`
 `;
 document.head.appendChild(css);
 const root=document.createElement("section");root.id="ja-red-aura-test";
-root.innerHTML='<h3>🔥 붉은 에너지 오라 · 레벨 10~100</h3><p>오라 원본 10장을 레벨별로 비교합니다. 실제 학습 XP와 보상은 변경하지 않습니다. 첫 사용 시 이미지 10장을 불러오세요.</p><input class="ja-red-file" id="ja-red-images" type="file" accept="image/png" multiple aria-label="붉은 오라 PNG 10장 불러오기"><div class="ja-red-steps"></div><div class="ja-red-stage"><div class="missing">오라 이미지를 불러오면 이곳에 표시됩니다.</div><div class="hero"></div></div><div class="ja-red-tools"><label><input id="ja-red-show-hero" type="checkbox" checked> 캐릭터 표시</label><label>오라 크기 <input id="ja-red-size" type="range" min="70" max="135" value="100">%</label><label>투명도 <input id="ja-red-opacity" type="range" min="30" max="100" value="100">%</label></div><p id="ja-red-status" role="status">준비됨 · 레벨 10</p>';
+root.innerHTML='<h3>🔥 붉은 에너지 오라 · 레벨 10~100</h3><p>오라 원본 10장을 레벨별로 비교합니다. 실제 학습 XP와 보상은 변경하지 않습니다. 사이트에 저장된 이미지를 자동으로 표시합니다.</p><div class="ja-red-steps"></div><div class="ja-red-stage"><div class="missing">오라 이미지를 불러오면 이곳에 표시됩니다.</div><div class="hero"></div></div><div class="ja-red-tools"><label><input id="ja-red-show-hero" type="checkbox" checked> 캐릭터 표시</label><label>오라 크기 <input id="ja-red-size" type="range" min="70" max="135" value="100">%</label><label>투명도 <input id="ja-red-opacity" type="range" min="30" max="100" value="100">%</label></div><p id="ja-red-status" role="status">준비됨 · 레벨 10</p>';
 section.appendChild(root);
 const stage=root.querySelector(".ja-red-stage"), auraImg=document.createElement("img"), hero=root.querySelector(".hero"), status=root.querySelector("#ja-red-status"),missing=root.querySelector(".missing");
 auraImg.className="aura";auraImg.alt="붉은 에너지 오라";stage.insertBefore(auraImg,hero);
-const levels=Array.from({length:10},(_,i)=>(i+1)*10), stored=new Map();let level=10;
-let db=null;
-const request=indexedDB.open("jini-red-aura-admin-preview-v1",1);
-request.onupgradeneeded=()=>{request.result.createObjectStore("images")};
-request.onsuccess=()=>{db=request.result;const tx=db.transaction("images","readonly"),store=tx.objectStore("images");levels.forEach(n=>{const r=store.get(n);r.onsuccess=()=>{if(r.result){stored.set(n,r.result);render()}}})};
-request.onerror=()=>{status.textContent="브라우저 저장소를 사용할 수 없습니다. 현재 탭에서만 미리보기를 제공합니다."};
+const levels=Array.from({length:10},(_,i)=>(i+1)*10);let level=10;
+const available=new Set();
+levels.forEach(n=>{
+ const image=new Image();
+ image.onload=()=>{available.add(n);render()};
+ image.onerror=()=>{available.delete(n);render()};
+ image.src="admin-assets/red-aura/red-"+String(n).padStart(3,"0")+".png";
+});
 const buttons=root.querySelector(".ja-red-steps");
 levels.forEach(n=>{const b=document.createElement("button");b.textContent="Lv."+n;b.type="button";b.onclick=()=>{level=n;render()};buttons.appendChild(b)});
 function render(){
  buttons.querySelectorAll("button").forEach((b,i)=>b.classList.toggle("active",levels[i]===level));
- const blob=stored.get(level);if(auraImg.dataset.url){URL.revokeObjectURL(auraImg.dataset.url);delete auraImg.dataset.url}
- if(blob){const u=URL.createObjectURL(blob);auraImg.dataset.url=u;auraImg.src=u;auraImg.hidden=false;missing.hidden=true}
- else{auraImg.removeAttribute("src");auraImg.hidden=true;missing.hidden=false}
+ const path="admin-assets/red-aura/red-"+String(level).padStart(3,"0")+".png";
+ auraImg.src=path;auraImg.hidden=!available.has(level);missing.hidden=available.has(level);
+ missing.textContent="오라 이미지가 사이트에 아직 등록되지 않았어요.";
  const isHero=root.querySelector("#ja-red-show-hero").checked;
  hero.hidden=!isHero;
  if(isHero){if(window.JINI_CHARACTER_ART&&window.JINI_CHARACTER_ART.render){hero.innerHTML=window.JINI_CHARACTER_ART.render({avatar:"fox",level:level,auraLevel:0})}else{hero.textContent="🦊"}}
  auraImg.style.transform="scale("+(Number(root.querySelector("#ja-red-size").value)/100)+")";
  auraImg.style.opacity=Number(root.querySelector("#ja-red-opacity").value)/100;
- status.textContent="Lv."+level+" · "+(blob?"원본 이미지 표시 중":"PNG 이미지 미등록")+" · 등록 "+stored.size+"/10";
+ status.textContent="Lv."+level+" · "+(available.has(level)?"오라 이미지 표시 중":"사이트 이미지 미등록")+" · "+available.size+"/10 준비됨";
 }
-root.querySelector("#ja-red-images").addEventListener("change",e=>{
- let accepted=0;
- for(const file of e.target.files){const m=file.name.match(/red[-_ ]?0?(10|20|30|40|50|60|70|80|90|100)\.png$/i);
- if(!m||file.type!=="image/png")continue;const n=Number(m[1]);stored.set(n,file);accepted++;
- if(db){try{db.transaction("images","readwrite").objectStore("images").put(file,n)}catch(err){}}
- }
- render();
- if(!accepted)status.textContent="파일 이름은 red-010.png부터 red-100.png까지여야 합니다. ZIP을 먼저 풀어주세요.";
-});
 root.querySelectorAll("input:not([type=file])").forEach(el=>el.addEventListener("input",render));
 render();
 })();
