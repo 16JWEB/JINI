@@ -255,6 +255,14 @@
   }
   function description(records) {
     const x = summary(records);
+    if (SITE_MODE) {
+      const english = SITE_MODE === "english";
+      return (english ? "영어 Lv." + x.enLevel + " (" + x.enXp + " XP)" :
+        "한글 Lv." + x.koLevel + " (" + x.koXp + " XP)") +
+        " · 학습시간 " + x.minutes + "분 · 캐릭터 " +
+        (english ? x.englishName : x.koreanName) +
+        (x.hasProgress ? "" : " · 실제 학습기록 없음");
+    }
     return "영어 Lv." + x.enLevel + " (" + x.enXp + " XP), 한글 Lv." +
       x.koLevel + " (" + x.koXp + " XP) · 학습시간 " + x.minutes + "분 · 캐릭터 " +
       x.englishName + " / " + x.koreanName +
@@ -485,9 +493,19 @@
     let saved = {};
     try { saved = JSON.parse(records[REWARD_NOTIFICATIONS_KEY] || "null") || {}; } catch (_) {}
     const progress = {};
+    let oldNotifications = {};
+    if (SITE_MODE) {
+      try { oldNotifications = JSON.parse(localStorage.getItem(REWARD_NOTIFICATIONS_KEY) || "{}") || {}; }
+      catch (_) {}
+    }
     [["english", "jini-english-game-v1"], ["korean", "jini-korean-games-v1"]]
       .forEach(function (entry) {
         const study = entry[0], scoreKey = entry[1];
+        if (SITE_MODE && study !== SITE_MODE) {
+          const keep = oldNotifications[study];
+          if (keep && typeof keep === "object") progress[study] = keep;
+          return;
+        }
         let score = {};
         try { score = JSON.parse(records[scoreKey] || "null") || {}; } catch (_) {}
         const xp = Number(score.xp);
