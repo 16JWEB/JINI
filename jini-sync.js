@@ -2,7 +2,8 @@
 (function () {
   "use strict";
   const CONFIG_ID = (window.JINI_GOOGLE_CLIENT_ID || "").trim();
-  const META_KEY = "jini-drive-sync-meta-v1";
+  const SITE_MODE = ["english","korean"].includes(window.JINI_APP_MODE) ? window.JINI_APP_MODE : "";
+  const META_KEY = "jini-drive-sync-meta-v1" + (SITE_MODE ? "-" + SITE_MODE : "");
   const REWARD_NOTIFICATIONS_KEY = "jini-character-reward-popups-v1";
   // Reading position belongs to this device, like jini-last-study-state.
   // Page numbers, player cursors and scroll offsets are not learning results.
@@ -12,12 +13,12 @@
   // Google browser-tab session only. Never include access tokens in localStorage
   // or Drive backups. Google OAuth tokens still expire and must be renewed by
   // an explicit user click after expiry (no server-side refresh token here).
-  const SESSION_KEY = "jini-drive-tab-session-v2";
+  const SESSION_KEY = "jini-drive-tab-session-v2" + (SITE_MODE ? "-" + SITE_MODE : "");
   // Keep the first XP change deadline across a same-tab page reload.
-  const XP_BATCH_DUE_KEY = "jini-drive-xp-batch-due-v1";
-  const LEGACY_HANDOFF_KEY = "jini-drive-reload-token-once-v1";
+  const XP_BATCH_DUE_KEY = "jini-drive-xp-batch-due-v1" + (SITE_MODE ? "-" + SITE_MODE : "");
+  const LEGACY_HANDOFF_KEY = "jini-drive-reload-token-once-v1" + (SITE_MODE ? "-" + SITE_MODE : "");
   const FOLDER_NAME = "JINI";
-  const FILE_NAME = "jini-backup.json";
+  const FILE_NAME = SITE_MODE ? "jini-" + SITE_MODE + "-backup.json" : "jini-backup.json";
   // One upload window per first game-progress change; no per-answer requests.
   const XP_BATCH_MS = 5 * 60 * 1000;
   const DRIVE_POLL_MS = 10 * 60 * 1000;
@@ -87,19 +88,88 @@
   function saveMeta() {
     try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (_) {}
   }
+  function belongsToSite(key) {
+    if (!SITE_MODE) return true;
+    if (key === "jini-study-time-v1" || key === "jini-learning-bookmarks" ||
+        key === "jini-game-character-v1") return true;
+    if (/^jini-(?:korean|ko-)/.test(key) || /-korean(?:-|$)/.test(key))
+      return SITE_MODE === "korean";
+    if (/^jini-(?:english|opic|essential-expressions)/.test(key) ||
+        /-english(?:-|$)/.test(key)) return SITE_MODE === "english";
+    return true; // Preserve unclassified settings for forward compatibility.
+  }
   function included(key) {
     return key.startsWith("jini-") && key !== META_KEY &&
-      key !== REWARD_NOTIFICATIONS_KEY && // Device-only notification queue, not earned rewards.
+      key !== REWARD_NOTIFICATIONS_KEY &&
       !DEVICE_STATE_KEYS.includes(key) && !key.startsWith("jini-drive-") &&
-      !key.startsWith("jini-network-usage-") && // Traffic belongs to this browser, not learning progress.
-      !/oauth|access.?token|refresh.?token|client.?secret|admin.?pass/i.test(key);
+      !key.startsWith("jini-network-usage-") &&
+      !/oauth|access.?token|refresh.?token|client.?secret|admin.?pass/i.test(key) &&
+      belongsToSite(key);
+  }
+  function projectRecord(key, raw) {
+    if (!SITE_MODE || typeof raw !== "string" ||
+        (key !== "jini-study-time-v1" && key !== "jini-learning-bookmarks")) return raw;
+    try {
+      const data = JSON.parse(raw);
+      if (!data || typeof data !== "object" || Array.isArray(data)) return raw;
+      if (key === "jini-study-time-v1") {
+        const days = {};
+        for (const [date, row] of Object.entries(data.days || {})) {
+          if (!row || typeof row !== "object") continue;
+          days[date] = {
+            englishMs: SITE_MODE === "english" ? Math.max(0, Number(row.englishMs) || 0) : 0,
+            koreanMs: SITE_MODE === "korean" ? Math.max(0, Number(row.koreanMs) || 0) : 0
+          };
+        }
+        return JSON.stringify(Object.assign({}, data, { days: days }));
+      }
+      const result = Object.assign({}, data);
+      ["vocabulary","player"].forEach(function (field) {
+        if (Array.isArray(data[field])) result[field] = data[field].filter(function (entry) {
+          return entry && (entry.study || "english") === SITE_MODE;
+        });
+      });
+      return JSON.stringify(result);
+    } catch (_) { return raw; }
+  }
+  // An import from one app may never clear the other language's shared records.
+  function combineSiteRecord(key, oldRaw, incomingRaw) {
+    if (!SITE_MODE || (key !== "jini-study-time-v1" && key !== "jini-learning-bookmarks"))
+      return incomingRaw;
+    let oldData = {}, newData = {};
+    try { oldData = JSON.parse(oldRaw || "{}") || {}; } catch (_) {}
+    try { newData = JSON.parse(incomingRaw || "{}") || {}; } catch (_) {}
+    if (key === "jini-study-time-v1") {
+      const field = SITE_MODE + "Ms";
+      const base = Object.assign({ schema: 1, days: {} }, oldData);
+      const days = {};
+      const dates = new Set(Object.keys(oldData.days || {}).concat(Object.keys(newData.days || {})));
+      dates.forEach(function (date) {
+        const prev = oldData.days && oldData.days[date] || {};
+        const next = newData.days && newData.days[date] || {};
+        days[date] = Object.assign({}, prev, { [field]: Math.max(0, Number(next[field]) || 0) });
+      });
+      base.days = days;
+      return JSON.stringify(base);
+    }
+    const merged = Object.assign({}, oldData);
+    ["vocabulary","player"].forEach(function (field) {
+      const previous = Array.isArray(oldData[field]) ? oldData[field] : [];
+      const incoming = Array.isArray(newData[field]) ? newData[field] : [];
+      merged[field] = previous.filter(function (x) {
+        return x && (x.study || "english") !== SITE_MODE;
+      }).concat(incoming.filter(function (x) {
+        return x && (x.study || "english") === SITE_MODE;
+      }));
+    });
+    return JSON.stringify(merged);
   }
   function snapshot() {
     const records = {};
     try {
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && included(key)) records[key] = localStorage.getItem(key);
+        if (key && included(key)) records[key] = projectRecord(key, localStorage.getItem(key));
       }
     } catch (_) {}
     const keys = Object.keys(records).sort();
@@ -185,6 +255,14 @@
   }
   function description(records) {
     const x = summary(records);
+    if (SITE_MODE) {
+      const english = SITE_MODE === "english";
+      return (english ? "영어 Lv." + x.enLevel + " (" + x.enXp + " XP)" :
+        "한글 Lv." + x.koLevel + " (" + x.koXp + " XP)") +
+        " · 학습시간 " + x.minutes + "분 · 캐릭터 " +
+        (english ? x.englishName : x.koreanName) +
+        (x.hasProgress ? "" : " · 실제 학습기록 없음");
+    }
     return "영어 Lv." + x.enLevel + " (" + x.enXp + " XP), 한글 Lv." +
       x.koLevel + " (" + x.koXp + " XP) · 학습시간 " + x.minutes + "분 · 캐릭터 " +
       x.englishName + " / " + x.koreanName +
@@ -361,7 +439,7 @@
     try {
       for (const key of Object.keys(next)) {
         if (current[key] === next[key]) continue;
-        localStorage.setItem(key, next[key]);
+        localStorage.setItem(key, SITE_MODE ? combineSiteRecord(key, localStorage.getItem(key), next[key]) : next[key]);
         if (key === "jini-study-time-v1") changedTime = true;
         if (key === "jini-english-game-v1" || key === "jini-korean-games-v1")
           changedGame = true;
@@ -393,7 +471,7 @@
       if (typeof data[k] !== "string" || data[k].length > 2000000) {
         throw new Error("백업파일에 잘못된 학습정보가 포함되어 있습니다.");
       }
-      if (included(k)) restored[k] = data[k];
+      if (included(k)) restored[k] = projectRecord(k, data[k]);
     }
     return restored;
   }
@@ -402,7 +480,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "JINI-학습데이터-" + new Date().toISOString().slice(0, 10) + ".json";
+    a.download = "JINI-" + (SITE_MODE || "통합") + "-학습데이터-" + new Date().toISOString().slice(0, 10) + ".json";
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -415,9 +493,19 @@
     let saved = {};
     try { saved = JSON.parse(records[REWARD_NOTIFICATIONS_KEY] || "null") || {}; } catch (_) {}
     const progress = {};
+    let oldNotifications = {};
+    if (SITE_MODE) {
+      try { oldNotifications = JSON.parse(localStorage.getItem(REWARD_NOTIFICATIONS_KEY) || "{}") || {}; }
+      catch (_) {}
+    }
     [["english", "jini-english-game-v1"], ["korean", "jini-korean-games-v1"]]
       .forEach(function (entry) {
         const study = entry[0], scoreKey = entry[1];
+        if (SITE_MODE && study !== SITE_MODE) {
+          const keep = oldNotifications[study];
+          if (keep && typeof keep === "object") progress[study] = keep;
+          return;
+        }
         let score = {};
         try { score = JSON.parse(records[scoreKey] || "null") || {}; } catch (_) {}
         const xp = Number(score.xp);
@@ -430,12 +518,23 @@
   }
   function applyRecords(records) {
     const existing = snapshot();
+    const savedShared = SITE_MODE ? {
+      "jini-study-time-v1": localStorage.getItem("jini-study-time-v1"),
+      "jini-learning-bookmarks": localStorage.getItem("jini-learning-bookmarks")
+    } : {};
     // 복원 전에 현재 기록을 파일로 별도 저장해 실수로 잃지 않게 합니다.
     if (meaningful(existing)) download(existing);
     // Preserve the authorized browser-tab session across this reload.
     if (validToken()) keepTabToken();
     Object.keys(existing).forEach(function (key) { localStorage.removeItem(key); });
-    Object.keys(records).forEach(function (key) { localStorage.setItem(key, records[key]); });
+    Object.keys(records).forEach(function (key) {
+      localStorage.setItem(key, SITE_MODE ?
+        combineSiteRecord(key, savedShared[key], records[key]) : records[key]);
+    });
+    if (SITE_MODE) ["jini-study-time-v1","jini-learning-bookmarks"].forEach(function (key) {
+      if (!(key in records) && savedShared[key])
+        localStorage.setItem(key, combineSiteRecord(key, savedShared[key], "{}"));
+    });
     // Replace stale notification state only after the imported data is saved.
     // All restore paths (Drive, conflict resolution, JSON) run through here.
     localStorage.setItem(REWARD_NOTIFICATIONS_KEY, restoredRewardProgress(records));
@@ -595,12 +694,14 @@
     });
     return folder.id;
   }
-  async function findFile() {
+  async function findNamedFile(name) {
     const folder = await findFolder(false);
     if (!folder) return null;
-    const files = await list("'" + folder + "' in parents and name = '" + escapeQuery(FILE_NAME) + "' and trashed = false");
+    const files = await list("'" + folder + "' in parents and name = '" +
+      escapeQuery(name) + "' and trashed = false");
     return files[0] || null;
   }
+  async function findFile() { return findNamedFile(FILE_NAME); }
   async function readFile(id) {
     const data = await request(API + "/" + encodeURIComponent(id) + "?alt=media");
     const parsed = typeof data === "string" ? JSON.parse(data) : data;
@@ -704,7 +805,16 @@
     render();
     try {
       if (!meta.accountEmail) await rememberGoogleAccount();
-      const remoteMeta = await findFile();
+      let remoteMeta = await findFile();
+      // Preserve the original combined Drive backup as a read-only archive.
+      // Create a NEW language file from it on the first connection only.
+      if (SITE_MODE && !remoteMeta && !meta.lastRemoteVersion && !meta.deleted) {
+        const legacy = await findNamedFile("jini-backup.json");
+        if (legacy) {
+          const migrated = await readFile(legacy.id);
+          if (meaningful(migrated)) remoteMeta = await writeFile(migrated, null);
+        }
+      }
       setDriveSize(remoteMeta);
       // Never reuse sync baselines from a different Drive file/account.
       if (remoteMeta && meta.lastRemoteFileId &&
@@ -1001,7 +1111,7 @@
       conflict = null;
       markSynced(local, result);
       showDataComparison(local, "직접 백업 완료 · " + dateTime(new Date().toISOString()));
-      status("Google Drive / JINI / jini-backup.json에 실제 학습정보를 백업했습니다.");
+      status("Google Drive / JINI / " + FILE_NAME + "에 실제 학습정보를 백업했습니다.");
     });
   }
   async function restore() {
@@ -1050,7 +1160,7 @@
     ask("restore", "Google Drive 백업을 복원할까요?", "현재 기기의 학습정보를 JSON 파일로 먼저 다운로드한 다음 Drive 기록으로 교체합니다. 이후 화면이 새로고침됩니다.");
   });
   $("jsy-delete").addEventListener("click", function () {
-    ask("delete", "Google Drive 백업을 삭제할까요?", "Drive의 JINI/jini-backup.json 파일이 삭제됩니다. 현재 기기 학습기록은 유지되지만, 다른 기기의 자동 동기화는 별도로 해제해야 합니다.");
+    ask("delete", "Google Drive 백업을 삭제할까요?", "Drive의 JINI/" + FILE_NAME + " 파일이 삭제됩니다. 현재 기기 학습기록은 유지되지만, 다른 기기의 자동 동기화는 별도로 해제해야 합니다.");
   });
   $("jsy-cancel").addEventListener("click", clearAsk);
   $("jsy-confirm-yes").addEventListener("click", function () {

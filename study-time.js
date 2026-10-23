@@ -3,6 +3,7 @@
   "use strict";
 
   const KEY = "jini-study-time-v1";
+  const SITE_MODE = ["english", "korean"].includes(window.JINI_APP_MODE) ? window.JINI_APP_MODE : "";
   const IDLE_MS = 90 * 1000;
   const MAX_TICK_MS = 20 * 1000;
   const ENGLISH = new Set(["vocabulary", "player", "english-expressions",
@@ -17,7 +18,7 @@
   let lastTick = Date.now();
   let lastActivity = lastTick;
   let selectedView = "calendar";
-  let selectedLanguage = "all";
+  let selectedLanguage = SITE_MODE || "all";
   const today = new Date();
   let monthCursor = new Date(today.getFullYear(), today.getMonth(), 1);
   let selectedDay = dayKey(today);
@@ -193,10 +194,12 @@
       '<i class="jst-tone-3"></i> 30~59분 <i class="jst-tone-4"></i> 60분+</p></div>' +
       '<div class="jst-card jst-detail"><h2>📅 ' + selectedDay.replace(/-/g, ".") + ' 학습 내역</h2>' +
       '<strong class="jst-time-large">' + duration(selectedTotal) + '</strong>' +
-      '<div class="jst-splitbar"><span style="width:' + englishPct + '%"></span>' +
-      '<span style="width:' + koreanPct + '%"></span></div>' +
-      '<div class="jst-language-times"><span>📘 영어 <strong>' + duration(selectedEnglish) +
-      '</strong></span><span>📕 한글 <strong>' + duration(selectedKorean) + '</strong></span></div>' +
+       (SITE_MODE ? '<p class="jst-language-times">' + (SITE_MODE === 'english' ? '📘 영어 ' : '📕 한글 ') +
+        '<strong>' + duration(selectedTotal) + '</strong></p>' :
+        '<div class="jst-splitbar"><span style="width:' + englishPct + '%"></span>' +
+        '<span style="width:' + koreanPct + '%"></span></div>' +
+        '<div class="jst-language-times"><span>📘 영어 <strong>' + duration(selectedEnglish) +
+        '</strong></span><span>📕 한글 <strong>' + duration(selectedKorean) + '</strong></span></div>') +
       (sum ? '' : '<p class="jst-empty">이날은 아직 기록된 학습시간이 없어요.</p>') + '</div>';
   }
   function daily(data) {
@@ -251,13 +254,13 @@
         (selectedView === entry[0] ? ' class="active" aria-pressed="true"' : ' aria-pressed="false"') +
         '>' + entry[1] + '</button>';
     }).join("");
-    const filters = [["all", "전체"], ["english", "📘 영어"], ["korean", "📕 한글"]].map(function (entry) {
+    const filters = (SITE_MODE ? [] : [["all", "전체"], ["english", "📘 영어"], ["korean", "📕 한글"]]).map(function (entry) {
       return '<button type="button" data-lang="' + entry[0] + '"' +
         (selectedLanguage === entry[0] ? ' class="active" aria-pressed="true"' : ' aria-pressed="false"') +
         '>' + entry[1] + '</button>';
     }).join("");
     root.innerHTML = '<div class="jst-heading"><div><span class="jst-eyebrow">MY STUDY RECORD</span>' +
-      '<h1>📊 나의 학습정보</h1><p>영어·한글 공부시간을 달력과 통계로 확인해요.</p></div>' +
+      '<h1>📊 나의 학습정보</h1><p>' + (SITE_MODE === 'english' ? '영어' : SITE_MODE === 'korean' ? '한국어' : '영어·한글') + ' 공부시간을 달력과 통계로 확인해요.</p></div>' +
       '<button type="button" data-action="home" class="jst-back">← 홈으로</button></div>' +
       '<div class="jst-summary">' +
       '<article><span>선택한 달 누적</span><strong>' + duration(total.sum) + '</strong></article>' +
@@ -278,7 +281,7 @@
     const button = event.target.closest("button");
     if (!button) return;
     if (button.dataset.view) selectedView = button.dataset.view;
-    else if (button.dataset.lang) selectedLanguage = button.dataset.lang;
+    else if (button.dataset.lang && !SITE_MODE) selectedLanguage = button.dataset.lang;
     else if (button.dataset.day) selectedDay = button.dataset.day;
     else if (button.dataset.action === "prev" || button.dataset.action === "next") {
       monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth() +

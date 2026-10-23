@@ -92,7 +92,7 @@
   // this service worker does not provide offline caching.
   if ("serviceWorker" in navigator && window.location.protocol === "https:") {
     window.addEventListener("load", function () {
-      navigator.serviceWorker.register("./sw.js").catch(function () {
+      navigator.serviceWorker.register(new URL("./sw.js", window.location.href).href).catch(function () {
         // Home screen shortcuts can still be created through the browser menu.
       });
     });
