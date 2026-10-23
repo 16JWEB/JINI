@@ -34,7 +34,7 @@
   const other = korean ? "english" : "korean";
   const siteName = korean ? "JINI Korean" : "JINI English";
   const otherName = korean ? "JINI English" : "JINI Korean";
-  const otherHref = "../" + other + "/";
+  const otherHref = new URL("../" + other + "/", window.location.href).href;
   const brand = document.querySelector(".brand");
   if (brand) brand.setAttribute("aria-label", siteName + " 홈");
   const switcher = document.createElement("a");
