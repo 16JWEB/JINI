@@ -31,19 +31,9 @@
   hide(unwantedCharacter);
   const charGrid = document.querySelector(".jini-home-character-grid");
   if (charGrid) charGrid.style.gridTemplateColumns = "minmax(0, 1fr)";
-  const other = korean ? "english" : "korean";
   const siteName = korean ? "JINI Korean" : "JINI English";
-  const otherName = korean ? "JINI English" : "JINI Korean";
-  const otherHref = new URL("../" + other + "/", window.location.href).href;
   const brand = document.querySelector(".brand");
   if (brand) brand.setAttribute("aria-label", siteName + " 홈");
-  const switcher = document.createElement("a");
-  switcher.href = otherHref;
-  switcher.textContent = "↗ " + otherName + " 이동";
-  switcher.className = "jini-site-switch";
-  switcher.style.cssText = "display:inline-flex;align-items:center;padding:9px 12px;border-radius:10px;margin:14px 10px;color:inherit;border:1px solid #aaa5;font-size:13px;font-weight:650;text-decoration:none;";
-  const menu = document.querySelector(".sidebar");
-  if (menu) menu.appendChild(switcher);
   const home = document.getElementById("home-section");
   if (home) {
     const label = document.createElement("p");
