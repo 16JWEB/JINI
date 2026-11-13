@@ -1588,6 +1588,7 @@
     const showingEnglishGame = page === "english-game";
     const showingSpeaking = page === "speaking";
     const showingOpic = page === "opic" || page === "opic-basic" || page === "opic-mock";
+    const showingToeic = page === "toeic-speaking";
     const koreanStudy = currentStudy === "korean";
     document.querySelector(".sidebar").dataset.study = (showingHome || showingStudyInfo || showingSync) ? "home" : currentStudy;
     document.getElementById("home-section").hidden = !showingHome;
@@ -1606,7 +1607,9 @@
     document.getElementById("opic-list-section").hidden = page !== "opic";
     document.getElementById("opic-basic-section").hidden = page !== "opic-basic";
     document.getElementById("opic-mock-section").hidden = page !== "opic-mock";
-    document.querySelector(".page-footer").hidden = showingHome || showingStudyMenu || showingStudyInfo || showingSync || showingSpeaking || showingOpic;
+    const toeicSection = document.getElementById("toeic-speaking-section");
+    if (toeicSection) toeicSection.hidden = !showingToeic;
+    document.querySelector(".page-footer").hidden = showingHome || showingStudyMenu || showingStudyInfo || showingSync || showingSpeaking || showingOpic || showingToeic;
     document.querySelectorAll(".nav-item[data-page]").forEach(function (button) {
       button.classList.toggle("active", button.dataset.page === page ||
         (button.dataset.page === "speaking" && showingOpic));
@@ -1615,12 +1618,12 @@
       "YOUR DAILY KOREAN<br><span>베트남어로 배우는 한국어</span>" :
       "YOUR DAILY ENGLISH<br><span>기초부터 차근차근</span>";
     document.getElementById("breadcrumb-section").textContent =
-      showingHome ? "홈" : showingStudyInfo ? "나의 학습정보" : showingSync ? "학습정보 동기화 (테스트 중)" : showingStudyMenu ? (koreanStudy ? "한글공부" : "영어공부") : koreanStudy ? "AI 한글공부" : (showingEnglishGame || showingSpeaking || showingOpic || showingEssentialExpressions || playingEnglishExpressions) ? "AI 영어공부" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
+      showingHome ? "홈" : showingStudyInfo ? "나의 학습정보" : showingSync ? "학습정보 동기화 (테스트 중)" : showingStudyMenu ? (koreanStudy ? "한글공부" : "영어공부") : koreanStudy ? "AI 한글공부" : (showingEnglishGame || showingSpeaking || showingOpic || showingToeic || showingEssentialExpressions || playingEnglishExpressions) ? "AI 영어공부" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
     document.getElementById("breadcrumb-divider").hidden = showingHome || showingStudyMenu || showingStudyInfo || showingSync;
     breadcrumbLevel.textContent = (showingHome || showingStudyMenu || showingStudyInfo || showingSync) ? "" : showingEssentialExpressions ? "필수 표현" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
       showingPlayer ? (playingExpressions || playingEnglishExpressions ? "표현 재생" : koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
-      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비" : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : page === "opic-mock" ? "스피킹 대비 / 실전 연습" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
+      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비" : showingToeic ? "스피킹 대비 / 토익스피킹" : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : page === "opic-mock" ? "스피킹 대비 / 실전 연습" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
     document.getElementById("section-title").textContent = "필수 단어";
     if (showingExpressions) document.getElementById("section-title").textContent = "일상생활 표현";
     document.querySelector(".bookmark-toolbar").hidden = showingExpressions;
@@ -1752,6 +1755,7 @@
   function parentStudyPage(page) {
     if (["study-menu", "ko-study-menu", "study-info"].includes(page)) return "home";
     if (page === "sync") return syncReturnPage && syncReturnPage !== "sync" ? syncReturnPage : "home";
+    if (page === "toeic-speaking") return "study-menu";
     if (page === "opic-basic") return "opic";
     if (page === "opic" || page === "opic-mock") return "speaking";
     if (page === "ko-language-packs") return "ko-player";
