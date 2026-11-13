@@ -1,0 +1,55 @@
+/* TOEIC Speaking beginner learning screen. Scoped styles avoid changing OPIc. */
+.toeic-section{padding:18px 0 50px}
+.toeic-section .player-heading{margin-bottom:22px}
+.ts-shell{max-width:900px;margin:0 auto;color:var(--ink,#25273b)}
+.ts-intro{padding:24px 28px;border:1px solid #e4defa;border-radius:20px;background:linear-gradient(125deg,#f2efff,#fbfaff 72%,#eff8ff);margin-bottom:20px}
+.ts-kicker{display:block;color:#6452b5;font-size:11px;font-weight:800;letter-spacing:.08em}
+.ts-intro h2{font-size:clamp(19px,2.4vw,26px);letter-spacing:-.02em;margin:9px 0}
+.ts-intro p{color:#565b70;line-height:1.65;margin:0;font-size:14px}
+.ts-question-picker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 20px}
+.ts-pick{display:flex;align-items:center;gap:10px;padding:14px 16px;min-height:58px;text-align:left;border-radius:14px;background:var(--card,#fff);border:1px solid var(--line,#e3e1ed);font:inherit;color:var(--ink,#25273b);cursor:pointer}
+.ts-pick span{font-size:11px;white-space:nowrap;color:#6e5db6}
+.ts-pick strong{font-size:14px}
+.ts-pick.is-active{border-color:#7664d8;background:#f4f1ff;box-shadow:0 0 0 1px #9888ee}
+.ts-pick:focus-visible,.ts-level:focus-visible,.ts-next-button:focus-visible{outline:3px solid #7863ee;outline-offset:2px}
+.ts-card{padding:28px;border:1px solid var(--line,#e2e0ed);border-radius:20px;background:var(--card,#fff)}
+.ts-question-meta{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;color:#6b61a0;font-size:12px;font-weight:700}
+#ts-question-title{font-size:clamp(19px,2.5vw,26px);line-height:1.45;letter-spacing:-.02em;margin:16px 0 8px}
+.ts-translation{font-size:14px;line-height:1.6;color:#696d80;margin:0}
+.ts-info{padding:14px 16px;margin-top:16px;border:1px dashed #aa9adb;border-radius:12px;background:#f9f7ff;color:#484263;font-size:13px;line-height:1.65}
+.ts-level-heading{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin:28px 0 10px;align-items:baseline}
+.ts-level-heading strong{font-size:15px}
+.ts-level-heading span{font-size:12px;color:#77738d}
+.ts-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ts-level{border:1px solid var(--line,#e1deec);border-radius:11px;background:var(--card,#fff);color:var(--ink,#25273b);font:inherit;font-weight:700;font-size:13px;cursor:pointer;padding:12px 6px}
+.ts-level.is-active{background:#6b56cf;color:#fff;border-color:#6b56cf}
+.ts-answer{margin-top:12px;border-radius:16px;border:1px solid #e3ddfc;background:#f9f8ff;padding:20px}
+.ts-answer-label{font-weight:800;font-size:12px;color:#6752b8}
+#ts-answer-en{font-size:clamp(17px,2.1vw,21px);font-weight:700;line-height:1.75;margin:12px 0 15px}
+.ts-answer-divider{height:1px;background:#e4def4}
+#ts-answer-ko{font-size:14px;color:#4e546b;line-height:1.8;margin:14px 0}
+.ts-hint{font-size:12px;color:#65599a;line-height:1.6;margin:0}
+.ts-card-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:22px}
+.ts-next-button{padding:11px 14px;border:1px solid #cfc8e7;border-radius:10px;color:#5946ad;background:var(--card,#fff);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.ts-next-primary{background:#6b56cf;border-color:#6b56cf;color:#fff}
+.ts-next-button:disabled{opacity:.4;cursor:default}
+#ts-progress{font-size:13px;font-variant-numeric:tabular-nums;color:#747186}
+.ts-note{font-size:12px;color:#777589;line-height:1.7;margin:16px 2px}
+@media(max-width:760px){
+  .toeic-section{padding:18px 0 40px}
+  .ts-intro{padding:20px}
+  .ts-question-picker{grid-template-columns:1fr;gap:8px}
+  .ts-pick{min-height:48px}
+  .ts-card{padding:18px}
+  .ts-level{padding:12px 4px;font-size:12px}
+  .ts-card-actions{gap:7px}
+  .ts-next-button{padding:10px 11px;font-size:12px}
+}
+@media(prefers-color-scheme:dark){
+  .ts-intro{background:#28243e;border-color:#4c426a}
+  .ts-intro p,.ts-translation,.ts-level-heading span,.ts-note{color:#bbb8cf}
+  .ts-pick.is-active,.ts-info,.ts-answer{background:#302943;border-color:#7163a0}
+  .ts-info,#ts-answer-ko{color:#d3cede}
+  .ts-answer-divider{background:#514663}
+  .ts-hint,.ts-answer-label,.ts-kicker{color:#c8b8ff}
+}
