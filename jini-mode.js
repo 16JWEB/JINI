@@ -11,7 +11,7 @@
       "ko-expression-player", "ko-game", "ko-language-packs"] :
     ["study-menu", "vocabulary", "player", "english-expressions",
       "english-expression-player", "verb-forms", "english-game",
-      "speaking", "opic-home", "toeic-speaking", "opic", "opic-basic", "opic-mock"]));
+      "speaking", "opic-home", "toeic-speaking", "toeic-basic", "toeic-types", "toeic-mock", "toeic-results", "opic", "opic-basic", "opic-mock"]));
   // Prevent a reload from restoring the other app's route in a reused browser tab.
   try {
     const old = sessionStorage.getItem("jini-refresh-current-page-v1");
