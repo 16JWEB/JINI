@@ -1,0 +1,93 @@
+/* JINI TOEIC Speaking four-menu practice, mock examination and review.
+   Explicit high-contrast light colors also on dark-mode devices. */
+.toeic-section[hidden]{display:none!important}
+.toeic-section{color-scheme:light;color:#191e32;max-width:1060px}
+.te-home-intro{color:#3c4256;line-height:1.75;font-size:15px;margin:0 0 18px}
+.te-home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.te-home-card{display:flex;align-items:flex-start;gap:15px;padding:22px;min-height:130px;border:1px solid #c8c7d9;border-radius:17px;background:#fff;color:#191e32;text-align:left;font:inherit;cursor:pointer}
+.te-home-card:hover{border-color:#5035aa;background:#f5f1ff}
+.te-home-card:focus-visible,.te-types button:focus-visible,.te-question-list button:focus-visible,.te-primary:focus-visible,.te-secondary:focus-visible,.te-level-options button:focus-visible{outline:3px solid #6247bf;outline-offset:2px}
+.te-home-icon{display:flex;align-items:center;justify-content:center;flex:0 0 48px;width:48px;height:48px;border-radius:14px;background:#ebe5ff;font-size:23px}
+.te-home-copy{display:grid;gap:9px}
+.te-home-copy strong{font-size:18px;color:#171b2d}
+.te-home-copy small{font-size:13px;line-height:1.65;color:#41485d}
+.te-heading{margin:5px 0 20px}
+.te-heading h2{font-size:clamp(22px,2.6vw,28px);line-height:1.4;margin:0 0 8px;color:#191e32}
+.te-heading p{font-size:14px;color:#41485d;line-height:1.75;margin:0}
+.te-types{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:0 0 18px}
+.te-types button{display:flex;flex-direction:column;gap:7px;padding:13px 8px;min-height:73px;border:1px solid #aaa4c1;border-radius:12px;background:#fff;color:#241e45;font:inherit;text-align:center;cursor:pointer;justify-content:center}
+.te-types button strong{font-size:12px}
+.te-types button small{font-size:12px}
+.te-types button.is-active,.te-question-list button.is-active{background:#e8e0ff;border-color:#4e32a7;color:#21145b}
+.te-question-list{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.te-question-list button{border:1px solid #aba6c3;background:#fff;color:#29234a;border-radius:10px;padding:10px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.te-type-card,.te-start-info,.te-result-review{padding:23px;border:1px solid #c8c7d9;border-radius:18px;background:#fff;color:#191e32}
+.te-type-meta,.te-q-eyebrow{font-size:13px;color:#4b368e;font-weight:800;letter-spacing:.01em}
+.te-q-eyebrow{margin-bottom:12px}
+.te-question-en{font-size:clamp(17px,2.1vw,21px);font-weight:700;line-height:1.7;color:#171b2d;margin:13px 0 0}
+.te-translation{color:#394154;font-size:15px;line-height:1.7}
+.te-photo{margin:12px 0}
+.te-photo img{width:100%;max-width:680px;max-height:380px;display:block;object-fit:contain;border-radius:13px;border:1px solid #d8d4e5;background:#f1eef6}
+.te-photo figcaption{color:#41485d;font-size:11px;line-height:1.6;margin-top:7px}
+.te-photo figcaption a{color:#3b248a;text-decoration:underline}
+.te-info{border:1px solid #beb1d8;border-radius:11px;background:#f4f1ff;padding:12px 15px;margin:9px 0}
+.te-info pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:13px;line-height:1.9;color:#231c3f;margin:0}
+.te-level-options{display:flex;gap:8px;margin:22px 0 0}
+.te-level-options button{flex:1;min-height:43px;border:1px solid #8f81bb;border-radius:10px;background:#fff;color:#30206e;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.te-level-options button.is-active{background:#47309e;color:#fff;border-color:#47309e}
+.te-model{margin-top:11px;padding:18px;border:1px solid #c5b8ed;border-radius:14px;background:#f4f1ff;color:#1b2035}
+.te-model strong,.te-model>span{color:#47309e;font-size:13px;font-weight:800}
+.te-model p{line-height:1.8}
+.te-model-en{font-size:17px;color:#171b2d;font-weight:700;margin:12px 0 9px}
+.te-model-ko{font-size:14px;color:#333b50;margin:0}
+.te-type-footer{display:flex;justify-content:flex-end;margin-top:18px}
+.te-primary,.te-secondary{border:1px solid #47309e;border-radius:11px;min-height:44px;padding:11px 15px;font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.te-primary{background:#47309e;color:#fff}
+.te-secondary{background:#fff;color:#3a2586;border-color:#a59ac9}
+.te-primary:hover{background:#36217d}
+.te-secondary:hover{background:#f4f1ff}
+.te-fineprint{font-size:12px;color:#41485d;line-height:1.75;margin:16px 0 8px}
+.te-start-info strong{font-size:16px}
+.te-start-info ul{margin:12px 0 20px;padding-left:20px;line-height:2;color:#30374b;font-size:14px}
+.te-start-actions{display:flex;gap:9px;flex-wrap:wrap}
+.te-status{font-size:13px;font-weight:700;color:#703026;line-height:1.65;min-height:18px}
+.te-exam-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid #c8c7d9;border-radius:14px;padding:15px 17px;margin-bottom:18px}
+.te-exam-bar>div{display:grid;gap:4px}
+.te-exam-bar strong{font-size:18px;color:#171b2d}
+.te-exam-bar span{font-size:12px;color:#424962}
+.te-exam-clock{display:grid;justify-items:center;gap:5px;border-radius:18px;border:1px solid #c3b6ee;background:#f3f0ff;padding:17px;margin:0 0 23px}
+.te-exam-clock span{font-size:14px;font-weight:800;color:#44328e}
+.te-exam-clock strong{font-variant-numeric:tabular-nums;font-size:clamp(42px,8vw,64px);letter-spacing:1px;color:#181b2d;line-height:1.2}
+.te-exam-clock small{font-size:12px;color:#3e4560}
+.te-exam-note{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid #ddd6ee;margin-top:20px;padding:16px 0;color:#3f465b;font-size:13px;line-height:1.65}
+.te-exam-note .te-secondary{white-space:nowrap}
+.te-progress{height:8px;border-radius:15px;background:#e6e1f2;margin-top:16px;overflow:hidden}
+.te-progress>div{height:100%;background:#5940ac;transition:width .25s}
+.te-result-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.te-result-summary>div{display:grid;gap:8px;justify-items:center;text-align:center;background:#f5f2ff;border:1px solid #d9cdf5;border-radius:13px;padding:17px 8px}
+.te-result-summary strong{font-size:clamp(19px,2.5vw,26px);color:#2e2176}
+.te-result-summary span,.te-result-date{font-size:12px;color:#40475e;line-height:1.5}
+.te-result-review h3{margin:0 0 17px;color:#1b1e34}
+.te-audio-box{display:grid;gap:9px;padding:15px;border:1px solid #bfb3df;border-radius:12px;margin:14px 0;background:#f7f4ff}
+.te-audio-box strong{font-size:14px;color:#251e44}
+.te-audio-box audio{width:100%;max-width:500px}
+.te-audio-box a{color:#3d258d;font-weight:700;font-size:13px;text-decoration:underline;width:fit-content}
+.te-audio-empty{color:#41485d;font-size:13px;line-height:1.7;background:#f5f3fb;border-radius:10px;padding:12px}
+.toeic-submenu-children{display:grid;gap:3px;margin:2px 0 5px 17px;padding-left:9px;border-left:2px solid #dcd4f4}
+#english-study-menu .toeic-submenu-child{min-height:34px;padding:8px 9px;font-size:11px;line-height:1.35}
+@media(max-width:760px){
+  .te-home-grid{grid-template-columns:1fr;gap:10px}
+  .te-home-card{padding:18px;min-height:105px}
+  .te-types{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .te-types button{min-height:62px}
+  .te-type-card,.te-start-info,.te-result-review{padding:17px}
+  .te-exam-note{flex-wrap:wrap}
+  .te-exam-note .te-secondary{width:100%}
+  .te-result-summary{gap:6px}
+  .te-result-summary>div{padding:14px 5px}
+  .te-result-summary span{font-size:11px}
+  .te-start-actions .te-primary,.te-start-actions .te-secondary{width:100%}
+  .opic-menu-children{max-height:calc(75vh - env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain}
+  #english-study-menu .toeic-submenu-child{min-height:42px;padding:9px 12px;font-size:12px}
+  .toeic-submenu-children{margin-left:13px}
+}
