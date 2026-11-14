@@ -105,7 +105,7 @@
               </button>
             </div>
             <div class="opic-menu-children" id="opic-menu-children" role="group" aria-label="스피킹 대비 하위 메뉴">
-              <button class="nav-item opic-menu-child" data-page="speaking" type="button">
+              <button class="nav-item opic-menu-child" data-page="opic-home" type="button">
                 <span class="nav-icon" aria-hidden="true">🎤</span><span>오픽 (OPIc)</span>
               </button>
               <button class="nav-item opic-menu-child" data-page="toeic-speaking" type="button" aria-label="토익스피킹 학습 화면">
@@ -244,7 +244,7 @@
 <button class="study-hub-card" data-page="english-expression-player" type="button"><span class="study-hub-icon" aria-hidden="true">▶</span><span class="study-hub-copy"><strong>표현 재생</strong><small>표현·뜻·예문을 순서대로 듣기</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
 <button class="study-hub-card" data-page="verb-forms" type="button"><span class="study-hub-icon" aria-hidden="true">↻</span><span class="study-hub-copy"><strong>동사 변화</strong><small>기본형부터 과거·과거분사까지</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
 <button class="study-hub-card" data-page="english-game" type="button"><span class="study-hub-icon" aria-hidden="true">🎮</span><span class="study-hub-copy"><strong>연습 게임</strong><small>뜻·듣기·철자·회화 연습</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button>
-<button class="study-hub-card" data-page="speaking" type="button"><span class="study-hub-icon" aria-hidden="true">🎤</span><span class="study-hub-copy"><strong>스피킹 대비</strong><small>기초 답변·주제별 질문·실전 연습</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button></div>
+<button class="study-hub-card" data-page="speaking" type="button"><span class="study-hub-icon" aria-hidden="true">🎤</span><span class="study-hub-copy"><strong>스피킹 대비</strong><small>오픽·토익스피킹 선택하기</small></span><span class="study-hub-arrow" aria-hidden="true">›</span></button></div>
 </section>
 <section class="study-hub" id="korean-study-hub" aria-label="한글공부 학습 메뉴" hidden>
   <button class="bookmark-button" data-page="home" type="button">← 홈</button>
@@ -512,13 +512,39 @@
         <p class="verb-note">불규칙 동사는 과거형과 과거분사를 함께 익혀 보세요. 규칙 동사는 보통 동사원형에 <b>-ed</b>를 붙입니다.</p>
       </section>
 
-      <section class="speaking-section opic-section" id="speaking-section" hidden>
+      <section class="speaking-choice-section opic-section" id="speaking-choice-section" hidden>
         <div class="player-heading">
           <span class="eyebrow section-eyebrow">ENGLISH SPEAKING PRACTICE</span>
+          <h1 class="page-title">스피킹 대비</h1>
+          <p>어떤 시험을 준비하나요? 오픽 또는 토익스피킹을 선택해 학습을 시작하세요.</p>
+        </div>
+        <div class="speaking-choice-grid" role="group" aria-label="스피킹 시험 선택">
+          <button class="speaking-choice-card" data-page="opic-home" type="button">
+            <span class="speaking-choice-icon" aria-hidden="true">🎤</span>
+            <span class="speaking-choice-copy"><strong>오픽 (OPIc)</strong><small>기초 답변 · 주제별 질문 · 실전 연습</small></span>
+            <span class="speaking-choice-arrow" aria-hidden="true">›</span>
+          </button>
+          <button class="speaking-choice-card" data-page="toeic-speaking" type="button">
+            <span class="speaking-choice-icon" aria-hidden="true">🎙️</span>
+            <span class="speaking-choice-copy"><strong>토익스피킹</strong><small>왕초보용 IL · IM · IH 예시답변 연습</small></span>
+            <span class="speaking-choice-arrow" aria-hidden="true">›</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="speaking-section opic-section" id="speaking-section" hidden>
+        <div class="player-heading">
+          <span class="eyebrow section-eyebrow">ENGLISH SPEAKING · OPIc</span>
           <h1 class="page-title">오픽 (OPIc)</h1>
           <p>오픽 기초 답변부터 주제별 질문과 실전 연습까지, 기존 학습 기능을 이어서 사용해요.</p>
         </div>
         <div id="speaking-hub-root"></div>
+        <!-- Keep existing OPIc in-app navigation hooks working without exposing extra global menu items. -->
+        <div hidden aria-hidden="true">
+          <button class="nav-item" data-page="opic-basic" type="button" tabindex="-1"></button>
+          <button class="nav-item" data-page="opic" type="button" tabindex="-1"></button>
+          <button class="nav-item" data-page="opic-mock" type="button" tabindex="-1"></button>
+        </div>
       </section>
 
       <section class="toeic-section" id="toeic-speaking-section" hidden>
