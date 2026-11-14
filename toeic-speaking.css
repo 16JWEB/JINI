@@ -53,3 +53,23 @@
   .ts-answer-divider{background:#514663}
   .ts-hint,.ts-answer-label,.ts-kicker{color:#c8b8ff}
 }
+
+/* Speaking exam selection — shown before the existing OPIc and TOEIC study pages. */
+.speaking-choice-section[hidden]{display:none!important}
+.speaking-choice-section{padding:28px 0 50px}
+.speaking-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;max-width:920px;margin-top:24px}
+.speaking-choice-card{display:flex;align-items:center;gap:16px;min-width:0;min-height:156px;padding:25px;border:1px solid var(--line,#e5e1ee);border-radius:20px;background:var(--card,#fff);color:var(--ink,#25273b);font:inherit;text-align:left;cursor:pointer;box-shadow:0 7px 24px #3c385010;transition:transform .15s,border-color .15s,box-shadow .15s}
+.speaking-choice-card:hover{transform:translateY(-2px);border-color:#9487db;box-shadow:0 12px 28px #3c385020}
+.speaking-choice-card:focus-visible{outline:3px solid #826fdf;outline-offset:3px}
+.speaking-choice-icon{display:flex;align-items:center;justify-content:center;flex:0 0 58px;width:58px;height:58px;border-radius:17px;background:var(--purple-soft,#f0ebff);font-size:29px}
+.speaking-choice-copy{display:flex;flex:1;flex-direction:column;gap:8px;min-width:0}
+.speaking-choice-copy strong{font-size:20px;line-height:1.35}
+.speaking-choice-copy small{font-size:13px;line-height:1.7;color:var(--muted,#77738d)}
+.speaking-choice-arrow{font-size:28px;color:var(--purple,#6752ba);font-weight:700}
+@media(max-width:760px){
+  .speaking-choice-section{padding:18px 0 40px}
+  .speaking-choice-grid{grid-template-columns:1fr;gap:12px}
+  .speaking-choice-card{min-height:112px;padding:18px}
+  .speaking-choice-icon{flex-basis:52px;width:52px;height:52px;font-size:26px}
+  .speaking-choice-copy strong{font-size:18px}
+}
