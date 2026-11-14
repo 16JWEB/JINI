@@ -331,7 +331,7 @@
   function loadStudyStates() {
     try {
       const saved = JSON.parse(window.localStorage.getItem(STUDY_STATE_KEY) || "null");
-      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-expression-player", "english-game", "speaking", "opic-home", "toeic-speaking", "opic", "opic-basic", "opic-mock"];
+      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-expression-player", "english-game", "speaking", "opic-home", "toeic-speaking", "toeic-basic", "toeic-types", "toeic-mock", "toeic-results", "opic", "opic-basic", "opic-mock"];
       if (!saved) return { english: null, korean: null, lastStudy: null };
       function isValidState(state) {
         return state && validPages.includes(state.page);
@@ -413,7 +413,7 @@
   }
 
   function saveStudyState() {
-    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-expression-player", "english-game", "speaking", "opic-home", "toeic-speaking", "opic", "opic-basic", "opic-mock"];
+    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-expression-player", "english-game", "speaking", "opic-home", "toeic-speaking", "toeic-basic", "toeic-types", "toeic-mock", "toeic-results", "opic", "opic-basic", "opic-mock"];
     if (restoringStudyState || !validPages.includes(currentPageView)) return;
     try {
       const state = {
@@ -539,6 +539,10 @@
         "speaking": "스피킹 대비",
         "opic-home": "오픽 (OPIc)",
         "toeic-speaking": "토익스피킹",
+        "toeic-basic": "토익스피킹 기초 답변",
+        "toeic-types": "토익스피킹 유형별 연습",
+        "toeic-mock": "토익스피킹 모의고사",
+        "toeic-results": "토익스피킹 결과·복습",
         "opic": "주제별 질문 목록",
         "opic-basic": "기초 답변 훈련",
         "opic-mock": "오픽 실전 연습",
@@ -1591,7 +1595,8 @@
     const showingSpeaking = page === "speaking";
     const showingOpicHome = page === "opic-home";
     const showingOpic = page === "opic" || page === "opic-basic" || page === "opic-mock";
-    const showingToeic = page === "toeic-speaking";
+    const showingToeic = ["toeic-speaking", "toeic-basic", "toeic-types", "toeic-mock", "toeic-results"].includes(page);
+    const showingToeicHome = page === "toeic-speaking";
     const koreanStudy = currentStudy === "korean";
     document.querySelector(".sidebar").dataset.study = (showingHome || showingStudyInfo || showingSync) ? "home" : currentStudy;
     document.getElementById("home-section").hidden = !showingHome;
@@ -1613,11 +1618,16 @@
     document.getElementById("opic-basic-section").hidden = page !== "opic-basic";
     document.getElementById("opic-mock-section").hidden = page !== "opic-mock";
     const toeicSection = document.getElementById("toeic-speaking-section");
-    if (toeicSection) toeicSection.hidden = !showingToeic;
+    if (toeicSection) toeicSection.hidden = !showingToeicHome;
+    ["toeic-basic", "toeic-types", "toeic-mock", "toeic-results"].forEach(function (name) {
+      const section = document.getElementById(name + "-section");
+      if (section) section.hidden = page !== name;
+    });
     document.querySelector(".page-footer").hidden = showingHome || showingStudyMenu || showingStudyInfo || showingSync || showingSpeaking || showingOpicHome || showingOpic || showingToeic;
     document.querySelectorAll(".nav-item[data-page]").forEach(function (button) {
       button.classList.toggle("active", button.dataset.page === page ||
-        (button.dataset.page === "speaking" && (showingOpicHome || showingOpic || showingToeic)));
+        (button.dataset.page === "speaking" && (showingOpicHome || showingOpic || showingToeic)) ||
+        (button.dataset.page === "toeic-speaking" && showingToeic));
     });
     document.getElementById("sidebar-foot").innerHTML = koreanStudy ?
       "YOUR DAILY KOREAN<br><span>베트남어로 배우는 한국어</span>" :
@@ -1628,7 +1638,7 @@
     breadcrumbLevel.textContent = (showingHome || showingStudyMenu || showingStudyInfo || showingSync) ? "" : showingEssentialExpressions ? "필수 표현" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
       showingPlayer ? (playingExpressions || playingEnglishExpressions ? "표현 재생" : koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
-      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비" : showingOpicHome ? "스피킹 대비 / 오픽" : showingToeic ? "스피킹 대비 / 토익스피킹" : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : page === "opic-mock" ? "스피킹 대비 / 실전 연습" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
+      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비" : showingOpicHome ? "스피킹 대비 / 오픽" : showingToeic ? (page === "toeic-basic" ? "토익스피킹 / 기초 답변" : page === "toeic-types" ? "토익스피킹 / 유형별 연습" : page === "toeic-mock" ? "토익스피킹 / 모의고사" : page === "toeic-results" ? "토익스피킹 / 결과·복습" : "스피킹 대비 / 토익스피킹") : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : page === "opic-mock" ? "스피킹 대비 / 실전 연습" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
     document.getElementById("section-title").textContent = "필수 단어";
     if (showingExpressions) document.getElementById("section-title").textContent = "일상생활 표현";
     document.querySelector(".bookmark-toolbar").hidden = showingExpressions;
@@ -1760,6 +1770,7 @@
   function parentStudyPage(page) {
     if (["study-menu", "ko-study-menu", "study-info"].includes(page)) return "home";
     if (page === "sync") return syncReturnPage && syncReturnPage !== "sync" ? syncReturnPage : "home";
+    if (["toeic-basic", "toeic-types", "toeic-mock", "toeic-results"].includes(page)) return "toeic-speaking";
     if (page === "toeic-speaking" || page === "opic-home") return "speaking";
     if (page === "opic-basic") return "opic";
     if (page === "opic" || page === "opic-mock") return "opic-home";
