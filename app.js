@@ -331,7 +331,7 @@
   function loadStudyStates() {
     try {
       const saved = JSON.parse(window.localStorage.getItem(STUDY_STATE_KEY) || "null");
-      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-expression-player", "english-game", "speaking", "opic", "opic-basic", "opic-mock"];
+      const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-expression-player", "english-game", "speaking", "opic-home", "toeic-speaking", "opic", "opic-basic", "opic-mock"];
       if (!saved) return { english: null, korean: null, lastStudy: null };
       function isValidState(state) {
         return state && validPages.includes(state.page);
@@ -413,7 +413,7 @@
   }
 
   function saveStudyState() {
-    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-expression-player", "english-game", "speaking", "opic", "opic-basic", "opic-mock"];
+    const validPages = ["vocabulary", "ko-vocabulary", "player", "ko-player", "ko-expressions", "ko-expression-player", "ko-game", "verb-forms", "english-expressions", "english-expression-player", "english-game", "speaking", "opic-home", "toeic-speaking", "opic", "opic-basic", "opic-mock"];
     if (restoringStudyState || !validPages.includes(currentPageView)) return;
     try {
       const state = {
@@ -537,6 +537,8 @@
           (state.playerWord || playerItemNumber + "번째 표현"),
         "english-game": "영어 연습 게임",
         "speaking": "스피킹 대비",
+        "opic-home": "오픽 (OPIc)",
+        "toeic-speaking": "토익스피킹",
         "opic": "주제별 질문 목록",
         "opic-basic": "기초 답변 훈련",
         "opic-mock": "오픽 실전 연습",
@@ -1587,6 +1589,7 @@
     const showingKoreanGame = page === "ko-game";
     const showingEnglishGame = page === "english-game";
     const showingSpeaking = page === "speaking";
+    const showingOpicHome = page === "opic-home";
     const showingOpic = page === "opic" || page === "opic-basic" || page === "opic-mock";
     const showingToeic = page === "toeic-speaking";
     const koreanStudy = currentStudy === "korean";
@@ -1603,27 +1606,29 @@
     document.getElementById("korean-game-section").hidden = !showingKoreanGame;
     document.getElementById("english-game-section").hidden = !showingEnglishGame;
     const speakingSection = document.getElementById("speaking-section");
-    if (speakingSection) speakingSection.hidden = !showingSpeaking;
+    if (speakingSection) speakingSection.hidden = !showingOpicHome;
+    const speakingChoiceSection = document.getElementById("speaking-choice-section");
+    if (speakingChoiceSection) speakingChoiceSection.hidden = !showingSpeaking;
     document.getElementById("opic-list-section").hidden = page !== "opic";
     document.getElementById("opic-basic-section").hidden = page !== "opic-basic";
     document.getElementById("opic-mock-section").hidden = page !== "opic-mock";
     const toeicSection = document.getElementById("toeic-speaking-section");
     if (toeicSection) toeicSection.hidden = !showingToeic;
-    document.querySelector(".page-footer").hidden = showingHome || showingStudyMenu || showingStudyInfo || showingSync || showingSpeaking || showingOpic || showingToeic;
+    document.querySelector(".page-footer").hidden = showingHome || showingStudyMenu || showingStudyInfo || showingSync || showingSpeaking || showingOpicHome || showingOpic || showingToeic;
     document.querySelectorAll(".nav-item[data-page]").forEach(function (button) {
       button.classList.toggle("active", button.dataset.page === page ||
-        (button.dataset.page === "speaking" && showingOpic));
+        (button.dataset.page === "speaking" && (showingOpicHome || showingOpic || showingToeic)));
     });
     document.getElementById("sidebar-foot").innerHTML = koreanStudy ?
       "YOUR DAILY KOREAN<br><span>베트남어로 배우는 한국어</span>" :
       "YOUR DAILY ENGLISH<br><span>기초부터 차근차근</span>";
     document.getElementById("breadcrumb-section").textContent =
-      showingHome ? "홈" : showingStudyInfo ? "나의 학습정보" : showingSync ? "학습정보 동기화 (테스트 중)" : showingStudyMenu ? (koreanStudy ? "한글공부" : "영어공부") : koreanStudy ? "AI 한글공부" : (showingEnglishGame || showingSpeaking || showingOpic || showingToeic || showingEssentialExpressions || playingEnglishExpressions) ? "AI 영어공부" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
+      showingHome ? "홈" : showingStudyInfo ? "나의 학습정보" : showingSync ? "학습정보 동기화 (테스트 중)" : showingStudyMenu ? (koreanStudy ? "한글공부" : "영어공부") : koreanStudy ? "AI 한글공부" : (showingEnglishGame || showingSpeaking || showingOpicHome || showingOpic || showingToeic || showingEssentialExpressions || playingEnglishExpressions) ? "AI 영어공부" : showingVocabulary ? "단어 학습" : page === "player" ? "듣기 학습" : "문법 학습";
     document.getElementById("breadcrumb-divider").hidden = showingHome || showingStudyMenu || showingStudyInfo || showingSync;
     breadcrumbLevel.textContent = (showingHome || showingStudyMenu || showingStudyInfo || showingSync) ? "" : showingEssentialExpressions ? "필수 표현" : showingVocabulary ?
       (koreanStudy ? "필수 단어" : levelNames[activeLevel]) :
       showingPlayer ? (playingExpressions || playingEnglishExpressions ? "표현 재생" : koreanStudy ? "단어 재생" : playerLevel + " 단어 재생") :
-      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비 / 오픽" : showingToeic ? "스피킹 대비 / 토익스피킹" : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : page === "opic-mock" ? "스피킹 대비 / 실전 연습" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
+      showingLanguagePacks ? "언어팩 설치" : showingKoreanGame ? "연습 게임" : showingEnglishGame ? "연습 게임" : showingSpeaking ? "스피킹 대비" : showingOpicHome ? "스피킹 대비 / 오픽" : showingToeic ? "스피킹 대비 / 토익스피킹" : showingOpic ? (page === "opic-basic" ? "스피킹 대비 / 기초 답변 훈련" : page === "opic-mock" ? "스피킹 대비 / 실전 연습" : "스피킹 대비 / 주제별 질문 목록") : "동사 변화";
     document.getElementById("section-title").textContent = "필수 단어";
     if (showingExpressions) document.getElementById("section-title").textContent = "일상생활 표현";
     document.querySelector(".bookmark-toolbar").hidden = showingExpressions;
@@ -1755,9 +1760,9 @@
   function parentStudyPage(page) {
     if (["study-menu", "ko-study-menu", "study-info"].includes(page)) return "home";
     if (page === "sync") return syncReturnPage && syncReturnPage !== "sync" ? syncReturnPage : "home";
-    if (page === "toeic-speaking") return "study-menu";
+    if (page === "toeic-speaking" || page === "opic-home") return "speaking";
     if (page === "opic-basic") return "opic";
-    if (page === "opic" || page === "opic-mock") return "speaking";
+    if (page === "opic" || page === "opic-mock") return "opic-home";
     if (page === "ko-language-packs") return "ko-player";
     return currentStudy === "korean" ? "ko-study-menu" : "study-menu";
   }
