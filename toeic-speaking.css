@@ -45,14 +45,6 @@
   .ts-card-actions{gap:7px}
   .ts-next-button{padding:10px 11px;font-size:12px}
 }
-@media(prefers-color-scheme:dark){
-  .ts-intro{background:#28243e;border-color:#4c426a}
-  .ts-intro p,.ts-translation,.ts-level-heading span,.ts-note{color:#bbb8cf}
-  .ts-pick.is-active,.ts-info,.ts-answer{background:#302943;border-color:#7163a0}
-  .ts-info,#ts-answer-ko{color:#d3cede}
-  .ts-answer-divider{background:#514663}
-  .ts-hint,.ts-answer-label,.ts-kicker{color:#c8b8ff}
-}
 
 /* Speaking exam selection — shown before the existing OPIc and TOEIC study pages. */
 .speaking-choice-section[hidden]{display:none!important}
@@ -72,4 +64,45 @@
   .speaking-choice-card{min-height:112px;padding:18px}
   .speaking-choice-icon{flex-basis:52px;width:52px;height:52px;font-size:26px}
   .speaking-choice-copy strong{font-size:18px}
+}
+
+
+/* High-contrast beginner reading mode.
+   JINI uses a light palette even when the phone is in system dark mode.
+   Keep all TOEIC card backgrounds and text colors paired explicitly. */
+.toeic-section{color-scheme:light;color:#191e32}
+.toeic-section .player-heading,
+.toeic-section .page-title{color:#191e32}
+.toeic-section .player-heading p{color:#3b4258}
+.toeic-section .section-eyebrow{color:#4a319f}
+.toeic-section .ts-shell{color:#191e32}
+.toeic-section .ts-intro{background:#f3f0ff;border-color:#d5caef}
+.toeic-section .ts-kicker{color:#45308f;font-size:12px}
+.toeic-section .ts-intro h2{color:#191e32}
+.toeic-section .ts-intro p{color:#333a50;font-size:15px}
+.toeic-section .ts-pick{background:#fff;color:#191e32;border-color:#c9c7d9}
+.toeic-section .ts-pick strong{color:#191e32;font-size:15px}
+.toeic-section .ts-pick span{color:#493294;font-size:12px;font-weight:700}
+.toeic-section .ts-pick.is-active{background:#e9e3ff;border-color:#5336aa;box-shadow:0 0 0 1px #5336aa}
+.toeic-section .ts-card{background:#fff;color:#191e32;border-color:#c9c7d9}
+.toeic-section .ts-question-meta{color:#45308f;font-size:13px}
+.toeic-section #ts-question-title{color:#171b2d}
+.toeic-section .ts-translation{color:#353c52;font-size:15px}
+.toeic-section .ts-info{background:#f4f0ff;border-color:#9788c5;color:#30264f;font-size:14px}
+.toeic-section .ts-level-heading strong{color:#171b2d}
+.toeic-section .ts-level-heading span{color:#434962;font-size:13px}
+.toeic-section .ts-level{background:#fff;color:#2d2460;border-color:#8f85ba;font-size:14px}
+.toeic-section .ts-level.is-active{background:#4830a3;color:#fff;border-color:#4830a3}
+.toeic-section .ts-answer{background:#f3f0ff;border-color:#c5b9ec;color:#171b2d}
+.toeic-section .ts-answer-label{color:#45308f;font-size:13px}
+.toeic-section #ts-answer-en{color:#171b2d}
+.toeic-section .ts-answer-divider{background:#c7bddf}
+.toeic-section #ts-answer-ko{color:#30374d;font-size:15px}
+.toeic-section .ts-hint{color:#443665;font-size:13px}
+.toeic-section .ts-next-button{background:#fff;color:#38257f;border-color:#8272b7}
+.toeic-section .ts-next-primary{background:#4830a3;color:#fff;border-color:#4830a3}
+.toeic-section #ts-progress,.toeic-section .ts-note{color:#444b61;font-size:13px}
+@media(max-width:760px){
+  .toeic-section .ts-card{padding:20px}
+  .toeic-section .ts-level{font-size:13px}
 }
