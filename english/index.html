@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="opic.css?v=20261114-speaking-choice-v1">
   <link rel="stylesheet" href="opic-mock.css?v=20261021-page-bottom-spacing-v1">
   <link rel="stylesheet" href="toeic-speaking.css?v=20261114-contrast-v3">
+  <link rel="stylesheet" href="toeic-exam.css?v=20261114-menus-exam-v1">
   <link rel="stylesheet" href="jini-sync.css?v=20261021-usage-breakdown-v1">
   <link rel="stylesheet" href="navigation.css?v=20261021-site-data-usage-v1">
 </head>
@@ -108,9 +109,15 @@
               <button class="nav-item opic-menu-child" data-page="opic-home" type="button">
                 <span class="nav-icon" aria-hidden="true">🎤</span><span>오픽 (OPIc)</span>
               </button>
-              <button class="nav-item opic-menu-child" data-page="toeic-speaking" type="button" aria-label="토익스피킹 학습 화면">
+              <button class="nav-item opic-menu-child" data-page="toeic-speaking" type="button" aria-label="토익스피킹 학습 메뉴">
                 <span class="nav-icon" aria-hidden="true">🎙️</span><span>토익스피킹</span>
               </button>
+              <div class="toeic-submenu-children" role="group" aria-label="토익스피킹 하위 메뉴">
+                <button class="nav-item opic-menu-child toeic-submenu-child" data-page="toeic-basic" type="button"><span>기초 답변 훈련</span></button>
+                <button class="nav-item opic-menu-child toeic-submenu-child" data-page="toeic-types" type="button"><span>유형별 문제 연습</span></button>
+                <button class="nav-item opic-menu-child toeic-submenu-child" data-page="toeic-mock" type="button"><span>실전 모의고사</span></button>
+                <button class="nav-item opic-menu-child toeic-submenu-child" data-page="toeic-results" type="button"><span>시험 결과·복습</span></button>
+              </div>
             </div>
           </div>
         </div>
@@ -549,11 +556,38 @@
 
       <section class="toeic-section" id="toeic-speaking-section" hidden>
         <div class="player-heading">
-          <span class="eyebrow section-eyebrow">TOEIC SPEAKING · BEGINNER</span>
+          <span class="eyebrow section-eyebrow">TOEIC SPEAKING · YOUR STUDY PATH</span>
           <h1 class="page-title">토익스피킹</h1>
-          <p>왕초보도 시작할 수 있는 예시답변 학습. IL과 IM을 목표로 연습하고 IH 표현은 참고해 보세요.</p>
+          <p class="te-home-intro">기초부터 실전까지, 원하는 학습 메뉴를 선택해 보세요. IL·IM 답변을 목표로 하고 IH는 참고 표현으로 활용해요.</p>
+        </div>
+        <div class="te-home-grid" role="group" aria-label="토익스피킹 학습 메뉴">
+          <button class="te-home-card" data-page="toeic-basic" type="button"><span class="te-home-icon" aria-hidden="true">📘</span><span class="te-home-copy"><strong>기초 답변 훈련</strong><small>왕초보용 IL·IM·IH 예시답변과 한국어 해석</small></span></button>
+          <button class="te-home-card" data-page="toeic-types" type="button"><span class="te-home-icon" aria-hidden="true">📝</span><span class="te-home-copy"><strong>유형별 문제 연습</strong><small>문장 읽기부터 의견 제시까지 5개 유형</small></span></button>
+          <button class="te-home-card" data-page="toeic-mock" type="button"><span class="te-home-icon" aria-hidden="true">🎙️</span><span class="te-home-copy"><strong>실전 모의고사</strong><small>11문항 · 준비·답변 타이머 · 브라우저 녹음</small></span></button>
+          <button class="te-home-card" data-page="toeic-results" type="button"><span class="te-home-icon" aria-hidden="true">📊</span><span class="te-home-copy"><strong>시험 결과·복습</strong><small>녹음 재생·다운로드 · 답변 비교 · 학습 기록</small></span></button>
+        </div>
+        <p class="te-fineprint">JINI 자체 연습문제로 만든 무료 학습 기능이며 공식 ETS 시험·채점 서비스가 아니에요.</p>
+      </section>
+
+      <section class="toeic-section" id="toeic-basic-section" hidden>
+        <div class="player-heading">
+          <span class="eyebrow section-eyebrow">TOEIC SPEAKING · BEGINNER</span>
+          <h1 class="page-title">기초 답변 훈련</h1>
+          <p>먼저 짧은 문장을 익히고 IL → IM 목표 답변까지 늘려 보세요. IH는 참고용이에요.</p>
         </div>
         <div id="toeic-speaking-root"></div>
+      </section>
+
+      <section class="toeic-section" id="toeic-types-section" hidden>
+        <div id="toeic-types-root"></div>
+      </section>
+
+      <section class="toeic-section" id="toeic-mock-section" hidden>
+        <div id="toeic-mock-root"></div>
+      </section>
+
+      <section class="toeic-section" id="toeic-results-section" hidden>
+        <div id="toeic-results-root"></div>
       </section>
 
       <section class="english-game-section" id="english-game-section" hidden>
@@ -810,7 +844,7 @@
   <div id="jini-level-up-toast" role="status" aria-live="polite" hidden></div>
   <script src="study-time.js?v=20261022-sync-time-refresh-v1"></script>
   <!-- Learning data is fetched only when entering a study/detail screen. -->
-  <script id="jini-study-script-manifest" type="application/json">["words-elementary-extra.js?v=20261017-final-review","words-middle-extra.js?v=20261017-final-review","words-high-extra.js?v=20261017-final-review","words.js?v=20261017-sentence-choices","korean-words.js?v=20261017-final-review","korean-words-extra.js?v=20261017-final-review","korean-words-more.js?v=20261017-final-review","korean-words-essential.js?v=20261018-essential-korean","korean-words-daily.js?v=20261018-everyday-100-v1","korean-expressions.js?v=20261017-final-review","korean-expressions-extra.js?v=20261017-final-review","korean-expressions-more.js?v=20261017-final-review","korean-expressions-daily-100.js?v=20261018-daily-100-v1","content-review.js?v=20261017-final-review","content-review-part2.js?v=20261017-final-review","content-curated.js?v=20261017-final-review","words-everyday-reviewed-01.js?v=20261017-life-reviewed-1","words-everyday-reviewed-02.js?v=20261017-life-reviewed-1","words-everyday-reviewed-03.js?v=20261017-life-reviewed-1","words-everyday-reviewed-04.js?v=20261017-life-reviewed-2","words-everyday-reviewed-05.js?v=20261017-life-reviewed-2","words-everyday-reviewed-06.js?v=20261017-life-reviewed-2","words-everyday-reviewed-07.js?v=20261017-life-reviewed-2","words-everyday-reviewed-08.js?v=20261017-life-reviewed-2","words-everyday-reviewed-09.js?v=20261017-life-reviewed-2","words-everyday-reviewed-10.js?v=20261017-life-reviewed-2","words-everyday-reviewed-11.js?v=20261020-vocab-60-fixed-v2","words-everyday-reviewed-12.js?v=20261020-daily-common-100-fixed-v2","words-everyday-reviewed-13.js?v=20261020-daily-common-100-batch13-v1","words-everyday-reviewed-14.js?v=20261020-essential-100-merged-v3","korean-learning-order-data.js?v=20261021-korean-curriculum-v1","english-learning-order-data.js?v=20261020-500-expressions-merge-v1","app.js?v=20261114-speaking-choice-v1","english-expressions-extra.js?v=20261018-extra-100-v1","english-expressions-extra-50.js?v=20261020-extra-50-v1","english-expressions-extra-50-part2.js?v=20261020-extra-100-v1","english-expressions-extra-100.js?v=20261020-expressions-500-v1","english-expressions.js?v=20261021-study-consistency-v1","korean-game.js?v=20261021-compact-game-menu-v3","english-game.js?v=20261021-compact-game-menu-v3","opic-data.js?v=20261017-opic","opic.js?v=20261021-compact-speaking-menu-v1","opic-mock-data.js?v=20261017-mock-v1","opic-mock.js?v=20261017-mock-v2","toeic-speaking.js?v=20261114-beginner-v1"]</script>
+  <script id="jini-study-script-manifest" type="application/json">["words-elementary-extra.js?v=20261017-final-review","words-middle-extra.js?v=20261017-final-review","words-high-extra.js?v=20261017-final-review","words.js?v=20261017-sentence-choices","korean-words.js?v=20261017-final-review","korean-words-extra.js?v=20261017-final-review","korean-words-more.js?v=20261017-final-review","korean-words-essential.js?v=20261018-essential-korean","korean-words-daily.js?v=20261018-everyday-100-v1","korean-expressions.js?v=20261017-final-review","korean-expressions-extra.js?v=20261017-final-review","korean-expressions-more.js?v=20261017-final-review","korean-expressions-daily-100.js?v=20261018-daily-100-v1","content-review.js?v=20261017-final-review","content-review-part2.js?v=20261017-final-review","content-curated.js?v=20261017-final-review","words-everyday-reviewed-01.js?v=20261017-life-reviewed-1","words-everyday-reviewed-02.js?v=20261017-life-reviewed-1","words-everyday-reviewed-03.js?v=20261017-life-reviewed-1","words-everyday-reviewed-04.js?v=20261017-life-reviewed-2","words-everyday-reviewed-05.js?v=20261017-life-reviewed-2","words-everyday-reviewed-06.js?v=20261017-life-reviewed-2","words-everyday-reviewed-07.js?v=20261017-life-reviewed-2","words-everyday-reviewed-08.js?v=20261017-life-reviewed-2","words-everyday-reviewed-09.js?v=20261017-life-reviewed-2","words-everyday-reviewed-10.js?v=20261017-life-reviewed-2","words-everyday-reviewed-11.js?v=20261020-vocab-60-fixed-v2","words-everyday-reviewed-12.js?v=20261020-daily-common-100-fixed-v2","words-everyday-reviewed-13.js?v=20261020-daily-common-100-batch13-v1","words-everyday-reviewed-14.js?v=20261020-essential-100-merged-v3","korean-learning-order-data.js?v=20261021-korean-curriculum-v1","english-learning-order-data.js?v=20261020-500-expressions-merge-v1","app.js?v=20261114-speaking-choice-v1","english-expressions-extra.js?v=20261018-extra-100-v1","english-expressions-extra-50.js?v=20261020-extra-50-v1","english-expressions-extra-50-part2.js?v=20261020-extra-100-v1","english-expressions-extra-100.js?v=20261020-expressions-500-v1","english-expressions.js?v=20261021-study-consistency-v1","korean-game.js?v=20261021-compact-game-menu-v3","english-game.js?v=20261021-compact-game-menu-v3","opic-data.js?v=20261017-opic","opic.js?v=20261021-compact-speaking-menu-v1","opic-mock-data.js?v=20261017-mock-v1","opic-mock.js?v=20261017-mock-v2","toeic-speaking.js?v=20261114-beginner-v1","toeic-exam.js?v=20261114-menus-exam-v1"]</script>
   <script src="jini-mode.js?v=20261114-speaking-routes-fix-v1"></script>
   <script src="jini-study-loader.js?v=20261021-lightweight-study-menu-v3"></script>
   <script src="network-usage.js?v=20261021-usage-breakdown-v1"></script>
